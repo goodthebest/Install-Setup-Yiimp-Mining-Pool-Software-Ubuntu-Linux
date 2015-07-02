@@ -16,15 +16,16 @@ screen -dmS loop2 /var/web/loop2.sh
 screen -dmS blocks /var/web/blocks.sh
 
 screen -dmS x11 /var/stratum/run.sh x11
-screen -dmS x13 /var/stratum/run.sh x13
-screen -dmS x15 /var/stratum/run.sh x15
+#screen -dmS x13 /var/stratum/run.sh x13
+#screen -dmS x15 /var/stratum/run.sh x15
 screen -dmS sha /var/stratum/run.sh sha
-screen -dmS scrypt1 /var/stratum/run.sh scrypt
-screen -dmS scrypt2 /var/stratum/run.sh scryptn
+#screen -dmS scrypt1 /var/stratum/run.sh scrypt
+#screen -dmS scrypt2 /var/stratum/run.sh scryptn
 screen -dmS neo /var/stratum/run.sh neo
 screen -dmS quark /var/stratum/run.sh quark
-screen -dmS qubit /var/stratum/run.sh qubit
+#screen -dmS qubit /var/stratum/run.sh qubit
 screen -dmS lyra2 /var/stratum/run.sh lyra2
+screen -dmS zr5 /var/stratum/run.sh zr5
 
-exit 0
+# exit 0
 

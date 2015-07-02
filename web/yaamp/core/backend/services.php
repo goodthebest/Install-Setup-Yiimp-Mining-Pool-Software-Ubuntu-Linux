@@ -20,6 +20,7 @@ function BackendUpdateServices()
 		12=>'quark',
 
 		111=>'c11',
+		112=>'zr5',
 	);
 
 	$res = fetch_url('https://www.nicehash.com/api?method=stats.global.current');

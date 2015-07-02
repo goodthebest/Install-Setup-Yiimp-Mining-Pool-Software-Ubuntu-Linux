@@ -135,7 +135,7 @@ void sha256_double_hash_hex(const char *input, char *output, unsigned int len);
 #include "algos/keccak.h"
 
 //#include "algos/whirlpoolx.h"
-//#include "algos/zr5.h"
+#include "algos/zr5.h"
 //#include "jha.h"
 //#include "hash/m7m.h"
 

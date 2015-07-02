@@ -6,7 +6,7 @@
 
 <p>Here's how you can achieve automatic switching to the best algo.</p>
 
-<p style="width: 700px;">Use the password parameter to define a set of algos you want to mine. Your miner
+<p style="width: 700px;">Use the password parameter to define a set of algos you want to mine. Your miner 
 connection will close (and move to your next configured algo) if the algo is not the best profitable of your set.</p>
 
 <pre class="main-left-box" style='padding: 3px; font-size: .9em; background-color: #ffffee; font-family: monospace;'>
@@ -56,12 +56,13 @@ is the reference with a factor of 1.</p>
 <pre class="main-left-box" style='padding: 3px; font-size: .9em; background-color: #ffffee; font-family: monospace;'>
 'scrypt'	=> 1,
 'scryptn'	=> 0.5,
-'c11'		=> 5.5,
+'c11'		=> 2.0,
 'x11'		=> 5.5,
 'x13'		=> 3.9,
 'x14'		=> 3.7,
 'x15'		=> 3.5,
 'nist5'		=> 15,
+'zr5'		=> 15,
 'neoscrypt'	=> 0.3,
 'lyra2'		=> 1.3,
 'quark'		=> 6,
