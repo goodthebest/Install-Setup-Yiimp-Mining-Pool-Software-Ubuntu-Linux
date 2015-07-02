@@ -24,6 +24,7 @@ define('YAAMP_ALLOW_EXCHANGE', false);
 define('YAAMP_BTCADDRESS', '1Auhps1mHZQpoX4mCcVL8odU81VakZQ6dR');
 define('YAAMP_SITE_URL', 'yiimp.ccminer.org');
 define('YAAMP_ADMIN_EMAIL', 'yiimp@spam.la');
+define('YAAMP_ADMIN_IP', '80.236.118.26');
 
 define('YAAMP_USE_NGINX', false);
 

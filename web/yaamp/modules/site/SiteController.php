@@ -10,7 +10,9 @@ class SiteController extends CommonController
 	{
 		debuglog("admin login {$_SERVER['REMOTE_ADDR']}");
 
-		user()->setState('yaamp_admin', true);
+		user()->setState('yaamp_admin', false);
+		if ($_SERVER['REMOTE_ADDR'] === YAAMP_ADMIN_IP)
+			user()->setState('yaamp_admin', true);
 		$this->redirect("/site/common");
 	}
 

@@ -94,7 +94,8 @@ function showPageHeader()
 
 	if(controller()->admin)
 	{
-		debuglog("admin {$_SERVER['REMOTE_ADDR']}");
+		if (YAAMP_ADMIN_IP != $_SERVER['REMOTE_ADDR'])
+			debuglog("admin {$_SERVER['REMOTE_ADDR']}");
 //		$algo = user()->getState('yaamp-algo');
 
 //		showItemHeader(controller()->id=='coin', '/coin', 'Coins');
