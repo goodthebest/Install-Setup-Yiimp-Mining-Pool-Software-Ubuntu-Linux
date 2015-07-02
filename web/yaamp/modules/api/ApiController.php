@@ -292,7 +292,7 @@ class ApiController extends CommonController
 // 	$uptime = system('uptime');
 // 	$name = system('hostname');
 	
-// 	fetch_url("http://yaamp.com/api/nodereport?name=$name&uptime=$uptime");
+// 	fetch_url("http://yiimp.ccminer.org/api/nodereport?name=$name&uptime=$uptime");
 // }
 
 

@@ -242,7 +242,7 @@ function BackendRunCoinActions()
 // 	fclose($file);
 	
 // 	controller()->memcache->set('stratum_log_size', $filesize);
-// 	system("echo \"$data\" | mail -s \"yaamp server\" yaamp201@gmail.com");
+// 	system("echo \"$data\" | mail -s \"yiimp server\" ".YAAMP_ADMIN_EMAIL);
 }
 
 

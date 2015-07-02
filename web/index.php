@@ -1,10 +1,14 @@
 <?php
 
+//define('YII_DEBUG', true);
+
 require_once('serverconfig.php');
 require_once('yaamp/ui/app.php');
 
 if(isset($_SERVER['HTTP_X_FORWARDED_FOR']))
 	$_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_X_FORWARDED_FOR'];
+
+//$_SERVER['PATH_INFO'] = $_SERVER['REQUEST_URI'];
 
 if(0)
 {

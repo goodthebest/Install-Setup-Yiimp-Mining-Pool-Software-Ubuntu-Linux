@@ -10,14 +10,18 @@ function BackendUpdateServices()
 		2=>'scryptn',
 		3=>'x11',
 		4=>'x13',
+		5=>'keccak',
 		6=>'x15',
 		7=>'nist5',
 		8=>'neoscrypt',
 		9=>'lyra2',
+		10=>'whirlx',
 		11=>'qubit',
 		12=>'quark',
+
+		111=>'c11',
 	);
-	
+
 	$res = fetch_url('https://www.nicehash.com/api?method=stats.global.current');
 	if(!$res) return;
 

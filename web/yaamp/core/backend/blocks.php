@@ -226,7 +226,7 @@ function MonitorBTC()
 		
 		$txurl = "https://blockchain.info/tx/{$transaction['txid']}";
 		
-		$b = mail('yaamp201@gmail.com', "withdraw {$transaction['amount']}", 
+		$b = mail(YAAMP_ADMIN_EMAIL, "withdraw {$transaction['amount']}", 
 			"<a href='$txurl'>{$transaction['address']}</a>");
 		
 		if(!$b) debuglog('error sending email');

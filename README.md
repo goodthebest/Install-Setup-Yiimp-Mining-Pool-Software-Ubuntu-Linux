@@ -1,8 +1,8 @@
-#yaamp
+#yiimp - yaamp fork
 
 Required:
 
-	linux, mysql, php, web engine, memcached
+	linux, mysql, php, memcached
 
 Config for nginx:
 
@@ -20,7 +20,7 @@ Config for nginx:
 		include fastcgi_params;
 	}
 
-If you use apache, it should be something like:
+If you use apache, it should be something like (set in web/.htaccess):
 
 	RewriteEngine on
 
@@ -57,7 +57,7 @@ All your coin's config files need to blocknotify their corresponding stratum usi
 
 	blocknotify=/var/stratum/blocknotify yaamp.com:port coinid %s
 
-On the website, go to http://server.com/site/frottedessus to login as admin. You have to change it to something different in the code (web/yaamp/modules/site/SiteController.php).
+On the website, go to http://server.com/site/admintest to login as admin. You have to change it to something different in the code (web/yaamp/modules/site/SiteController.php).
 
 There are logs generated in the /var/stratum folder and /var/log/stratum/debug.log for the php log.
 

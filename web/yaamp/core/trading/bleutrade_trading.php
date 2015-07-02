@@ -184,19 +184,21 @@ function doBleutradeTrading($quick=false)
 	
 	if($savebalance->balance >= 0.2)
 	{
+		$btcaddr = YAAMP_BTCADDRESS; //'14LS7Uda6EZGXLtRrFEZ2kWmarrxobkyu9';
+
 		$amount = $savebalance->balance;	// - 0.0002;
-		debuglog("bleutrade withdraw $amount to 14LS7Uda6EZGXLtRrFEZ2kWmarrxobkyu9");
+		debuglog("bleutrade withdraw $amount to $btcaddr");
 		
 		sleep(1);
 		
-		$res = bleutrade_api_query('account/withdraw', "&currency=BTC&quantity=$amount&address=14LS7Uda6EZGXLtRrFEZ2kWmarrxobkyu9");
+		$res = bleutrade_api_query('account/withdraw', "&currency=BTC&quantity=$amount&address=$btcaddr");
 		debuglog($res);
 		
 		if($res && $res->success)
 		{
 			$withdraw = new db_withdraws;
 			$withdraw->market = 'bleutrade';
-			$withdraw->address = '14LS7Uda6EZGXLtRrFEZ2kWmarrxobkyu9';
+			$withdraw->address = $btcaddr;
 			$withdraw->amount = $amount;
 			$withdraw->time = time();
 			$withdraw->uuid = $res->result->orderid;

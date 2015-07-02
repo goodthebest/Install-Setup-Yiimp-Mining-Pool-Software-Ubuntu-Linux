@@ -5,7 +5,7 @@ require dirname(__FILE__).'/../../ui/lib/pageheader.php';
 $user = getuserparam(getparam('address'));
 if(!$user) return;
 
-$this->pageTitle = "$user->username | yaamp.com";
+$this->pageTitle = "$user->username | yiimp";
 
 $bitcoin = getdbosql('db_coins', "symbol='BTC'");
 

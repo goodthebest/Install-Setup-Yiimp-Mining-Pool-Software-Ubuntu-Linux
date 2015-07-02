@@ -96,7 +96,7 @@ function updateRawCoin($marketname, $symbol, $name='unknown')
 		$coin->created = time();
 		$coin->save();
 		
-		mail('yaamp201@gmail.com', "New coin $symbol", "new coin $symbol ($name) on $marketname");
+		mail(YAAMP_ADMIN_EMAIL, "New coin $symbol", "new coin $symbol ($name) on $marketname");
 		sleep(30);
 	}
 	

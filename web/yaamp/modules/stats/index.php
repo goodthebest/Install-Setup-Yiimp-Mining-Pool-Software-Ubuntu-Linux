@@ -1,5 +1,4 @@
 <?php
-
 $algo = user()->getState('yaamp-algo');
 
 JavascriptFile("/extensions/jqplot/jquery.jqplot.js");

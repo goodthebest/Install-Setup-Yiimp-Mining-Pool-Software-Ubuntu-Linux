@@ -7,9 +7,9 @@ function send_email_alert($name, $title, $message, $t=10)
 	$last = memcache_get(controller()->memcache->memcache, "last_email_sent_$name");
 	if($last + $t*60 > time()) return;
 
-	debuglog("mail('yaamp201@gmail.com', $title, ...)");
+	debuglog("mail('".YAAMP_ADMIN_EMAIL."', $title, ...)");
 	
-	$b = mail('yaamp201@gmail.com', $title, $message);
+	$b = mail(YAAMP_ADMIN_EMAIL, $title, $message);
 	if(!$b) debuglog('error sending email');
 	
 	memcache_set(controller()->memcache->memcache, "last_email_sent_$name", time());

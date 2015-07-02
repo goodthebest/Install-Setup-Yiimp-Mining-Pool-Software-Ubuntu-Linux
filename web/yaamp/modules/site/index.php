@@ -24,12 +24,12 @@ echo <<<END
 <!--  -->
 
 <div class="main-left-box">
-<div class="main-left-title">YET ANOTHER ANONYMOUS MINING POOL</div>
+<div class="main-left-title">YII MINING POOL</div>
 <div class="main-left-inner">
 
 <ul>
 
-<li>YAAMP is multipool multialgo with auto exchange to Bitcoin or any coin we mine.</li>
+<li>YIIMP is multipool multialgo with auto exchange to Bitcoin or any coin we mine.</li>
 <li>We distribute hashpower in real time among the best coins.</li>
 <li>No registration required.</li>
 <li>Just plug in your stratum miner using your bitcoin wallet address as the username.</li> 
@@ -53,7 +53,7 @@ echo <<<END
 
 <li>
 <p class="main-left-box" style='padding: 3px; font-size: .8em; background-color: #ffffee; font-family: monospace;'>
-	-o stratum+tcp://yaamp.com:PORT -u WALLET_ADDRESS -p xx</p>
+	-o stratum+tcp://yiimp.ccminer.org:PORT -u WALLET_ADDRESS -p xx</p>
 </li>
 
 <li>WALLET_ADDRESS can be of any currency we mine or a BTC address.</li>
@@ -76,9 +76,9 @@ echo <<<END
 <li><b>BitcoinTalk</b> - <a href='https://bitcointalk.org/index.php?topic=508786.0' target=_blank >https://bitcointalk.org/index.php?topic=508786.0</a></li>
 <!--li><b>IRC</b> - <a href='http://webchat.freenode.net/?channels=#yaamp' target=_blank >http://webchat.freenode.net/?channels=#yaamp</a></li-->
 		
-<li><b>API</b> - <a href='/site/api'>http://yaamp.com/site/api</a></li>
-<li><b>Difficulty</b> - <a href='/site/diff'>http://yaamp.com/site/diff</a></li>
-<li><b>Algo Switching</b> - <a href='/site/multialgo'>http://yaamp.com/site/multialgo</a></li>
+<li><b>API</b> - <a href='/site/api'>http://yiimp.ccminer.org/site/api</a></li>
+<li><b>Difficulty</b> - <a href='/site/diff'>http://yiimp.ccminer.org/site/diff</a></li>
+<li><b>Algo Switching</b> - <a href='/site/multialgo'>http://yiimp.ccminer.org/site/multialgo</a></li>
 	
 <br>
 

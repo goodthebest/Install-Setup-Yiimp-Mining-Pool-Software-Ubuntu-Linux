@@ -2,7 +2,7 @@
 
 function yaamp_get_algos()
 {
-	return array('sha256', 'scrypt', 'scryptn', 'neoscrypt', 'quark', 'lyra2', 'qubit', 'x11', 'x13', 'x15');
+	return array('sha256', 'scrypt', 'scryptn', 'neoscrypt', 'quark', 'lyra2', 'qubit', 'c11', 'x11', 'x13', 'x15');
 }
 
 function yaamp_get_algo_norm($algo)
@@ -11,6 +11,7 @@ function yaamp_get_algo_norm($algo)
 //		'sha256'	=> 1,
 		'scrypt'	=> 1,
 		'scryptn'	=> 0.5,
+		'c11'		=> 5.5,
 		'x11'		=> 5.5,
 		'x13'		=> 3.9,
 		'x14'		=> 3.7,
@@ -41,6 +42,7 @@ function getAlgoColors($algo)
 		'scrypt'	=> '#c0c0e0',
 		'neoscrypt'	=> '#a0d0f0',
 		'scryptn'	=> '#d0d0d0',
+		'c11'		=> '#f0b0b0',
 		'x11'		=> '#f0f0a0',
 		'x13'		=> '#d0f0c0',
 		'x14'		=> '#a0f0c0',
@@ -62,6 +64,7 @@ function getAlgoPort($algo)
 	$a = array(
 		'sha256'	=> 3333,
 		'scrypt'	=> 3433,
+		'c11'		=> 3573,
 		'x11'		=> 3533,
 		'x13'		=> 3633,
 		'x15'		=> 3733,

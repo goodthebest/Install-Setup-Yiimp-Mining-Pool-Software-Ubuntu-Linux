@@ -18,7 +18,7 @@ echo <<<END
 <meta name="description" content="yet another anonymous mining pool for bitcoin and altcoin with auto profit switch and auto exchange">
 <meta name="keywords" content="anonymous,mining,pool,maxcoin,bitcoin,altcoin,auto,switch,exchange,profit,scrypt,x11,x13,x14,x15,lyra2,lyra2re,neoscrypt,sha256,quark">
 
-<title>yaamp.com</title>
+<title>yiimp</title>
 
 END;
 
@@ -110,8 +110,8 @@ function showPageHeader()
 	$mining = getdbosql('db_mining');
 	$nextpayment = date('H:i', $mining->last_payout+YAAMP_PAYMENTS_FREQ);
 	
-	echo "<span style='font-size: .8em;'>Next Payout: $nextpayment EST</span>";
-	echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&copy; yaamp.com</span>";
+	echo "<span style='font-size: .8em;'>Next Payout: $nextpayment EUST</span>";
+	echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&copy; yiimp.ccminer.org</span>";
 	
 	echo "</div>";
 	echo "</div>";
@@ -122,7 +122,7 @@ function showPageFooter()
 	echo "<div class='footer'>";
 	$year = date("Y", time());
 	
-	echo "<p>&copy; $year. All Rights Reserved. yaamp.com -
+	echo "<p>&copy; $year. All Rights Reserved. yiimp -
 		<a href='/site/terms'>Terms and conditions</a></p>";
 
 	echo "</div><!-- footer -->";

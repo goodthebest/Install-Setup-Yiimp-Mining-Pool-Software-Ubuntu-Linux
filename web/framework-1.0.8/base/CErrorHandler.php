@@ -295,7 +295,7 @@ class CErrorHandler extends CApplicationComponent
 	{
 		if(YII_DEBUG)
 		{
-			$version='<a href="http://yaamp.com/">yaamp.com</a>';
+			$version='<a href="http://yiimp.ccminer.org/">yiimp.ccminer.org</a>';
 			if(isset($_SERVER['SERVER_SOFTWARE']))
 				$version=$_SERVER['SERVER_SOFTWARE'].' '.$version;
 		}

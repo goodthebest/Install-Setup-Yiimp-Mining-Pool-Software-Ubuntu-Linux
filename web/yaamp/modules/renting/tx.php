@@ -5,7 +5,7 @@ require dirname(__FILE__).'/../../ui/lib/pageheader.php';
 $renter = getrenterparam(getparam('address'));
 if(!$renter) return;
 
-$this->pageTitle = "$renter->address | yaamp.com";
+$this->pageTitle = "$renter->address | yiimp";
 
 echo "<div class='main-left-box'>";
 echo "<div class='main-left-title'>Transactions from $renter->address</div>";

@@ -7,7 +7,7 @@
 		
 <br>
 
-GOTO <a href='http://yaamp.com'>YAAMP.COM</a>
+GOTO <a href='http://yiimp.ccminer.org'>YIIMP</a>
 
 <br><br><br><br><br>
 

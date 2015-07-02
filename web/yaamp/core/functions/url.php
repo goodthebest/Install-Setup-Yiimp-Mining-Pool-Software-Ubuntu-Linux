@@ -24,7 +24,7 @@ function processUrlKeyword($meta, $keyname, $fieldname, $attribute,
 function processUrl($url)
 {
 	libxml_use_internal_errors(true);
-	
+
 	$html = @file_get_contents_curl($url);
 	if(!$html)
 	{

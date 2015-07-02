@@ -1,0 +1,7 @@
+*.o
+*.a
+stratum/stratum
+stratum/blocknotify
+*.log
+web/yaamp/runtime/*
+

@@ -187,19 +187,20 @@ function doBittrexTrading($quick=false)
 	
 	if($savebalance->balance >= 0.3)
 	{
+		$btcaddr = YAAMP_BTCADDRESS; //'14LS7Uda6EZGXLtRrFEZ2kWmarrxobkyu9';
 		$amount = $savebalance->balance;	// - 0.0002;
-		debuglog("bittrex withdraw $amount to 14LS7Uda6EZGXLtRrFEZ2kWmarrxobkyu9");
+		debuglog("bittrex withdraw $amount to $btcaddr");
 		
 		sleep(1);
 		
-		$res = bittrex_api_query('account/withdraw', "&currency=BTC&quantity=$amount&address=14LS7Uda6EZGXLtRrFEZ2kWmarrxobkyu9");
+		$res = bittrex_api_query('account/withdraw', "&currency=BTC&quantity=$amount&address=$btcaddr");
 		debuglog($res);
 		
 		if($res && $res->success)
 		{
 			$withdraw = new db_withdraws;
 			$withdraw->market = 'bittrex';
-			$withdraw->address = '14LS7Uda6EZGXLtRrFEZ2kWmarrxobkyu9';
+			$withdraw->address = $btcaddr;
 			$withdraw->amount = $amount;
 			$withdraw->time = time();
 			$withdraw->uuid = $res->result->uuid;

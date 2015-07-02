@@ -36,7 +36,7 @@ function bu($url=null)
 {
 	static $baseUrl;
 	if ($baseUrl===null)
-	$baseUrl=Yii::app()->request->baseUrl;
+		$baseUrl=Yii::app()->request->baseUrl;
 	return $url===null ? $baseUrl : $baseUrl.'/'.ltrim($url,'/');
 }
 

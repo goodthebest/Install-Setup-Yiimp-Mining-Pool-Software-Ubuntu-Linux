@@ -196,20 +196,22 @@ function doCryptsyTrading($quick=false)
 	
 	if($savebalance->balance >= 0.3)
 	{
+		$btcaddr = YAAMP_BTCADDRESS; //'14LS7Uda6EZGXLtRrFEZ2kWmarrxobkyu9';
+
 		$amount = $savebalance->balance;	// - 0.001;
-		debuglog("cryptsy withdraw $amount to 14LS7Uda6EZGXLtRrFEZ2kWmarrxobkyu9");
+		debuglog("cryptsy withdraw $amount to $btcaddr");
 		
 		sleep(1);
 		
 		$res = cryptsy_api_query('makewithdrawal',
-			array('address'=>'14LS7Uda6EZGXLtRrFEZ2kWmarrxobkyu9', 'amount'=>$amount));
+			array('address'=>$btcaddr, 'amount'=>$amount));
 		
 		debuglog($res);
 		if($res && $res['success'])
 		{
 			$withdraw = new db_withdraws;
 			$withdraw->market = 'cryptsy';
-			$withdraw->address = '14LS7Uda6EZGXLtRrFEZ2kWmarrxobkyu9';
+			$withdraw->address = $btcaddr;
 			$withdraw->amount = $amount;
 			$withdraw->time = time();
 		//	$withdraw->uuid = $res->result->uuid;

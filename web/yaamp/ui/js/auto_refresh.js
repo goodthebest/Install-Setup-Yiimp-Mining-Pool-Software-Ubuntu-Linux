@@ -19,12 +19,12 @@ function auto_page_resume()
 function auto_page_refresh()
 {
 	page_refresh();
-	
+
 	var now_time = new Date().getTime();
 	if(now_time > auto_start_time + auto_max_time)
 	{
 		$('#resume_update_button').show();
-		document.title = 'yaamp.com';
+		document.title = 'yiimp';
 	}
 	
 	else
