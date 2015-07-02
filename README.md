@@ -20,12 +20,24 @@ Config for nginx:
 		include fastcgi_params;
 	}
 
-If you use apache, it should be something like (set in web/.htaccess):
+If you use apache, it should be something like (already set in web/.htaccess):
 
 	RewriteEngine on
 
 	RewriteCond %{REQUEST_FILENAME} !-f
 	RewriteRule ^(.*) index.php?r=$1 [QSA]
+
+If you use lighttpd, use the following config:
+
+	$HTTP["host"] =~ "yiimp.ccminer.org" {
+	        server.document-root = "/var/yaamp/web"
+	        url.rewrite-if-not-file = (
+	                "^(.*)\?(.*)" => "index.php?r=$1&$2",
+	                "^(.*)" => "index.php?r=$1",
+	                "." => "index.php"
+	        )
+	}
+
 
 The recommended install folder for the stratum engine is /var/stratum. Copy all the .conf files, run.sh, the stratum binary and the blocknotify binary to this folder. 
 

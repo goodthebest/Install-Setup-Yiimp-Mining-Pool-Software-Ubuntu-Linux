@@ -2,6 +2,6 @@
 *.a
 stratum/stratum
 stratum/blocknotify
+stratum/config/
 *.log
 web/yaamp/runtime/*
-

@@ -1,4 +1,4 @@
 #!/bin/bash
 
-php yiic.php $*
+php yaamp/yiic.php $*
 
