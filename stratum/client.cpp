@@ -26,7 +26,7 @@ bool client_suggest_target(YAAMP_CLIENT *client, json_value *json_params)
 
 bool client_subscribe(YAAMP_CLIENT *client, json_value *json_params)
 {
-	if(client_find_my_ip(client->sock->ip)) return false;
+	//if(client_find_my_ip(client->sock->ip)) return false;
 	get_next_extraonce1(client->extranonce1_default);
 
 	client->extranonce2size_default = YAAMP_EXTRANONCE2_SIZE;
