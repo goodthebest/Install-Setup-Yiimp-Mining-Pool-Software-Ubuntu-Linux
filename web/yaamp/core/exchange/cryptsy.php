@@ -2,16 +2,17 @@
 
 function cryptsy_api_query($method, array $req = array())
 {
-	debuglog("calling cryptsy_api_query $method");
-//	debuglog($req);
+//	debuglog("calling cryptsy_api_query $method");
 
 	require_once('/etc/yiimp/keys.php');
 
 	// API settings
-	$key = '44752827db114b157b19b22ee30b88eba3f40651'; // your API-key
+	$key = YIIMP_CRYPT_PUB; // your API-key
 	$secret = YIIMP_CRYPT_PVK; // your Secret-key
 
-	$cookie_jar = tempnam('/var/yaamp/cookies','cryptsy_cook');
+	// $cookie_jar = tempnam(YAAMP_HTDOCS.'/yaamp/runtime/cookies','cryptsy_cook');
+	$cookie_jar = YAAMP_HTDOCS.'/yaamp/runtime/cookies/cryptsy_cookies.dat';
+	//touch($cookie_jar);
 
 	$req['method'] = $method;
 	$mt = explode(' ', microtime());
@@ -29,8 +30,7 @@ function cryptsy_api_query($method, array $req = array())
 
 	// our curl handle (initialize if required)
 	static $ch = null;
-	if (is_null($ch))
-	{
+	if (is_null($ch)) {
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/4.0 (compatible; Cryptsy API PHP client; '.php_uname('s').'; PHP/'.phpversion().')');
@@ -43,21 +43,20 @@ function cryptsy_api_query($method, array $req = array())
 
 	// run the query
 	$res = curl_exec($ch);
-	if($res === false)
-	{
+	if ($res === false) {
 		debuglog("ERROR cryptsy_api_query $method");
 		return null;
 	}
+
+//	debuglog("cryptsy: $method");
 
 	$dec = json_decode($res, true);
-	if(!$dec)
-	{
+	if (!is_array($dec)) {
 		debuglog("ERROR cryptsy_api_query $method");
-		debuglog($res);
-
+		debuglog(strip_tags($res));
 		return null;
 	}
 
-	sleep(1);
+	//usleep(200*1000);
 	return $dec;
 }
