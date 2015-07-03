@@ -87,8 +87,7 @@ YAAMP_JOB_TEMPLATE *coind_create_template_memorypool(YAAMP_COIND *coind)
 	templ->height = json_get_int(json_result, "blocks")+1;
 	json_value_free(json);
 
-	if(coind->isaux)
-		coind_getauxblock(coind);
+	coind_getauxblock(coind);
 
 	coind->usememorypool = true;
 	return templ;
@@ -114,7 +113,7 @@ YAAMP_JOB_TEMPLATE *coind_create_template(YAAMP_COIND *coind)
 	json_value *json_result = json_get_object(json, "result");
 	if(!json_result || json_result->type == json_null)
 	{
-		coind_error(coind, "getblocktemplate");
+		coind_error(coind, "getblocktemplate result");
 		json_value_free(json);
 
 		return NULL;
@@ -123,16 +122,16 @@ YAAMP_JOB_TEMPLATE *coind_create_template(YAAMP_COIND *coind)
 	json_value *json_tx = json_get_array(json_result, "transactions");
 	if(!json_tx)
 	{
-		coind_error(coind, "getblocktemplate");
+		coind_error(coind, "getblocktemplate transactions");
 		json_value_free(json);
 
 		return NULL;
 	}
 
 	json_value *json_coinbaseaux = json_get_object(json_result, "coinbaseaux");
-	if(!json_coinbaseaux)
+	if(!json_coinbaseaux && coind->isaux)
 	{
-		coind_error(coind, "getblocktemplate");
+		coind_error(coind, "getblocktemplate coinbaseaux");
 		json_value_free(json);
 
 		return NULL;
@@ -148,7 +147,9 @@ YAAMP_JOB_TEMPLATE *coind_create_template(YAAMP_COIND *coind)
 	sprintf(templ->ntime, "%08x", (unsigned int)json_get_int(json_result, "curtime"));
 	strcpy(templ->nbits, json_get_string(json_result, "bits"));
 	strcpy(templ->prevhash_hex, json_get_string(json_result, "previousblockhash"));
-	strcpy(templ->flags, json_get_string(json_coinbaseaux, "flags"));
+
+	if (strcmp(coind->symbol, "DRP")) // not in Dropcoin
+		strcpy(templ->flags, json_get_string(json_coinbaseaux, "flags"));
 
 //	debuglog("%s ntime %s\n", coind->symbol, templ->ntime);
 //	uint64_t target = decode_compact(json_get_string(json_result, "bits"));
@@ -167,7 +168,6 @@ YAAMP_JOB_TEMPLATE *coind_create_template(YAAMP_COIND *coind)
 	if(coind->isaux)
 	{
 		json_value_free(json);
-
 		coind_getauxblock(coind);
 		return templ;
 	}

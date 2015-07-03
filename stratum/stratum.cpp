@@ -107,7 +107,9 @@ YAAMP_ALGO g_algos[] =
 	{"skein", skein_hash, 1, 0, 0},
 	{"keccak", keccak_hash, 1, 0, 0},
 
-	{"zr5", zr5_hash, 0x10000, 0, 0},
+	{"zr5", zr5_hash, 1, 0, 0},
+	{"drop", drop_hash, 0x10000, 0x10000, 0},
+
 //	{"whirlpoolx", whirlpoolx_hash, 1, 0, 0},
 //	{"jha", jha_hash, 1, 0, 0},
 //	{"m7", NULL, 1, 0},
@@ -316,7 +318,4 @@ void *stratum_thread(void *p)
 		pthread_detach(thread);
 	}
 }
-
-
-
 

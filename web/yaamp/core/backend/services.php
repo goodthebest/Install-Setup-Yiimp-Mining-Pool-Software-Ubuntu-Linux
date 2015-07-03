@@ -21,6 +21,7 @@ function BackendUpdateServices()
 
 		111=>'c11',
 		112=>'zr5',
+		113=>'drop',
 	);
 
 	$res = fetch_url('https://www.nicehash.com/api?method=stats.global.current');

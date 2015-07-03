@@ -61,8 +61,9 @@ is the reference with a factor of 1.</p>
 'x13'		=> 3.9,
 'x14'		=> 3.7,
 'x15'		=> 3.5,
-'nist5'		=> 15,
-'zr5'		=> 15,
+'nist5'		=> 6.0,
+'zr5'		=> 10.0,
+'drop'		=> 5.0;
 'neoscrypt'	=> 0.3,
 'lyra2'		=> 1.3,
 'quark'		=> 6,

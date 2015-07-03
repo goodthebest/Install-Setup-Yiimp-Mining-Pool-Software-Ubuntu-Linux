@@ -1,6 +1,7 @@
 
 #include "stratum.h"
 
+//#define HASH_DEBUGLOG_
 //#define DONTSUBMIT
 
 void build_submit_values(YAAMP_JOB_VALUES *submitvalues, YAAMP_JOB_TEMPLATE *templ,
@@ -142,12 +143,11 @@ void client_do_submit(YAAMP_CLIENT *client, YAAMP_JOB *job, YAAMP_JOB_VALUES *su
 			block_add(client->userid, coind->id, templ->height, target_to_diff(coin_target), target_to_diff(hash_int),
 				hash1, submitvalues->hash_be);
 
-//			if(!strcmp(coind->symbol, "HAL"))
-//			{
-//				debuglog("--------------------------------------------------------------\n");
-//				debuglog("hash1 %s\n", hash1);
-//				debuglog("hash2 %s\n", submitvalues->hash_be);
-//			}
+#ifdef HASH_DEBUGLOG_
+			debuglog("--------------------------------------------------------------\n");
+			debuglog("hash1 %s\n", hash1);
+			debuglog("hash2 %s\n", submitvalues->hash_be);
+#endif
 		}
 
 		else
@@ -176,7 +176,9 @@ void client_submit_error(YAAMP_CLIENT *client, YAAMP_JOB *job, int id, const cha
 		share_add(client, job, false, extranonce2, ntime, nonce, id);
 
 		client->submit_bad++;
-//		dump_submit_debug(message, client, job, extranonce2, ntime, nonce);
+#ifdef HASH_DEBUGLOG_
+		dump_submit_debug(message, client, job, extranonce2, ntime, nonce);
+#endif
 	}
 
 	object_unlock(job);
@@ -192,7 +194,6 @@ bool client_submit(YAAMP_CLIENT *client, json_value *json_params)
 		return false;
 	}
 
-//	char name[1024];
 	char extranonce2[32];
 	char ntime[32];
 	char nonce[32];
@@ -206,7 +207,9 @@ bool client_submit(YAAMP_CLIENT *client, json_value *json_params)
 	strncpy(ntime, json_params->u.array.values[3]->u.string.ptr, 31);
 	strncpy(nonce, json_params->u.array.values[4]->u.string.ptr, 31);
 
-//	debuglog("submit %s %d, %s, %s, %s\n", client->sock->ip, jobid, extranonce2, ntime, nonce);
+#ifdef HASH_DEBUGLOG_
+	debuglog("submit %s %d, %s, %s, %s\n", client->sock->ip, jobid, extranonce2, ntime, nonce);
+#endif
 
 	string_lower(extranonce2);
 	string_lower(ntime);
@@ -228,7 +231,6 @@ bool client_submit(YAAMP_CLIENT *client, json_value *json_params)
 	}
 
 	YAAMP_JOB_TEMPLATE *templ = job->templ;
-//	dump_submit_debug(client, job, extranonce2, ntime, nonce);
 
 	if(strlen(nonce) != YAAMP_NONCE_SIZE*2)
 	{
@@ -271,10 +273,11 @@ bool client_submit(YAAMP_CLIENT *client, json_value *json_params)
 	uint64_t user_target = diff_to_target(client->difficulty_actual);
 	uint64_t coin_target = decode_compact(templ->nbits);
 
-//	debuglog("%016llx actual\n", hash_int);
-//	debuglog("%016llx target\n", user_target);
-//	debuglog("%016llx coin\n", coin_target);
-
+#ifdef HASH_DEBUGLOG_
+	debuglog("%016llx actual\n", hash_int);
+	debuglog("%016llx target\n", user_target);
+	debuglog("%016llx coin\n", coin_target);
+#endif
 	if(hash_int > user_target && hash_int > coin_target)
 	{
 		client_submit_error(client, job, 26, "Low difficulty share", extranonce2, ntime, nonce);
@@ -295,10 +298,4 @@ bool client_submit(YAAMP_CLIENT *client, json_value *json_params)
 
 	return true;
 }
-
-
-
-
-
-
 

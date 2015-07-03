@@ -4,6 +4,12 @@ CC=gcc
 CFLAGS=-c -g -I /usr/include/mysql -march=native
 LDFLAGS=-g
 
+#CFLAGS += -DHASH_DEBUGLOG_
+#CFLAGS += -DRPC_DEBUGLOG_
+#CFLAGS += -DREMOTE_DEBUGLOG_
+#CFLAGS += -DSOCKET_DEBUGLOG_
+#CFLAGS += -DCLIENT_DEBUGLOG_
+
 #CFLAGS=-c -O2 -I /usr/include/mysql
 #LDFLAGS=-O2
 

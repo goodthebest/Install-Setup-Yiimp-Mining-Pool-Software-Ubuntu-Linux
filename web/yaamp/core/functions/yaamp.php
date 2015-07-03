@@ -2,7 +2,7 @@
 
 function yaamp_get_algos()
 {
-	return array('sha256', /*'scrypt', 'scryptn',*/ 'neoscrypt', 'quark', 'lyra2', 'qubit', 'c11', 'x11', 'x13', 'x15', 'zr5');
+	return array('sha256', /*'scrypt', 'scryptn',*/ 'neoscrypt', 'quark', 'lyra2', 'qubit', 'c11', 'x11', 'x13', 'x15', 'zr5', 'drop');
 }
 
 function yaamp_get_algo_norm($algo)
@@ -28,6 +28,7 @@ function yaamp_get_algo_norm($algo)
 		'blake'		=> 300,
 		'keccak'	=> 160,
 		'zr5'		=> 5.5,
+		'drop'		=> 1.5,
 	);
 
 	if(!isset($a[$algo]))
@@ -43,7 +44,7 @@ function getAlgoColors($algo)
 		'scrypt'	=> '#c0c0e0',
 		'neoscrypt'	=> '#a0d0f0',
 		'scryptn'	=> '#d0d0d0',
-		'c11'		=> '#f0b0b0',
+		'c11'		=> '#e0f0b0',
 		'x11'		=> '#f0f0a0',
 		'x13'		=> '#d0f0c0',
 		'x14'		=> '#a0f0c0',
@@ -52,7 +53,8 @@ function getAlgoColors($algo)
 		'quark'		=> '#c0c0c0',
 		'qubit'		=> '#d0a0f0',
 		'lyra2'		=> '#80a0f0',
-		'zr5'		=> '#d0d0d0',
+		'zr5'		=> '#d0b0d0',
+		'drop'		=> '#d0b0d0',
 	);
 
 	if(!isset($a[$algo]))
@@ -84,7 +86,8 @@ function getAlgoPort($algo)
 		'skein'		=> 4933,
 		'groestl'	=> 5033,
 		'keccak'	=> 5133,
-		'zr5'		=> 5233,
+		'drop'		=> 5033,
+		'zr5'		=> 5533,
 	);
 
 	if(!isset($a[$algo]))
