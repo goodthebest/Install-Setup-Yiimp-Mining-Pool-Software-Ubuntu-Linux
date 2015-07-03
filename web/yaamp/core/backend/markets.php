@@ -11,6 +11,8 @@ function BackendPricesUpdate()
 	updatePoloniexMarkets();
 	updateYobitMarkets();
 	updateJubiMarkets();
+	updateAlcurexMarkets();
+	updateCryptopiaMarkets();
 
 	$list2 = getdbolist('db_coins', "installed and symbol2 is not null");
 	foreach($list2 as $coin2)
@@ -481,7 +483,7 @@ function updateYobitMarkets()
 function updateJubiMarkets()
 {
 	$btc = jubi_api_query('ticker', "?coin=btc");
-	if(!is_object($btc)) continue;
+	if(!is_object($btc)) return;
 
 	$list = getdbolist('db_markets', "name='jubi'");
 	foreach($list as $market)
@@ -507,7 +509,62 @@ function updateJubiMarkets()
 	}
 }
 
+function updateAlcurexMarkets()
+{
+	$data = alcurex_api_query('market', "?info=on");
+	if(!is_object($data)) return;
 
+	$list = getdbolist('db_markets', "name='alcurex'");
+	foreach($list as $market)
+	{
+		$coin = getdbo('db_coins', $market->coinid);
+		if(!$coin || !$coin->installed) continue;
+		$pair = strtoupper($coin->symbol).'_BTC';
+		foreach ($data->MARKETS as $ticker) {
+			if ($ticker->Pair === $pair) {
+				$lpair = strtolower($pair);
+				$last = alcurex_api_query('market', "?pair=$lpair&last=last");
+				if (is_object($last) && !empty($last->$lpair)) {
+					$last = reset($last->$lpair);
+					$market->price = AverageIncrement($market->price, $last->price);
+					$market->save();
+				}
+				$last = alcurex_api_query('market', "?pair=$lpair&last=sell");
+				if (is_object($last) && !empty($last->$lpair)) {
+					$last = reset($last->$lpair);
+					$market->price2 = AverageIncrement($market->price2, $last->price);
+					$market->save();
+				}
+				debuglog("alcurex... should Update $pair: $market->price $market->price2");
+			}
+		}
+	}
+}
 
+function updateCryptopiaMarkets()
+{
+	$data = cryptopia_api_query('GetMarkets', 24);
+	if(!is_object($data)) return;
 
+	$list = getdbolist('db_markets', "name='cryptopia'");
+	foreach($list as $market)
+	{
+		$coin = getdbo('db_coins', $market->coinid);
+		if(!$coin || !$coin->installed) continue;
+
+		$pair = strtoupper($coin->symbol).'/BTC';
+
+		foreach ($data->Data as $ticker) {
+			if ($ticker->Label === $pair) {
+
+				$price2 = ($ticker->BidPrice+$ticker->AskPrice)/2;
+				$market->price2 = AverageIncrement($market->price2, $price2);
+				$market->price = AverageIncrement($market->price, $ticker->BidPrice*0.98);
+				// debuglog("Updated $pair: $market->price");
+				$market->save();
+				break;
+			}
+		}
+	}
+}
 

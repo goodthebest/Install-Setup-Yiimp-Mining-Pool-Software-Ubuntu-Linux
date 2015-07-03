@@ -5,3 +5,4 @@ stratum/blocknotify
 stratum/config/
 *.log
 web/yaamp/runtime/*
+cookies/

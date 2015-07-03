@@ -50,7 +50,6 @@ function updateRawcoins()
 	{
 		if($ticker['disabled']) continue;
 		if($ticker['delisted']) continue;
-
 		updateRawCoin('poloniex', $symbol);
 	}
 
@@ -62,8 +61,32 @@ function updateRawcoins()
 		{
 			$e = explode('_', $i);
 			$symbol = strtoupper($e[0]);
-
 			updateRawCoin('yobit', $symbol);
+		}
+	}
+
+	$list = cryptopia_api_query('GetMarkets');
+	if(isset($list->Data))
+	{
+		dborun("update markets set deleted=true where name='cryptopia'");
+		foreach($list->Data as $item) {
+			$e = explode('/', $item->Label);
+			if (strtoupper($e[1]) !== 'BTC')
+				continue;
+			$symbol = strtoupper($e[0]);
+			updateRawCoin('cryptopia', $symbol);
+		}
+	}
+
+
+	$list = alcurex_api_query('market','?info=on');
+	if(isset($list->MARKETS))
+	{
+		dborun("update markets set deleted=true where name='alcurex'");
+		foreach($list->MARKETS as $item) {
+			$e = explode('_', $item->Pair);
+			$symbol = strtoupper($e[0]);
+			updateRawCoin('alcurex', $symbol);
 		}
 	}
 
@@ -123,22 +146,19 @@ function updateRawCoin($marketname, $symbol, $name='unknown')
 
 	/////////
 
-// 	if($coin->enable || !empty($coin->algo) || !empty($coin->errors) || $coin->name == 'unknown') return;
-// 	debuglog("http://www.cryptocoinrank.com/$coin->name");
+//	if($coin->enable || !empty($coin->algo) || !empty($coin->errors) || $coin->name == 'unknown') return;
+//	debuglog("http://www.cryptocoinrank.com/$coin->name");
 
-//  	$data = file_get_contents("http://www.cryptocoinrank.com/$coin->name");
-//  	if($data)
-//  	{
-// 	 	$b = preg_match('/Algo: <span class=\"d-gray\">(.*)<\/span>/', $data, $m);
-// 	 	if($b)
-// 	 	{
-// 	 		$coin->errors = trim($m[1]);
-// 			$coin->save();
-// 	 	}
-//  	}
+//	$data = file_get_contents("http://www.cryptocoinrank.com/$coin->name");
+//	if($data)
+//	{
+//		$b = preg_match('/Algo: <span class=\"d-gray\">(.*)<\/span>/', $data, $m);
+//		if($b)
+//		{
+//			$coin->errors = trim($m[1]);
+//			$coin->save();
+//		}
+//	}
 
 }
-
-
-
 

@@ -23,6 +23,8 @@ define('YAAMP_BTCADDRESS', '1Auhps1mHZQpoX4mCcVL8odU81VakZQ6dR');
 define('YAAMP_SITE_URL', 'yiimp.ccminer.org');
 define('YAAMP_ADMIN_EMAIL', 'yiimp@spam.la');
 
+define('YAAMP_USE_NGINX', false);
+
 $cold_wallet_table = array(
 	'1C23KmLeCaQSLLyKVykHEUse1R7jRDv9j9' => 0.10,
 );

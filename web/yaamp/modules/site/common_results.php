@@ -266,9 +266,6 @@ foreach($list as $market)
 	else if($market->name == 'bittrex')
 		$marketurl = "https://bittrex.com/Market/Index?MarketName=BTC-$coin->symbol";
 
-	else if($market->name == 'mintpal')
-		$marketurl = "https://www.mintpal.com/market/$coin->symbol/BTC";
-
 	else if($market->name == 'poloniex')
 		$marketurl = "https://poloniex.com/exchange/btc_$coin->symbol";
 
@@ -280,6 +277,12 @@ foreach($list as $market)
 
 	else if($market->name == 'yobit')
 		$marketurl = "https://yobit.net/en/trade/$coin->symbol/BTC";
+
+	else if($market->name == 'cryptopia')
+		$marketurl = "https://www.cryptopia.co.nz/Exchange?market={$coin->symbol}_BTC";
+
+	else if($market->name == 'alcurex')
+		$marketurl = "https://alcurex.org/index.php/crypto/market?pair={$lowsymbol}_btc";
 
 //	echo "<tr class='ssrow'>";
 	$algo_color = getAlgoColors($coin->algo);
@@ -338,9 +341,6 @@ foreach($orders as $order)
 	else if($order->market == 'bittrex')
 		$marketurl = "https://bittrex.com/Market/Index?MarketName=BTC-$coin->symbol";
 
-	else if($order->market == 'mintpal')
-		$marketurl = "https://www.mintpal.com/market/$coin->symbol/BTC";
-
 	else if($order->market == 'poloniex')
 		$marketurl = "https://poloniex.com/exchange/btc_$coin->symbol";
 
@@ -349,6 +349,12 @@ foreach($orders as $order)
 
 	else if($order->market == 'bleutrade')
 		$marketurl = "https://bleutrade.com/exchange/$coin->symbol/BTC";
+
+	else if($order->market == 'cryptopia')
+		$marketurl = "https://www.cryptopia.co.nz/Exchange?market={$coin->symbol}_BTC";
+
+	else if($order->market == 'alcurex')
+		$marketurl = "https://alcurex.org/index.php/crypto/market?pair={$lowsymbol}_btc";
 
 	else
 		$marketurl = "";

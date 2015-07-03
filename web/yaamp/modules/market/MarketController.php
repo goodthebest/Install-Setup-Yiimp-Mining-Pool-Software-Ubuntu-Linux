@@ -77,10 +77,3 @@ class MarketController extends CommonController
 	}
 
 }
-
-
-
-
-
-
-

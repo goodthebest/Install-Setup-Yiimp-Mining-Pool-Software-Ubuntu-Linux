@@ -32,9 +32,6 @@ foreach($orders as $order)
 	else if($order->market == 'bittrex')
 		$marketurl = "https://bittrex.com/Market/Index?MarketName=BTC-$coin->symbol";
 
-	else if($order->market == 'mintpal')
-		$marketurl = "https://www.mintpal.com/market/$coin->symbol/BTC";
-
 	else if($order->market == 'poloniex')
 		$marketurl = "https://poloniex.com/exchange/btc_$coin->symbol";
 
@@ -43,6 +40,12 @@ foreach($orders as $order)
 
 	else if($order->market == 'bleutrade')
 		$marketurl = "https://bleutrade.com/exchange/$coin->symbol/BTC";
+
+	else if($order->market == 'cryptopia')
+		$marketurl = "https://www.cryptopia.co.nz/Exchange?market={$coin->symbol}_BTC";
+
+	else if($order->market == 'alcurex')
+		$marketurl = "https://alcurex.org/index.php/crypto/market?pair={$lowsymbol}_btc";
 
 	else
 		$marketurl = "";
@@ -121,17 +124,20 @@ foreach($exchanges as $exchange)
 	else if($exchange->market == 'bittrex')
 		$marketurl = "https://bittrex.com/Market/Index?MarketName=BTC-$coin->symbol";
 
-	else if($exchange->market == 'mintpal')
-		$marketurl = "https://www.mintpal.com/market/$coin->symbol/BTC";
-
 	else if($exchange->market == 'poloniex')
 		$marketurl = "https://poloniex.com/exchange/btc_$coin->symbol";
 
 	else if($exchange->market == 'c-cex')
 		$marketurl = "https://c-cex.com/?p=$lowsymbol-btc";
 
-	else if($order->market == 'bleutrade')
-		$marketurl = "https://bleutrade.com/exchange/$coin->symbol/BTC";
+	else if($exchange->market == 'bleutrade')
+		$marketurl = "https://bleutrade.com/exchange/{$coin->symbol}/BTC";
+
+	else if($exchange->market == 'cryptopia')
+		$marketurl = "https://www.cryptopia.co.nz/Exchange?market={$coin->symbol}_BTC";
+
+        else if($exchange->market == 'alcurex')
+                $marketurl = "https://alcurex.org/index.php/crypto/market?pair={$lowsymbol}_btc";
 
 	else
 		$marketurl = "";
@@ -169,15 +175,4 @@ foreach($exchanges as $exchange)
 }
 
 echo "</tbody></table>";
-
-
-
-
-
-
-
-
-
-
-
 

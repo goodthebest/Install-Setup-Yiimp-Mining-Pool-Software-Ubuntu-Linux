@@ -47,9 +47,6 @@ foreach($list as $market)
 	else if($market->name == 'bittrex')
 		$marketurl = "https://bittrex.com/Market/Index?MarketName=BTC-$coin->symbol";
 
-	else if($market->name == 'mintpal')
-		$marketurl = "https://www.mintpal.com/market/$coin->symbol/BTC";
-
 	else if($market->name == 'poloniex')
 		$marketurl = "https://poloniex.com/exchange/btc_$coin->symbol";
 
@@ -64,6 +61,12 @@ foreach($list as $market)
 
 	else if($market->name == 'jubi')
 		$marketurl = "http://jubi.com/coin/$lowsymbol";
+
+	else if($market->name == 'cryptopia')
+		$marketurl = "https://www.cryptopia.co.nz/Exchange?market={$coin->symbol}_BTC";
+
+	else if($market->name == 'alcurex')
+		$marketurl = "https://alcurex.org/index.php/crypto/market?pair={$lowsymbol}_btc";
 
 	if($bestmarket && $market->id == $bestmarket->id)
 		echo "<tr class='ssrow' style='background-color: #dfd'>";

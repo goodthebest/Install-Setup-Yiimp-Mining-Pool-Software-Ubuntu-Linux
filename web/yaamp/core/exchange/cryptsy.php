@@ -2,7 +2,7 @@
 
 function cryptsy_api_query($method, array $req = array())
 {
-//	debuglog("calling cryptsy_api_query $method");
+	debuglog("calling cryptsy_api_query $method");
 //	debuglog($req);
 
 	require_once('/etc/yiimp/keys.php');
@@ -10,6 +10,8 @@ function cryptsy_api_query($method, array $req = array())
 	// API settings
 	$key = '44752827db114b157b19b22ee30b88eba3f40651'; // your API-key
 	$secret = YIIMP_CRYPT_PVK; // your Secret-key
+
+	$cookie_jar = tempnam('/var/yaamp/cookies','cryptsy_cook');
 
 	$req['method'] = $method;
 	$mt = explode(' ', microtime());
@@ -34,6 +36,7 @@ function cryptsy_api_query($method, array $req = array())
 		curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/4.0 (compatible; Cryptsy API PHP client; '.php_uname('s').'; PHP/'.phpversion().')');
 	}
 	curl_setopt($ch, CURLOPT_URL, 'https://api.cryptsy.com/api');
+	curl_setopt($ch, CURLOPT_COOKIEJAR, $cookie_jar);
 	curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
 	curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
@@ -55,10 +58,6 @@ function cryptsy_api_query($method, array $req = array())
 		return null;
 	}
 
-//	sleep(1);
+	sleep(1);
 	return $dec;
 }
-
-
-
-

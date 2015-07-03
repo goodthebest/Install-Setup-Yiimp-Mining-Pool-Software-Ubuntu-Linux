@@ -1,5 +1,7 @@
 <?php
 
+require_once('serverconfig.php');
+
 function ld($string)
 {
 	$d = date('h:i:s');
@@ -11,6 +13,8 @@ class CronjobController extends CommonController
 	private function monitorApache()
 	{
 		if(!YAAMP_PRODUCTION) return;
+		if(!YAAMP_USE_NGINX) return;
+
 		$uptime = exec('uptime');
 
 		$apache_locked = memcache_get($this->memcache->memcache, 'apache_locked');
@@ -20,18 +24,20 @@ class CronjobController extends CommonController
 		if(!$b) return;
 
 		$e = explode(', ', $m[1]);
-		$apache_running = !empty(exec('pgrep nginx'));
 
-		if($e[0] > 4 && $apache_running)
+		$webserver = 'nginx';
+		$webserver_running = !empty(exec("pgrep $webserver"));
+
+		if($e[0] > 4 && $webserver_running)
 		{
-			debuglog('stopping apache');
-			system("service nginx stop");
+			debuglog('stopping webserver');
+			system("service $webserver stop");
 		}
 
-		else if($e[0] < 2 && !$apache_running)
+		else if($e[0] < 2 && !$webserver_running)
 		{
-			debuglog('starting apache');
-			system("service nginx start");
+			debuglog('starting webserver');
+			system("service $webserver start");
 		}
 	}
 
@@ -121,11 +127,13 @@ class CronjobController extends CommonController
 				if(!YAAMP_PRODUCTION) break;
 
 				doBittrexTrading();
-				doCryptsyTrading();
-				doBleutradeTrading();
+				//doCryptsyTrading();
+				//doBleutradeTrading();
 				doPoloniexTrading();
-				doYobitTrading();
+				//doYobitTrading();
 				doCCexTrading();
+				//doAlcurexTrading();
+				//doCryptopiaTrading();
 
 				break;
 

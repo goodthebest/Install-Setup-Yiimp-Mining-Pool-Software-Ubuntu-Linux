@@ -695,40 +695,44 @@ class SiteController extends CommonController
 
 		if($balance) switch($balance->name)
 		{
-			case 'cryptsy':
-				doCryptsyTrading(true);
-				updateCryptsyMarkets();
+			case 'alcurex':
+				//doAlcurexTrading(true);
+				updateAlcurexMarkets();
+				break;
 
+			case 'cryptopia':
+				//doCryptopiaTrading(true);
+				updateCryptopiaMarkets();
+				break;
+
+			case 'cryptsy':
+				//doCryptsyTrading(true);
+				updateCryptsyMarkets();
 				break;
 
 			case 'bittrex':
-				doBittrexTrading(true);
+				//doBittrexTrading(true);
 				updateBittrexMarkets();
-
 				break;
 
 			case 'c-cex':
-				doCCexTrading(true);
+				//doCCexTrading(true);
 				updateCCexMarkets();
-
 				break;
 
 			case 'yobit':
-				doYobitTrading(true);
+				//doYobitTrading(true);
 				updateYobitMarkets();
-
 				break;
 
 			case 'bleutrade':
-				doBleutradeTrading(true);
+				//doBleutradeTrading(true);
 				updateBleutradeMarkets();
-
 				break;
 
 			case 'poloniex':
-				doPoloniexTrading(true);
+				//doPoloniexTrading(true);
 				updatePoloniexMarkets();
-
 				break;
 		}
 

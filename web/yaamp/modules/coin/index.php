@@ -92,9 +92,6 @@ foreach($coins as $coin)
 		else if($market->name == 'bittrex')
 			$url = "https://bittrex.com/Market/Index?MarketName=BTC-$coin->symbol";
 
-		else if($market->name == 'mintpal')
-			$url = "https://www.mintpal.com/market/$coin->symbol/BTC";
-
 		else if($market->name == 'poloniex')
 			$url = "https://poloniex.com/exchange/btc_$coin->symbol";
 
@@ -106,6 +103,12 @@ foreach($coins as $coin)
 
 		else if($market->name == 'yobit')
 			$url = "https://yobit.net/en/trade/$coin->symbol/BTC";
+
+		else if($market->name == 'cryptopia')
+			$url = "https://www.cryptopia.co.nz/Exchange?market=${coin->symbol}_BTC";
+
+		else if($market->name == 'alcurex')
+			$url = "https://alcurex.org/index.php/crypto/market?pair=${lowsymbol}_btc";
 
 		echo "<a href='$url' target=_blank>$market->name</a> ";
 	}
@@ -128,7 +131,5 @@ echo "</table>";
 
 echo "<br><br><br><br><br>";
 echo "<br><br><br><br><br>";
-
-
 
 

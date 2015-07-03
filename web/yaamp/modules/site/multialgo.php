@@ -6,7 +6,7 @@
 
 <p>Here's how you can achieve automatic switching to the best algo.</p>
 
-<p style="width: 700px;">Use the password parameter to define a set of algos you want to mine. Your miner 
+<p style="width: 700px;">Use the password parameter to define a set of algos you want to mine. Your miner
 connection will close (and move to your next configured algo) if the algo is not the best profitable of your set.</p>
 
 <pre class="main-left-box" style='padding: 3px; font-size: .9em; background-color: #ffffee; font-family: monospace;'>

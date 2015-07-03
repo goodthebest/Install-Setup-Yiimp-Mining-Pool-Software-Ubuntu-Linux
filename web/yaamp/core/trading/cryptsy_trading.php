@@ -18,8 +18,8 @@ function doCryptsyTrading($quick=false)
 
 	$orders = cryptsy_api_query('allmyorders');
 	if(empty($orders)) return;
-	if(!is_array($orders)) {
-		debuglog("-------------- doCryptsyTrading() $flushall $orders");
+	if(!is_array($orders) || !isset($orders['return'])) {
+		debuglog("-------------- doCryptsyTrading() $flushall ".json_encode($orders));
 		return;
 	}
 
@@ -99,11 +99,11 @@ function doCryptsyTrading($quick=false)
 		}
 	}
 
-// 	if($flushall)
-// 	{
-// 		debuglog("cryptsy flushall");
-// 		return;
-// 	}
+//	if($flushall)
+//	{
+//		debuglog("cryptsy flushall");
+//		return;
+//	}
 
 	sleep(2);
 
@@ -227,7 +227,7 @@ function doCryptsyTrading($quick=false)
 
 	$savebalance->save();
 
-	//	debuglog('-------------- doCryptsyTrading() done');
+//	debuglog('-------------- doCryptsyTrading() done');
 }
 
 
