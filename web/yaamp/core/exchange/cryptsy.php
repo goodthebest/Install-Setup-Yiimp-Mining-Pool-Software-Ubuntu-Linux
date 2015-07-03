@@ -1,14 +1,15 @@
 <?php
 
-
 function cryptsy_api_query($method, array $req = array())
 {
 //	debuglog("calling cryptsy_api_query $method");
 //	debuglog($req);
 
+	require_once('/etc/yiimp/keys.php');
+
 	// API settings
-	$key = ''; // your API-key
-	$secret = ''; // your Secret-key
+	$key = '44752827db114b157b19b22ee30b88eba3f40651'; // your API-key
+	$secret = YIIMP_CRYPT_PVK; // your Secret-key
 
 	$req['method'] = $method;
 	$mt = explode(' ', microtime());

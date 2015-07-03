@@ -106,7 +106,7 @@ function AverageIncrement($value1, $value2)
 function updateBleutradeMarkets()
 {
 	$list = bleutrade_api_query('public/getcurrencies');
-	if(!$list) return;
+	if(!is_object($list)) return;
 
 	foreach($list->result as $currency)
 	{
@@ -143,7 +143,7 @@ function updateBleutradeMarkets()
 		{
 			$address = bleutrade_api_query('account/getdepositaddress', "&currency=$coin->symbol");
 
-			if($address && isset($address->result))
+			if(is_object($address) && is_object($address->result))
 				$market->deposit_address = $address->result->Address;
 		}
 
@@ -161,7 +161,7 @@ function updateBleutradeMarkets()
 function updateBittrexMarkets()
 {
 	$list = bittrex_api_query('public/getcurrencies');
-	if(!$list) return;
+	if(!is_object($list)) return;
 
 	foreach($list->result as $currency)
 	{
@@ -207,7 +207,7 @@ function updateBittrexMarkets()
 		{
 			$address = bittrex_api_query('account/getdepositaddress', "&currency=$coin->symbol");
 
-			if($address && isset($address->result))
+			if(is_object($address) && isset($address->result))
 				$market->deposit_address = $address->result->Address;
 		}
 
@@ -323,6 +323,8 @@ function updateCryptsyMarkets()
 	}
 
 	$list = cryptsy_api_query('getmydepositaddresses');
+	if (empty($list)) return;
+
 	foreach($list['return'] as $symbol=>$item)
 	{
 		//		debuglog($item);
@@ -348,6 +350,8 @@ function updateCCexMarkets()
 	$ccex = new CcexAPI;
 
 	$list = $ccex->getPairs();
+	if (!is_array($list)) return;
+
 	foreach($list as $item)
 	{
 		$e = explode('-', $item);
@@ -387,7 +391,7 @@ function updatePoloniexMarkets()
 	$poloniex = new poloniex;
 
 	$tickers = $poloniex->get_ticker();
-	if(!$tickers) return;
+	if(!is_array($tickers)) return;
 
 	foreach($tickers as $symbol=>$ticker)
 	{
@@ -419,6 +423,8 @@ function updatePoloniexMarkets()
 	}
 
 	$list = $poloniex->get_deposit_addresses();
+	if (!is_array($list)) return;
+
 	foreach($list as $symbol=>$item)
 	{
 		if($symbol == 'BTC') continue;
@@ -439,7 +445,7 @@ function updatePoloniexMarkets()
 function updateYobitMarkets()
 {
 	$res = yobit_api_query('info');
-	if(!$res) return;
+	if(!is_object($res)) return;
 
 	foreach($res->pairs as $i=>$item)
 	{
@@ -475,7 +481,7 @@ function updateYobitMarkets()
 function updateJubiMarkets()
 {
 	$btc = jubi_api_query('ticker', "?coin=btc");
-	if(!$btc) continue;
+	if(!is_object($btc)) continue;
 
 	$list = getdbolist('db_markets', "name='jubi'");
 	foreach($list as $market)
@@ -486,10 +492,12 @@ function updateJubiMarkets()
 		$lowsymbol = strtolower($coin->symbol);
 
 		$ticker = jubi_api_query('ticker', "?coin=$lowsymbol");
-		if(!$ticker) continue;
+		if(!is_object($ticker)) continue;
 
-		$ticker->buy /= $btc->sell;
-		$ticker->sell /= $btc->buy;
+		if (isset($btc->sell) && $btc->sell != 0.)
+			$ticker->buy /= $btc->sell;
+		if (isset($btc->buy) && $btc->buy != 0.)
+			$ticker->sell /= $btc->buy;
 
 		$price2 = ($ticker->buy+$ticker->sell)/2;
 		$market->price2 = AverageIncrement($market->price2, $price2);

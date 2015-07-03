@@ -56,7 +56,7 @@ void zr5_hash(const char* input, char* output, uint32_t len)
 	sph_skein512_context ctx_skein;
 
 	uint32_t hash[5][16];
-	char *ph = (char *)hash;
+	char *ph = (char *)hash[0];
 
 	sph_keccak512_init(&ctx_keccak);
 	sph_keccak512(&ctx_keccak, (const void*) input, len);

@@ -6,7 +6,7 @@ class SiteController extends CommonController
 
 	///////////////////////////////////////////////////
 
-	public function actionAdmintest()
+	public function actionAdminRights()
 	{
 		debuglog("admin login {$_SERVER['REMOTE_ADDR']}");
 

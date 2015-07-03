@@ -17,7 +17,11 @@ function doCryptsyTrading($quick=false)
 //	debuglog("-------------- doCryptsyTrading() $flushall");
 
 	$orders = cryptsy_api_query('allmyorders');
-	if(!$orders) return;
+	if(empty($orders)) return;
+	if(!is_array($orders)) {
+		debuglog("-------------- doCryptsyTrading() $flushall $orders");
+		return;
+	}
 
 	foreach($orders['return'] as $order)
 	{

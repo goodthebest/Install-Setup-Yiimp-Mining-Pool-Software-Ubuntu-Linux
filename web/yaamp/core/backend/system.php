@@ -245,9 +245,3 @@ function BackendRunCoinActions()
 // 	system("echo \"$data\" | mail -s \"yiimp server\" ".YAAMP_ADMIN_EMAIL);
 }
 
-
-
-
-
-
-

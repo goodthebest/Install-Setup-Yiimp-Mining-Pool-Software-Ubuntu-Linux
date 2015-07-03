@@ -15,6 +15,7 @@ screen -dmS main /var/web/main.sh
 screen -dmS loop2 /var/web/loop2.sh
 screen -dmS blocks /var/web/blocks.sh
 
+screen -dmS c11 /var/stratum/run.sh c11
 screen -dmS x11 /var/stratum/run.sh x11
 #screen -dmS x13 /var/stratum/run.sh x13
 #screen -dmS x15 /var/stratum/run.sh x15
