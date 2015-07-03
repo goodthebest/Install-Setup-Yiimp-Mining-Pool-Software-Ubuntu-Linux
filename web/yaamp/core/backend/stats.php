@@ -6,17 +6,17 @@ function BackendStatsUpdate()
 //	$t1xx = microtime(true);
 
 	$t = time()-2*60;
-	$errors = '';
+	$errors = array();
 
 	$list = getdbolist('db_stratums', "time<$t");
 	foreach($list as $stratum)
 	{
 		debuglog("stratum $stratum->algo terminated");
-		$errors .= "$stratum->algo, ";
+		$errors[] = $stratum->algo;
 	}
 
-	if(!empty($errors))
-		send_email_alert('stratums', "stratums restarted $errors", "stratums were restarted: $errors");
+//	if(!empty($errors))
+//		send_email_alert('stratums', "stratums restarted $errors", "stratums were restarted: ".implode(', ',$errors));
 
 	dborun("delete from stratums where time<$t");
 	dborun("delete from workers where pid not in (select pid from stratums)");
@@ -336,12 +336,5 @@ function BackendStatsUpdate2()
 
 
 }
-
-
-
-
-
-
-
 
 
