@@ -41,6 +41,8 @@ class CheckupCommand extends CConsoleCommand
 			//self::checkStoredProcedures();
 			self::checkModels();
 
+			self::autolinkCoinsImages();
+
 			echo "ok\n";
 			return 0;
 		}
@@ -74,7 +76,7 @@ class CheckupCommand extends CConsoleCommand
 	}
 
 	/**
-	 * Vérifie les procédures stockées
+	 * Test a stored proc
 	 */
 	private function callStoredProc($proc, $params=array())
 	{
@@ -91,7 +93,7 @@ class CheckupCommand extends CConsoleCommand
 	}
 
 	/**
-	 * Vérifie les procédures stockées
+	 * Check stored procs (if any)
 	 */
 	public function checkStoredProcedures()
 	{
@@ -103,14 +105,14 @@ class CheckupCommand extends CConsoleCommand
 			if ($res !== true) {
 				echo "$name: $res\n";
 				// TODO: execute this script automatically in dev.
-				// $sql = file_get_contents($this->basePath.'/protected/sql/DB_Procedures.sql');
+				// $sql = file_get_contents($this->basePath.'/yaamp/sql/DB_Procedures.sql');
 			}
 		}
 	}
 
 
 	/**
-	 * Vérifie les modeles
+	 * Check Database Model
 	 */
 	public function checkModels()
 	{
@@ -118,11 +120,6 @@ class CheckupCommand extends CConsoleCommand
 
 		if(!is_dir($modelsPath))
 			echo "Directory $modelsPath is not a directory\n";
-
-		$db = Yii::app()->db;
-		$command = $db->createCommand("USE yaamp");
-		$command->execute();
-		$command->cancel();
 
 		$files = scandir($modelsPath);
 		foreach ($files as $model) {
@@ -151,5 +148,49 @@ class CheckupCommand extends CConsoleCommand
 		}
 	}
 
+	/**
+	 * Link new coin pictures /images/coin-<SYMBOL>.png
+	 */
+	public function autolinkCoinsImages()
+	{
+		$modelsPath = $this->basePath.'/yaamp/models';
+		if(!is_dir($modelsPath))
+			echo "Directory $modelsPath is not a directory\n";
+
+		require_once($modelsPath.'/db_coinsModel.php');
+
+		$obj = CActiveRecord::model('db_coins');
+		$table = $obj->getTableSchema()->name;
+
+		try{
+			$test = new $obj;
+		} catch (Exception $e) {
+			echo "Error Model: $table \n";
+			echo $e->getMessage();
+			continue;
+		}
+
+		if ($test instanceof CActiveRecord)
+		{
+			echo "$table: ".$test->count()." records\n";
+
+			$nbUpdated = 0;
+			foreach ($test->findAll() as $coin) {
+				if (!empty($coin->image)) {
+					if (file_exists($this->basePath.$coin->image))
+						continue;
+					if (file_exists($this->basePath."/images/coin-$coin->symbol.png")) {
+						$coin->image = "/images/coin-$coin->symbol.png";
+						$nbUpdated += $coin->save();
+					}
+				}
+				if (empty($coin->image) && file_exists($this->basePath."/images/coin-$coin->symbol.png")) {
+					$coin->image = "/images/coin-$coin->symbol.png";
+					$nbUpdated += $coin->save();
+				}
+			}
+			echo "$nbUpdated images updated\n";
+		}
+	}
 
 }
