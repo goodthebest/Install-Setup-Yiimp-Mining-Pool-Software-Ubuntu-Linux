@@ -5,7 +5,12 @@ function BackendDoBackup()
 	$d = date('Y-m-d-H', time());
 	$filename = "/root/backup/yaamp-$d.sql.gz";
 
-	system("mysqldump -h yaampdb -uroot -pzaratipo3 --skip-extended-insert yaamp | gzip > $filename");
+	include_once("/etc/yiimp/keys.php");
+
+	$user = YIIMP_MYSQLDUMP_USER;
+	$pass = YIIMP_MYSQLDUMP_PASS;
+
+	system("mysqldump -h yaampdb -u$user -p$pass --skip-extended-insert yaamp | gzip > $filename");
 }
 
 function BackendQuickClean()
