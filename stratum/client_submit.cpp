@@ -1,7 +1,7 @@
 
 #include "stratum.h"
 
-//#define HASH_DEBUGLOG_
+#define HASH_DEBUGLOG_
 //#define DONTSUBMIT
 
 void build_submit_values(YAAMP_JOB_VALUES *submitvalues, YAAMP_JOB_TEMPLATE *templ,
@@ -264,10 +264,15 @@ bool client_submit(YAAMP_CLIENT *client, json_value *json_params)
 
 	build_submit_values(&submitvalues, templ, client->extranonce1, extranonce2, ntime, nonce);
 	// zr5 has data here, ignore it... reversed endian ?
-	if((submitvalues.hash_bin[30] || submitvalues.hash_bin[31]) && g_current_algo && strcmp(g_current_algo->name, "zr5"))
-	{
-		client_submit_error(client, job, 25, "Invalid share", extranonce2, ntime, nonce);
-		return true;
+	if(submitvalues.hash_bin[30] || submitvalues.hash_bin[31]) {
+		if (g_current_algo && strcmp(g_current_algo->name, "zr5")) {
+			client_submit_error(client, job, 25, "Invalid share", extranonce2, ntime, nonce);
+			return true;
+		}
+
+		if (g_current_algo && !strcmp(g_current_algo->name, "zr5"))
+			fprintf(stderr, "Possible %s error, %02x%02x\n", g_current_algo->name,
+				(int) submitvalues.hash_bin[28], (int) submitvalues.hash_bin[29]);
 	}
 
 	uint64_t hash_int = get_hash_difficulty(submitvalues.hash_bin);
