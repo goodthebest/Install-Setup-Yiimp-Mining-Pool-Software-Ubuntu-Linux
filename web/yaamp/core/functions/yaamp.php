@@ -2,7 +2,21 @@
 
 function yaamp_get_algos()
 {
-	return array('sha256', /*'scrypt', 'scryptn',*/ 'neoscrypt', 'quark', 'lyra2', 'qubit', 'c11', 'x11', 'x13', 'x15', 'zr5', 'drop');
+	return array(
+		'sha256',
+		'scrypt',// 'scryptn',
+		'neoscrypt','lyra2',
+		'quark',
+		'qubit',
+		'c11',
+		'x11',
+		//'x13','x15',
+		//'groestl', << dmd-gr -m 256
+		'skein',
+		//'skein2',
+		'drop',
+		'zr5',
+	);
 }
 
 function yaamp_get_algo_norm($algo)
@@ -27,6 +41,7 @@ function yaamp_get_algo_norm($algo)
 		'groestl'	=> 5,
 		'blake'		=> 300,
 		'keccak'	=> 160,
+		'skein2'	=> 300,
 		'zr5'		=> 5.5,
 		'drop'		=> 1.5,
 	);
@@ -44,7 +59,7 @@ function getAlgoColors($algo)
 		'scrypt'	=> '#c0c0e0',
 		'neoscrypt'	=> '#a0d0f0',
 		'scryptn'	=> '#d0d0d0',
-		'c11'		=> '#e0f0b0',
+		'c11'		=> '#a0a0d0',
 		'x11'		=> '#f0f0a0',
 		'x13'		=> '#d0f0c0',
 		'x14'		=> '#a0f0c0',
@@ -53,6 +68,8 @@ function getAlgoColors($algo)
 		'quark'		=> '#c0c0c0',
 		'qubit'		=> '#d0a0f0',
 		'lyra2'		=> '#80a0f0',
+		'skein'		=> '#80a0a0',
+		'skein2'	=> '#a0a0a0',
 		'zr5'		=> '#d0b0d0',
 		'drop'		=> '#d0b0d0',
 	);
@@ -84,9 +101,10 @@ function getAlgoPort($algo)
 		'qubit'		=> 4733,
 		'zr5'		=> 4833,
 		'skein'		=> 4933,
-		'groestl'	=> 5033,
-		'keccak'	=> 5133,
 		'drop'		=> 5033,
+		'keccak'	=> 5133,
+		'skein2'	=> 5233,
+		'groestl'	=> 5333,
 		'zr5'		=> 5533,
 	);
 

@@ -26,6 +26,9 @@ screen -dmS neo /var/stratum/run.sh neo
 screen -dmS quark /var/stratum/run.sh quark
 #screen -dmS qubit /var/stratum/run.sh qubit
 screen -dmS lyra2 /var/stratum/run.sh lyra2
+
+screen -dmS skein /var/stratum/run.sh skein
+#screen -dmS skein2 /var/stratum/run.sh skein2
 screen -dmS zr5 /var/stratum/run.sh zr5
 screen -dmS drop /var/stratum/run.sh drop
 
