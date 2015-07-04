@@ -1,19 +1,20 @@
 <?php
-	// FINAL TESTED CODE - Created by Compcentral
+// FINAL TESTED CODE - Created by Compcentral
 
-	// NOTE: currency pairs are reverse of what most exchanges use...
-	//       For instance, instead of XPM_BTC, use BTC_XPM
+// NOTE: currency pairs are reverse of what most exchanges use...
+//       For instance, instead of XPM_BTC, use BTC_XPM
 
-	class poloniex {
-		protected $api_key = "";
-		protected $api_secret = "";
+class poloniex {
+		protected $api_key = '';
+		protected $api_secret = '';
 		protected $trading_url = "https://poloniex.com/tradingApi";
 		protected $public_url = "https://poloniex.com/public";
 
-// 		public function __construct($api_key, $api_secret) {
-// 			$this->api_key = $api_key;
-// 			$this->api_secret = $api_secret;
-// 		}
+		public function __construct() {
+			require_once('/etc/yiimp/keys.php');
+			$this->api_key = YIIMP_POLO_KEY;
+			$this->api_secret = YIIMP_POLO_SEC;
+		}
 
 		private function query(array $req = array()) {
 			// API settings
@@ -237,6 +238,5 @@
 
 			return $tot_btc;
 		}
-	}
 
-
+}
