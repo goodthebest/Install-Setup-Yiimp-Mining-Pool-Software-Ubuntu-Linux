@@ -174,7 +174,7 @@ echo "<tr>";
 echo "<th></th>";
 
 foreach($markets as $market)
-	echo "<th align=right><a href='/site/runexchange?id=$market->id'>$market->name</a></th>";
+	echo "<th align=right><a href='/site/runExchange?id=$market->id'>$market->name</a></th>";
 
 echo "<th align=right>Total</th>";
 

@@ -4,6 +4,8 @@ function BackendPricesUpdate()
 {
 //	debuglog(__FUNCTION__);
 
+	updateAlcurexMarkets();
+	updateCryptopiaMarkets();
 	updateBittrexMarkets();
 	updateCryptsyMarkets();
 	updateCCexMarkets();
@@ -11,8 +13,6 @@ function BackendPricesUpdate()
 	updatePoloniexMarkets();
 	updateYobitMarkets();
 	updateJubiMarkets();
-	updateAlcurexMarkets();
-	updateCryptopiaMarkets();
 
 	$list2 = getdbolist('db_coins', "installed and symbol2 is not null");
 	foreach($list2 as $coin2)
@@ -519,6 +519,7 @@ function updateAlcurexMarkets()
 	{
 		$coin = getdbo('db_coins', $market->coinid);
 		if(!$coin || !$coin->installed) continue;
+
 		$pair = strtoupper($coin->symbol).'_BTC';
 		foreach ($data->MARKETS as $ticker) {
 			if ($ticker->Pair === $pair) {
@@ -535,7 +536,12 @@ function updateAlcurexMarkets()
 					$market->price2 = AverageIncrement($market->price2, $last->price);
 					$market->save();
 				}
-				debuglog("alcurex... should Update $pair: $market->price $market->price2");
+				if (empty($coin->price)) {
+					$coin->price = $market->price;
+					$coin->price2 = $market->price2;
+					$coin->save();
+				}
+				debuglog("alcurex... Updated $coin->symbol: $market->price $market->price2");
 			}
 		}
 	}
@@ -562,6 +568,11 @@ function updateCryptopiaMarkets()
 				$market->price = AverageIncrement($market->price, $ticker->BidPrice*0.98);
 				// debuglog("Updated $pair: $market->price");
 				$market->save();
+				if (empty($coin->price)) {
+					$coin->price = $market->price;
+					$coin->price2 = $market->price2;
+					$coin->save();
+				}
 				break;
 			}
 		}

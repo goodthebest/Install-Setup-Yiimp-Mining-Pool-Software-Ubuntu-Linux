@@ -12,6 +12,15 @@ function getparam($p)
 
 function getiparam($p)
 {
+	// workaround for yii default /route/<id> ....
+	if ($p == 'id') {
+		$id = isset($_REQUEST[$p])? $_REQUEST[$p]: 0;
+		if (!$id) {
+			$url = explode('/', $_SERVER['REQUEST_URI']);
+			$id = array_pop($url);
+		}
+		return (int) $id;
+	}
 	return isset($_REQUEST[$p])? intval($_REQUEST[$p]): 0;
 }
 
@@ -308,6 +317,7 @@ class RecursiveDOMIterator implements RecursiveIterator
 		return $this->_nodeList->item($this->_position);
 	}
 }
+
 
 
 

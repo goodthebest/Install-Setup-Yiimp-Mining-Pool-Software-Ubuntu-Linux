@@ -19,7 +19,7 @@ return array(
 		'urlManager'=>array(
 			'urlFormat'=>'path',
 			'showScriptName'=>false,
-			'appendParams'=>false,
+			'appendParams'=>true,
 			'caseSensitive'=>false,
 		),
 

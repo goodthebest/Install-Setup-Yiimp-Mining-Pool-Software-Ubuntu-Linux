@@ -736,7 +736,11 @@ class SiteController extends CommonController
 				break;
 		}
 
-		debuglog("runexchange done");
+		if ($balance)
+			debuglog("runexchange done ($balance->name)");
+		else
+			debuglog("runexchange faiked (no id!)");
+
 		$this->redirect("/site/common");
 	}
 
