@@ -263,7 +263,8 @@ bool client_submit(YAAMP_CLIENT *client, json_value *json_params)
 	memset(&submitvalues, 0, sizeof(submitvalues));
 
 	build_submit_values(&submitvalues, templ, client->extranonce1, extranonce2, ntime, nonce);
-	if(submitvalues.hash_bin[30] || submitvalues.hash_bin[31])
+	// zr5 has data here, ignore it... reversed endian ?
+	if((submitvalues.hash_bin[30] || submitvalues.hash_bin[31]) && g_current_algo && strcmp(g_current_algo->name, "zr5"))
 	{
 		client_submit_error(client, job, 25, "Invalid share", extranonce2, ntime, nonce);
 		return true;
