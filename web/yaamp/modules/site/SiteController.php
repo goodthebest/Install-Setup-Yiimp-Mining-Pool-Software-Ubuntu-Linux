@@ -706,7 +706,7 @@ class SiteController extends CommonController
 				break;
 
 			case 'cryptsy':
-				//doCryptsyTrading(true);
+				doCryptsyTrading(true);
 				updateCryptsyMarkets();
 				break;
 
@@ -716,7 +716,7 @@ class SiteController extends CommonController
 				break;
 
 			case 'c-cex':
-				//doCCexTrading(true);
+				doCCexTrading(true);
 				updateCCexMarkets();
 				break;
 
@@ -731,7 +731,7 @@ class SiteController extends CommonController
 				break;
 
 			case 'poloniex':
-				//doPoloniexTrading(true);
+				doPoloniexTrading(true);
 				updatePoloniexMarkets();
 				break;
 		}
