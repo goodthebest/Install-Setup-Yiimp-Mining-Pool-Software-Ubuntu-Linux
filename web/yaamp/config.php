@@ -13,7 +13,6 @@ return array(
 
 	'preload'=>array('log'),
 	'import'=>array('application.components.*'),
-//	'params'=>require("siteconfig.php"),
 
 	'components'=>array(
 
@@ -22,11 +21,6 @@ return array(
 			'showScriptName'=>false,
 			'appendParams'=>false,
 			'caseSensitive'=>false,
-			'rules'=>array(
-				'<controller:\w+>/<id:\d+>'=>'<controller>/view',
-				'<controller:\w+>/<action:\w+>/<id:\d+>'=>'<controller>/<action>',
-				'<controller:\w+>/<action:\w+>'=>'<controller>/<action>',
-			),
 		),
 
 		'assetManager'=>array(

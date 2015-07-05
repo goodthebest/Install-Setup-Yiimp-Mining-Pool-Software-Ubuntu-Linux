@@ -4,6 +4,7 @@ Required:
 
 	linux, mysql, php, memcached
 
+
 Config for nginx:
 
 	location / {
@@ -20,22 +21,27 @@ Config for nginx:
 		include fastcgi_params;
 	}
 
-If you use apache, it should be something like (already set in web/.htaccess):
+
+If you use apache, it should be something like that (already set in web/.htaccess):
 
 	RewriteEngine on
 
 	RewriteCond %{REQUEST_FILENAME} !-f
 	RewriteRule ^(.*) index.php?r=$1 [QSA]
 
+
 If you use lighttpd, use the following config:
 
 	$HTTP["host"] =~ "yiimp.ccminer.org" {
 	        server.document-root = "/var/yaamp/web"
 	        url.rewrite-if-not-file = (
-	                "^(.*)\?(.*)" => "index.php?r=$1&$2",
+			"^(.*)/([0-9]+)$" => "index.php?r=$1&id=$2",
+			"^(.*)\?(.*)" => "index.php?r=$1&$2",
 	                "^(.*)" => "index.php?r=$1",
 	                "." => "index.php"
 	        )
+
+		url.access-deny = ( "~", ".dat", ".log" )
 	}
 
 
@@ -46,6 +52,7 @@ Some scripts are expecting the web folder to be /var/web.
 Add your exchange API keys in:
 
 	web/yaamp/core/exchange/*
+
 
 Look at web/yaamp/core/trading/ there are a few place where there're hardcoded withdraw BTC address (cryptsy, bittrex and bleutrade).
 

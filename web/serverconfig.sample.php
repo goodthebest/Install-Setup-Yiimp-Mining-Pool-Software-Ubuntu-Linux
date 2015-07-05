@@ -1,6 +1,6 @@
 <?php
 
-ini_set('date.timezone', 'Canada/Eastern');
+ini_set('date.timezone', 'UTC');
 
 define('YAAMP_LOGS', '/var/log/yaamp');
 define('YAAMP_HTDOCS', '/var/web');
@@ -26,5 +26,4 @@ define('YAAMP_ADMIN_EMAIL', 'yiimp@spam.la');
 $cold_wallet_table = array(
 	'1C23KmLeCaQSLLyKVykHEUse1R7jRDv9j9' => 0.10,
 );
-
 
