@@ -25,6 +25,19 @@ class ApiController extends CommonController
 				array(':algo'=>$algo)
 			);
 
+			$timesincelast = (int) controller()->memcache->get_database_scalar("api_status_lastbloctime-$algo",
+				"select time FROM blocks WHERE algo=:algo AND category IN ('immature','generate') ORDER BY time DESC LIMIT 1",
+				array(':algo'=>$algo)
+			);
+			if ($timesincelast > 0) {
+				$timesincelast = (time() - $timesincelast);
+			}
+
+			$lastbloc = (int) controller()->memcache->get_database_scalar("api_status_lastbloc-$algo",
+				"select height FROM blocks WHERE algo=:algo AND category IN ('immature','generate') ORDER BY time DESC LIMIT 1",
+				array(':algo'=>$algo)
+			);
+
 			$hashrate = controller()->memcache->get_database_scalar("api_status_hashrate-$algo",
 				"select hashrate from hashrate where algo=:algo order by time desc limit 1", array(':algo'=>$algo));
 
@@ -69,6 +82,8 @@ class ApiController extends CommonController
 			echo "\"fees\": $fees, ";
 			echo "\"hashrate\": $hashrate, ";
 			echo "\"workers\": $workers, ";
+			echo "\"lastbloc\": $lastbloc, ";
+			echo "\"timesincelast\": $timesincelast, ";
 			echo "\"estimate_current\": $price, ";
 			echo "\"estimate_last24h\": $avgprice, ";
 			echo "\"actual_last24h\": $btcmhday1, ";
