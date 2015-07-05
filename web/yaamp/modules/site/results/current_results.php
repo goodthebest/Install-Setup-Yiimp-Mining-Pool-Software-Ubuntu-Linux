@@ -63,7 +63,7 @@ foreach($algos as $item)
 	$algo = $item[1];
 
 	$coins = getdbocount('db_coins', "enable and visible and auto_ready and algo=:algo", array(':algo'=>$algo));
-	$count = getdbocount('db_workers', "algo=:algo", array(':algo'=>$algo));
+	$workers = getdbocount('db_workers', "algo=:algo", array(':algo'=>$algo));
 
 	$hashrate = controller()->memcache->get_database_scalar("current_hashrate-$algo",
 		"select hashrate from hashrate where algo=:algo order by time desc limit 1", array(':algo'=>$algo));
@@ -104,7 +104,7 @@ foreach($algos as $item)
 	echo "<td><b>$algo</b></td>";
 	echo "<td align=right style='font-size: .8em;'>$port</td>";
 	echo "<td align=right style='font-size: .8em;'>$coins</td>";
-	echo "<td align=right style='font-size: .8em;'>$count</td>";
+	echo "<td align=right style='font-size: .8em;'>$workers</td>";
 	echo "<td align=right style='font-size: .8em;'>$hashrate</td>";
 	echo "<td align=right style='font-size: .8em;'>{$fees}%</td>";
 
@@ -120,7 +120,7 @@ foreach($algos as $item)
 	echo "</tr>";
 
 	$total_coins += $coins;
-	$total_miners += $count;
+	$total_miners += $workers;
 }
 
 echo "</tbody>";

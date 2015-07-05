@@ -17,8 +17,13 @@ class ApiController extends CommonController
 		{
 			if($i) echo ", ";
 
-			$coins = controller()->memcache->get_database_count_ex("api_status_coins-$algo",
+			$coins = (int) controller()->memcache->get_database_count_ex("api_status_coins-$algo",
 				'db_coins', "enable and visible and auto_ready and algo=:algo", array(':algo'=>$algo));
+
+			$workers = (int) controller()->memcache->get_database_scalar("api_status_workers-$algo",
+				"select COUNT(id) FROM workers WHERE algo=:algo",
+				array(':algo'=>$algo)
+			);
 
 			$hashrate = controller()->memcache->get_database_scalar("api_status_hashrate-$algo",
 				"select hashrate from hashrate where algo=:algo order by time desc limit 1", array(':algo'=>$algo));
@@ -28,7 +33,7 @@ class ApiController extends CommonController
 
 			$price = bitcoinvaluetoa(take_yaamp_fee($price/1000, $algo));
 
-			$rental = controller()->memcache->get_database_scalar("api_status_price-$algo",
+			$rental = controller()->memcache->get_database_scalar("api_status_rental-$algo",
 				"select rent from hashrate where algo=:algo order by time desc limit 1", array(':algo'=>$algo));
 
 			$rental = bitcoinvaluetoa($rental);
@@ -63,6 +68,7 @@ class ApiController extends CommonController
 			echo "\"coins\": $coins, ";
 			echo "\"fees\": $fees, ";
 			echo "\"hashrate\": $hashrate, ";
+			echo "\"workers\": $workers, ";
 			echo "\"estimate_current\": $price, ";
 			echo "\"estimate_last24h\": $avgprice, ";
 			echo "\"actual_last24h\": $btcmhday1, ";
