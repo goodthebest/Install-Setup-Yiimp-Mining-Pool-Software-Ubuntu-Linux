@@ -25,6 +25,14 @@ define('YAAMP_ADMIN_EMAIL', 'yiimp@spam.la');
 
 define('YAAMP_USE_NGINX', false);
 
+// Exchange public keys (private keys are in a separate config file)
+define('YIIMP_CRYPT_PUB', '');
+define('YIIMP_POLO_KEY', '');
+define('YIIMP_BITTREX_KEY', '');
+
+// Automatic withdraw to Yaamp btc wallet if btc balance > 0.3
+define('YAMMP_BITTREX_AUTO_WITHDRAW', 0.3);
+
 $cold_wallet_table = array(
 	'1C23KmLeCaQSLLyKVykHEUse1R7jRDv9j9' => 0.10,
 );

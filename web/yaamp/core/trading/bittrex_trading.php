@@ -19,6 +19,9 @@ function doBittrexTrading($quick=false)
 		if(!$coin) continue;
 		if($coin->dontsell) continue;
 
+		// ignore buy orders
+		if(strpos($order->OrderType, 'SELL') == false) continue;
+
 		$ticker = bittrex_api_query('public/getticker', "&market=$order->Exchange");
 		if(!$ticker || !$ticker->success || !$ticker->result) continue;
 
@@ -28,7 +31,7 @@ function doBittrexTrading($quick=false)
 		// flush orders not on the ask
 		if($ask+0.00000005 < $sellprice || $flushall)
 		{
-// 			debuglog("bittrex cancel order $order->Exchange $sellprice -> $ask");
+			debuglog("bittrex cancel order $order->Exchange $sellprice -> $ask");
 			bittrex_api_query('market/cancel', "&uuid=$order->OrderUuid");
 
 			$db_order = getdbosql('db_orders', "uuid=:uuid", array(':uuid'=>$order->OrderUuid));
@@ -69,15 +72,16 @@ function doBittrexTrading($quick=false)
 		if(!$coin) continue;
 
 		$found = false;
-		foreach($orders->result as $order)
-			if($order->OrderUuid == $db_order->uuid)
-			{
+		foreach($orders->result as $order) {
+			if(strpos($order->OrderType, 'SELL') == false) continue;
+
+			if($order->OrderUuid == $db_order->uuid) {
 				$found = true;
 				break;
 			}
+		}
 
-		if(!$found)
-		{
+		if(!$found) {
 			debuglog("bittrex deleting order $coin->name $db_order->amount");
 			$db_order->delete();
 		}
@@ -162,7 +166,7 @@ function doBittrexTrading($quick=false)
 			$sellprice = bitcoinvaluetoa($ticker->result->Ask);
 		if($amount*$sellprice < 0.00050000) continue;
 
-//		debuglog("bittrex selling $pair, $amount, $sellprice");
+		debuglog("bittrex selling $pair, $amount, $sellprice");
 
 		$res = bittrex_api_query('market/selllimit', "&market=$pair&quantity=$amount&rate=$sellprice");
 		if(!$res || !$res->success)
@@ -185,16 +189,16 @@ function doBittrexTrading($quick=false)
 		sleep(1);
 	}
 
-	if($savebalance->balance >= 0.3)
+	if(floatval(YAMMP_BITTREX_AUTO_WITHDRAW) > 0 && $savebalance->balance >= (YAMMP_BITTREX_AUTO_WITHDRAW + 0.0002))
 	{
-		$btcaddr = YAAMP_BTCADDRESS; //'14LS7Uda6EZGXLtRrFEZ2kWmarrxobkyu9';
-		$amount = $savebalance->balance;	// - 0.0002;
+		$btcaddr = YAAMP_BTCADDRESS;
+		$amount = $savebalance->balance + 0.0002;
 		debuglog("bittrex withdraw $amount to $btcaddr");
 
 		sleep(1);
 
 		$res = bittrex_api_query('account/withdraw', "&currency=BTC&quantity=$amount&address=$btcaddr");
-		debuglog($res);
+		debuglog("bittrex withdraw: ".json_encode($res));
 
 		if($res && $res->success)
 		{
@@ -212,11 +216,6 @@ function doBittrexTrading($quick=false)
 
 	$savebalance->save();
 
-	//	debuglog('-------------- doBittrexTrading() done');
+//	debuglog('-------------- doBittrexTrading() done');
 }
-
-
-
-
-
 

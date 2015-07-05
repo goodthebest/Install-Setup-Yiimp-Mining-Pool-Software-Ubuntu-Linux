@@ -2,8 +2,10 @@
 
 function bittrex_api_query($method, $params='')
 {
-	$apikey = ''; // your API-key
-	$apisecret = ''; // your Secret-key
+	require_once('/etc/yiimp/keys.php');
+
+	$apikey = YIIMP_BITTREX_KEY; // your API-key
+	$apisecret = YIIMP_BITTREX_SEC; // your Secret-key
 
 	$nonce = time();
 	$uri = "https://bittrex.com/api/v1.1/$method?apikey=$apikey&nonce=$nonce$params";
