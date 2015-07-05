@@ -748,9 +748,9 @@ class SiteController extends CommonController
 	{
 		if(!$this->admin) return;
 
-//  		$param = getparam('param');
-//  		if($param) eval($param);
-//  		else $param = '';
+//		$param = getparam('param');
+//		if($param) eval($param);
+//		else $param = '';
 
 //		$this->render('eval', array('param'=>$param));
 	}
@@ -763,7 +763,8 @@ class SiteController extends CommonController
 
 	public function actionTest()
 	{
-	//	if(!$this->admin) return;
+		if(!$this->admin) return;
+
 		debuglog("action test");
 
 		$ticker = jubi_api_query('ticker', "?coin=sak");

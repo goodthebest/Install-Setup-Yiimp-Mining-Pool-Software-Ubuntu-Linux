@@ -20,11 +20,12 @@ screen -dmS x11 /var/stratum/run.sh x11
 #screen -dmS x13 /var/stratum/run.sh x13
 #screen -dmS x15 /var/stratum/run.sh x15
 screen -dmS sha /var/stratum/run.sh sha
-#screen -dmS scrypt1 /var/stratum/run.sh scrypt
+screen -dmS scrypt /var/stratum/run.sh scrypt
 #screen -dmS scrypt2 /var/stratum/run.sh scryptn
 screen -dmS neo /var/stratum/run.sh neo
 screen -dmS quark /var/stratum/run.sh quark
-#screen -dmS qubit /var/stratum/run.sh qubit
+screen -dmS qubit /var/stratum/run.sh qubit
+#screen -dmS groestl /var/stratum/run.sh groestl # dmd-gr -m 256
 screen -dmS lyra2 /var/stratum/run.sh lyra2
 
 screen -dmS skein /var/stratum/run.sh skein

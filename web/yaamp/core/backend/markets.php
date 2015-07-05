@@ -112,7 +112,7 @@ function updateBleutradeMarkets()
 
 	foreach($list->result as $currency)
 	{
-		//	debuglog($currency);
+	//	debuglog($currency);
 		if($currency->Currency == 'BTC') continue;
 
 		$coin = getdbosql('db_coins', "symbol='$currency->Currency'");
@@ -154,6 +154,8 @@ function updateBleutradeMarkets()
 		$market->price = AverageIncrement($market->price, $ticker->result[0]->Bid);
 
 		$market->save();
+
+//		debuglog("bleutrade update $coin->symbol: $market->price $market->price2");
 	}
 
 }
@@ -218,6 +220,8 @@ function updateBittrexMarkets()
 		$market->price = AverageIncrement($market->price, $ticker->result->Bid);
 
 		$market->save();
+
+//		debuglog("bittrex update $coin->symbol: $market->price $market->price2");
 	}
 }
 
@@ -299,11 +303,9 @@ function updateCryptsyMarkets()
 
 		$market->save();
 
-		if($currency['maintenancemode'])
-		{
+		if($currency['maintenancemode']) {
 			$market->price = 0;
 			$market->save();
-
 			continue;
 		}
 
@@ -322,6 +324,8 @@ function updateCryptsyMarkets()
 		$market->price = AverageIncrement($market->price, $ticker->return->$symbol->buyorders[0]->price);
 
 		$market->save();
+
+//		debuglog("cryptsy update $coin->symbol: $market->price $market->price2");
 	}
 
 	$list = cryptsy_api_query('getmydepositaddresses');
@@ -348,7 +352,7 @@ function updateCryptsyMarkets()
 
 function updateCCexMarkets()
 {
-	//	dborun("update markets set price=0 where name='c-cex'");	<- add that line
+//	dborun("update markets set price=0 where name='c-cex'");	<- add that line
 	$ccex = new CcexAPI;
 
 	$list = $ccex->getPairs();
@@ -383,6 +387,8 @@ function updateCCexMarkets()
 		$market->price = AverageIncrement($market->price, $ticker['buy']);
 
 		$market->save();
+
+//		debuglog("ccex update $coin->symbol: $market->price $market->price2");
 	}
 }
 
@@ -422,6 +428,8 @@ function updatePoloniexMarkets()
 		$market->price = AverageIncrement($market->price, $ticker['highestBid']);
 
 		$market->save();
+
+//		debuglog("poloniex update $coin->symbol: $market->price $market->price2");
 	}
 
 	$list = $poloniex->get_deposit_addresses();
@@ -476,6 +484,8 @@ function updateYobitMarkets()
 		$market->price2 = AverageIncrement($market->price2, $price2);
 		$market->price = AverageIncrement($market->price, $ticker->$pair->buy);
 
+//		debuglog("yobit update $coin->symbol: $market->price $market->price2");
+
 		$market->save();
 	}
 }
@@ -504,6 +514,8 @@ function updateJubiMarkets()
 		$price2 = ($ticker->buy+$ticker->sell)/2;
 		$market->price2 = AverageIncrement($market->price2, $price2);
 		$market->price = AverageIncrement($market->price, $ticker->buy*0.95);
+
+//		debuglog("jubi update $coin->symbol: $market->price $market->price2");
 
 		$market->save();
 	}
@@ -541,7 +553,7 @@ function updateAlcurexMarkets()
 					$coin->price2 = $market->price2;
 					$coin->save();
 				}
-				debuglog("alcurex... Updated $coin->symbol: $market->price $market->price2");
+//				debuglog("alcurex update $coin->symbol: $market->price $market->price2");
 			}
 		}
 	}
@@ -566,13 +578,13 @@ function updateCryptopiaMarkets()
 				$price2 = ($ticker->BidPrice+$ticker->AskPrice)/2;
 				$market->price2 = AverageIncrement($market->price2, $price2);
 				$market->price = AverageIncrement($market->price, $ticker->BidPrice*0.98);
-				// debuglog("Updated $pair: $market->price");
 				$market->save();
 				if (empty($coin->price)) {
 					$coin->price = $market->price;
 					$coin->price2 = $market->price2;
 					$coin->save();
 				}
+//				debuglog("cryptopia update $coin->symbol: $market->price $market->price2");
 				break;
 			}
 		}
