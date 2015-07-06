@@ -4,12 +4,14 @@
 
 function bleutrade_api_query($method, $params='')
 {
-	$apikey = ''; // your API-key
-	$apisecret = ''; // your Secret-key
+	require_once('/etc/yiimp/keys.php');
+
+	$apikey = YIIMP_BLEUTRADE_KEY; // your API-key
+	$apisecret = YIIMP_BLEUTRADE_SEC; // your Secret-key
 
 	$nonce = time();
 	$uri = "https://bleutrade.com/api/v2/$method?apikey=$apikey&nonce=$nonce$params";
-//	debuglog($uri);
+	debuglog("bleutrade $method:");
 
 	$sign = hash_hmac('sha512', $uri, $apisecret);
 	$ch = curl_init($uri);

@@ -17,8 +17,8 @@ screen -dmS blocks /var/web/blocks.sh
 
 screen -dmS c11 /var/stratum/run.sh c11
 screen -dmS x11 /var/stratum/run.sh x11
-#screen -dmS x13 /var/stratum/run.sh x13
-#screen -dmS x15 /var/stratum/run.sh x15
+screen -dmS x13 /var/stratum/run.sh x13
+screen -dmS x15 /var/stratum/run.sh x15
 screen -dmS sha /var/stratum/run.sh sha
 screen -dmS scrypt /var/stratum/run.sh scrypt
 #screen -dmS scrypt2 /var/stratum/run.sh scryptn

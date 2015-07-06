@@ -29,8 +29,10 @@ function yobit_api_query($method)
 
 function yobit_api_query2($method, $req = array())
 {
-	$api_key    = '';
-	$api_secret = '';
+	require_once('/etc/yiimp/keys.php');
+
+	$api_key    = YIIMP_YOBIT_KEY;
+	$api_secret = YIIMP_YOBIT_SEC;
 
 	$req['method'] = $method;
 	$req['nonce'] = time();
@@ -61,6 +63,8 @@ function yobit_api_query2($method, $req = array())
 		debuglog($e);
 		curl_close($ch);
 		return null;
+	} else if ($method != "getInfo") {
+		debuglog("yobit $method $post_data ok");
 	}
 
 	curl_close($ch);
@@ -70,8 +74,3 @@ function yobit_api_query2($method, $req = array())
 
 	return $result;
 }
-
-
-
-
-

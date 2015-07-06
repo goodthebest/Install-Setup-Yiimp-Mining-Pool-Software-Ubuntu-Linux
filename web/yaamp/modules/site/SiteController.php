@@ -711,7 +711,7 @@ class SiteController extends CommonController
 				break;
 
 			case 'bittrex':
-				//doBittrexTrading(true);
+				doBittrexTrading(true);
 				updateBittrexMarkets();
 				break;
 
@@ -721,12 +721,12 @@ class SiteController extends CommonController
 				break;
 
 			case 'yobit':
-				//doYobitTrading(true);
+				doYobitTrading(true);
 				updateYobitMarkets();
 				break;
 
 			case 'bleutrade':
-				//doBleutradeTrading(true);
+				doBleutradeTrading(true);
 				updateBleutradeMarkets();
 				break;
 

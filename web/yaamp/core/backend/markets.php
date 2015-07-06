@@ -229,8 +229,8 @@ function updateBittrexMarkets()
 
 function updateCryptsyMarkets()
 {
-	//	dborun("update markets set price=0 where name='cryptsy'");
-	//	return;
+//	dborun("update markets set price=0 where name='cryptsy'");
+//	return;
 
 	$markets = cryptsy_api_query('getmarkets');
 	if(!$markets || !isset($markets['return']))
@@ -253,6 +253,8 @@ function updateCryptsyMarkets()
 
 		$coin = getdbosql('db_coins', "symbol=:symbol", array(':symbol'=>$symbol));
 		if(!$coin || !$coin->installed) continue;
+
+//		debuglog("cryptsy:  $coin->name $symbol");
 
 		$market = getdbosql('db_markets', "coinid=$coin->id and name='cryptsy'");
 		if(!$market)
@@ -314,12 +316,12 @@ function updateCryptsyMarkets()
 		if(!$ticker) continue;
 		if(!isset($ticker->return->$symbol->buyorders[0]))
 		{
-			debuglog("error cryptsy $coin->name");
+			debuglog("error cryptsy $coin->name id {$market->marketid}");
 			debuglog($ticker, 5);
 			continue;
 		}
 
-		$price2 = ($ticker->return->$symbol->buyorders[0]->price+$ticker->return->$symbol->sellorders[0]->price)/2;
+		$price2 = ($ticker->return->$symbol->buyorders[0]->price + $ticker->return->$symbol->sellorders[0]->price)/2;
 		$market->price2 = AverageIncrement($market->price2, $price2);
 		$market->price = AverageIncrement($market->price, $ticker->return->$symbol->buyorders[0]->price);
 

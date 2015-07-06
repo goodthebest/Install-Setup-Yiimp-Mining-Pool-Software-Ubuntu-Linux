@@ -5,16 +5,19 @@ function yaamp_get_algos()
 	/* Toggle Site Algos Here */
 	return array(
 		'sha256',
-		'scrypt',// 'scryptn',
-		'neoscrypt','lyra2',
+		'scrypt',
+		'scryptn',
+		'neoscrypt',
+		'lyra2',
 		'quark',
 		'qubit',
 		'c11',
 		'x11',
-		//'x13','x15',
-		//'groestl', << dmd-gr -m 256
+		'x13',
+		'x15',
+		'groestl', // dmd-gr -m 256
 		'skein',
-		//'skein2',
+		'skein2',
 		'drop',
 		'zr5',
 	);
@@ -148,7 +151,6 @@ function yaamp_fee($algo)
 		$fee = 5.0;
 		break;
 	case 'drop':
-	case 'c11':
 		$fee *= 2.0;
 		break;
 	}
