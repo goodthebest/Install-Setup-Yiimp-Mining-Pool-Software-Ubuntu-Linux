@@ -30,6 +30,9 @@ using namespace std;
 #include "json.h"
 #include "util.h"
 
+#define json_typeof(json)      ((json)->type)
+#define json_is_array(json)    (json && json_typeof(json) == json_array)
+
 #define YAAMP_RESTARTDELAY		(24*60*60)
 #define YAAMP_MAXJOBDELAY		(2*60)
 

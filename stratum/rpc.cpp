@@ -248,9 +248,12 @@ json_value *rpc_call(YAAMP_RPC *rpc, char const *method, char const *params)
 	if(!buffer) return NULL;
 
 	json_value *json = json_parse(buffer, strlen(buffer));
+	if(!json) {
+		debuglog("invalid json: %s", buffer);
+		free(buffer);
+		return NULL;
+	}
 	free(buffer);
-
-	if(!json) return NULL;
 
 	int s2 = current_timestamp();
 	if(s2-s1 > 2000)
