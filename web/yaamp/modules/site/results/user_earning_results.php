@@ -35,6 +35,10 @@ foreach($earnings as $earning)
 {
 	$coin = getdbo('db_coins', $earning->coinid);
 	$block = getdbo('db_blocks', $earning->blockid);
+	if (!$block) {
+		debuglog('missing block id {$earning->blockid}!');
+		continue;
+	}
 
 	$d = datetoa2($earning->create_time);
 	if(!$coin)

@@ -70,27 +70,41 @@ function BackendPricesUpdate()
 		}
 
 		$coin->save();
-		dborun("update earnings set price=$coin->price where status!=2 and coinid=$coin->id");
+		dborun("UPDATE earnings SET price=$coin->price WHERE status!=2 AND coinid=$coin->id");
 	}
 }
 
 function getBestMarket($coin)
 {
-	$market = getdbosql('db_markets', "coinid=$coin->id and price!=0 and
-		deposit_address is not null and deposit_address != '' and
-		(name='bittrex' or name='cryptsy') order by price desc");
-
-	if(!$market)
-	{
-		$market = getdbosql('db_markets', "coinid=$coin->id and price!=0 and
-			deposit_address is not null and deposit_address != '' and
-			name!='yobit' order by price desc");
-
-		if(!$market)
-			$market = getdbosql('db_markets', "coinid=$coin->id and price!=0 and
-					deposit_address is not null and deposit_address != ''
-					order by price desc");
+	$market = NULL;
+	if (!empty($coin->market)) {
+		// get coin market first (if set)
+		if ($coin->market != 'BEST')
+			$market = getdbosql('db_markets', "coinid=$coin->id AND price!=0 AND
+				deposit_address IS NOT NULL AND deposit_address != '' AND name=:name",
+				array(':name'=>$coin->market));
+		else
+		// else take one of the big exchanges...
+			$market = getdbosql('db_markets', "coinid=$coin->id AND price!=0 AND
+				deposit_address IS NOT NULL AND deposit_address != '' AND
+				name IN ('poloniex','bittrex','cryptsy') ORDER BY price DESC");
 	}
+	if(!$market) {
+		// else the best price
+		$market = getdbosql('db_markets', "coinid=$coin->id AND price!=0 AND
+			deposit_address IS NOT NULL AND deposit_address != ''
+			AND	name!='yobit' ORDER BY price DESC");
+	}
+	if(!$market) {
+		$market = getdbosql('db_markets', "coinid=$coin->id AND price!=0 AND
+			deposit_address IS NOT NULL AND deposit_address != ''
+			ORDER BY price DESC");
+	}
+
+	if (!$market)
+		debuglog("best market for {$coin->symbol} is unknown");
+	//else
+	//	debuglog("best market for {$coin->symbol} is {$market->name}");
 
 	return $market;
 }

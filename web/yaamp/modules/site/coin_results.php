@@ -37,6 +37,7 @@ echo "</thead><tbody>";
 $bestmarket = getBestMarket($coin);
 foreach($list as $market)
 {
+	$marketurl = '#';
 	$price = bitcoinvaluetoa($market->price);
 	$price2 = bitcoinvaluetoa($market->price2);
 	$lowsymbol = strtolower($coin->symbol);

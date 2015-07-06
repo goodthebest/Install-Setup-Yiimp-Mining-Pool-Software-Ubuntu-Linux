@@ -11,7 +11,9 @@ function bleutrade_api_query($method, $params='')
 
 	$nonce = time();
 	$uri = "https://bleutrade.com/api/v2/$method?apikey=$apikey&nonce=$nonce$params";
-	debuglog("bleutrade $method:");
+
+	if (strpos($method,'public/') === FALSE && !strpos($method,'getdepositaddress'))
+		debuglog("bleutrade $method $params");
 
 	$sign = hash_hmac('sha512', $uri, $apisecret);
 	$ch = curl_init($uri);
