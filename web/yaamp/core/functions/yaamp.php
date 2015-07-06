@@ -2,6 +2,7 @@
 
 function yaamp_get_algos()
 {
+	/* Toggle Site Algos Here */
 	return array(
 		'sha256',
 		'scrypt',// 'scryptn',
@@ -135,7 +136,22 @@ function yaamp_fee($algo)
 		"select sum(difficulty) * $target / $interval / 1000 from shares where valid and time>$delay and algo=:algo and jobid=0", array(':algo'=>$algo));
 
 //	$fee = round(log($hashrate->hashrate * $norm / 1000000 / $hashrate->difficulty + 1), 1) + YAAMP_FEES_MINING;
-	$fee = round(log($rate * $norm / 2000000 / $hashrate->difficulty + 1), 1) + YAAMP_FEES_MINING;
+//	$fee = round(log($rate * $norm / 2000000 / $hashrate->difficulty + 1), 1) + YAAMP_FEES_MINING;
+	$fee = YAAMP_FEES_MINING;
+
+	// more fees on special algos
+	switch ($algo) {
+	case 'scrypt':
+		$fee = 25.0; // i don't like this one :p
+		break;
+	case 'zr5':
+		$fee = 5.0;
+		break;
+	case 'drop':
+	case 'c11':
+		$fee *= 2.0;
+		break;
+	}
 
 	controller()->memcache->set("yaamp_fee-$algo", $fee);
 	return $fee;
@@ -384,9 +400,5 @@ function yaamp_renter_account($renter)
 	else
 		return "renter-dev-$renter->id";
 }
-
-
-
-
 
 

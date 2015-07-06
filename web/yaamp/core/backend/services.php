@@ -1,5 +1,6 @@
 <?php
 
+/* NiceHash Stuff */
 function BackendUpdateServices()
 {
 //	debuglog(__FUNCTION__);
@@ -19,9 +20,12 @@ function BackendUpdateServices()
 		11=>'qubit',
 		12=>'quark',
 
-		111=>'c11',
-		112=>'zr5',
-		113=>'drop',
+	//	111=>'c11',
+	//	112=>'zr5',
+	//	113=>'drop',
+	//	114=>'skein',
+	//	115=>'skein2',
+	//	116=>'groestl',
 	);
 
 	$res = fetch_url('https://www.nicehash.com/api?method=stats.global.current');
@@ -93,6 +97,8 @@ return;
 	$amount = '0.01';
 
 	$res = fetch_url("https://www.nicehash.com/api?method=balance&id=$apiid&key=$apikey");
+	debuglog($res);
+
 	$a = json_decode($res);
 	$balance = $a->result->balance_confirmed;
 

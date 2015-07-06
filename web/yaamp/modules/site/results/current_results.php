@@ -145,7 +145,7 @@ echo "</table>";
 
 echo "<p style='font-size: .8em'>
 		&nbsp;* best normalized multi algo<br>
-		&nbsp;** fees are are dynamically set.<br>
+		&nbsp;** fees are now fixed manually.<br>
 		&nbsp;*** values in mBTC/Mh/day (mBTC/Gh/day for sha256)<br>
 		</p>";
 
