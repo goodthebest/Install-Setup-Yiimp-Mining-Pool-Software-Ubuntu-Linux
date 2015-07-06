@@ -29,8 +29,21 @@ foreach($list as $coin)
 	if(!empty($coin->symbol2)) continue;
 
 	$coin->version = substr($coin->version, 0, 20);
+
+	//if (!$coin->network_hash)
+		$coin->network_hash = controller()->memcache->get("yiimp-nethashrate-{$coin->symbol}");
+	if (!$coin->network_hash) {
+		$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
+		if ($remote)
+			$info = $remote->getmininginfo();
+		if (isset($info['networkhashps'])) {
+			$coin->network_hash = $info['networkhashps'];
+			controller()->memcache->set("yiimp-nethashrate-{$coin->symbol}", $info['networkhashps'], 60);
+		}
+	}
+
 	$difficulty = Itoa2($coin->difficulty, 3);
-	$nethash = $coin->network_hash? Itoa2($coin->network_hash).'h': '';
+	$nethash = $coin->network_hash? strtoupper(Itoa2($coin->network_hash)).'H/s': '';
 
 	echo "<tr class='ssrow'>";
 	echo "<td><img src='$coin->image' width=18></td>";

@@ -29,13 +29,12 @@ echo <<<END
 
 <ul>
 
-<li>YIIMP is multipool multialgo.</li>
+<li>YIIMP is pool management web application based on the Yii Framework.</li>
 <li>We distribute hashpower in real time among the best coins.</li>
 <li>No registration required.</li>
 <li>We do payouts in any currency we mine. Use your wallet address as the username.</li>
-<li>Payouts are made automatically twice a day for all balances above <b>0.001</b> or <b>0.0001</b> on Sunday.</li>
+<li>Payouts are made automatically every 2H for all balances above <b>0.001</b> or <b>0.0001</b> on Sunday.</li>
 <li>Blocks are distributed proportionally among valid submitted shares.</li>
-<li>We also plan to rent hashpower you can use on third party pools.</li>
 
 <br>
 

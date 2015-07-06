@@ -88,20 +88,21 @@ function showPageHeader()
 	showItemHeader(controller()->id=='site'&&($action=='index' || $action=='wallet') && $ad, "/?address=$wallet", 'Wallet');
 	showItemHeader(controller()->id=='stats', '/stats', 'Graphs');
 	showItemHeader($action=='miners', '/site/miners', 'Miners');
-	showItemHeader(controller()->id=='renting', '/renting', 'Rental');
+	showItemHeader(controller()->id=='explorer', '/explorer', 'Explorers');
+
+//	showItemHeader(controller()->id=='renting', '/renting', 'Rental');
 
 	if(controller()->admin)
 	{
 //		debuglog("admin {$_SERVER['REMOTE_ADDR']}");
 //		$algo = user()->getState('yaamp-algo');
 
-		showItemHeader(controller()->id=='explorer', '/explorer', 'Explorers');
 //		showItemHeader(controller()->id=='coin', '/coin', 'Coins');
 		showItemHeader($action=='common', '/site/common', 'Admin');
 		showItemHeader(controller()->id=='site'&&$action=='admin', "/site/admin", 'List');
 //		showItemHeader(controller()->id=='renting' && $action=='admin', '/renting/admin', 'Jobs');
 
-//		showItemHeader(controller()->id=='trading', '/trading', 'Trading');
+		showItemHeader(controller()->id=='trading', '/trading', 'Trading');
 //		showItemHeader(controller()->id=='nicehash', '/nicehash', 'Nicehash');
 	}
 
