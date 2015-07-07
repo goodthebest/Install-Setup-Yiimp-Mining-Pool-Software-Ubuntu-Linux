@@ -20,6 +20,9 @@ result:
 		"coins": 10,
 		"fees": 1,
 		"hashrate": 269473938,
+		"workers": 1,
+		"lastbloc": 35101,
+		"timesincelast": 437,
 		"estimate_current": 0.00053653,
 		"estimate_last24h": 0.00036408,
 		"actual_last24h": 0.00035620
