@@ -29,7 +29,7 @@ echo <<<END
 
 <ul>
 
-<li>YIIMP is pool management web application based on the Yii Framework.</li>
+<li>YIIMP is a pool management solution based on the Yii Framework.</li>
 <li>We distribute hashpower in real time among the best coins.</li>
 <li>No registration required.</li>
 <li>We do payouts in any currency we mine. Use your wallet address as the username.</li>
@@ -55,8 +55,8 @@ echo <<<END
 </li>
 
 <li>WALLET_ADDRESS can be of any currency we mine. DO NOT USE any BTC address here, the auto exchange is disabled.</li>
-<li>Use "-p c=SYMBOL" if yiimp does not recognize the currency correctly.</li>
-<li>See the "Pool Status" area on the right for PORT numbers. Algorithms without associated coins are diabled.</li>
+<li>Use -p "c=SYMBOL" if yiimp does not recognize the currency correctly.</li>
+<li>See the "Pool Status" area on the right for PORT numbers. Algorithms without associated coins are disabled.</li>
 
 <br>
 

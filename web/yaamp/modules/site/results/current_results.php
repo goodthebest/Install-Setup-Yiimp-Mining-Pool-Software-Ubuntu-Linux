@@ -16,10 +16,10 @@ echo "<th align=right>Coins</th>";
 echo "<th align=right>Miners</th>";
 echo "<th align=right>Hashrate</th>";
 echo "<th align=right>Fees**</th>";
-echo "<th align=right>Current<br>Estimate</th>";
+echo '<th class="estimate" align=right>Current<br>Estimate</th>';
 //echo "<th>Norm</th>";
-echo "<th align=right>24 Hours<br>Estimated</th>";
-echo "<th align=right>24 Hours<br>Actual</th>";
+echo '<th class="estimate" align=right>24 Hours<br>Estimated</th>';
+echo "<th align=right>24 Hours<br>Actual***</th>";
 echo "</tr>";
 echo "</thead>";
 
@@ -109,14 +109,21 @@ foreach($algos as $item)
 	echo "<td align=right style='font-size: .8em;'>{$fees}%</td>";
 
 	if($algo == $best_algo)
-		echo "<td align=right style='font-size: .8em;' title='normalized $norm'><b>$price*</b></td>";
+		echo '<td class="estimate" align="right" style="font-size: .8em;" title="normalized '.$norm.'"><b>'.$price.'*</b></td>';
 	else if($norm>0)
-		echo "<td align=right style='font-size: .8em;' title='normalized $norm'><b>$price</b></td>";
-	else
-		echo "<td align=right style='font-size: .8em;'><b>$price</b></td>";
+		echo '<td class="estimate" align="right" style="font-size: .8em;" title="normalized '.$norm.'">'.$price.'</td>';
 
-	echo "<td align=right style='font-size: .8em;'>$avgprice</td>";
-	echo "<td align=right style='font-size: .8em;'>$btcmhday1</td>";
+	else
+		echo '<td class="estimate" align="right" style="font-size: .8em;">'.$price.'</td>';
+
+
+	echo '<td class="estimate" align="right" style="font-size: .8em;">'.$avgprice.'</td>';
+
+	if($algo == $best_algo)
+		echo "<td align=right style='font-size: .8em;'><b>$btcmhday1*</b></td>";
+	else
+		echo "<td align=right style='font-size: .8em;'>$btcmhday1</td>";
+
 	echo "</tr>";
 
 	$total_coins += $coins;
@@ -136,8 +143,8 @@ echo "<td align=right style='font-size: .8em;'>$total_coins</td>";
 echo "<td align=right style='font-size: .8em;'>$total_miners</td>";
 echo "<td></td>";
 echo "<td></td>";
-echo "<td></td>";
-echo "<td></td>";
+echo '<td class="estimate"></td>';
+echo '<td class="estimate"></td>';
 echo "<td></td>";
 echo "</tr>";
 
@@ -152,7 +159,9 @@ echo "<p style='font-size: .8em'>
 echo "</div></div><br>";
 
 
+?>
 
-
-
+<style type="text/css">
+#maintable1 .estimate { display: none; }
+</style>
 
