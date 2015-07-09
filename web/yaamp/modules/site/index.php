@@ -30,16 +30,18 @@ echo <<<END
 <ul>
 
 <li>YIIMP is a pool management solution based on the Yii Framework.</li>
-<li>We distribute hashpower in real time among the best coins.</li>
-<li>No registration required.</li>
-<li>We do payouts in any currency we mine. Use your wallet address as the username.</li>
-<li>Payouts are made automatically every 2H for all balances above <b>0.001</b> or <b>0.0001</b> on Sunday.</li>
+<li>This fork based on the Yaamp published source code will be soon another open source project.</li>
+<li>No registration is required, we do payouts in the currency you mine. Use your wallet address as the username.</li>
+<li>&nbsp;</li>
+<li>Payouts are made automatically every 2H for all balances above <b>0.001</b>, or <b>0.0001</b> on Sunday.</li>
+<li>For some coins, there is an initial delay before the first payout, please wait at least 6 hours before asking for support.</li>
 <li>Blocks are distributed proportionally among valid submitted shares.</li>
 
-<br>
+<br/>
 
 </ul>
-</div></div><br>
+</div></div>
+<br/>
 
 <!--  -->
 
@@ -54,7 +56,7 @@ echo <<<END
 	-o stratum+tcp://yiimp.ccminer.org:PORT -u WALLET_ADDRESS -p xx</p>
 </li>
 
-<li>WALLET_ADDRESS can be of any currency we mine. DO NOT USE any BTC address here, the auto exchange is disabled.</li>
+<li>WALLET_ADDRESS should be the currency you mine. DO NOT USE any BTC address here, <b>the auto exchange is disabled</b>!</li>
 <li>Use -p "c=SYMBOL" if yiimp does not recognize the currency correctly.</li>
 <li>See the "Pool Status" area on the right for PORT numbers. Algorithms without associated coins are disabled.</li>
 
@@ -76,7 +78,9 @@ echo <<<END
 
 <li><b>API</b> - <a href='/site/api'>http://yiimp.ccminer.org/site/api</a></li>
 <li><b>Difficulty</b> - <a href='/site/diff'>http://yiimp.ccminer.org/site/diff</a></li>
+<!--
 <li><b>Algo Switching</b> - <a href='/site/multialgo'>http://yiimp.ccminer.org/site/multialgo</a></li>
+-->
 
 <br>
 
