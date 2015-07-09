@@ -62,7 +62,17 @@ foreach($algos as $item)
 	$norm = $item[0];
 	$algo = $item[1];
 
+	$coinsym = '';
 	$coins = getdbocount('db_coins', "enable and visible and auto_ready and algo=:algo", array(':algo'=>$algo));
+	if ($coins == 1) {
+		// If we only mine one coin, show it...
+		$coin = getdbosql('db_coins', "enable and visible and auto_ready and algo=:algo", array(':algo'=>$algo));
+		$coinsym = empty($coin->symbol2) ? $coin->symbol : $coin->symbol2;
+		$coinsym = '<span title="'.$coin->name.'">'.$coinsym.'</a>';
+	}
+
+	if (!$coins) continue;
+
 	$workers = getdbocount('db_workers', "algo=:algo", array(':algo'=>$algo));
 
 	$hashrate = controller()->memcache->get_database_scalar("current_hashrate-$algo",
@@ -103,7 +113,7 @@ foreach($algos as $item)
 
 	echo "<td><b>$algo</b></td>";
 	echo "<td align=right style='font-size: .8em;'>$port</td>";
-	echo "<td align=right style='font-size: .8em;'>$coins</td>";
+	echo "<td align=right style='font-size: .8em;'>".($coins==1 ? $coinsym : $coins)."</td>";
 	echo "<td align=right style='font-size: .8em;'>$workers</td>";
 	echo "<td align=right style='font-size: .8em;'>$hashrate</td>";
 	echo "<td align=right style='font-size: .8em;'>{$fees}%</td>";
