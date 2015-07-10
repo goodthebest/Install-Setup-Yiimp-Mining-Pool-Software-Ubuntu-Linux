@@ -77,6 +77,15 @@ function BackendPricesUpdate()
 function getBestMarket($coin)
 {
 	$market = NULL;
+	if ($coin->symbol == 'BTC')
+		return NULL;
+
+	if (!empty($coin->symbol2)) {
+		$alt = getdbosql('db_coins', "symbol=:symbol", array(':symbol'=>$coin->symbol2));
+		if ($alt)
+			return getBestMarket($alt);
+	}
+
 	if (!empty($coin->market)) {
 		// get coin market first (if set)
 		if ($coin->market != 'BEST')
@@ -101,7 +110,8 @@ function getBestMarket($coin)
 			ORDER BY price DESC");
 	}
 
-	if (!$market)
+	// note: you can add a record in market to hide this debug warning
+	if (!$market && $coin->enable)
 		debuglog("best market for {$coin->symbol} is unknown");
 	//else
 	//	debuglog("best market for {$coin->symbol} is {$market->name}");
