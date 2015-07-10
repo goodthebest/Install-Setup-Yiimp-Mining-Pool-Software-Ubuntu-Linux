@@ -266,6 +266,22 @@ class SiteController extends CommonController
 		$this->renderPartial('earning_results');
 	}
 
+	public function actionClearearnings()
+	{
+		if(!$this->admin) return;
+		$coin = getdbo('db_coins', getiparam('id')); // todo...
+
+		BackendClearEarnings();
+		$this->render('earning');
+	}
+
+	public function actionClearearning()
+	{
+		if(!$this->admin) return;
+		$earning = getdbo('db_earnings', getiparam('id')); // todo...
+		$this->render('earning');
+	}
+
 	/////////////////////////////////////////////////
 
 	public function actionPayments()
@@ -579,6 +595,8 @@ class SiteController extends CommonController
 
 	public function actionDeleteExchange()
 	{
+		if(!$this->admin) return;
+
 		$exchange = getdbo('db_exchange', getiparam('id'));
 		$unspent = $exchange->quantity;
 
@@ -601,6 +619,8 @@ class SiteController extends CommonController
 
 	public function actionClearMarket()
 	{
+		if(!$this->admin) return;
+
 		$id = getiparam('id');
 		$market = getdbo('db_markets', $id);
 
@@ -690,6 +710,8 @@ class SiteController extends CommonController
 
 	public function actionRunExchange()
 	{
+		if(!$this->admin) return;
+
 		$id = getiparam('id');
 		$balance = getdbo('db_balances', $id);
 

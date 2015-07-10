@@ -1,6 +1,6 @@
 <?php
 
-$earnings = getdbolist('db_earnings', "status!=2 order by create_time limit 500");
+$earnings = getdbolist('db_earnings', "status!=2 ORDER BY create_time DESC LIMIT 500");
 
 echo "<br><table class='dataGrid'>";
 //showTableSorter('maintable');
@@ -60,15 +60,5 @@ foreach($earnings as $earning)
 }
 
 echo "</tbody></table>";
-
-
-
-
-
-
-
-
-
-
 
 
