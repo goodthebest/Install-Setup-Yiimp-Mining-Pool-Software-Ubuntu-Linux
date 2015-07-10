@@ -18,6 +18,7 @@ function yaamp_get_algos()
 		'groestl', // dmd-gr -m 256
 		'skein',
 		'skein2',
+		'bmw',
 		'drop',
 		'zr5',
 	);
@@ -48,6 +49,7 @@ function yaamp_get_algo_norm($algo)
 		'skein2'	=> 300,
 		'zr5'		=> 5.5,
 		'drop'		=> 1.5,
+		'bmw'		=> 100,
 	);
 
 	if(!isset($a[$algo]))
@@ -76,6 +78,7 @@ function getAlgoColors($algo)
 		'skein2'	=> '#a0a0a0',
 		'zr5'		=> '#d0b0d0',
 		'drop'		=> '#d0b0d0',
+		'bmw'		=> '#a0a0a0',
 	);
 
 	if(!isset($a[$algo]))
@@ -110,6 +113,7 @@ function getAlgoPort($algo)
 		'skein2'	=> 5233,
 		'groestl'	=> 5333,
 		'zr5'		=> 5533,
+		'bmw'		=> 5633,
 	);
 
 	if(!isset($a[$algo]))
@@ -148,8 +152,9 @@ function yaamp_fee($algo)
 		$fee = 25.0; // i don't like this one :p
 		break;
 	case 'zr5':
-		$fee = 5.0;
+		$fee = 15.0;
 		break;
+//	case 'bmw':
 	case 'drop':
 		$fee *= 2.0;
 		break;
