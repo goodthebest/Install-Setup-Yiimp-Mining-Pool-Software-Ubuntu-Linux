@@ -43,6 +43,9 @@ class CheckupCommand extends CConsoleCommand
 
 			self::autolinkCoinsImages();
 
+			if (YAAMP_ALLOW_EXCHANGE == false)
+				self::cleanUserBalancesBTC();
+
 			echo "ok\n";
 			return 0;
 		}
@@ -193,4 +196,49 @@ class CheckupCommand extends CConsoleCommand
 		}
 	}
 
+	/**
+	 * Drop BTC user balances if YAAMP_ALLOW_EXCHANGE is false
+	 */
+	public function cleanUserBalancesBTC()
+	{
+		$modelsPath = $this->basePath.'/yaamp/models';
+		if(!is_dir($modelsPath))
+			echo "Directory $modelsPath is not a directory\n";
+
+		require_once($modelsPath.'/db_accountsModel.php');
+
+		$obj = CActiveRecord::model('db_accounts');
+		$table = $obj->getTableSchema()->name;
+
+		try{
+			$users = new $obj;
+		} catch (Exception $e) {
+			echo "Error Model: $table \n";
+			echo $e->getMessage();
+			continue;
+		}
+
+		if ($users instanceof CActiveRecord)
+		{
+			echo "$table: ".$users->count()." records\n";
+
+			$nbUpdated = 0;
+			foreach ($users->findAll() as $user)
+			{
+				if ($user->coinid != 6)
+					continue;
+
+				$user->balance = 0;
+				dborun("DELETE FROM balanceuser WHERE userid=".$user->id);
+				dborun("DELETE FROM hashuser WHERE userid=".$user->id);
+				dborun("DELETE FROM shares WHERE userid=".$user->id);
+				dborun("DELETE FROM workers WHERE userid=".$user->id);
+				dborun("UPDATE earnings SET userid=0 WHERE userid=".$user->id);
+				dborun("UPDATE blocks SET userid=0 WHERE userid=".$user->id);
+
+				$nbUpdated += $user->save();
+			}
+			echo "$nbUpdated users cleaned\n";
+		}
+	}
 }

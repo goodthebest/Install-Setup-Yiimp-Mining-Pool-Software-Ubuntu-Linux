@@ -26,7 +26,7 @@ if(!$refcoin)
 
 	$refcoin = getdbosql('db_coins', "symbol='BTC'");
 
-} elseif ($user->coinid == 6 && $defaultalgo != 'sha256') {
+} elseif (!YAAMP_ALLOW_EXCHANGE && $user->coinid == 6 && $defaultalgo != 'sha256') {
 
 	echo "<div style='color: red; padding: 10px; '>This pool does not convert/trade currencies.
 		You will not receive payments using this BTC address.</div>";
