@@ -336,12 +336,15 @@ function updateCryptsyMarkets()
 		}
 
 		$ticker = getCryptsyTicker($market->marketid);
-	//	debuglog($ticker);
 		if(!$ticker) continue;
+
 		if(!isset($ticker->return->$symbol->buyorders[0]))
 		{
 			debuglog("error cryptsy $coin->name id {$market->marketid}");
-			debuglog($ticker, 5);
+			if (isset($ticker->error))
+				debuglog($ticker->error);
+			else
+				debuglog($ticker, 5);
 			continue;
 		}
 
