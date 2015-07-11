@@ -38,6 +38,7 @@ class CheckupCommand extends CConsoleCommand
 		} else {
 
 			self::checkDirectories();
+			self::checkPHP();
 			//self::checkStoredProcedures();
 			self::checkModels();
 
@@ -68,7 +69,7 @@ class CheckupCommand extends CConsoleCommand
 	}
 
 	/**
-	 * Vérifie les répertoires nécessitant le droit d'écriture
+	 * Check we can write in specific folders
 	 */
 	public function checkDirectories()
 	{
@@ -76,6 +77,19 @@ class CheckupCommand extends CConsoleCommand
 
 		//self::isDirWritable("$root/protected/data/.");
 		self::isDirWritable("$root/yaamp/runtime/.");
+		self::isDirWritable(YAAMP_LOGS."/.");
+	}
+
+
+	/**
+	 * Check all required php modules are present
+	 */
+	public function checkPHP()
+	{
+		if (!function_exists('curl_init'))
+			echo("missing curl php extension!\n");
+		if (!function_exists('memcache_get'))
+			echo("missing memcache php extension!\n");
 	}
 
 	/**
