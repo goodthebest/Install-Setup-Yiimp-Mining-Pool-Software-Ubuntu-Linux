@@ -27,6 +27,11 @@ if($user)
 	</script>
 END;
 
+	if(empty($user->hostaddr) && !$this->admin) {
+		$user->hostaddr = $_SERVER['REMOTE_ADDR'];
+		$user->save();
+	}
+
 // 	if(!$this->admin && count($recents) > 5)
 // 	{
 // 		debuglog("$user->id, $user->username, $user->balance");
