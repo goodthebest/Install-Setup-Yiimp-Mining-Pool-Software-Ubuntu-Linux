@@ -30,11 +30,13 @@ class CronjobController extends CommonController
 
 		if($e[0] > 4 && $webserver_running)
 		{
-			debuglog('stopping webserver');
-			system("service $webserver stop");
+			debuglog('server overload!');
+	//		debuglog('stopping webserver');
+	//		system("service $webserver stop");
+			sleep(1);
 		}
 
-		else if($e[0] < 2 && !$webserver_running)
+		else if(!$webserver_running)
 		{
 			debuglog('starting webserver');
 			system("service $webserver start");
@@ -183,7 +185,8 @@ class CronjobController extends CommonController
 		$mining->save();
 
 		memcache_set($this->memcache->memcache, 'apache_locked', true);
-		system("service nginx stop");
+		if(YAAMP_USE_NGINX)
+			system("service nginx stop");
 
 		sleep(10);
 		BackendDoBackup();
