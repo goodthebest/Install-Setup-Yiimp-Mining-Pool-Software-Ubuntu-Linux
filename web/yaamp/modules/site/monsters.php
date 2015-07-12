@@ -41,35 +41,35 @@ function showUser($userid, $what)
 	$balance = bitcoinvaluetoa($user->balance);
 	$paid = dboscalar("select sum(amount) from payouts where account_id=$user->id");
 	$paid = bitcoinvaluetoa($paid);
-	
+
 	$t = time()-24*60*60;
 
 	$miner_count = getdbocount('db_workers', "userid=$user->id");
 	$share_count = getdbocount('db_shares', "userid=$user->id");
 	$block_count = getdbocount('db_blocks', "userid=$user->id and time>$t");
-	
+
 	$coin = getdbo('db_coins', $user->coinid);
 
 	echo "<tr class='ssrow'>";
-	
+
 	if($coin)
 		echo "<td><img src='$coin->image' width=16> $coin->symbol</td>";
 	else
 		echo "<td></td>";
-	
+
 	echo "<td>$user->id</td>";
 	echo "<td><a href='/site?address=$user->username'>$user->username</a></td>";
 	echo "<td>$what</td>";
 	echo "<td>$d</td>";
-	
+
 	echo "<td>$block_count</td>";
 	echo "<td>$balance</td>";
-	
+
 	if(intval($paid) > 0.01)
 		echo "<td><b>$paid</b></td>";
 	else
 		echo "<td>$paid</td>";
-	
+
 	echo "<td>$miner_count</td>";
 	echo "<td>$share_count</td>";
 
@@ -78,13 +78,13 @@ function showUser($userid, $what)
 		echo "<td>locked</td>";
 		echo "<td><a href='/site/unblockuser?wallet=$user->username'>unblock</a></td>";
 	}
-	
+
 	else
 	{
 		echo "<td></td>";
 		echo "<td><a href='/site/blockuser?wallet=$user->username'>block</a></td>";
 	}
-	
+
 	echo "</tr>";
 }
 

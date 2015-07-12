@@ -23,15 +23,15 @@ for($i = $coin->block_height; $i > $coin->block_height-25; $i--)
 {
 	$hash = $remote->getblockhash($i);
 	if(!$hash) continue;
-	
+
 	$block = $remote->getblock($hash);
 	if(!$block) continue;
-	
+
 	$d = datetoa2($block['time']);
 	$confirms = isset($block['confirmations'])? $block['confirmations']: '';
 	$tx = count($block['tx']);
 	$diff = $block['difficulty'];
-	
+
 //	debuglog($block);
 	echo "<tr class='ssrow'>";
 	echo "<td>$d</td>";
@@ -40,7 +40,7 @@ for($i = $coin->block_height; $i > $coin->block_height-25; $i--)
 	echo "<td>$tx</td>";
 	echo "<td>$confirms</td>";
 	echo "<td><span style='font-family: monospace;'><a href='/explorer?id=$coin->id&hash=$hash'>$hash</a></span></td>";
-	
+
 	echo "</tr>";
 }
 

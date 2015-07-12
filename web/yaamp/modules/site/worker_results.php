@@ -25,11 +25,11 @@ foreach($workers as $worker)
 	$percent = ($user_rate+$user_bad)? round($user_bad*100/($user_rate+$user_bad), 3): 0;
 	$user_rate = Itoa2($user_rate).'h/s';
 	$user_bad = Itoa2($user_bad).'h/s';
-	
+
 	$dns = !empty($worker->dns)? $worker->dns: $worker->ip;
 	if(strlen($worker->dns) > 40)
 		$dns = '...'.substr($worker->dns, strlen($worker->dns) - 40);
-	
+
 	echo "<tr class='ssrow'>";
 	echo "<td><a href='/?address=$worker->name'><b>$worker->name</b></a></td>";
 	echo "<td>$worker->password</td>";
@@ -38,12 +38,12 @@ foreach($workers as $worker)
 	echo "<td>$worker->difficulty</td>";
 	echo "<td>$user_rate</td>";
 	echo "<td>$user_bad</td>";
-	
+
 	if($percent > 50)
 		echo "<td align=right><b>{$percent}%</b></td>";
 	else
 		echo "<td align=right>{$percent}%</td>";
-	
+
 //	echo "<td>$worker->nonce1</td>";
 	echo "</tr>";
 }

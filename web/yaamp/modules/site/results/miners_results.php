@@ -49,31 +49,31 @@ foreach($versions as $item)
 	$version = $item['version'];
 	$count = $item['c'];
 	$extranonce = $item['s'];
-	
-	$hashrate = dboscalar("select sum(difficulty) * $target / $interval / 1000 from shares where valid and time>$delay and 
+
+	$hashrate = dboscalar("select sum(difficulty) * $target / $interval / 1000 from shares where valid and time>$delay and
 		workerid in (select id from workers where algo=:algo and version='$version')", array(':algo'=>$algo));
 
-	$invalid = dboscalar("select sum(difficulty) * $target / $interval / 1000 from shares where not valid and time>$delay and 
+	$invalid = dboscalar("select sum(difficulty) * $target / $interval / 1000 from shares where not valid and time>$delay and
 		workerid in (select id from workers where algo=:algo and version='$version')", array(':algo'=>$algo));
 
 	$title = '';
- 	foreach($error_tab as $i=>$s)
- 	{
- 		$invalid2 = dboscalar("select sum(difficulty) * $target / $interval / 1000 from shares where error=$i and time>$delay and
- 			workerid in (select id from workers where algo=:algo and version='$version')", array(':algo'=>$algo));
-		
+	foreach($error_tab as $i=>$s)
+	{
+		$invalid2 = dboscalar("select sum(difficulty) * $target / $interval / 1000 from shares where error=$i and time>$delay and
+			workerid in (select id from workers where algo=:algo and version='$version')", array(':algo'=>$algo));
+
 		if($invalid2)
 		{
 			$bad2 = round($invalid2*100/($hashrate+$invalid2), 2).'%';
 			$title .= "$bad2 - $s\n";
 		}
- 	}
-	
+	}
+
 	$percent = $total_hashrate&&$hashrate? round($hashrate * 100 / $total_hashrate, 2).'%': '';
 	$bad = ($hashrate+$invalid)? round($invalid*100/($hashrate+$invalid), 1).'%': '';
 	$hashrate = $hashrate? Itoa2($hashrate).'h/s': '';
 	$version = substr($version, 0, 30);
-	
+
 	echo "<tr class='ssrow'>";
 	echo "<td><b>$version</b></td>";
 	echo "<td align=right>$count</td>";

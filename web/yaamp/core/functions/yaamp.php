@@ -96,23 +96,23 @@ function yaamp_fee($algo)
 {
 	$fee = controller()->memcache->get("yaamp_fee-$algo");
 	if($fee) return $fee;
-	
+
 	$norm = yaamp_get_algo_norm($algo);
 	if($norm == 0) $norm = 1;
-	
+
 	$hashrate = getdbosql('db_hashrate', "algo=:algo order by time desc", array(':algo'=>$algo));
 	if(!$hashrate || !$hashrate->difficulty) return 1;
 
 	$target = yaamp_hashrate_constant($algo);
 	$interval = yaamp_hashrate_step();
 	$delay = time()-$interval;
-	
+
 	$rate = controller()->memcache->get_database_scalar("yaamp_pool_rate_coinonly-$algo",
 		"select sum(difficulty) * $target / $interval / 1000 from shares where valid and time>$delay and algo=:algo and jobid=0", array(':algo'=>$algo));
-	
+
 //	$fee = round(log($hashrate->hashrate * $norm / 1000000 / $hashrate->difficulty + 1), 1) + YAAMP_FEES_MINING;
 	$fee = round(log($rate * $norm / 2000000 / $hashrate->difficulty + 1), 1) + YAAMP_FEES_MINING;
-	
+
 	controller()->memcache->set("yaamp_fee-$algo", $fee);
 	return $fee;
 }
@@ -135,7 +135,7 @@ function yaamp_hashrate_step()
 function yaamp_profitability($coin)
 {
 	if(!$coin->difficulty) return 0;
-	
+
 	$btcmhd = 20116.56761169 / $coin->difficulty * $coin->reward * $coin->price;
 	if(!$coin->auxpow && $coin->rpcencoding == 'POW')
 	{
@@ -143,12 +143,12 @@ function yaamp_profitability($coin)
 		foreach($listaux as $aux)
 		{
 			if(!$aux->difficulty) continue;
-			
+
 			$btcmhdaux = 20116.56761169 / $aux->difficulty * $aux->reward * $aux->price;
 			$btcmhd += $btcmhdaux;
 		}
 	}
-	
+
 	if($coin->algo == 'sha256') $btcmhd *= 1000;
 	return $btcmhd;
 }
@@ -158,7 +158,7 @@ function yaamp_convert_amount_user($coin, $amount, $user)
 	$refcoin = getdbo('db_coins', $user->coinid);
 	if(!$refcoin) $refcoin = getdbosql('db_coins', "symbol='BTC'");
 	if(!$refcoin || $refcoin->price2<=0) return 0;
-	
+
 	$value = $amount * $coin->price2 / $refcoin->price2;
 	return $value;
 }
@@ -170,8 +170,8 @@ function yaamp_convert_earnings_user($user, $status)
 	if(!$refcoin || $refcoin->price2<=0) return 0;
 
 	$value = dboscalar("select sum(amount*price) from earnings where $status and userid=$user->id");
- 	$value = $value/$refcoin->price2;
-	
+	$value = $value/$refcoin->price2;
+
 	return $value;
 }
 
@@ -184,7 +184,7 @@ function yaamp_pool_rate($algo=null)
 	$target = yaamp_hashrate_constant($algo);
 	$interval = yaamp_hashrate_step();
 	$delay = time()-$interval;
-	
+
 	$rate = controller()->memcache->get_database_scalar("yaamp_pool_rate-$algo",
 		"select sum(difficulty) * $target / $interval / 1000 from shares where valid and time>$delay and algo=:algo", array(':algo'=>$algo));
 
@@ -194,11 +194,11 @@ function yaamp_pool_rate($algo=null)
 function yaamp_pool_rate_bad($algo=null)
 {
 	if(!$algo) $algo = user()->getState('yaamp-algo');
-	
+
 	$target = yaamp_hashrate_constant($algo);
 	$interval = yaamp_hashrate_step();
 	$delay = time()-$interval;
-	
+
 	$rate = controller()->memcache->get_database_scalar("yaamp_pool_rate_bad-$algo",
 		"select sum(difficulty) * $target / $interval / 1000 from shares where not valid and time>$delay and algo=:algo", array(':algo'=>$algo));
 
@@ -212,7 +212,7 @@ function yaamp_pool_rate_rentable($algo=null)
 	$target = yaamp_hashrate_constant($algo);
 	$interval = yaamp_hashrate_step();
 	$delay = time()-$interval;
-	
+
 	$rate = controller()->memcache->get_database_scalar("yaamp_pool_rate_rentable-$algo",
 		"select sum(difficulty) * $target / $interval / 1000 from shares where valid and extranonce1 and time>$delay and algo=:algo", array(':algo'=>$algo));
 
@@ -222,11 +222,11 @@ function yaamp_pool_rate_rentable($algo=null)
 function yaamp_user_rate($userid, $algo=null)
 {
 	if(!$algo) $algo = user()->getState('yaamp-algo');
-	
+
 	$target = yaamp_hashrate_constant($algo);
 	$interval = yaamp_hashrate_step();
 	$delay = time()-$interval;
-	
+
 	$rate = controller()->memcache->get_database_scalar("yaamp_user_rate-$userid-$algo",
 		"select sum(difficulty) * $target / $interval / 1000 from shares where valid and time>$delay and userid=$userid and algo=:algo", array(':algo'=>$algo));
 
@@ -236,11 +236,11 @@ function yaamp_user_rate($userid, $algo=null)
 function yaamp_user_rate_bad($userid, $algo=null)
 {
 	if(!$algo) $algo = user()->getState('yaamp-algo');
-	
+
 	$target = yaamp_hashrate_constant($algo);
 	$interval = yaamp_hashrate_step();
 	$delay = time()-$interval;
-	
+
 	$rate = controller()->memcache->get_database_scalar("yaamp_user_rate_bad-$userid-$algo",
 		"select sum(difficulty) * $target / $interval / 1000 from shares where not valid and time>$delay and userid=$userid and algo=:algo", array(':algo'=>$algo));
 
@@ -250,7 +250,7 @@ function yaamp_user_rate_bad($userid, $algo=null)
 function yaamp_worker_rate($workerid, $algo=null)
 {
 	if(!$algo) $algo = user()->getState('yaamp-algo');
-	
+
 	$target = yaamp_hashrate_constant($algo);
 	$interval = yaamp_hashrate_step();
 	$delay = time()-$interval;
@@ -264,7 +264,7 @@ function yaamp_worker_rate($workerid, $algo=null)
 function yaamp_worker_rate_bad($workerid, $algo=null)
 {
 	if(!$algo) $algo = user()->getState('yaamp-algo');
-	
+
 	$target = yaamp_hashrate_constant($algo);
 	$interval = yaamp_hashrate_step();
 	$delay = time()-$interval;
@@ -279,7 +279,7 @@ function yaamp_coin_rate($coinid)
 {
 	$coin = getdbo('db_coins', $coinid);
 	if(!$coin || !$coin->enable) return 0;
-		
+
 	$target = yaamp_hashrate_constant($coin->algo);
 	$interval = yaamp_hashrate_step();
 	$delay = time()-$interval;
@@ -308,7 +308,7 @@ function yaamp_job_rate($jobid)
 {
 	$job = getdbo('db_jobs', $jobid);
 	if(!$job) return 0;
-		
+
 	$target = yaamp_hashrate_constant($job->algo);
 	$interval = yaamp_hashrate_step();
 	$delay = time()-$interval;
@@ -322,7 +322,7 @@ function yaamp_job_rate_bad($jobid)
 {
 	$job = getdbo('db_jobs', $jobid);
 	if(!$job) return 0;
-		
+
 	$target = yaamp_hashrate_constant($job->algo);
 	$interval = yaamp_hashrate_step();
 	$delay = time()-$interval;
@@ -342,10 +342,10 @@ function yaamp_pool_rate_pow($algo=null)
 	$target = yaamp_hashrate_constant($algo);
 	$interval = yaamp_hashrate_step();
 	$delay = time()-$interval;
-	
+
 	$rate = controller()->memcache->get_database_scalar("yaamp_pool_rate_pow-$algo",
-		"select sum(shares.difficulty) * $target / $interval / 1000 from shares, coins 
-			where shares.valid and shares.time>$delay and shares.algo=:algo and 
+		"select sum(shares.difficulty) * $target / $interval / 1000 from shares, coins
+			where shares.valid and shares.time>$delay and shares.algo=:algo and
 			shares.coinid=coins.id and coins.rpcencoding='POW'", array(':algo'=>$algo));
 
 	return $rate;

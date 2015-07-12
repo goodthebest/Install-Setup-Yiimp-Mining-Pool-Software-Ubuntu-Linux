@@ -37,36 +37,36 @@ foreach($list as $item)
 {
 	$coin = getdbo('db_coins', $item['coin_id']);
 	if($coin->symbol == 'BTC') continue;
-	
+
 	$res1 = controller()->memcache->get_database_row("history_item1-$coin->id-$algo",
 		"select count(*) as a, sum(amount*price) as b from blocks where category!='orphan' and time>$t1 and coin_id=$coin->id and algo=:algo", array(':algo'=>$algo));
-	
+
 	$res2 = controller()->memcache->get_database_row("history_item2-$coin->id-$algo",
 		"select count(*) as a, sum(amount*price) as b from blocks where category!='orphan' and time>$t2 and coin_id=$coin->id and algo=:algo", array(':algo'=>$algo));
-	
+
 	$res3 = controller()->memcache->get_database_row("history_item3-$coin->id-$algo",
 		"select count(*) as a, sum(amount*price) as b from blocks where category!='orphan' and time>$t3 and coin_id=$coin->id and algo=:algo", array(':algo'=>$algo));
-		
+
 	$res4 = controller()->memcache->get_database_row("history_item4-$coin->id-$algo",
 		"select count(*) as a, sum(amount*price) as b from blocks where category!='orphan' and time>$t4 and coin_id=$coin->id and algo=:algo", array(':algo'=>$algo));
-	
+
 	$total1 += $res1['b'];
 	$total2 += $res2['b'];
 	$total3 += $res3['b'];
 	$total4 += $res4['b'];
-	
+
 	$name = substr($coin->name, 0, 12);
-	
+
 	echo "<tr class='ssrow'>";
 
 	echo "<td width=18><img width=16 src='$coin->image'></td>";
 	echo "<td><b><a href='/site/block?id=$coin->id'>$name</a></b></td>";
-	
+
 	echo "<td align=right style='font-size: .9em;'>{$res1['a']}</td>";
 	echo "<td align=right style='font-size: .9em;'>{$res2['a']}</td>";
 	echo "<td align=right style='font-size: .9em;'>{$res3['a']}</td>";
 	echo "<td align=right style='font-size: .9em;'>{$res4['a']}</td>";
-	
+
 	echo "</tr>";
 }
 
@@ -148,7 +148,7 @@ echo "</div>";
 
 echo "<br>";
 echo "</div></div><br>";
-	
+
 
 
 

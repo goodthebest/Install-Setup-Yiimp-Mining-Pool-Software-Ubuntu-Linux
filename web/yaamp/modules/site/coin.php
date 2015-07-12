@@ -47,7 +47,7 @@ if($info)
 {
 	echo "<br><a href='/site/restartcoin?id=$coin->id'><b>RESTART COIND</b></a>";
 	echo "<br><a href='/site/stopcoin?id=$coin->id'><b>STOP COIND</b></a>";
-	
+
 //	if(isset($info['balance']) && $info['balance'] && !empty($coin->deposit_address))
 //		echo "<br><a href='javascript:showSellAmountDialog()'><b>SEND BALANCE TO</b></a> - $coin->deposit_address";
 }
@@ -55,7 +55,7 @@ else
 {
 	echo "<br><a href='/site/startcoin?id=$coin->id'><b>START COIND</b></a>";
 	echo "<br><br><a href='/site/resetblockchain?id=$coin->id'><b>RESET BLOCKCHAIN</b></a>";
-	
+
 	if($coin->installed)
 		echo "<br><a href='javascript:uninstall_coin();'><b>UNINSTALL COIN</b></a><br>";
 }
@@ -78,7 +78,7 @@ function uninstall_coin()
 {
 	if(!confirm("Uninstall this coin?"))
 		return;
-		
+
 	window.location.href = '/site/uninstallcoin?id=$coin->id';
 }
 
@@ -108,14 +108,14 @@ function main_refresh()
 	clearTimeout(main_timeout);
 	$.get(url, '', main_ready).error(main_error);
 }
-			
+
 function showSellAmountDialog(marketid)
 {
 	$("#sell-amount-dialog").dialog(
 	{
     	autoOpen: true,
-		width: 400, 
-		height: 240, 
+		width: 400,
+		height: 240,
 		modal: true,
 		title: 'Sell $coin->symbol to market '+marketid,
 

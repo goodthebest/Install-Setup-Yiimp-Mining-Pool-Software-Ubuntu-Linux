@@ -3,13 +3,13 @@
 function yobit_api_query($method)
 {
 	$uri = "https://yobit.net/api/3/$method";
-	
+
 	$ch = curl_init($uri);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-	
+
 	$execResult = curl_exec($ch);
 	$obj = json_decode($execResult);
-	
+
 	return $obj;
 }
 
@@ -19,10 +19,10 @@ function yobit_api_query($method)
 // {
 // 	$filename = 'yobit_nonce.dat';
 // 	$n = 100;
-	
+
 // 	if(file_exists($filename))
 // 		$n = intval(trim(file_get_contents($filename))) + 1;
-	
+
 // 	file_put_contents($filename, $n);
 // 	return $n;
 // }
@@ -31,7 +31,7 @@ function yobit_api_query2($method, $req = array())
 {
 	$api_key    = '';
 	$api_secret = '';
-	
+
 	$req['method'] = $method;
 	$req['nonce'] = time();
 
@@ -42,7 +42,7 @@ function yobit_api_query2($method, $req = array())
 		'Sign: '.$sign,
 		'Key: '.$api_key,
 	);
-	
+
 	$ch = null;
 	$ch = curl_init();
 
@@ -62,12 +62,12 @@ function yobit_api_query2($method, $req = array())
 		curl_close($ch);
 		return null;
 	}
-	
+
 	curl_close($ch);
-	
+
 	$result = json_decode($res, true);
 	if(!$result) debuglog($res);
-	
+
 	return $result;
 }
 

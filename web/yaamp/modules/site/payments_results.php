@@ -19,11 +19,11 @@ foreach($list as $user)
 	$coin = getdbo('db_coins', $user->coinid);
 	$balance = bitcoinvaluetoa($user->balance);
 	$d = datetoa2($user->last_login);
-	
+
 	echo "<tr class='ssrow'>";
 	echo "<td><a href='/?address=$user->username'><b>$user->username</b></a></td>";
 	echo "<td>$d</td>";
-	
+
 	if($coin)
 	{
 		$coinbalance = bitcoinvaluetoa($coin->balance);
@@ -37,7 +37,7 @@ foreach($list as $user)
 		echo "<td></td>";
 		echo "<td align=right></td>";
 	}
-	
+
 	echo "<td align=right>$balance</td>";
 	echo "</tr>";
 }

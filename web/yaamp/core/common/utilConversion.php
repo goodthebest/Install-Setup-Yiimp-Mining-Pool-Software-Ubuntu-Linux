@@ -42,7 +42,7 @@ function htoi($s)
 	while(isset($s[$x]))
 	{
 //		debuglog("{$s[$x]}");
-		
+
 		if($s[$x] >= '0' && $s[$x] <='9')
 			$val = $val * 16 + $s[$x] - '0';
 
@@ -50,10 +50,10 @@ function htoi($s)
 		{
 			debuglog($s[$x]);
 			debuglog($s[$x] - chr('A'));
-			
+
 			$val = $val * 16 + ord($s[$x]) - ord('A') + 10;
 		}
-		
+
 		else if($s[$x]>='a' && $s[$x] <='f')
 			$val = $val * 16 + ord($s[$x]) - ord('a') + 10;
 
@@ -90,10 +90,10 @@ function altcoinvaluetoa($v)
 function datetoa($d)
 {
 	if(!$d) return '';
-	
+
 	$t = wp_mktime($d);
 	$e = time() - $t;
-	
+
 	$table = array(
 					// limit         divider
 		array('year',  60*60*24*365, 60*60*24*365),
@@ -104,7 +104,7 @@ function datetoa($d)
 		array('min',   60*2,         60),
 		array('sec',   0,            1),
 	);
-	
+
 	foreach($table as $r)
 	{
 		if($e >= $r[1])
@@ -113,14 +113,14 @@ function datetoa($d)
 			break;
 		}
 	}
-	
+
 	return "<span title='$d'>$res</span>";
 }
 
 function datetoa2($d)
 {
 	if(!$d) return '';
-	
+
 	$table = array(
 					 // limit         divider
 		array('y',	60*60*24*365, 60*60*24*365),
@@ -131,7 +131,7 @@ function datetoa2($d)
 		array('m',	90,           60),
 		array('s',	0,            1),
 	);
-	
+
 	$e = time() - $d;
 	foreach($table as $r)
 	{
@@ -143,7 +143,7 @@ function datetoa2($d)
 			break;
 		}
 	}
-	
+
 	$f = date('Y-m-d H:i:s', $d);
 	if(empty($res)) $res = 'now';
 	return "<span title='$f'>$res</span>";
@@ -169,7 +169,7 @@ function sectoa2($i)
 		array('min',   60*2,         60),
 		array('sec',   0,            1),
 	);
-	
+
 	$res = '';
 	foreach($table as $r)
 	{
@@ -180,7 +180,7 @@ function sectoa2($i)
 			break;
 		}
 	}
-	
+
 	return $res;
 }
 
@@ -195,7 +195,7 @@ function Itoa($i)
 		$s = round(floatval($i)/1024, 1) ."K";
 	else
 		$s = round(floatval($i), 1);
-	
+
 	return $s;
 }
 
@@ -214,7 +214,7 @@ function Itoa2($i, $precision=1)
 		$s = round(floatval($i)/1000, $precision) ." k";
 	else
 		$s = round(floatval($i), $precision);
-	
+
 	return $s;
 }
 
@@ -242,14 +242,14 @@ function precision($n, $p)
 
 function wp_mktime($_timestamp = '')
 {
-    if($_timestamp){ 
-        $_split_datehour = explode(' ',$_timestamp); 
-        $_split_data = explode("-", $_split_datehour[0]); 
-        $_split_hour = explode(":", $_split_datehour[1]); 
+    if($_timestamp){
+        $_split_datehour = explode(' ',$_timestamp);
+        $_split_data = explode("-", $_split_datehour[0]);
+        $_split_hour = explode(":", $_split_datehour[1]);
 
-        return mktime ($_split_hour[0], $_split_hour[1], $_split_hour[2], $_split_data[1], $_split_data[2], $_split_data[0]); 
-    } 
-} 
+        return mktime ($_split_hour[0], $_split_hour[1], $_split_hour[2], $_split_data[1], $_split_data[2], $_split_data[0]);
+    }
+}
 
 ///////////////////////
 
@@ -257,7 +257,7 @@ function strip_tags_content($text, $tags = '', $invert = FALSE)
 {
   preg_match_all('/<(.+?)[\s]*\/?[\s]*>/si', trim($tags), $tags);
   $tags = array_unique($tags[1]);
-    
+
   if(is_array($tags) AND count($tags) > 0) {
     if($invert == FALSE) {
       return preg_replace('@<(?!(?:'. implode('|', $tags) .')\b)(\w+)\b.*?>.*?</\1>@si', '', $text);

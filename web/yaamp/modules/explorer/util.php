@@ -33,7 +33,7 @@ function encodeHex($dec)
 function decodeBase58($base58)
 {
 	$origbase58=$base58;
-	
+
 	$chars="123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 	$return="0";
 	for($i=0;$i<strlen($base58);$i++)
@@ -42,20 +42,20 @@ function decodeBase58($base58)
 		$return=(string)bcmul($return,"58",0);
 		$return=(string)bcadd($return,$current,0);
 	}
-	
+
 	$return=encodeHex($return);
-	
+
 	//leading zeros
 	for($i=0;$i<strlen($origbase58)&&$origbase58[$i]=="1";$i++)
 	{
 		$return="00".$return;
 	}
-	
+
 	if(strlen($return)%2!=0)
 	{
 		$return="0".$return;
 	}
-	
+
 	return $return;
 }
 
@@ -66,7 +66,7 @@ function encodeBase58($hex)
 		die("encodeBase58: uneven number of hex characters");
 	}
 	$orighex=$hex;
-	
+
 	$chars="123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 	$hex=decodeHex($hex);
 	$return="";
@@ -78,13 +78,13 @@ function encodeBase58($hex)
 		$return=$return.$chars[$rem];
 	}
 	$return=strrev($return);
-	
+
 	//leading zeros
 	for($i=0;$i<strlen($orighex)&&substr($orighex,$i,2)=="00";$i+=2)
 	{
 		$return="1".$return;
 	}
-	
+
 	return $return;
 }
 

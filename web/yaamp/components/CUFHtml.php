@@ -1,12 +1,12 @@
 <?php
 /**
  * CUFHtml is helper class for easily integrate Uni-Form into ready forms
- * 
+ *
  * @author Alexander Hramov
  * @link http://www.hramov.info
  * @version 0.1
  */
-class CUFHtml extends CHtml 
+class CUFHtml extends CHtml
 {
    public static function beginForm($action='', $method='post', $htmlOptions = array())
    {

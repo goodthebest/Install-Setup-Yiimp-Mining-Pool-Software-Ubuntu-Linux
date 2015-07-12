@@ -21,17 +21,17 @@ foreach($versions as $item)
 {
 	$version = $item['version'];
 	$count = $item['c'];
-	
-	$hashrate = dboscalar("select sum(difficulty) * $target / $interval / 1000 from shares where valid and time>$delay and 
+
+	$hashrate = dboscalar("select sum(difficulty) * $target / $interval / 1000 from shares where valid and time>$delay and
 		workerid in (select id from workers where algo=:algo and version=:version)", array(':algo'=>$algo, ':version'=>$version));
 
-	$invalid = dboscalar("select sum(difficulty) * $target / $interval / 1000 from shares where not valid and time>$delay and 
+	$invalid = dboscalar("select sum(difficulty) * $target / $interval / 1000 from shares where not valid and time>$delay and
 		workerid in (select id from workers where algo=:algo and version=:version)", array(':algo'=>$algo, ':version'=>$version));
 
- 	$percent = $hashrate? round($invalid*100/$hashrate, 3): 0;
+	$percent = $hashrate? round($invalid*100/$hashrate, 3): 0;
 	$hashrate = Itoa2($hashrate).'h/s';
 	$invalid = Itoa2($invalid).'h/s';
-	
+
 	echo "<tr class='ssrow'>";
 	echo "<td><b>$version</b></td>";
 	echo "<td>$count</td>";

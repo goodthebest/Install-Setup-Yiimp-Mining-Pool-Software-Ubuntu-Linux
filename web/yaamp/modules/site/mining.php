@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 $algo = user()->getState('yaamp-algo');
 
@@ -12,7 +12,7 @@ $height = '240px';
 
 echo <<<end
 
-<div id='resume_update_button' style='color: #444; background-color: #ffd; border: 1px solid #eea; 
+<div id='resume_update_button' style='color: #444; background-color: #ffd; border: 1px solid #eea;
 	padding: 10px; margin-left: 20px; margin-right: 20px; margin-top: 15px; cursor: pointer; display: none;'
 	onclick='auto_page_resume();' align=center>
 <b>Auto refresh is paused - Click to resume</b></div>
@@ -33,7 +33,7 @@ echo <<<end
 <div class="main-left-inner"><br>
 <div id='graph_results_price' style='height: $height;'></div><br>
 </div></div><br>
-		
+
 <div class="main-left-box">
 <div class="main-left-title">Last 24 Hours Hashrate ($algo)</div>
 <div class="main-left-inner"><br>
@@ -94,7 +94,7 @@ function pool_current_refresh()
 	var url = "/site/current_results";
 	$.get(url, '', pool_current_ready);
 }
-		
+
 ////////////////////////////////////////////////////
 
 function mining_ready(data)
@@ -133,7 +133,7 @@ function main_refresh_price()
 	var url = "/site/graph_price_results";
 	$.get(url, '', main_ready_price);
 }
-		
+
 function graph_init_price(data)
 {
 	$('#graph_results_price').empty();
@@ -220,7 +220,7 @@ function pool_hashrate_graph_init(data)
 		{
 			show: true
 		},
-		
+
 	});
 }
 
@@ -228,7 +228,7 @@ function pool_hashrate_graph_init(data)
 
 
 end;
-		
+
 
 
 

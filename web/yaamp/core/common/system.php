@@ -3,15 +3,15 @@
 function send_email_alert($name, $title, $message, $t=10)
 {
 //	debuglog(__FUNCTION__);
-	
+
 	$last = memcache_get(controller()->memcache->memcache, "last_email_sent_$name");
 	if($last + $t*60 > time()) return;
 
 	debuglog("mail('".YAAMP_ADMIN_EMAIL."', $title, ...)");
-	
+
 	$b = mail(YAAMP_ADMIN_EMAIL, $title, $message);
 	if(!$b) debuglog('error sending email');
-	
+
 	memcache_set(controller()->memcache->memcache, "last_email_sent_$name", time());
 }
 
@@ -44,14 +44,14 @@ function GetNetworkLoad()
 {
 	$wmi = new COM("Winmgmts://");
 	$allnets = $wmi->execquery("Select BytesTotalPersec From Win32_PerfFormattedData_Tcpip_NetworkInterface where BytesTotalPersec>1");
-	
+
 	$totalbps = 0;
 	foreach($allnets as $network)
 	{
 		$bps = $network->BytesTotalPersec*8;
 		$totalbps += $bps;
 	}
-	
+
 	return $totalbps;
 }
 

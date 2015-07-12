@@ -58,7 +58,7 @@ foreach($res_array as $transaction)
 
 	echo "</td>";
 	echo "</tr>";
-	
+
 	$total += $transaction['amount'];
 }
 

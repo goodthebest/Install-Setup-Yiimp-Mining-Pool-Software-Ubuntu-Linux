@@ -5,24 +5,24 @@ class MarketController extends CommonController
 	public function actionUpdate()
 	{
 		if(!$this->admin) return;
-		
+
 		$market = getdbo('db_markets', getiparam('id'));
 		$coin = getdbo('db_coins', $market->coinid);
-		
+
 		if(isset($_POST['db_markets']))
 		{
 			$market->attributes = $_POST['db_markets'];
 			if($market->save())
 				$this->redirect(array('site/coin', 'id'=>$coin->id));
 		}
-		
+
 		$this->render('update', array('market'=>$market, 'coin'=>$coin));
 	}
 
 	public function actionDelete()
 	{
 		if(!$this->admin) return;
-		
+
 		$market = getdbo('db_markets', getiparam('id'));
 		$coin = getdbo('db_coins', $market->coinid);
 
@@ -33,11 +33,11 @@ class MarketController extends CommonController
 	public function actionSellto()
 	{
 		if(!$this->admin) return;
-		
+
 		$market = getdbo('db_markets', getiparam('id'));
 		$coin = getdbo('db_coins', $market->coinid);
 		$amount = getparam('amount');
-		
+
 		$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
 
 		$info = $remote->getinfo();
@@ -49,13 +49,13 @@ class MarketController extends CommonController
 			user()->setFlash('error', "invalid address $coin->name, $market->deposit_address");
 			$this->redirect(array('site/coin', 'id'=>$coin->id));
 		}
-	
+
 		$amount = min($amount, $info['balance'] - $info['paytxfee']);
 //		$amount = max($amount, $info['balance'] - $info['paytxfee']);
 		$amount = round($amount, 8);
-		
+
 		debuglog("selling ($market->deposit_address, $amount)");
-	
+
 		$tx = $remote->sendtoaddress($market->deposit_address, $amount);
 		if(!$tx)
 		{

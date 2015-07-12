@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 require_once('poloniex_trading.php');
 require_once('bittrex_trading.php');

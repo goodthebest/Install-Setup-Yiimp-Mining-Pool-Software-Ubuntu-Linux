@@ -12,29 +12,29 @@ class CronjobController extends CommonController
 	{
 		if(!YAAMP_PRODUCTION) return;
 		$uptime = exec('uptime');
-		
+
 		$apache_locked = memcache_get($this->memcache->memcache, 'apache_locked');
 		if($apache_locked) return;
-		
+
 		$b = preg_match('/load average: (.*)$/', $uptime, $m);
 		if(!$b) return;
-		
+
 		$e = explode(', ', $m[1]);
 		$apache_running = !empty(exec('pgrep nginx'));
-			
+
 		if($e[0] > 4 && $apache_running)
 		{
 			debuglog('stopping apache');
 			system("service nginx stop");
 		}
-		
+
 		else if($e[0] < 2 && !$apache_running)
 		{
 			debuglog('starting apache');
 			system("service nginx start");
 		}
 	}
-	
+
 	public function actionRunBlocks()
 	{
 //		debuglog(__METHOD__);
@@ -50,11 +50,11 @@ class CronjobController extends CommonController
 		BackendClearEarnings();
 		BackendRentingUpdate();
 		BackendProcessList();
-		
+
 		memcache_set($this->memcache->memcache, "cronjob_block_time_start", time());
 //		debuglog(__METHOD__);
 	}
-	
+
 	public function actionRunLoop2()
 	{
 //		debuglog(__METHOD__);
@@ -65,19 +65,19 @@ class CronjobController extends CommonController
 		BackendCoinsUpdate();
 		BackendStatsUpdate();
 		BackendUsersUpdate();
-		
+
 		BackendUpdateServices();
 		BackendUpdateDeposit();
-		
+
 		MonitorBTC();
-		
+
 		$last = memcache_get($this->memcache->memcache, 'last_renting_payout2');
 		if($last + 5*60 < time())
 		{
 			memcache_set($this->memcache->memcache, 'last_renting_payout2', time());
 			BackendRentingPayout();
 		}
-		
+
 		$last = memcache_get($this->memcache->memcache, 'last_stats2');
 		if($last + 5*60 < time())
 		{
@@ -88,25 +88,25 @@ class CronjobController extends CommonController
 		memcache_set($this->memcache->memcache, "cronjob_loop2_time_start", time());
 //		debuglog(__METHOD__);
 	}
-	
+
 	public function actionRun()
 	{
 //		debuglog(__METHOD__);
 		set_time_limit(0);
-		
+
 //		BackendRunCoinActions();
-		
+
 		$state = memcache_get($this->memcache->memcache, 'cronjob_main_state');
 		if(!$state) $state = 0;
 
 		memcache_set($this->memcache->memcache, 'cronjob_main_state', $state+1);
 		memcache_set($this->memcache->memcache, "cronjob_main_state_$state", 1);
-		
+
 		switch($state)
 		{
 			case 0:
 				updateRawcoins();
-				
+
 				$a = json_decode(fetch_url("https://www.bitstamp.net/api/ticker/"));
 				if($a && isset($a->last))
 				{
@@ -114,9 +114,9 @@ class CronjobController extends CommonController
 					$mining->usdbtc = $a->last;
 					$mining->save();
 				}
-				
+
 				break;
-				
+
 			case 1:
 				if(!YAAMP_PRODUCTION) break;
 
@@ -126,52 +126,52 @@ class CronjobController extends CommonController
 				doPoloniexTrading();
 				doYobitTrading();
 				doCCexTrading();
-				
+
 				break;
-				
+
 			case 2:
 				BackendPricesUpdate();
 				break;
-				
+
 			case 3:
 				BackendBlocksUpdate();
 				break;
-				
+
 			case 4:
 				TradingSellCoins();
 				break;
-				
+
 			case 5:
 				BackendBlockFind2();
 				break;
-				
+
 			default:
 				memcache_set($this->memcache->memcache, 'cronjob_main_state', 0);
 				BackendQuickClean();
-				
+
 			//	sleep(120);
-				
+
 				$t = memcache_get($this->memcache->memcache, "cronjob_main_start_time");
 				$n = time();
-				
+
 				memcache_set($this->memcache->memcache, "cronjob_main_time", $n-$t);
 				memcache_set($this->memcache->memcache, "cronjob_main_start_time", $n);
 		}
-		
+
 		debuglog(__METHOD__." $state");
 		memcache_set($this->memcache->memcache, "cronjob_main_state_$state", 0);
-		
+
 		memcache_set($this->memcache->memcache, "cronjob_main_time_start", time());
 		if(!YAAMP_PRODUCTION) return;
- 		
- 		///////////////////////////////////////////////////////////////////
- 		
+
+		///////////////////////////////////////////////////////////////////
+
 		$mining = getdbosql('db_mining');
- 		if($mining->last_payout + YAAMP_PAYMENTS_FREQ > time()) return;
+		if($mining->last_payout + YAAMP_PAYMENTS_FREQ > time()) return;
 
 		debuglog("--------------------------------------------------------");
- 		
- 		$mining->last_payout = time();
+
+		$mining->last_payout = time();
 		$mining->save();
 
 		memcache_set($this->memcache->memcache, 'apache_locked', true);
@@ -181,14 +181,14 @@ class CronjobController extends CommonController
 		BackendDoBackup();
 
 		memcache_set($this->memcache->memcache, 'apache_locked', false);
-		
+
 		BackendPayments();
 		BackendCleanDatabase();
-		
+
 	//	BackendOptimizeTables();
 		debuglog('payments sequence done');
 	}
-	
+
 }
 
 

@@ -23,12 +23,12 @@ echo "</thead><tbody>";
 foreach($list as $conn)
 {
 	echo "<tr class='ssrow'>";
-	
+
 	$d1 = sectoa($conn->idle);
 	$d2 = datetoa2($conn->created);
 	$d3 = datetoa2($conn->last);
 	$b = Booltoa($conn->last == $last);
-	
+
 	echo "<td>$conn->id</td>";
 	echo "<td>$conn->user</td>";
 	echo "<td>$conn->host</td>";
@@ -37,7 +37,7 @@ foreach($list as $conn)
 	echo "<td>$d2</td>";
 	echo "<td>$d3</td>";
 	echo "<td>$b</td>";
-	
+
 	echo "</tr>";
 }
 

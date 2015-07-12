@@ -12,7 +12,7 @@ foreach($stats as $n)
 {
 	$i = floor($n->time/$s)*$s;
 	if(!$first) $first = $i;
-	
+
 	if(!isset($res[$i]))
 	{
 		$res[$i] = array();
@@ -29,7 +29,7 @@ echo '[';
 foreach($res as $i=>$n)
 {
 	$m = $n['hashrate']? bitcoinvaluetoa($n['earnings'] * 1000000 / $n['hashrate']): 0;
-	
+
 	if($i != $first) echo ',';
 	$d = date('Y-m-d H:i:s', $i);
 	echo "[\"$d\",$m]";

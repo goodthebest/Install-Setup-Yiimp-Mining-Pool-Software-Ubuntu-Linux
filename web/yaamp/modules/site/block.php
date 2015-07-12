@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 $id = getiparam('id');
 echo <<<end

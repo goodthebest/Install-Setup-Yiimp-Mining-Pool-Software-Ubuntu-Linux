@@ -126,11 +126,11 @@ class Bitcoin {
        		$request = "{\"method\":\"$method\",\"params\":[$param],\"id\":$this->id}";
        	//	debuglog($request);
         }
-        
+
         else
         {
 		    $params = array_values($params);
-        
+
 	        // Build the request, it's ok that params might have any empty array
 	        $request = json_encode(array(
 	            'method' => $method,
@@ -138,7 +138,7 @@ class Bitcoin {
 	            'id'     => $this->id
 	        ));
         }
-        
+
         // Build the cURL session
         $curl    = curl_init("{$this->proto}://{$this->username}:{$this->password}@{$this->host}:{$this->port}/{$this->url}");
         $options = array(
@@ -179,7 +179,7 @@ class Bitcoin {
 
         curl_close($curl);
 //		debuglog($this->response);
-        
+
         if (!empty($curl_error)) {
             $this->error = $curl_error;
         }
@@ -188,7 +188,7 @@ class Bitcoin {
             // If bitcoind returned an error, put that in $this->error
             $this->error = strtolower($this->response['error']['message']);
         }
-        
+
         elseif ($this->status != 200) {
             // If bitcoind didn't return a nice error message, we need to make our own
             switch ($this->status) {

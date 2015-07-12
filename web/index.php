@@ -27,7 +27,7 @@ catch(CException $e)
 
 	debuglog("front end error ".$_SERVER['REMOTE_ADDR']);
 	debuglog($e->getMessage());
-	
+
 //	send_email_alert('frontend', "frontend error", "a frontend error occured");
 }
 

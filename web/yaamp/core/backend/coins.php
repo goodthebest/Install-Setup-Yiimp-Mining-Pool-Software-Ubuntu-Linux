@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 function percent_feedback($v, $n, $p)
 {
@@ -22,11 +22,11 @@ function BackendCoinsUpdate()
 {
 //	debuglog(__FUNCTION__);
 	$t1 = microtime(true);
-	
+
 	$pool_rate = array();
 	foreach(yaamp_get_algos() as $algo)
 		$pool_rate[$algo] = yaamp_pool_rate($algo);
-	
+
 	$coins = getdbolist('db_coins', "installed");
 	foreach($coins as $coin)
 	{
@@ -34,7 +34,7 @@ function BackendCoinsUpdate()
 
 		$coin = getdbo('db_coins', $coin->id);
 		if(!$coin) continue;
-		
+
 		$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
 
 		$info = $remote->getinfo();
@@ -43,19 +43,19 @@ function BackendCoinsUpdate()
 			$coin->enable = false;
 		//	$coin->auto_ready = false;
 			$coin->connections = 0;
-				
+
 			$coin->save();
 			continue;
 		}
-		
+
 //		debuglog($info);
 		$coin->enable = true;
-		
+
 		if(isset($info['difficulty']))
 			$difficulty = $info['difficulty'];
 		else
 			$difficulty = $remote->getdifficulty();
-		
+
 		if(is_array($difficulty))
 		{
 			$coin->difficulty = $difficulty['proof-of-work'];
@@ -67,10 +67,10 @@ function BackendCoinsUpdate()
 
 		if($coin->algo == 'quark')
 			$coin->difficulty /= 0x100;
-		
+
 		if($coin->difficulty == 0)
 			$coin->difficulty = 1;
-			
+
 		$coin->errors = isset($info['errors'])? $info['errors']: '';
 		$coin->txfee = isset($info['paytxfee'])? $info['paytxfee']: '';
 		$coin->connections = isset($info['connections'])? $info['connections']: '';
@@ -82,7 +82,7 @@ function BackendCoinsUpdate()
 			$coin->master_wallet = $remote->getaccountaddress('');
 		//	debuglog($coin->master_wallet);
 		}
-		
+
 		if(empty($coin->rpcencoding))
 		{
 			$difficulty = $remote->getdifficulty();
@@ -92,8 +92,8 @@ function BackendCoinsUpdate()
 				$coin->rpcencoding = 'POW';
 		}
 
- 		if($coin->hassubmitblock == NULL)
- 		{
+		if($coin->hassubmitblock == NULL)
+		{
 			$remote->submitblock('');
 			if(strcasecmp($remote->error, 'method not found') == 0)
 				$coin->hassubmitblock = false;
@@ -101,10 +101,10 @@ function BackendCoinsUpdate()
 				$coin->hassubmitblock = true;
 		}
 
- 		if($coin->auxpow == NULL)
- 		{
+		if($coin->auxpow == NULL)
+		{
 			$ret = $remote->getauxblock();
-			
+
 			if(strcasecmp($remote->error, 'method not found') == 0)
 				$coin->auxpow = false;
 			else
@@ -124,15 +124,15 @@ function BackendCoinsUpdate()
 
 				if($coin->symbol == 'TAC' && isset($template['_V2']))
 					$coin->charity_amount = $template['_V2']/100000000;
-				
+
 				if(isset($template['payee_amount']) && $coin->symbol != 'LIMX')
 				{
 					$coin->charity_amount = $template['payee_amount']/100000000;
 					$coin->reward -= $coin->charity_amount;
-					
+
 				//	debuglog("$coin->symbol $coin->charity_amount $coin->reward");
 				}
-				
+
 				else if(!empty($coin->charity_address))
 				{
 					if($coin->charity_amount)
@@ -147,7 +147,7 @@ function BackendCoinsUpdate()
 					$coin->difficulty = target_to_diff($target);
 				}
 			}
-			
+
 			else if(strcasecmp($remote->error, 'method not found') == 0)
 			{
 				$template = $remote->getmemorypool();
@@ -162,27 +162,27 @@ function BackendCoinsUpdate()
 						$coin->difficulty = target_to_diff($target);
 					}
 				}
-				
+
 				else
 				{
 					$coin->auto_ready = false;
 					$coin->errors = $remote->error;
 				}
 			}
-			
+
 			else
 			{
 				$coin->auto_ready = false;
 				$coin->errors = $remote->error;
 			}
-				
+
 			if(strcasecmp($coin->errors, 'No more PoW blocks') == 0)
 			{
 				$coin->dontsell = true;
 				$coin->auto_ready = false;
 			}
 //		}
-			
+
 		if($coin->block_height != $info['blocks'])
 		{
 			$count = $info['blocks'] - $coin->block_height;
@@ -196,7 +196,7 @@ function BackendCoinsUpdate()
 
 		$coin->version = $info['version'];
 		$coin->block_height = $info['blocks'];
-		
+
 		$coin->save();
 	//	debuglog(" end $coin->name");
 
@@ -207,7 +207,7 @@ function BackendCoinsUpdate()
 	{
 		$coin = getdbo('db_coins', $coin->id);
 		if(!$coin) continue;
-		
+
 		if($coin->difficulty)
 		{
 			$coin->index_avg = $coin->reward * $coin->price * 10000 / $coin->difficulty;
@@ -217,25 +217,25 @@ function BackendCoinsUpdate()
 				$coin->index_avg += $indexaux;
 			}
 		}
-		
+
 		if($coin->network_hash)
 			$coin->network_ttf = $coin->difficulty * 0x100000000 / $coin->network_hash;
-			
+
 		if(isset($pool_rate[$coin->algo]))
 			$coin->pool_ttf = $coin->difficulty * 0x100000000 / $pool_rate[$coin->algo];
-		
+
 		if(strstr($coin->image, 'http'))
 		{
 			$data = file_get_contents($coin->image);
 			$coin->image = "/images/coin-$coin->id.png";
-			
+
 			@unlink(YAAMP_HTDOCS.$coin->image);
 			file_put_contents(YAAMP_HTDOCS.$coin->image, $data);
 		}
-		
+
 		$coin->save();
 	}
-	
+
 	$d1 = microtime(true) - $t1;
 	controller()->memcache->add_monitoring_function(__METHOD__, $d1);
 }

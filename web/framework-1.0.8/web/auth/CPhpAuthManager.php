@@ -113,7 +113,7 @@ class CPhpAuthManager extends CAuthManager
 	{
 		foreach($this->defaultRoles as $role)
 		{
-			Yii::trace('Checking default role "'.$role.'"','system.web.auth.CPhpAuthManager');			
+			Yii::trace('Checking default role "'.$role.'"','system.web.auth.CPhpAuthManager');
 			$item=$this->getAuthItem($role);
 			if($item!==null && $item->checkAccess($itemName,$params))
 				return true;

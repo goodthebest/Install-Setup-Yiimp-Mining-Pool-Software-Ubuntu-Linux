@@ -1,10 +1,10 @@
 /**
- * Header file for Blake2b's internal permutation in the form of a sponge. 
- * This code is based on the original Blake2b's implementation provided by 
+ * Header file for Blake2b's internal permutation in the form of a sponge.
+ * This code is based on the original Blake2b's implementation provided by
  * Samuel Neves (https://blake2.net/)
- * 
+ *
  * Author: The Lyra PHC team (http://www.lyra-kdf.net/) -- 2014.
- * 
+ *
  * This software is hereby placed in the public domain.
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHORS ''AS IS'' AND ANY EXPRESS

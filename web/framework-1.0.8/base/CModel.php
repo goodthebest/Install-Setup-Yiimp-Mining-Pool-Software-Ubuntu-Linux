@@ -423,7 +423,7 @@ abstract class CModel extends CComponent implements IteratorAggregate, ArrayAcce
 				throw new CException(Yii::t('yii','{class} has an invalid validation rule. The rule must specify attributes to be validated and the validator name.',
 					array('{class}'=>get_class($this))));
 		}
-		
+
 	//	debuglog("  good");
 		return $validators;
 	}

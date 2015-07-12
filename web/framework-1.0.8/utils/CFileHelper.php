@@ -34,7 +34,7 @@ class CFileHelper
 	 * Level -1 means copying all directories and files under the directory;
 	 * Level 0 means copying only the files DIRECTLY under the directory;
 	 * level N means copying those directories that are within N levels.
- 	 * </li>
+	 * </li>
 	 * </ul>
 	 */
 	public static function copyDirectory($src,$dst,$options=array())
@@ -60,7 +60,7 @@ class CFileHelper
 	 * Level -1 means searching for all directories and files under the directory;
 	 * Level 0 means searching for only the files DIRECTLY under the directory;
 	 * level N means searching for those directories that are within N levels.
- 	 * </li>
+	 * </li>
 	 * </ul>
 	 * @return array files found under the directory. The file list is sorted.
 	 */

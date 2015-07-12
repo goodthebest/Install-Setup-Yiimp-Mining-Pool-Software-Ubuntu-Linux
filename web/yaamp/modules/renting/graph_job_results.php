@@ -13,24 +13,24 @@ echo '[[';
 
 for($i = $t+$step, $j = 0; $i < time(); $i += $step)
 {
- 	if($i != $t+$step) echo ',';
- 	$m = 0;
- 	
- 	if($i + $step >= time())
- 	{
- 		$m = round(yaamp_job_rate($jobid)/1000000, 3);
+	if($i != $t+$step) echo ',';
+	$m = 0;
+
+	if($i + $step >= time())
+	{
+		$m = round(yaamp_job_rate($jobid)/1000000, 3);
  //		debuglog("last $m");
- 	}
- 	
- 	else if(isset($stats[$j]) && $i > $stats[$j]->time)
- 	{
- 		$m = round($stats[$j]->hashrate/1000000, 3);
- 		$j++;
- 	}
- 	
+	}
+
+	else if(isset($stats[$j]) && $i > $stats[$j]->time)
+	{
+		$m = round($stats[$j]->hashrate/1000000, 3);
+		$j++;
+	}
+
 	$d = date('Y-m-d H:i:s', $i);
 	echo "[\"$d\",$m]";
-	
+
 	$averages[] = array($d, $m);
 }
 
@@ -51,15 +51,15 @@ echo '],[';
 
 for($i = $t+$step, $j = 0; $i < time(); $i += $step)
 {
- 	if($i != $t+$step) echo ',';
+	if($i != $t+$step) echo ',';
 	$m = 0;
 
- 	if($i + $step >= time())
- 	{
- 		$m = round(yaamp_user_rate_bad($jobid)/1000000, 3);
- 	//	debuglog("last $m");
- 	}
-	
+	if($i + $step >= time())
+	{
+		$m = round(yaamp_user_rate_bad($jobid)/1000000, 3);
+	//	debuglog("last $m");
+	}
+
 	else if(isset($stats[$j]) && $i > $stats[$j]->time)
 	{
 		$m = round($stats[$j]->hashrate_bad/1000000, 3);

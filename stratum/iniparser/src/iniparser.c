@@ -67,7 +67,7 @@ void strstrip(char * s)
 
     char *last = s + strlen(s);
     char *dest = s;
-    
+
     while (isspace((int)*s) && *s) s++;
     while (last > s) {
         if (!isspace((int)*(last-1)))
@@ -283,7 +283,7 @@ int iniparser_getsecnkeys(dictionary * d, char * s)
     for (j=0 ; j<d->size ; j++) {
         if (d->key[j]==NULL)
             continue ;
-        if (!strncmp(d->key[j], keym, secsize-1)) 
+        if (!strncmp(d->key[j], keym, secsize-1))
             nkeys++;
     }
     free(keym);
@@ -301,7 +301,7 @@ int iniparser_getsecnkeys(dictionary * d, char * s)
   This function queries a dictionary and finds all keys in a given section.
   Each pointer in the returned char pointer-to-pointer is pointing to
   a string allocated in the dictionary; do not free or modify them.
-  
+
   This function returns NULL in case of error.
  */
 /*--------------------------------------------------------------------------*/
@@ -326,7 +326,7 @@ char ** iniparser_getseckeys(dictionary * d, char * s)
     secsize  = (int)strlen(s) + 2;
     keym = malloc(secsize);
     snprintf(keym, secsize, "%s:", s);
-    
+
     i = 0;
 
     for (j=0 ; j<d->size ; j++) {
@@ -520,7 +520,7 @@ int iniparser_set(dictionary * ini, const char * entry, const char * val)
 {
     int result = 0;
     char *lc_entry = xstrdup(entry);
-    strlwc(lc_entry); 
+    strlwc(lc_entry);
     result = dictionary_set(ini, lc_entry, val) ;
     free(lc_entry);
     return result;
@@ -560,7 +560,7 @@ static line_status iniparser_line(
     char ** section_out,
     char ** key_out,
     char ** value_out)
-{   
+{
     line_status sta ;
     int len = line_size-1;
     char * line = malloc(line_size);
@@ -577,7 +577,7 @@ static line_status iniparser_line(
 
 
     strcpy(line, input_line);
-    strstrip(line); 
+    strstrip(line);
     len = (int)strlen(line);
 
     /* only allocate necessary space for key & val */
@@ -604,7 +604,7 @@ static line_status iniparser_line(
         sta = LINE_EMPTY ;
     } else if (line[0]=='#' || line[0]==';') {
         /* Comment line */
-        sta = LINE_COMMENT ; 
+        sta = LINE_COMMENT ;
     } else if (line[0]=='[' && line[len-1]==']') {
         /* Section name */
         sscanf(line, "[%[^]]", key);
@@ -656,7 +656,7 @@ static line_status iniparser_line(
         sta = LINE_ERROR ;
     }
 
-out:    
+out:
     if (line) {
         free(line);
         line = NULL;
@@ -731,7 +731,7 @@ dictionary * iniparser_load(const char * ininame)
             val = NULL;
         }
 
-         
+
         lineno++ ;
         len = (int)strlen(line)-1;
         if (len==0)

@@ -4,16 +4,16 @@ function BackendBlockNew($coin, $db_block)
 {
 //	debuglog("NEW BLOCK $coin->name $db_block->height");
 	$reward = $db_block->amount;
-	
+
 	$total_hash_power = dboscalar("select sum(difficulty) from shares where valid and algo='$coin->algo'");
 	if(!$total_hash_power) return;
-	
+
 	$list = dbolist("SELECT userid, sum(difficulty) as total from shares where valid and algo='$coin->algo' group by userid");
 	foreach($list as $item)
 	{
 		$hash_power = $item['total'];
 		if(!$hash_power) continue;
-		
+
 		$user = getdbo('db_accounts', $item['userid']);
 		if(!$user) continue;
 
@@ -27,7 +27,7 @@ function BackendBlockNew($coin, $db_block)
 		$earning->create_time = $db_block->time;
 		$earning->amount = $amount;
 		$earning->price = $coin->price;
-		
+
 		if($db_block->category == 'generate')
 		{
 			$earning->mature_time = time();
@@ -35,7 +35,7 @@ function BackendBlockNew($coin, $db_block)
 		}
 		else	// immature
 			$earning->status = 0;
-		
+
 		$earning->save();
 
 		$user->last_login = time();
@@ -59,21 +59,21 @@ function BackendBlockFind1()
 
 		$db_block->category = 'orphan';
 		$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
-			
+
 		$block = $remote->getblock($db_block->blockhash);
 		if(!$block || !isset($block['tx']) || !isset($block['tx'][0]))
 		{
 			$db_block->save();
 			continue;
 		}
-			
+
 		$tx = $remote->gettransaction($block['tx'][0]);
 		if(!$tx || !isset($tx['details']) || !isset($tx['details'][0]))
 		{
 			$db_block->save();
 			continue;
 		}
-			
+
 		$db_block->txhash = $block['tx'][0];
 		$db_block->category = 'immature';						//$tx['details'][0]['category'];
 		$db_block->amount = $tx['details'][0]['amount'];
@@ -92,7 +92,7 @@ function BackendBlocksUpdate()
 {
 //	debuglog(__METHOD__);
 	$t1 = microtime(true);
-	
+
 	$list = getdbolist('db_blocks', "category='immature' order by time");
 	foreach($list as $block)
 	{
@@ -108,18 +108,18 @@ function BackendBlocksUpdate()
 		{
 			$blockext = $remote->getblock($block->blockhash);
 			if(!$blockext || !isset($blockext['tx'][0])) continue;
-			
+
 			$block->txhash = $blockext['tx'][0];
 		}
-		
+
 		$tx = $remote->gettransaction($block->txhash);
 		if(!$tx) continue;
-		
+
 		$block->confirmations = $tx['confirmations'];
-			
+
 		if($block->confirmations == -1)
 			$block->category = 'orphan';
-		
+
 		else if(isset($tx['details']) && isset($tx['details'][0]))
 			$block->category = $tx['details'][0]['category'];
 
@@ -127,10 +127,10 @@ function BackendBlocksUpdate()
 			$block->category = $tx['category'];
 
 		$block->save();
-			
+
 		if($block->category == 'generate')
 			dborun("update earnings set status=1, mature_time=UNIX_TIMESTAMP() where blockid=$block->id");
-		
+
 		else if($block->category != 'immature')
 			dborun("delete from earnings where blockid=$block->id");
 	}
@@ -148,7 +148,7 @@ function BackendBlockFind2()
 	{
 		if($coin->symbol == 'BTC') continue;
 		$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
-			
+
 		$mostrecent = 0;
 		if($coin->lastblock == null) $coin->lastblock = '';
 		$list = $remote->listsinceblock($coin->lastblock);
@@ -170,7 +170,7 @@ function BackendBlockFind2()
 			if($transaction['category'] != 'generate' && $transaction['category'] != 'immature') continue;
 
 			$blockext = $remote->getblock($transaction['blockhash']);
-			
+
 			$db_block = getdbosql('db_blocks', "blockhash='{$transaction['blockhash']}' or height={$blockext['height']}");
 			if($db_block) continue;
 
@@ -191,7 +191,7 @@ function BackendBlockFind2()
 
 			BackendBlockNew($coin, $db_block);
 		}
-			
+
 		$coin->save();
 	}
 }
@@ -199,13 +199,13 @@ function BackendBlockFind2()
 function MonitorBTC()
 {
 //	debuglog(__FUNCTION__);
-	
+
 	$coin = getdbosql('db_coins', "symbol='BTC'");
 	if(!$coin) return;
-	
+
 	$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
 	if(!$remote) return;
-	
+
 	$mostrecent = 0;
 	if($coin->lastblock == null) $coin->lastblock = '';
 	$list = $remote->listsinceblock($coin->lastblock);
@@ -213,27 +213,27 @@ function MonitorBTC()
 
 	$coin->lastblock = $list['lastblock'];
 	$coin->save();
-	
+
 	foreach($list['transactions'] as $transaction)
 	{
 		if(!isset($transaction['blockhash'])) continue;
 		if($transaction['confirmations'] == 0) continue;
 		if($transaction['category'] != 'send') continue;
 		if($transaction['fee'] != -0.0001) continue;
-		
+
 		debuglog(__FUNCTION__);
 		debuglog($transaction);
-		
+
 		$txurl = "https://blockchain.info/tx/{$transaction['txid']}";
-		
-		$b = mail(YAAMP_ADMIN_EMAIL, "withdraw {$transaction['amount']}", 
+
+		$b = mail(YAAMP_ADMIN_EMAIL, "withdraw {$transaction['amount']}",
 			"<a href='$txurl'>{$transaction['address']}</a>");
-		
+
 		if(!$b) debuglog('error sending email');
-		
+
 	}
-		
-	
+
+
 }
 
 

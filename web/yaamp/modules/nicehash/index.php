@@ -14,7 +14,7 @@ echo "<br><br><br><br><br><br><br><br><br><br>";
 echo <<<END
 
 <script>
-		
+
 function page_refresh()
 {
 	index_refresh();

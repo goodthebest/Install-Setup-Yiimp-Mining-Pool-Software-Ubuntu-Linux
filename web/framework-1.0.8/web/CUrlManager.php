@@ -205,7 +205,7 @@ class CUrlManager extends CApplicationComponent
 			if(($url=$rule->createUrl($this,$route,$params,$ampersand))!==false)
 				return $this->getBaseUrl().'/'.$url.$anchor;
 		}
-		
+
 		$url = $this->createUrlDefault($route,$params,$ampersand).$anchor;
 		return $url;
 	}

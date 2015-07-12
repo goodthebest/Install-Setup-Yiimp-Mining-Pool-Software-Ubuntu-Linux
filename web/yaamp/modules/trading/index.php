@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 $algo = user()->getState('yaamp-algo');
 
@@ -36,7 +36,7 @@ echo <<<end
 <div class="main-left-inner"><br>
 <div id='graph_results_price' style='height: $height;'></div><br>
 </div></div><br>
-		
+
 </td><td valign=top>
 
 <div id='pool_current_results'>
@@ -162,7 +162,7 @@ function main_refresh_price()
 	var url = "/site/graph_price_results";
 	$.get(url, '', main_ready_price).error(main_error_price);
 }
-		
+
 function graph_init_price(data)
 {
 	$('#graph_results_price').empty();
@@ -263,7 +263,7 @@ function user_hashrate_graph_init(data)
 
 
 end;
-		
+
 
 
 

@@ -47,31 +47,31 @@ foreach($algos as $item)
 {
 	$norm = $item[0];
 	$algo = $item[1];
-	
+
 	$count1 = getdbocount('db_jobs', "algo=:algo and ready and active", array(':algo'=>$algo));
 	$count2 = getdbocount('db_jobs', "algo=:algo and ready", array(':algo'=>$algo));
-	
+
 	$total = yaamp_pool_rate($algo);
 	$hashrate = yaamp_pool_rate_rentable($algo);
 	$hashrate_jobs = yaamp_rented_rate($algo);
-	
+
 	$hashrate = min($total, $hashrate);
 	$hashrate_jobs = min($hashrate, $hashrate_jobs);
-	
+
 	$available = $hashrate - $hashrate_jobs;
 	$percent = $hashrate_jobs && $hashrate? '('.round($hashrate_jobs/$hashrate*100, 1).'%)': '';
-	
+
 	$hashrate_jobs = $hashrate_jobs>0? Itoa2($hashrate_jobs).'h/s': '';
 	$available = $available>0? Itoa2($available).'h/s': '';
 	$hashrate = $hashrate>0? Itoa2($hashrate).'h/s': '';
 	$total = $total>0? Itoa2($total).'h/s': '';
-	
+
 	$renting = controller()->memcache->get_database_scalar("current_renting-$algo",
 		"select rent from hashrate where algo=:algo order by time desc limit 1", array(':algo'=>$algo));
 	$renting = mbitcoinvaluetoa($renting);
-	
+
 	if($defaultalgo == $algo)
- 		echo "<tr style='cursor: pointer; background-color: #e0d3e8;' onclick='javascript:select_algo(\"$algo\")'>";
+		echo "<tr style='cursor: pointer; background-color: #e0d3e8;' onclick='javascript:select_algo(\"$algo\")'>";
 	else
 		echo "<tr style='cursor: pointer' class='ssrow' onclick='javascript:select_algo(\"$algo\")'>";
 
@@ -95,7 +95,7 @@ echo "<p style='font-size: .8em'>
 		</p>";
 
 echo "</div></div><br>";
-	
+
 
 
 

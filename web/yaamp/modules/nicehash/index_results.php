@@ -50,10 +50,10 @@ foreach($list as $nicehash)
 		echo "<td style='color: #a44'>$nicehash->price</td>";
 	else
 		echo "<td>$nicehash->price</td>";
-	
+
 	echo "<td>$nicehash->speed</td>";
 	echo "<td>$d</td>";
-	
+
 	if(!$nicehash->workers && !$nicehash->accepted && !$nicehash->rejected)
 	{
 		echo "<td colspan=3></td>";
@@ -64,12 +64,12 @@ foreach($list as $nicehash)
 		echo "<td>$nicehash->accepted</td>";
 		echo "<td>$nicehash->rejected</td>";
 	}
-	
+
 	if($nicehash->active)
 		echo "<td><a href='/nicehash/stop?id=$nicehash->id'>stop</a></td>";
 	else
 		echo "<td><a href='/nicehash/start?id=$nicehash->id'>start</a></td>";
-		
+
 	echo "</tr>";
 }
 

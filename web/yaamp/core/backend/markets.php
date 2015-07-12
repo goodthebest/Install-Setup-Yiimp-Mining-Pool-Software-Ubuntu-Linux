@@ -11,19 +11,19 @@ function BackendPricesUpdate()
 	updatePoloniexMarkets();
 	updateYobitMarkets();
 	updateJubiMarkets();
-	
+
 	$list2 = getdbolist('db_coins', "installed and symbol2 is not null");
 	foreach($list2 as $coin2)
 	{
 		$coin = getdbosql('db_coins', "symbol='$coin2->symbol2'");
 		if(!$coin) continue;
-		
+
 		$list = getdbolist('db_markets', "coinid=$coin->id");
 		foreach($list as $market)
 		{
 			$market2 = getdbosql('db_markets', "coinid=$coin2->id and name='$market->name'");
 			if(!$market2) continue;
-			
+
 			$market2->price = $market->price;
 			$market2->price2 = $market->price2;
 			$market2->deposit_address = $market->deposit_address;
@@ -43,13 +43,13 @@ function BackendPricesUpdate()
 			$coin->save();
 			continue;
 		}
-		
+
 		$market = getBestMarket($coin);
 		if($market)
 		{
 			$coin->price = $market->price*(1-YAAMP_FEES_EXCHANGE/100);
 			$coin->price2 = $market->price2;
-			
+
 			$base_coin = !empty($market->base_coin)? getdbosql('db_coins', "symbol='$market->base_coin'"): null;
 			if($base_coin)
 			{
@@ -60,7 +60,7 @@ function BackendPricesUpdate()
 //			if($market->name == 'c-cex')
 //				$coin->price *= 0.95;
 		}
-		
+
 		else
 		{
 			$coin->price = 0;
@@ -74,22 +74,22 @@ function BackendPricesUpdate()
 
 function getBestMarket($coin)
 {
-	$market = getdbosql('db_markets', "coinid=$coin->id and price!=0 and 
-		deposit_address is not null and deposit_address != '' and 
+	$market = getdbosql('db_markets', "coinid=$coin->id and price!=0 and
+		deposit_address is not null and deposit_address != '' and
 		(name='bittrex' or name='cryptsy') order by price desc");
-	
+
 	if(!$market)
 	{
-		$market = getdbosql('db_markets', "coinid=$coin->id and price!=0 and 
-			deposit_address is not null and deposit_address != '' and 
+		$market = getdbosql('db_markets', "coinid=$coin->id and price!=0 and
+			deposit_address is not null and deposit_address != '' and
 			name!='yobit' order by price desc");
-		
+
 		if(!$market)
 			$market = getdbosql('db_markets', "coinid=$coin->id and price!=0 and
 					deposit_address is not null and deposit_address != ''
 					order by price desc");
 	}
-	
+
 	return $market;
 }
 
@@ -115,7 +115,7 @@ function updateBleutradeMarkets()
 
 		$coin = getdbosql('db_coins', "symbol='$currency->Currency'");
 		if(!$coin || !$coin->installed) continue;
-			
+
 		$market = getdbosql('db_markets', "coinid=$coin->id and name='bleutrade'");
 		if(!$market)
 		{
@@ -129,7 +129,7 @@ function updateBleutradeMarkets()
 		{
 			$market->price = 0;
 			$market->save();
-				
+
 			continue;
 		}
 
@@ -146,7 +146,7 @@ function updateBleutradeMarkets()
 			if($address && isset($address->result))
 				$market->deposit_address = $address->result->Address;
 		}
-			
+
 		$price2 = ($ticker->result[0]->Bid+$ticker->result[0]->Ask)/2;
 		$market->price2 = AverageIncrement($market->price2, $price2);
 		$market->price = AverageIncrement($market->price, $ticker->result[0]->Bid);
@@ -166,10 +166,10 @@ function updateBittrexMarkets()
 	foreach($list->result as $currency)
 	{
 		if($currency->Currency == 'BTC') continue;
-			
+
 		$coin = getdbosql('db_coins', "symbol='$currency->Currency'");
 		if(!$coin || !$coin->installed) continue;
-			
+
 		$market = getdbosql('db_markets', "coinid=$coin->id and name='bittrex'");
 		if(!$market)
 		{
@@ -185,21 +185,21 @@ function updateBittrexMarkets()
 		{
 			$market->price = 0.00000001;
 			$market->save();
-				
+
 			continue;
 		}
-			
+
 		if(!$currency->IsActive)
 		{
 			$market->price = 0;
 			$market->save();
-				
+
 			continue;
 		}
-			
+
 		$market->save();
 		$pair = "BTC-$coin->symbol";
-			
+
 		$ticker = bittrex_api_query('public/getticker', "&market=$pair");
 		if(!$ticker || !$ticker->success || !$ticker->result) continue;
 
@@ -210,7 +210,7 @@ function updateBittrexMarkets()
 			if($address && isset($address->result))
 				$market->deposit_address = $address->result->Address;
 		}
-			
+
 		$price2 = ($ticker->result->Bid+$ticker->result->Ask)/2;
 		$market->price2 = AverageIncrement($market->price2, $price2);
 		$market->price = AverageIncrement($market->price, $ticker->result->Bid);
@@ -259,7 +259,7 @@ function updateCryptsyMarkets()
 			{
 				if($item['secondary_currency_code'] != 'BTC') continue;
 				if($item['primary_currency_code'] != $symbol) continue;
-					
+
 				$market->marketid = $item['marketid'];
 			}
 		}
@@ -270,7 +270,7 @@ function updateCryptsyMarkets()
 			{
 				if($item['secondary_currency_code'] != 'BTC') continue;
 				if($item['primary_currency_code'] != $symbol) continue;
-					
+
 				$market->marketid = $item['marketid'];
 			}
 		}
@@ -333,7 +333,7 @@ function updateCryptsyMarkets()
 
 		$market = getdbosql('db_markets', "coinid=$coin->id and name='cryptsy'");
 		if(!$market) continue;
-			
+
 		$market->deposit_address = $item;
 		$market->save();
 	}
@@ -375,7 +375,7 @@ function updateCCexMarkets()
 		$price2 = ($ticker['buy']+$ticker['sell'])/2;
 		$market->price2 = AverageIncrement($market->price2, $price2);
 		$market->price = AverageIncrement($market->price, $ticker['buy']);
-		
+
 		$market->save();
 	}
 }
@@ -388,18 +388,18 @@ function updatePoloniexMarkets()
 
 	$tickers = $poloniex->get_ticker();
 	if(!$tickers) return;
-	
+
 	foreach($tickers as $symbol=>$ticker)
 	{
 		$a = explode('_', $symbol);
 		if(!isset($a[1])) continue;
 		if($a[0] != 'BTC') continue;
-		
+
 		$symbol = $a[1];
-		
+
 		$coin = getdbosql('db_coins', "symbol=:symbol", array(':symbol'=>$symbol));
 		if(!$coin || !$coin->installed) continue;
-				
+
 		$market = getdbosql('db_markets', "coinid=$coin->id and name='poloniex'");
 		if(!$market)
 		{
@@ -407,28 +407,28 @@ function updatePoloniexMarkets()
 			$market->coinid = $coin->id;
 			$market->name = 'poloniex';
 		}
-		
+
 		if(empty($market->deposit_address) && $coin->installed)
 			$poloniex->generate_address($coin->symbol);
-		
+
 		$price2 = ($ticker['highestBid']+$ticker['lowestAsk'])/2;
 		$market->price2 = AverageIncrement($market->price2, $price2);
 		$market->price = AverageIncrement($market->price, $ticker['highestBid']);
 
 		$market->save();
 	}
-	
+
 	$list = $poloniex->get_deposit_addresses();
 	foreach($list as $symbol=>$item)
 	{
 		if($symbol == 'BTC') continue;
-	
+
 		$coin = getdbosql('db_coins', "symbol=:symbol", array(':symbol'=>$symbol));
 		if(!$coin) continue;
-	
+
 		$market = getdbosql('db_markets', "coinid=$coin->id and name='poloniex'");
 		if(!$market) continue;
-			
+
 		$market->deposit_address = $item;
 		$market->save();
 	}
@@ -447,10 +447,10 @@ function updateYobitMarkets()
 		$symbol = strtoupper($e[0]);
 		if($e[1] != 'btc') continue;
 		if($symbol == 'BTC') continue;
-		
+
 		$coin = getdbosql('db_coins', "symbol=:symbol", array(':symbol'=>$symbol));
 		if(!$coin || !$coin->installed) continue;
-		
+
 		$market = getdbosql('db_markets', "coinid=$coin->id and name='yobit'");
 		if(!$market)
 		{
@@ -458,16 +458,16 @@ function updateYobitMarkets()
 			$market->coinid = $coin->id;
 			$market->name = 'yobit';
 		}
-		
+
 		$pair = strtolower($coin->symbol).'_btc';
 
 		$ticker = yobit_api_query("ticker/$pair");
 		if(!$ticker) continue;
-		
+
 		$price2 = ($ticker->$pair->buy+$ticker->$pair->sell)/2;
 		$market->price2 = AverageIncrement($market->price2, $price2);
 		$market->price = AverageIncrement($market->price, $ticker->$pair->buy);
-		
+
 		$market->save();
 	}
 }
@@ -476,25 +476,25 @@ function updateJubiMarkets()
 {
 	$btc = jubi_api_query('ticker', "?coin=btc");
 	if(!$btc) continue;
-	
+
 	$list = getdbolist('db_markets', "name='jubi'");
 	foreach($list as $market)
 	{
 		$coin = getdbo('db_coins', $market->coinid);
 		if(!$coin) continue;
-		
+
 		$lowsymbol = strtolower($coin->symbol);
-		
+
 		$ticker = jubi_api_query('ticker', "?coin=$lowsymbol");
 		if(!$ticker) continue;
-		
+
 		$ticker->buy /= $btc->sell;
 		$ticker->sell /= $btc->buy;
-		
+
 		$price2 = ($ticker->buy+$ticker->sell)/2;
 		$market->price2 = AverageIncrement($market->price2, $price2);
 		$market->price = AverageIncrement($market->price, $ticker->buy*0.95);
-		
+
 		$market->save();
 	}
 }

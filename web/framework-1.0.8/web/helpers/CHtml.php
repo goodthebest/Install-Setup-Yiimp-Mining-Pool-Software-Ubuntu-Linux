@@ -71,7 +71,7 @@ class CHtml
 		$res = @htmlspecialchars($text, ENT_QUOTES,Yii::app()->charset);
 		if(!$res)
 			$res = htmlentities($text);	//,Yii::app()->charset);
-			
+
 		return $res;
 	}
 
@@ -658,7 +658,7 @@ class CHtml
 	public static function dropDownList($name,$select,$data,$htmlOptions=array())
 	{
 		$htmlOptions['name']=$name;
-		
+
 		if(!isset($htmlOptions['id']))
 			$htmlOptions['id']=self::getIdByName($name);
 		self::clientChange('change',$htmlOptions);
@@ -991,10 +991,10 @@ EOD;
 		$htmlOptions['type']=$type;
 		$htmlOptions['value']=$value;
 		$htmlOptions['name']=$name;
-		
+
 // 		if($type != 'checkbox')
 // 			$htmlOptions['class']=$htmlOptions['class'].' tweetnews-input';
-		
+
 		if(!isset($htmlOptions['id']))
 			$htmlOptions['id']=self::getIdByName($name);
 		else if($htmlOptions['id']===false)
@@ -1693,7 +1693,7 @@ EOD;
 
 		$cs=Yii::app()->getClientScript();
 		$cs->registerCoreScript('jquery');
-		
+
 		if(isset($htmlOptions['submit']))
 		{
 			$cs->registerCoreScript('yii');

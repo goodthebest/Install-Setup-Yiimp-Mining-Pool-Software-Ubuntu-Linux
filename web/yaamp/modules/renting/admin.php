@@ -25,7 +25,7 @@ foreach($list as $tx)
 {
 	$d = datetoa2($tx->time);
 	$amount = bitcoinvaluetoa($tx->amount);
-	
+
 	$renter = getdbo('db_renters', $tx->renterid);
 	if(!$renter) continue;
 
@@ -33,7 +33,7 @@ foreach($list as $tx)
 
 	echo "<td>$renter->id</td>";
 	echo "<td><a href='/renting?address=$renter->address'>$renter->address</a></td>";
-	
+
 	echo "<td align=right><b>$d ago</b></td>";
 	echo "<td align=right title='$tx->address'>$tx->type</td>";
 	echo "<td align=right><b>$amount</b></td>";
@@ -73,12 +73,12 @@ foreach($list as $renter)
 {
 	$count = dboscalar("select count(*) from jobs where renterid=$renter->id");
 	$active = dboscalar("select count(*) from jobs where renterid=$renter->id and active");
-	
+
 	if($deposit == $renter->address)
 		echo "<tr class='ssrow' style='background-color: #dfd'>";
 	else
 		echo "<tr class='ssrow'>";
-	
+
 	echo "<td>$renter->id</td>";
 	echo "<td><a href='/renting?address=$renter->address'>$renter->address</a></td>";
 	echo "<td>$renter->email</td>";
@@ -116,12 +116,12 @@ foreach($list as $job)
 {
 	$hashrate = yaamp_job_rate($job->id);
 	$hashrate = $hashrate? Itoa2($hashrate).'h/s': '';
-	
+
 	$speed = Itoa2($job->speed).'h/s';
-	
+
 	$renter = getdbo('db_renters', $job->renterid);
 	if(!$renter) continue;
-	
+
 	if($deposit == $renter->address)
 		echo "<tr class='ssrow' style='background-color: #dfd'>";
 	else

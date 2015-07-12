@@ -15,7 +15,7 @@ for($i = 0; $i < 95-count($stats); $i++)
 {
 	$d = date('Y-m-d H:i:s', $t);
 	echo "[\"$d\",0],";
-	
+
 	$t += $step;
 	$averages[] = array($d, 0);
 }
@@ -24,7 +24,7 @@ foreach($stats as $i=>$n)
 {
 	$m = $n->price;
 	if($i) echo ',';
-	
+
 	$d = date('Y-m-d H:i:s', $n->time);
 	echo "[\"$d\",$m]";
 
@@ -37,10 +37,10 @@ $average = $averages[0][1];
 foreach($averages as $i=>$n)
 {
 	if($i) echo ',';
-	
+
 	$average = ($average*(100-$percent) + $n[1]*$percent) / 100;
 	$m = round($average, 5);
-	
+
 	echo "[\"{$n[0]}\",$m]";
 }
 

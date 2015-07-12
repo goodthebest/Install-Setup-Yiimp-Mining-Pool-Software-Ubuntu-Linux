@@ -12,7 +12,7 @@ foreach($stats as $i=>$n)
 {
 	$m = round($n->waiting, 8);
 	if($i) echo ',';
-	
+
 	$d = date('Y-m-d H:i:s', $n->time);
 	echo "[\"$d\",$m]";
 }
@@ -22,7 +22,7 @@ foreach($stats as $i=>$n)
 {
 	$m = round($n->immature, 8);
 	if($i) echo ',';
-	
+
 	$d = date('Y-m-d H:i:s', $n->time);
 	echo "[\"$d\",$m]";
 }

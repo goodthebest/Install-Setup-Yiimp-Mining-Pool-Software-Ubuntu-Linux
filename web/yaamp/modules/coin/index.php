@@ -30,48 +30,48 @@ foreach($coins as $coin)
 //	if($coin->symbol == 'BTC') continue;
 	if($coin->enable) $total_active++;
 	if($coin->installed) $total_installed++;
-	
+
 	$coin->errors = substr($coin->errors, 0, 30);
 	$coin->version = substr($coin->version, 0, 20);
 	$difficulty = Itoa2($coin->difficulty, 3);
 	$d = datetoa2($coin->created);
-	
+
 	echo "<tr class='ssrow' title='$coin->specifications'>";
 	echo "<td><img src='$coin->image' width=18></td>";
 
 	echo "<td><b><a href='/coin/update?id=$coin->id'>$coin->name</a></b></td>";
-	
+
 	if($this->admin)
 		echo "<td><b><a href='/site/update?id=$coin->id'>$coin->symbol</a></b></td>";
 	else
 		echo "<td><b>$coin->symbol</b></td>";
-	
+
 	echo "<td>$coin->algo</td>";
 
 	if($coin->enable)
 		echo "<td>running</td>";
-	
+
 	else if($coin->installed)
 		echo "<td>installed</td>";
-	
+
 	else
 		echo "<td></td>";
-	
+
 	echo "<td>$coin->version</td>";
 	echo "<td>$d ago</td>";
-	
+
 //	echo "<td align=right>$difficulty</td>";
 	echo "<td align=right>$coin->block_height</td>";
 
 	echo "<td>$coin->errors</td>";
 	echo "<td>";
-	
+
 	if(!empty($coin->link_bitcointalk))
 		echo "<a href='$coin->link_bitcointalk' target=_blank>forum</a> ";
-	
+
 	if(!empty($coin->link_github))
 		echo "<a href='$coin->link_github' target=_blank>git</a> ";
-	
+
 //	if(!empty($coin->link_explorer))
 //		echo "<a href='$coin->link_explorer' target=_blank>expl</a> ";
 
@@ -85,32 +85,32 @@ foreach($coins as $coin)
 	{
 		$url = '';
 		$lowsymbol = strtolower($coin->symbol);
-		
+
 		if($market->name == 'cryptsy')
 			$url = "https://www.cryptsy.com/markets/view/{$coin->symbol}_BTC";
-		
+
 		else if($market->name == 'bittrex')
 			$url = "https://bittrex.com/Market/Index?MarketName=BTC-$coin->symbol";
-		
+
 		else if($market->name == 'mintpal')
 			$url = "https://www.mintpal.com/market/$coin->symbol/BTC";
-		
+
 		else if($market->name == 'poloniex')
 			$url = "https://poloniex.com/exchange/btc_$coin->symbol";
-		
+
 		else if($market->name == 'c-cex')
 			$url = "https://c-cex.com/?p=$lowsymbol-btc";
-		
+
 		else if($market->name == 'bleutrade')
 			$url = "https://bleutrade.com/exchange/$coin->symbol/BTC";
-		
+
 		else if($market->name == 'yobit')
 			$url = "https://yobit.net/en/trade/$coin->symbol/BTC";
-		
+
 		echo "<a href='$url' target=_blank>$market->name</a> ";
 	}
-	
-	
+
+
 	echo "</td>";
 	echo "</tr>";
 }

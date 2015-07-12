@@ -14,7 +14,7 @@ echo <<<END
 <meta charset="utf-8">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-	
+
 <meta name="description" content="yet another anonymous mining pool for bitcoin and altcoin with auto profit switch and auto exchange">
 <meta name="keywords" content="anonymous,mining,pool,maxcoin,bitcoin,altcoin,auto,switch,exchange,profit,scrypt,x11,x13,x14,x15,lyra2,lyra2re,neoscrypt,sha256,quark">
 
@@ -66,7 +66,7 @@ function showItemHeader($selected, $url, $name)
 {
 	if($selected) $selected_text = "class='selected'";
 	else $selected_text = '';
-	
+
 	echo "<span><a $selected_text href='$url'>$name</a></span>";
 	echo "&nbsp;";
 }
@@ -75,10 +75,10 @@ function showPageHeader()
 {
 	echo "<div class='tabmenu-out'>";
 	echo "<div class='tabmenu-inner'>";
-	
+
 //	echo "&nbsp;&nbsp;&nbsp;&nbsp;<a href='/'>Yet Another Anonymous Mining Pool</a>";
 	echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
-	
+
 	$action = controller()->action->id;
 	$wallet = user()->getState('yaamp-wallet');
 	$ad = isset($_GET['address']);
@@ -89,30 +89,30 @@ function showPageHeader()
 	showItemHeader(controller()->id=='stats', '/stats', 'Graphs');
 	showItemHeader($action=='miners', '/site/miners', 'Miners');
 	showItemHeader(controller()->id=='renting', '/renting', 'Rental');
-	
+
 	if(controller()->admin)
 	{
 //		debuglog("admin {$_SERVER['REMOTE_ADDR']}");
 //		$algo = user()->getState('yaamp-algo');
-				
+
 		showItemHeader(controller()->id=='explorer', '/explorer', 'Explorers');
 //		showItemHeader(controller()->id=='coin', '/coin', 'Coins');
 		showItemHeader($action=='common', '/site/common', 'Admin');
 		showItemHeader(controller()->id=='site'&&$action=='admin', "/site/admin", 'List');
 //		showItemHeader(controller()->id=='renting' && $action=='admin', '/renting/admin', 'Jobs');
-		
+
 //		showItemHeader(controller()->id=='trading', '/trading', 'Trading');
 //		showItemHeader(controller()->id=='nicehash', '/nicehash', 'Nicehash');
 	}
-	
+
 	echo "<span style='float: right;'>";
-	
+
 	$mining = getdbosql('db_mining');
 	$nextpayment = date('H:i', $mining->last_payout+YAAMP_PAYMENTS_FREQ);
-	
+
 	echo "<span style='font-size: .8em;'>Next Payout: $nextpayment EUST</span>";
 	echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&copy; yiimp.ccminer.org</span>";
-	
+
 	echo "</div>";
 	echo "</div>";
 }
@@ -121,7 +121,7 @@ function showPageFooter()
 {
 	echo "<div class='footer'>";
 	$year = date("Y", time());
-	
+
 	echo "<p>&copy; $year. All Rights Reserved. yiimp -
 		<a href='/site/terms'>Terms and conditions</a></p>";
 

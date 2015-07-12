@@ -13,28 +13,28 @@ function TradingSellCoins()
 function sellCoinToExchange($coin)
 {
 	if($coin->dontsell) return;
-	
+
 	$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
 
 	$info = $remote->getinfo();
 	if(!$info || !$info['balance']) return false;
-	
+
 	if(!empty($coin->symbol2))
 	{
 		$coin2 = getdbosql('db_coins', "symbol='$coin->symbol2'");
 		if(!$coin2) return;
-		
+
 		$amount = $info['balance'] - $info['paytxfee'];
 		$amount *= 0.9;
-		
+
 //		debuglog("sending $amount $coin->symbol to main wallet");
-		
+
 		$tx = $remote->sendtoaddress($coin2->master_wallet, $amount);
 //		if(!$tx) debuglog($remote->error);
-		
+
 		return;
 	}
-	
+
 	$market = getBestMarket($coin);
 	if(!$market) return;
 
@@ -43,7 +43,7 @@ function sellCoinToExchange($coin)
 //		debuglog("*** not sending $coin->name to $market->name. last tx is late ***");
 		return;
 	}
-	
+
 	$deposit_address = $market->deposit_address;
 	$marketname = $market->name;
 
@@ -51,16 +51,16 @@ function sellCoinToExchange($coin)
 	$reserved1 = dboscalar("select sum(balance) from accounts where coinid=$coin->id");
 	$reserved2 = dboscalar("select sum(amount*price) from earnings
 		where status!=2 and userid in (select id from accounts where coinid=$coin->id)");
-	
+
 	$reserved = ($reserved1 + $reserved2) * 10;
 	$amount = $info['balance'] - $info['paytxfee'] - $reserved;
-	
+
 //	if($reserved>0)
 //	{
 //		debuglog("$reserved1 $reserved2 out of {$info['balance']}");
 //		debuglog("reserving $reserved $coin->symbol out of $coin->balance, available $amount");
 //	}
-	
+
 	if($amount < $coin->reward/4)
 	{
 	//	debuglog("not enough $coin->symbol to sell $amount < $coin->reward /4");
@@ -73,13 +73,13 @@ function sellCoinToExchange($coin)
 		debuglog("sell invalid address $deposit_address");
 		return;
 	}
-	
+
 	$amount = round($amount, 8);
 //	debuglog("sending $amount $coin->symbol to $marketname, $deposit_address");
-	
+
 	$market->lastsent = time();
 	$market->save();
-	
+
 //	sleep(1);
 
 	$tx = $remote->sendtoaddress($deposit_address, $amount);
@@ -97,7 +97,7 @@ function sellCoinToExchange($coin)
 			$amount = min($amount, 500);
 		else
 			$amount = round($amount * 0.99, 8);
-		
+
 //		debuglog("sending $amount $coin->symbol to $deposit_address");
 		sleep(1);
 

@@ -38,7 +38,7 @@ foreach($db_blocks as $db_block)
 	if(!$db_block->coin_id)
 	{
 		$reward = bitcoinvaluetoa($db_block->amount);
-		
+
 		echo "<tr class='ssrow'>";
 		echo "<td width=18><img width=16 src='/images/btc.png'></td>";
 		echo "<td><b>Rental</b><span style='font-size: .8em'> ($db_block->algo)</span></td>";
@@ -50,16 +50,16 @@ foreach($db_blocks as $db_block)
 		echo "<span style='padding: 2px; color: white; background-color: #5cb85c'>Confirmed</span>";
 		echo "</td>";
 		echo "</tr>";
-	
+
 		continue;
 	}
-	
+
 	$reward = round($db_block->amount, 3);
 	$coin = getdbo('db_coins', $db_block->coin_id);
 	$difficulty = Itoa2($db_block->difficulty, 3);
 	$height = number_format($db_block->height, 0, '.', ' ');
 	$url = "/explorer?id=$coin->id&hash=$db_block->blockhash";
-	
+
 	echo "<tr class='ssrow'>";
 	echo "<td width=18><img width=16 src='$coin->image'></td>";
 	echo "<td><b><a href='$url'>$coin->name</a></b><span style='font-size: .8em'> ($coin->algo)</span></td>";
@@ -80,7 +80,7 @@ foreach($db_blocks as $db_block)
 
 	else if($db_block->category == 'new')
 		echo "<span style='padding: 2px; color: white; background-color: #ad4ef0'>New</span>";
-	
+
 	echo "</td>";
 	echo "</tr>";
 }

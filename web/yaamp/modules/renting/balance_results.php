@@ -37,16 +37,16 @@ if(controller()->admin)
 {
 	echo "<tr><td>Spent</td><td>$spent BTC</td>
 		<td><input type='button' value='Reset' class='main-submit-button' onclick='javascript:reset_spent()'></td></tr>";
-	
+
 	if($renter->id == 7)
 	{
 // 		$balance = $renter->custom_balance - $renter->custom_start;
- 		$profit = $renter->custom_start + $renter->custom_balance - $spent;
-		
+		$profit = $renter->custom_start + $renter->custom_balance - $spent;
+
 		$start = bitcoinvaluetoa($renter->custom_start);
 		$balance = bitcoinvaluetoa($renter->custom_balance);
 		$profit = bitcoinvaluetoa($profit);
-		
+
 		echo "<tr><td>Received</td><td>$start BTC</td></tr>";
 		echo "<tr><td>Unpaid</td><td>$balance BTC</td></tr>";
 		echo "<tr><td>Profit</td><td>$profit BTC</td></tr>";
@@ -90,7 +90,7 @@ foreach($list as $tx)
 	echo "<td align=right><b>$d ago</b></td>";
 	echo "<td align=right title='$tx->address'>$tx->type</td>";
 	echo "<td align=right><b>$amount</b></td>";
-	
+
 	if(strlen($tx->tx) > 32)
 	{
 		$tx_show = substr($tx->tx, 0, 36).'...';
@@ -99,7 +99,7 @@ foreach($list as $tx)
 	}
 	else
 		echo "<td>$tx->tx</td>";
-		
+
 	echo "</tr>";
 }
 

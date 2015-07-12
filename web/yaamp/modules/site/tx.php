@@ -31,18 +31,18 @@ foreach($list as $payout)
 {
 	$d = datetoa2($payout->time);
 	$amount = bitcoinvaluetoa($payout->amount);
-	
+
 	echo "<tr class='ssrow'>";
 	echo "<td width=18></td>";
 	echo "<td><b>$d ago</b></td>";
-	
+
 	echo "<td align=right><b>$amount</b></td>";
 
 	if($user->coinid == $bitcoin->id)
 		echo "<td style='font-family: monospace;'><a href='https://blockchain.info/tx/$payout->tx' target=_blank>$payout->tx</a></td>";
 	else
 		echo "<td style='font-family: monospace;'><a href='/explorer?id=$user->coinid&txid=$payout->tx' target=_blank>$payout->tx</a></td>";
-	
+
 	echo "</tr>";
 	$total += $payout->amount;
 }

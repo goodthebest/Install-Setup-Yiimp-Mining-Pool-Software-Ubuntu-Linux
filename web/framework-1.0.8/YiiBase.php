@@ -315,7 +315,7 @@ class YiiBase
 	public static function autoload($className)
 	{
 		if(strstr($className, 'CAS_')) return false;
-		
+
 		// use include so that the error PHP file may appear
 		if(isset(self::$_coreClasses[$className]))
 			include(YII_PATH.self::$_coreClasses[$className]);
@@ -329,7 +329,7 @@ class YiiBase
 				include($classfile);
 				return class_exists($className,false) || interface_exists($className,false);
 			}
-			
+
 			include($className.'.php');
 			return class_exists($className,false) || interface_exists($className,false);
 		}

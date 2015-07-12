@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 $algo = user()->getState('yaamp-algo');
 
@@ -63,7 +63,7 @@ function pool_current_refresh()
 	var url = "/site/current_results";
 	$.get(url, '', pool_current_ready);
 }
-		
+
 ////////////////////////////////////////////////////
 
 function miners_ready(data)
@@ -81,7 +81,7 @@ function miners_refresh()
 
 
 end;
-		
+
 
 
 

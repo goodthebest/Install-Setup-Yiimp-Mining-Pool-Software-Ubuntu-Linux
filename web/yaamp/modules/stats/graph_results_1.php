@@ -10,7 +10,7 @@ echo '[';
 foreach($stats as $i=>$n)
 {
 	$m = round($n->hashrate/1000000, 3);
-	
+
 	if($i) echo ',';
 	$d = date('Y-m-d H:i:s', $n->time);
 	echo "[\"$d\",$m]";

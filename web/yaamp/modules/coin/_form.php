@@ -15,19 +15,19 @@ if(!$coin->installed)
 	echo CUFHtml::activeTextField($coin, 'name');
 	echo "<p class='formHint2'></p>";
 	echo CUFHtml::closeCtrlHolder();
-	
+
 	echo CUFHtml::openActiveCtrlHolder($coin, 'symbol');
 	echo CUFHtml::activeLabelEx($coin, 'symbol');
 	echo CUFHtml::activeTextField($coin, 'symbol');
 	echo "<p class='formHint2'></p>";
 	echo CUFHtml::closeCtrlHolder();
-	
+
 	echo CUFHtml::openActiveCtrlHolder($coin, 'algo');
 	echo CUFHtml::activeLabelEx($coin, 'algo');
 	echo CUFHtml::activeTextField($coin, 'algo');
 	echo "<p class='formHint2'></p>";
 	echo CUFHtml::closeCtrlHolder();
-	
+
 	echo CUFHtml::openActiveCtrlHolder($coin, 'image');
 	echo CUFHtml::activeLabelEx($coin,'image');
 	echo CUFHtml::activeTextField($coin, 'image');

@@ -115,7 +115,7 @@ return array (
   'The column "{column}" is not a foreign key in table "{table}".' => 'La colonne "{column}" n\'est pas une clef étrangère de la table "{table}".',
   'The command path "{path}" is not a valid directory.' => 'Le chemin d\'accès à la ligne de commande "{path}" n\'est pas un dossier valide.',
   'The controller path "{path}" is not a valid directory.' => 'Le chemin d\'accès au contrôleur "{path}" n\'est pas un dossier valide.',
-  'The file "{file}" cannot be uploaded. Only files with these extensions are allowed: {extensions}.' => 
+  'The file "{file}" cannot be uploaded. Only files with these extensions are allowed: {extensions}.' =>
   'Le fichier "{file}" ne peut être téléchargé. Les extensions de fichier autorisées sont: {extensions}.',
   'The file "{file}" is too large. Its size cannot exceed {limit} bytes.' => 'Le fichier "{file}" est trop gros. Sa taille ne peut être supérieure à {limit} octets.',
   'The file "{file}" is too small. Its size cannot be smaller than {limit} bytes.' => 'Le fichier "{file}" est trop petit. Sa taille ne peut être inférieure à {limit} octets.',
@@ -160,7 +160,7 @@ return array (
   'This content requires the <a href="http://www.adobe.com/go/getflash/">Adobe Flash Player</a>.' => 'Ce contenu nécessite le <a href="http://www.adobe.com/go/getflash/">Lecteur Flash d\'Adobe</a>.',
   'Unable to add an item whose name is the same as an existing item.' => 'Impossible d\'ajouter un élément dont le nom est identique à celui d\'un autre éléménet.',
   'Unable to change the item name. The name "{name}" is already used by another item.' => 'Impossible de changer le nom de l\'élément. Le nom "{name}" est déjà affecté à un autre élémnent.',
-  'Unable to create application state file "{file}". Make sure the directory containing the file exists and is writable by the Web server process.' => 
+  'Unable to create application state file "{file}". Make sure the directory containing the file exists and is writable by the Web server process.' =>
   'Impossible de créer le fichier "{file}" de gestion d\'état de l\'application. Vérifiez que le fichier existe et que le proccessus du serveur web peut y accéder en écriture.',
   'Unable to find the decorator view "{view}".' => 'Impossible de trouver la vue décorateur "{view}".',
   'Unable to find the list item.' => 'Impossible de trouver l\'élément de la liste.',

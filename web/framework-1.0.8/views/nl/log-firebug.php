@@ -11,7 +11,7 @@ foreach($data as $index=>$log) {
         $func='error';
     else
         $func='log';
-        
+
     $content=CJavaScript::quote("[$time][$log[1]][$log[2]] $log[0]");
     echo "\tconsole.{$func}(\"{$content}\");\n";
 }

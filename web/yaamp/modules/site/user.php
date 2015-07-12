@@ -45,7 +45,7 @@ $(function()
 		var symbol = $('#coin_select').val();
 		window.location.href = '/site/user?symbol='+symbol;
 	});
-		
+
 	main_refresh();
 });
 

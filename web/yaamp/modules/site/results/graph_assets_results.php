@@ -11,7 +11,7 @@ foreach($stats as $i=>$n)
 {
 	$m = round($n->margin - $n->renters, 8);
 	if($i) echo ',';
-	
+
 	$d = date('Y-m-d H:i:s', $n->time);
 	echo "[\"$d\",$m]";
 }
@@ -22,7 +22,7 @@ foreach($stats as $i=>$n)
 //	$m = round($n->margin+$n->balances, 8);
 	$m = round($n->balances, 8);
 	if($i) echo ',';
-	
+
 	$d = date('Y-m-d H:i:s', $n->time);
 	echo "[\"$d\",$m]";
 }

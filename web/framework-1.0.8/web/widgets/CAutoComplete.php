@@ -41,7 +41,7 @@ class CAutoComplete extends CInputWidget
 	 * If the URL is an empty string, the currently requested URL is used.
 	 * This property will be ignored if {@link data} is set.
 	 * @see data
- 	 */
+	 */
 	public $url='';
 	/**
 	 * @var mixed the CSS file used for the widget. Defaults to null, meaning

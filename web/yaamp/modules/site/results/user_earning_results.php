@@ -35,7 +35,7 @@ foreach($earnings as $earning)
 {
 	$coin = getdbo('db_coins', $earning->coinid);
 	$block = getdbo('db_blocks', $earning->blockid);
-	
+
 	$d = datetoa2($earning->create_time);
 	if(!$coin)
 	{
@@ -43,7 +43,7 @@ foreach($earnings as $earning)
 		$value = altcoinvaluetoa($earning->amount*1000);
 		$percent = $block? mbitcoinvaluetoa($earning->amount*100/$block->amount): '';
 		$algo = $block? $block->algo: '';
-		
+
 		echo "<tr class='ssrow'>";
 		echo "<td width=18><img width=16 src='/images/btc.png'></td>";
 		echo "<td><b>Rental</b><span style='font-size: .8em'> ($algo)</span></td>";
@@ -56,11 +56,11 @@ foreach($earnings as $earning)
 
 		continue;
 	}
-	
+
 	$reward = altcoinvaluetoa($earning->amount);
 	$percent = mbitcoinvaluetoa($earning->amount*100/$block->amount);
 	$value = altcoinvaluetoa($earning->amount*$earning->price*1000);
-	
+
 	echo "<tr class='ssrow'>";
 	echo "<td width=18><img width=16 src='$coin->image'></td>";
 	echo "<td><b>$coin->name</b><span style='font-size: .8em'> ($coin->algo)</span></td>";
@@ -75,7 +75,7 @@ foreach($earnings as $earning)
 
 	else if($earning->status == 1)
 		echo 'Exchange';
-	
+
 	else if($earning->status == 2)
 		echo 'Cleared';
 

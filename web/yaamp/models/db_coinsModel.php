@@ -32,7 +32,7 @@ class db_coins extends CActiveRecord
 		return array(
 		);
 	}
-	
+
 	public function getSymbol_show()
 	{
 		if(!empty($this->symbol2))
@@ -40,7 +40,7 @@ class db_coins extends CActiveRecord
 		else
 			return $this->symbol;
 	}
-	
-	
+
+
 }
 

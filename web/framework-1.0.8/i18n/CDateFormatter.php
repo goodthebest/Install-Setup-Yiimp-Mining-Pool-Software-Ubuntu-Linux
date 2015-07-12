@@ -189,8 +189,8 @@ class CDateFormatter extends CComponent
 
 	/**
 	 * Get the year.
- 	 * "yy" will return the last two digits of year.
- 	 * "y...y" will pad the year with 0 in the front, e.g. "yyyyy" will generate "02008" for year 2008.
+	 * "yy" will return the last two digits of year.
+	 * "y...y" will pad the year with 0 in the front, e.g. "yyyyy" will generate "02008" for year 2008.
 	 * @param string a pattern.
 	 * @param array result of {@link CTimestamp::getdate}.
 	 * @return string formatted year
@@ -206,11 +206,11 @@ class CDateFormatter extends CComponent
 
 	/**
 	 * Get the month.
- 	 * "M" will return integer 1 through 12;
- 	 * "MM" will return two digits month number with necessary zero padding, e.g. 05;
- 	 * "MMM" will return the abrreviated month name, e.g. "Jan";
- 	 * "MMMM" will return the full month name, e.g. "January";
- 	 * "MMMMM" will return the narrow month name, e.g. "J";
+	 * "M" will return integer 1 through 12;
+	 * "MM" will return two digits month number with necessary zero padding, e.g. 05;
+	 * "MMM" will return the abrreviated month name, e.g. "Jan";
+	 * "MMMM" will return the full month name, e.g. "January";
+	 * "MMMMM" will return the narrow month name, e.g. "J";
 	 * @param string a pattern.
 	 * @param array result of {@link CTimestamp::getdate}.
 	 * @return string month name
@@ -237,7 +237,7 @@ class CDateFormatter extends CComponent
 
 	/**
 	 * Get the day of the month.
- 	 * "d" for non-padding, "dd" will always return 2 digits day numbers, e.g. 05.
+	 * "d" for non-padding, "dd" will always return 2 digits day numbers, e.g. 05.
 	 * @param string a pattern.
 	 * @param array result of {@link CTimestamp::getdate}.
 	 * @return string day of the month
@@ -284,9 +284,9 @@ class CDateFormatter extends CComponent
 
 	/**
 	 * Get the day of the week.
- 	 * "E", "EE", "EEE" will return abbreviated week day name, e.g. "Tues";
- 	 * "EEEE" will return full week day name;
- 	 * "EEEEE" will return the narrow week day name, e.g. "T";
+	 * "E", "EE", "EEE" will return abbreviated week day name, e.g. "Tues";
+	 * "EEEE" will return full week day name;
+	 * "EEEEE" will return the narrow week day name, e.g. "T";
 	 * @param string a pattern.
 	 * @param array result of {@link CTimestamp::getdate}.
 	 * @return string day of the week.

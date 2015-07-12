@@ -5,7 +5,7 @@ function cryptsy_api_query($method, array $req = array())
 {
 //	debuglog("calling cryptsy_api_query $method");
 //	debuglog($req);
-	
+
 	// API settings
 	$key = ''; // your API-key
 	$secret = ''; // your Secret-key
@@ -13,7 +13,7 @@ function cryptsy_api_query($method, array $req = array())
 	$req['method'] = $method;
 	$mt = explode(' ', microtime());
 	$req['nonce'] = $mt[1];
-	 
+
 	// generate the POST data string
 	$post_data = http_build_query($req, '', '&');
 	$sign = hash_hmac("sha512", $post_data, $secret);
@@ -44,7 +44,7 @@ function cryptsy_api_query($method, array $req = array())
 		debuglog("ERROR cryptsy_api_query $method");
 		return null;
 	}
-		
+
 	$dec = json_decode($res, true);
 	if(!$dec)
 	{
@@ -53,7 +53,7 @@ function cryptsy_api_query($method, array $req = array())
 
 		return null;
 	}
-	
+
 //	sleep(1);
 	return $dec;
 }

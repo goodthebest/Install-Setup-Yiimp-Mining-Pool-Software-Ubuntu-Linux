@@ -48,7 +48,7 @@ foreach($orders as $order)
 		$marketurl = "";
 
 	echo "<tr class='ssrow'>";
-	
+
 	$created = datetoa2($order->created). ' ago';
 	$price = $order->price? bitcoinvaluetoa($order->price): '';
 
@@ -59,17 +59,17 @@ foreach($orders as $order)
 	$totalvalue += $value;
 	$totalbid += $bidvalue;
 	$bidpercent = $value>0? round(($value-$bidvalue)/$value*100, 1): 0;
-	
+
 	echo "<td><img width=16 src='$coin->image'></td>";
 	echo "<td><b><a href='/site/coin?id=$coin->id'>$coin->name ($coin->symbol)</a></b></td>";
 	echo "<td><b><a href='$marketurl' target=_blank>$order->market</a></b></td>";
-	
+
 	echo "<td>$created</td>";
 	echo "<td>$order->amount</td>";
 	echo "<td>$price</td>";
 	echo "<td>$bid ({$bidpercent}%)</td>";
 	echo $bidvalue>0.01? "<td><b>$bidvalue</b></td>": "<td>$bidvalue</td>";
-	
+
 // 	echo "<td>";
 // 	echo "<a href='/site/cancelorder?id=$order->id'>[cancel]</a> ";
 // 	echo "<a href='/site/sellorder?id=$order->id'>[sell]</a>";
@@ -114,39 +114,39 @@ foreach($exchanges as $exchange)
 {
 	$coin = getdbo('db_coins', $exchange->coinid);
 	$lowsymbol = strtolower($coin->symbol);
-	
+
 	if($exchange->market == 'cryptsy')
 		$marketurl = "https://www.cryptsy.com/markets/view/{$coin->symbol}_BTC";
 
 	else if($exchange->market == 'bittrex')
 		$marketurl = "https://bittrex.com/Market/Index?MarketName=BTC-$coin->symbol";
-				
+
 	else if($exchange->market == 'mintpal')
 		$marketurl = "https://www.mintpal.com/market/$coin->symbol/BTC";
-				
+
 	else if($exchange->market == 'poloniex')
 		$marketurl = "https://poloniex.com/exchange/btc_$coin->symbol";
-				
+
 	else if($exchange->market == 'c-cex')
 		$marketurl = "https://c-cex.com/?p=$lowsymbol-btc";
-	
+
 	else if($order->market == 'bleutrade')
 		$marketurl = "https://bleutrade.com/exchange/$coin->symbol/BTC";
-	
+
 	else
 		$marketurl = "";
-	
+
 	if($exchange->status == 'waiting')
 		echo "<tr style='background-color: #e0d3e8;'>";
 	else
 		echo "<tr class='ssrow'>";
-	
+
 	$sent = datetoa2($exchange->send_time). ' ago';
 	$received = $exchange->receive_time? sectoa($exchange->receive_time-$exchange->send_time): '';
 	$price = $exchange->price? bitcoinvaluetoa($exchange->price): bitcoinvaluetoa($coin->price);
 	$estimate = bitcoinvaluetoa($exchange->price_estimate);
 	$total = $exchange->price? bitcoinvaluetoa($exchange->quantity*$exchange->price): bitcoinvaluetoa($exchange->quantity*$coin->price);
-	
+
 	echo "<td><img width=16 src='$coin->image'></td>";
 	echo "<td><b><a href='/site/coin?id=$coin->id'>$coin->name ($coin->symbol)</a></b></td>";
 	echo "<td><b><a href='$marketurl' target=_blank>$exchange->market</a></b></td>";
@@ -157,13 +157,13 @@ foreach($exchanges as $exchange)
 	echo $total>0.01? "<td><b>$total</b></td>": "<td>$total</td>";
 
 	echo "<td>";
-	
+
 	if($exchange->status == 'waiting')
 	{
 	//	echo "<a href='/site/clearexchange?id=$exchange->id'>[clear]</a>";
 		echo "<a href='/site/deleteexchange?id=$exchange->id'>[del]</a>";
 	}
-		
+
 	echo "</td>";
 	echo "</tr>";
 }

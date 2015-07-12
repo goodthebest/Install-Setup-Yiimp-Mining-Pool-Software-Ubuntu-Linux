@@ -11,7 +11,7 @@ foreach($stats as $i=>$n)
 {
 	$m = round($n->profit, 8);
 	if($i) echo ',';
-	
+
 	$d = date('Y-m-d H:i:s', $n->time);
 	echo "[\"$d\",$m]";
 }

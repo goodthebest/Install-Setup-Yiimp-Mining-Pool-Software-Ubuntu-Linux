@@ -43,7 +43,7 @@
 class CWebApplication extends CApplication
 {
 	public $classFile;
-	
+
 	/**
 	 * @return string the ID of the default controller. Defaults to 'site'.
 	 */
@@ -119,7 +119,7 @@ class CWebApplication extends CApplication
 		}
 		else
 			$route=$this->getUrlManager()->parseUrl($this->getRequest());
-			
+
 		$this->runController($route);
 	}
 
@@ -399,7 +399,7 @@ class CWebApplication extends CApplication
 			}
 			else
 				$controllerID.='/';
-				
+
 			$className=ucfirst($id).'Controller';
 		//	$this->classFile=$basePath.DIRECTORY_SEPARATOR.$id.DIRECTORY_SEPARATOR.$className.'.php';
 			$this->classFile = GetSSModulePath($className);
@@ -407,7 +407,7 @@ class CWebApplication extends CApplication
 			{
 				if(!class_exists($className,false))
 					require($this->classFile);
-					
+
 				if(class_exists($className,false) && is_subclass_of($className,'CController'))
 				{
 					$id[0]=strtolower($id[0]);

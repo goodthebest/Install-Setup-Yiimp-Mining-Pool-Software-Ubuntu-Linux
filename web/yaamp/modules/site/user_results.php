@@ -11,7 +11,7 @@ else
 {
 	$coin = getdbosql('db_coins', "symbol=:symbol", array(':symbol'=>$symbol));
 	if(!$coin) return;
-	
+
 	$users = getdbolist('db_accounts', "balance>.001 and coinid=$coin->id order by balance desc");
 }
 
@@ -43,11 +43,11 @@ foreach($users as $user)
 	$target = yaamp_hashrate_constant();
 	$interval = yaamp_hashrate_step();
 	$delay = time()-$interval;
-	
+
 	$user_rate = dboscalar("select sum(difficulty) * $target / $interval / 1000 from shares where valid and time>$delay and userid=$user->id");
 	$user_bad = dboscalar("select sum(difficulty) * $target / $interval / 1000 from shares where not valid and time>$delay and userid=$user->id");
 	$percent = $user_rate? round($user_bad*100/$user_rate, 3): 0;
-	
+
 	$balance = bitcoinvaluetoa($user->balance);
 	$paid = dboscalar("select sum(amount) from payouts where account_id=$user->id");
 	$d = datetoa2($user->last_login);
@@ -55,21 +55,21 @@ foreach($users as $user)
 	$miner_count = getdbocount('db_workers', "userid=$user->id");
 	$block_count = getdbocount('db_blocks', "userid=$user->id");
 	$block_diff = $paid? round(dboscalar("select sum(difficulty) from blocks where userid=$user->id")/$paid, 3): '?';
-	
+
 	$paid = bitcoinvaluetoa($paid);
-	
+
 	$user_rate = Itoa2($user_rate);
 	$user_bad = Itoa2($user_bad);
-	
+
 	echo "<tr class='ssrow'>";
 	echo "<td>$user->id</td>";
 	echo "<td><a href='/?address=$user->username'><b>$user->username</b></a></td>";
 	echo "<td>$d</td>";
 	echo "<td align=right>$miner_count</td>";
-	
+
 	echo "<td align=right>$user_rate</td>";
 	echo "<td align=right>$user_bad</td>";
-	
+
 	if($percent > 50)
 		echo "<td align=right><b>{$percent}%</b></td>";
 	else
@@ -79,10 +79,10 @@ foreach($users as $user)
 	echo "<td align=right>$block_diff</td>";
 	echo "<td align=right>$balance</td>";
 	echo "<td align=right>$paid</td>";
-	
+
 	echo "<td align=right><a href='/site/banuser?id=$user->id'><b>BAN</b></a></td>";
 	echo "</tr>";
-	
+
 	$total_balance += $user->balance;
 	$total_paid += $paid;
 }
@@ -105,14 +105,14 @@ if($coin)
 {
 	$balance = bitcoinvaluetoa($coin->balance);
 	$profit = bitcoinvaluetoa($balance - $total_balance);
-	
+
 	echo "<tr class='ssrow' style='border-top: 2px solid #eee;'>";
 	echo "<td><b>Wallet Balance</b></a></td>";
 	echo "<td colspan=7></td>";
 	echo "<td align=right><b>$balance</b></td>";
 	echo "<td colspan=2></td>";
 	echo "</tr>";
-	
+
 	echo "<tr class='ssrow' style='border-top: 2px solid #eee;'>";
 	echo "<td><b>Wallet Profit</b></a></td>";
 	echo "<td colspan=7></td>";

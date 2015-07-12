@@ -496,7 +496,7 @@ class CController extends CBaseController
 	//	if(($module=$this->getModule())===null)
 	//		$module=Yii::app();
 	//	return $module->getViewPath().'/'.$this->getId();
-	
+
 		$app = Yii::app();
 		$path = preg_replace('|/([^/]*)$|', '', $app->classFile);
 		return $path;
@@ -604,7 +604,7 @@ class CController extends CBaseController
 		//	error_log("viewpath $viewPath, viewname $viewName");
 			$viewFile=$viewPath.DIRECTORY_SEPARATOR.$viewName.'.php';
 		}
-			
+
 	//	error_log("viewfile {$viewFile}");
 		return is_file($viewFile) ? Yii::app()->findLocalizedFile($viewFile) : false;
 	}

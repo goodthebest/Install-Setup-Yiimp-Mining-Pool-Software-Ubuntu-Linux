@@ -67,7 +67,7 @@ $('#algo_select').change(function(event)
 	var algo = $('#algo_select').val();
 	window.location.href = '/site/algo?algo='+algo;
 });
-	
+
 </script>
 
 <table width=100%><tr><td valign=top width=33%>
@@ -92,7 +92,7 @@ $('#algo_select').change(function(event)
 </td>
 <td></td>
 <td valign=top width=33%>
-		
+
 <div class="main-left-box">
 <div class="main-left-title">Last 7 Days</div>
 <div class="main-left-inner">
@@ -109,11 +109,11 @@ $('#algo_select').change(function(event)
 <div id='graph_results_6' style='height: $height;'></div><br><br>
 
 </div></div><br>
-		
+
 </td>
 <td></td>
 <td valign=top width=33%>
-		
+
 <div class="main-left-box">
 <div class="main-left-title">Last 60 Days</div>
 <div class="main-left-inner">
@@ -130,7 +130,7 @@ $('#algo_select').change(function(event)
 <div id='graph_results_9' style='height: $height;'></div><br><br>
 
 </div></div><br>
-		
+
 </td></tr></table>
 
 <br><br><br><br><br><br><br><br><br><br>
@@ -159,12 +159,12 @@ for($i = 1; $i < 10; $i++)
 {
 	echo <<<end
 	///////////////////////////////////////////////////////////////////////
-	
+
 	function main_ready_$i(data)
 	{
 		graph_init_$i(data);
 	}
-	
+
 	function main_refresh_$i()
 	{
 		var url = "/stats/graph_results_$i";

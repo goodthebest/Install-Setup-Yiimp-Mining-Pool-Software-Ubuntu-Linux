@@ -8,23 +8,23 @@ function doYobitTrading($quick=false)
 	$coins = getdbolist('db_coins', "installed and id in (select distinct coinid from markets where name='yobit')");
 	foreach($coins as $coin)
 	{
- 		if($coin->dontsell) continue;
- 		$pair = strtolower("{$coin->symbol}_btc");
-	
- 		$orders = yobit_api_query2('ActiveOrders', array('pair'=>$pair));
- 		if(isset($orders['return'])) foreach($orders['return'] as $uuid=>$order)
- 		{
+		if($coin->dontsell) continue;
+		$pair = strtolower("{$coin->symbol}_btc");
+
+		$orders = yobit_api_query2('ActiveOrders', array('pair'=>$pair));
+		if(isset($orders['return'])) foreach($orders['return'] as $uuid=>$order)
+		{
 			$ticker = yobit_api_query("ticker/$pair");
 			if(!$ticker) continue;
-			
+
 			if($order['rate'] > $ticker->$pair->sell + 0.00000005 || $flushall)
 			{
 //				debuglog("yobit cancel order for $pair $uuid");
 		 		$res = yobit_api_query2('CancelOrder', array('order_id'=>$uuid));
-							
+
 				$db_order = getdbosql('db_orders', "uuid=:uuid", array(':uuid'=>$uuid));
 				if($db_order) $db_order->delete();
-			
+
 				sleep(1);
 			}
 
@@ -32,9 +32,9 @@ function doYobitTrading($quick=false)
 			{
 				$db_order = getdbosql('db_orders', "uuid=:uuid", array(':uuid'=>$uuid));
 				if($db_order) continue;
-			
+
 				debuglog("yobit adding order $coin->symbol");
-			
+
 				$db_order = new db_orders;
 				$db_order->market = 'yobit';
 				$db_order->coinid = $coin->id;
@@ -46,8 +46,8 @@ function doYobitTrading($quick=false)
 				$db_order->created = time();
 				$db_order->save();
 			}
- 		}
- 		
+		}
+
 		$list = getdbolist('db_orders', "coinid=$coin->id and market='yobit'");
 		foreach($list as $db_order)
 		{
@@ -60,7 +60,7 @@ function doYobitTrading($quick=false)
 					break;
 				}
 			}
-				
+
 			if(!$found)
 			{
 				debuglog("yobit deleting order $coin->name $db_order->amount");
@@ -70,57 +70,57 @@ function doYobitTrading($quick=false)
 	}
 
 	sleep(2);
- 	
- 	//////////////////////////////////////////////////////////////////////////////////////////////////
- 	
- 	$savebalance = getdbosql('db_balances', "name='yobit'");
- 	if(!$savebalance) return;
- 	
- 	$savebalance->balance = 0;
- 	
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////
+
+	$savebalance = getdbosql('db_balances', "name='yobit'");
+	if(!$savebalance) return;
+
+	$savebalance->balance = 0;
+
 	$balances = yobit_api_query2('getInfo');
- 	if(!$balances || !isset($balances['return'])) return;
- 	
+	if(!$balances || !isset($balances['return'])) return;
+
 	foreach($balances['return']['funds'] as $symbol=>$amount)
- 	{
+	{
 // 		debuglog("$symbol, $amount");
- 		$amount -= 0.0001;
- 		if($amount<=0) continue;
- 		if($symbol == 'btc')
- 		{
- 			$savebalance->balance = $amount;
- 			continue;
- 		}
- 		
- 		$coin = getdbosql('db_coins', "symbol=:symbol", array(':symbol'=>$symbol));
- 		if(!$coin || $coin->dontsell) continue;
- 	
- 		$market = getdbosql('db_markets', "coinid=$coin->id and name='yobit'");
- 		if($market)
- 		{
- 			$market->lasttraded = time();
- 			$market->save();
- 		}
+		$amount -= 0.0001;
+		if($amount<=0) continue;
+		if($symbol == 'btc')
+		{
+			$savebalance->balance = $amount;
+			continue;
+		}
 
- 		if($amount*$coin->price < 0.00001000) continue;
- 		$pair = "{$symbol}_btc";
- 			
- 		$data = yobit_api_query("depth/$pair?limit=11");
- 		if(!$data) continue;
+		$coin = getdbosql('db_coins', "symbol=:symbol", array(':symbol'=>$symbol));
+		if(!$coin || $coin->dontsell) continue;
 
- 		$sold_amount = 0;
+		$market = getdbosql('db_markets', "coinid=$coin->id and name='yobit'");
+		if($market)
+		{
+			$market->lasttraded = time();
+			$market->save();
+		}
+
+		if($amount*$coin->price < 0.00001000) continue;
+		$pair = "{$symbol}_btc";
+
+		$data = yobit_api_query("depth/$pair?limit=11");
+		if(!$data) continue;
+
+		$sold_amount = 0;
 		for($i = 0; $i < 10 && $amount >= 0; $i++)
 		{
 			if(!isset($data->$pair->bids[$i])) break;
-			
+
 			$nextbuy = $data->$pair->bids[$i];
 			if($amount*1.1 < $nextbuy[1]) break;
-			
+
 			$sellprice = bitcoinvaluetoa($nextbuy[0]);
 			$sellamount = min($amount, $nextbuy[1]);
 
 			if($sellamount*$sellprice < 0.00010000) continue;
-			
+
 			debuglog("yobit selling market $pair, $sellamount, $sellprice");
 			$res = yobit_api_query2('Trade', array('pair'=>$pair, 'type'=>'sell', 'rate'=>$sellprice, 'amount'=>$sellamount));
 
@@ -129,13 +129,13 @@ function doYobitTrading($quick=false)
 				debuglog($res);
 				break;
 			}
-				
+
 			$amount -= $sellamount;
- 			$sold_amount += $sellamount;
-			
+			$sold_amount += $sellamount;
+
 // 			sleep(1);
 		}
-		
+
 		$ticker = yobit_api_query("ticker/$pair");
 		if(!$ticker) continue;
 
@@ -153,15 +153,15 @@ function doYobitTrading($quick=false)
 //		}
 
 		if($amount <= 0) continue;
-		
+
 		if($coin->sellonbid)
- 			$sellprice = bitcoinvaluetoa($ticker->$pair->buy);
- 		else
- 			$sellprice = bitcoinvaluetoa($ticker->$pair->sell);
+			$sellprice = bitcoinvaluetoa($ticker->$pair->buy);
+		else
+			$sellprice = bitcoinvaluetoa($ticker->$pair->sell);
 		if($amount*$sellprice < 0.00010000) continue;
-		
+
 // 		debuglog("yobit selling $pair, $amount, $sellprice");
-		
+
 		$res = yobit_api_query2('Trade', array('pair'=>$pair, 'type'=>'sell', 'rate'=>$sellprice, 'amount'=>$amount));
 		if(!$res || !$res['success'])
 		{
@@ -179,10 +179,10 @@ function doYobitTrading($quick=false)
 		$db_order->uuid = $res['return']['order_id'];
 		$db_order->created = time();
 		$db_order->save();
-		
+
 		sleep(1);
 	}
-	
+
 	$savebalance->save();
 
 }

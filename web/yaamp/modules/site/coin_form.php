@@ -189,7 +189,7 @@ echo CUFHtml::closeCtrlHolder();
 
 if(empty($coin->rpcuser))
 	$coin->rpcuser = 'yaamprpc';
-	
+
 echo CUFHtml::openActiveCtrlHolder($coin, 'rpcuser');
 echo CUFHtml::activeLabelEx($coin, 'rpcuser');
 echo CUFHtml::activeTextField($coin, 'rpcuser', array('maxlength'=>200));
@@ -198,7 +198,7 @@ echo CUFHtml::closeCtrlHolder();
 
 if(empty($coin->rpcpasswd))
 	$coin->rpcpasswd = 'e7ec005fhdsj3k6po6afbb84545eb24';
-	
+
 echo CUFHtml::openActiveCtrlHolder($coin, 'rpcpasswd');
 echo CUFHtml::activeLabelEx($coin, 'rpcpasswd');
 echo CUFHtml::activeTextField($coin, 'rpcpasswd', array('maxlength'=>200));

@@ -49,10 +49,10 @@ if($algo != 'all')
 {
 	$hashrate_jobs = yaamp_rented_rate($algo);
 	$hashrate_jobs = $hashrate_jobs? Itoa2($hashrate_jobs).'h/s': '';
-	
+
 	$price_rent = dboscalar("select rent from hashrate where algo=:algo order by time desc", array(':algo'=>$algo));
 	$price_rent = mbitcoinvaluetoa($price_rent);
-	
+
 	$amount_rent = dboscalar("select sum(amount) from jobsubmits where status=1 and algo=:algo", array(':algo'=>$algo));
 	$amount_rent = bitcoinvaluetoa($amount_rent);
 }
@@ -70,11 +70,11 @@ foreach($list as $coin)
 	$btcmhd = yaamp_profitability($coin);
 	$pool_hash = yaamp_coin_rate($coin->id);
 	$real_ttf = $pool_hash? $coin->difficulty * 0x100000000 / $pool_hash: 0;
-	
+
 	$pool_hash = $pool_hash? Itoa2($pool_hash).'h/s': '';
 	$real_ttf = $real_ttf? sectoa2($real_ttf): '';
 	$pool_ttf = $pool_ttf? sectoa2($pool_ttf): '';
-	
+
 	$pool_hash_pow = yaamp_pool_rate_pow($coin->algo);
 	$pool_hash_pow = $pool_hash_pow? Itoa2($pool_hash_pow).'h/s': '';
 
@@ -88,7 +88,7 @@ foreach($list as $coin)
 		{
 			if($service->price*1000 < $btcmhd) continue;
 			$service_btcmhd = mbitcoinvaluetoa($service->price*1000);
-			
+
 			echo "<tr class='ssrow'>";
 			echo "<td width=18><img width=16 src='/images/btc.png'></td>";
 			echo "<td><b>$service->name</b></td>";
@@ -99,11 +99,11 @@ foreach($list as $coin)
 			echo "<td></td>";
 			echo "<td align=right style='font-size: .8em;'><b>$service_btcmhd</b></td>";
 			echo "</tr>";
-			
+
 			unset($services[$i]);
 		}
 	}
-	
+
 	if(isset($price_rent) && $price_rent > $btcmhd)
 	{
 		echo "<tr class='ssrow'>";
@@ -116,7 +116,7 @@ foreach($list as $coin)
 		echo "<td align=right style='font-size: .8em;'>$hashrate_jobs</td>";
 		echo "<td align=right style='font-size: .8em;'><b>$price_rent</b></td>";
 		echo "</tr>";
-		
+
 		unset($price_rent);
 	}
 
@@ -124,40 +124,40 @@ foreach($list as $coin)
 		echo "<tr style='opacity: 0.4;'>";
 	else
 		echo "<tr class='ssrow'>";
-	
+
 	echo "<td width=18><img width=16 src='$coin->image'></td>";
-	
+
 	$owed = dboscalar("select sum(balance) from accounts where coinid=$coin->id");
 	if($coin->balance+$coin->mint < $owed*0.9)
-		echo "<td><b><a href='/site/block?id=$coin->id' title='We are short of this currency. Please select another one for payments until we find more blocks.' 
+		echo "<td><b><a href='/site/block?id=$coin->id' title='We are short of this currency. Please select another one for payments until we find more blocks.'
 			style='color: #c55'>$name</a></b><span style='font-size: .8em;'> ($coin->algo)</span></td>";
-	
+
 	else
 		echo "<td><b><a href='/site/block?id=$coin->id'>$name</a></b><span style='font-size: .8em'> ($coin->algo)</span></td>";
-	
+
 	echo "<td align=right style='font-size: .8em;'><b>$reward $coin->symbol_show</a></td>";
-	
+
 	$title = "POW $coin->difficulty";
 	if($coin->rpcencoding == 'POS')
 		$title .= "\nPOS $coin->difficulty_pos";
-		
+
 	echo "<td align=right style='font-size: .8em;' title='$title'>$difficulty</td>";
-	
+
 	if(!empty($coin->errors))
 		echo "<td align=right style='font-size: .8em; color: red;' title='$coin->errors'>$height</td>";
 	else
 		echo "<td align=right style='font-size: .8em;'>$height</td>";
-	
+
 	if(!empty($real_ttf))
 		echo "<td align=right style='font-size: .8em;' title='$real_ttf at $pool_hash'>$pool_ttf</td>";
 	else
 		echo "<td align=right style='font-size: .8em;'>$pool_ttf</td>";
-	
+
 	if($coin->auxpow && $coin->auto_ready)
 		echo "<td align=right style='font-size: .8em; opacity: 0.6;' title='merge mined\n$network_hash'>$pool_hash_pow</td>";
 	else
 		echo "<td align=right style='font-size: .8em;' title='$network_hash'>$pool_hash</td>";
-	
+
 	$btcmhd = mbitcoinvaluetoa($btcmhd);
 	echo "<td align=right style='font-size: .8em;'><b>$btcmhd</b></td>";
 	echo "</tr>";
@@ -168,7 +168,7 @@ if(controller()->admin && $services)
 	foreach($services as $i=>$service)
 	{
 		$service_btcmhd = mbitcoinvaluetoa($service->price*1000);
-		
+
 		echo "<tr class='ssrow'>";
 		echo "<td width=18><img width=16 src='/images/btc.png'></td>";
 		echo "<td><b>$service->name</b></td>";
@@ -198,7 +198,7 @@ if(isset($price_rent))
 	unset($price_rent);
 }
 
-	
+
 echo "</table>";
 
 echo "<p style='font-size: .8em'>

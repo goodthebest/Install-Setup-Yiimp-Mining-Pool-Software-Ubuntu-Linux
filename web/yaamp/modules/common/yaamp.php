@@ -4,7 +4,7 @@
 <div class="main-left-box">
 <div class="main-left-title">WRONG SITE</div>
 <div class="main-left-inner">
-		
+
 <br>
 
 GOTO <a href='http://yiimp.ccminer.org'>YIIMP</a>

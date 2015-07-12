@@ -16,7 +16,7 @@ foreach($a as $url=>$n)
 {
 	$d = memcache_get($this->memcache->memcache, "$url-time");
 	$avg = $d/$n;
-	
+
 	$res[] = array($url, $n, $d, $avg);
 }
 
@@ -40,7 +40,7 @@ foreach($res as $item)
 	$n = $item[1];
 	$d = round($item[2], 3);
 	$avg = round($item[3], 3);
-	
+
 	echo "<tr class='ssrow'>";
 	echo "<td><a href='/$url'>$url</a></td>";
 	echo "<td align=right>$n</td>";

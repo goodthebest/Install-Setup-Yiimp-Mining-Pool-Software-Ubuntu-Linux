@@ -24,7 +24,7 @@ foreach($stats as $i=>$n)
 {
 	$m = round($n->hashrate/1000000, 3);
 	if($i) echo ',';
-	
+
 	$d = date('Y-m-d H:i:s', $n->time);
 	echo "[\"$d\",$m]";
 
@@ -37,10 +37,10 @@ $average = $averages[0][1];
 foreach($averages as $i=>$n)
 {
 	if($i) echo ',';
-	
+
 	$average = ($average*(100-$percent) + $n[1]*$percent) / 100;
 	$m = round($average, 3);
-	
+
 	echo "[\"{$n[0]}\",$m]";
 }
 

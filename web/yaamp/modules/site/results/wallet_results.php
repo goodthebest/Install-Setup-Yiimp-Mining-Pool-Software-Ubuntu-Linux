@@ -21,9 +21,9 @@ $refcoin = getdbo('db_coins', $user->coinid);
 if(!$refcoin)
 {
 	if($user->coinid != null)
-		echo "<div style='color: red; padding: 10px; '>This wallet address is not valid. 
+		echo "<div style='color: red; padding: 10px; '>This wallet address is not valid.
 			You will not receive payments using this address.</div>";
-	
+
 	$refcoin = getdbosql('db_coins', "symbol='BTC'");
 }
 
@@ -45,11 +45,11 @@ $total_pending = 0;
 if($show_details)
 {
 	$t1 = microtime(true);
-	
+
 	$list = dbolist("select coinid from earnings where userid=$user->id group by coinid");
 	if(!count($list))
 		echo "<tr><td></td><td colspan=5><i>-none-</i></td></tr>";
-	
+
 	else
 	{
 		// sort by value
@@ -57,36 +57,36 @@ if($show_details)
 		{
 			$coin = getdbo('db_coins', $item['coinid']);
 			if(!$coin) continue;
-			
+
 			$name = substr($coin->name, 0, 12);
 
 			$confirmed = controller()->memcache->get_database_scalar("wallet_confirmed-$user->id-$coin->id",
 				"select sum(amount) from earnings where status=1 and userid=$user->id and coinid=$coin->id");
-			
+
 			$unconfirmed = controller()->memcache->get_database_scalar("wallet_unconfirmed-$user->id-$coin->id",
 				"select sum(amount) from earnings where status=0 and userid=$user->id and coinid=$coin->id");
-			
+
 			$total = $confirmed + $unconfirmed;
 		//	$value = bitcoinvaluetoa($total * $coin->price / $refcoin->price);
 			$value = bitcoinvaluetoa(yaamp_convert_amount_user($coin, $total, $user));
-			
+
 			$confirmed = altcoinvaluetoa($confirmed);
 			$unconfirmed = altcoinvaluetoa($unconfirmed);
 			$total = altcoinvaluetoa($total);
-				
+
 			echo "<tr class='ssrow'>";
 			echo "<td width=18><img width=16 src='$coin->image'></td>";
 			echo "<td><b><a href='/site/block?id=$coin->id' title='$coin->version'>$name</a></b><span style='font-size: .8em'> ($coin->algo)</span></td>";
-			
+
 			echo "<td align=right style='font-size: .8em;'>$unconfirmed</td>";
 			echo "<td align=right style='font-size: .8em;'>$confirmed</td>";
 			echo "<td align=right style='font-size: .8em;'>$total</td>";
 			echo "<td align=right style='font-size: .8em;'>$value $refcoin->symbol</td>";
-			
+
 			echo "</tr>";
 		}
 	}
-	
+
 	$d1 = microtime(true) - $t1;
 	controller()->memcache->add_monitoring_function('wallet_results-1', $d1);
 }
@@ -95,7 +95,7 @@ if($show_details)
 
 // $confirmed = bitcoinvaluetoa(controller()->memcache->get_database_scalar("wallet_confirmed-$user->id",
 // 	"select sum(amount*price) from earnings where status=1 and userid=$user->id"))/$refcoin->price;
-	
+
 // $unconfirmed = bitcoinvaluetoa(controller()->memcache->get_database_scalar("wallet_unconfirmed-$user->id",
 // 	"select sum(amount*price) from earnings where status=0 and userid=$user->id"))/$refcoin->price;
 
@@ -224,11 +224,11 @@ foreach($list as $payout)
 {
 	$d = datetoa2($payout->time);
 	$amount = bitcoinvaluetoa($payout->amount);
-	
+
 	$payout_tx = substr($payout->tx, 0, 36).'...';
 
 	echo "<tr class='ssrow'>";
-	
+
 	echo "<td align=right><b>$d ago</b></td>";
 	echo "<td align=right><b>$amount</b></td>";
 
@@ -239,7 +239,7 @@ foreach($list as $payout)
 
 	echo "<td style='font-family: monospace;'><a href='$txurl' target=_blank>$payout_tx</a></td>";
 	echo "</tr>";
-	
+
 	$total += $payout->amount;
 }
 

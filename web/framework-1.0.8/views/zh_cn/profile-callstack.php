@@ -15,7 +15,7 @@ foreach ( $data as $index => $entry ) {
 	$proc = CHtml::encode ( $proc );
 	$time = sprintf ( '%0.5f', $time );
 	$spaces = str_repeat ( '&nbsp;', $level * 8 );
-	
+
 	echo <<<EOD
 	<tr style="background:{$color}">
 		<td>{$spaces}{$proc}</td>

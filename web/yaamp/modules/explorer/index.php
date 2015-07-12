@@ -27,17 +27,17 @@ foreach($list as $coin)
 {
 	if($coin->symbol == 'BTC') continue;
 	if(!empty($coin->symbol2)) continue;
-	
+
 	$coin->version = substr($coin->version, 0, 20);
 	$difficulty = Itoa2($coin->difficulty, 3);
 	$nethash = $coin->network_hash? Itoa2($coin->network_hash).'h': '';
-	
+
 	echo "<tr class='ssrow'>";
 	echo "<td><img src='$coin->image' width=18></td>";
-	
+
 	echo "<td><b><a href='/explorer?id=$coin->id'>$coin->name</a></b></td>";
 	echo "<td><b>$coin->symbol</b></td>";
-	
+
 	echo "<td>$coin->algo</td>";
 	echo "<td>$coin->version</td>";
 
@@ -45,7 +45,7 @@ foreach($list as $coin)
 	echo "<td>$difficulty</td>";
 	echo "<td>$coin->connections</td>";
 	echo "<td>$nethash</td>";
-	
+
 	echo "<td>";
 
 	if(!empty($coin->link_bitcointalk))

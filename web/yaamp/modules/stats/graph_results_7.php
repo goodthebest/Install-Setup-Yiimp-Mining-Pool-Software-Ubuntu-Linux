@@ -12,10 +12,10 @@ foreach($stats as $n)
 {
 	$i = floor($n->time/$s)*$s;
 	if(!$first) $first = $i;
-	
+
 	if(!isset($res[$i]))
 		$res[$i] = 0;
-		
+
 	$res[$i] += $n->hashrate/24;
 }
 

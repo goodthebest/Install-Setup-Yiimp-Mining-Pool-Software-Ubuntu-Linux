@@ -29,7 +29,7 @@ class db_connections extends CActiveRecord
 		return array(
 		);
 	}
-	
-	
+
+
 }
 

@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 $algo = user()->getState('yaamp-algo');
 
@@ -26,7 +26,7 @@ if($user)
 	});
 	</script>
 END;
-	
+
 // 	if(!$this->admin && count($recents) > 5)
 // 	{
 // 		debuglog("$user->id, $user->username, $user->balance");
@@ -62,8 +62,8 @@ if($user) echo <<<END
 <div class="main-left-inner"><br>
 <div id='graph_earnings_results' style='height: 240px;'></div>
 <div style='float: right;'>
-<span style='font-size: .8em; color: #4bb2c5;'>Balance</span> 
-<span style='font-size: .8em; color: #eaa228;'>Pending</span> 
+<span style='font-size: .8em; color: #4bb2c5;'>Balance</span>
+<span style='font-size: .8em; color: #eaa228;'>Pending</span>
 </div>
 <br>
 </div></div><br>
@@ -99,32 +99,32 @@ foreach($recents as $address)
 
 	$user = getuserparam($address);
 	if(!$user) continue;
-	
+
 	$coin = getdbo('db_coins', $user->coinid);
-	
+
 	if($user->username == $username)
 		echo "<tr style='background-color: #e0d3e8;'><td width=24>";
 	else
 		echo "<tr class='ssrow'><td width=24>";
-	
+
 	if($coin)
 		echo "<img width=16 src='$coin->image'>";
 	else
 		echo "<img width=16 src='/images/base/delete.png'>";
 
 	echo "</td><td><a href='/?address=$address' style='font-family: monospace; font-size: 1.1em;'>$address</a></td>";
-	
+
 	$balance = bitcoinvaluetoa($user->balance);
 
 	if($coin)
 		$balance = $balance>0? "$balance $coin->symbol": '';
 	else
 		$balance = $balance>0? "$balance BTC": '';
-	
+
 	echo "<td align=right>$balance</td>";
 	echo "<tr>";
 }
-	
+
 echo "</table></form></div></div><br>";
 
 echo "</td><td valign=top>";
@@ -157,7 +157,7 @@ function page_refresh()
 {
 	pool_current_refresh();
 	found_refresh();
-	
+
 	if('$username' != '')
 	{
 		main_wallet_refresh();
@@ -217,7 +217,7 @@ function pool_current_refresh()
 	var url = "/site/current_results";
 	$.get(url, '', pool_current_ready);
 }
-		
+
 ////////////////////////////////////////////////////
 
 function main_title_ready(data)
@@ -261,13 +261,13 @@ function main_graphs_ready(data)
 function main_graphs_refresh()
 {
 	var now = Date.now()/1000;
-	
+
 	if(now < last_graph_update + 900) return;
 	last_graph_update = now;
 
 	var url = "/site/wallet_graphs_results?address=$username";
 	$.get(url, '', main_graphs_ready);
-	
+
 	graph_earnings_refresh();
 }
 
@@ -337,7 +337,7 @@ function graph_earnings_refresh()
 	var url = "/site/graph_earnings_results?address=$username";
 	$.get(url, '', graph_earnings_ready);
 }
-		
+
 function graph_earnings_init(data)
 {
 	$('#graph_earnings_results').empty();

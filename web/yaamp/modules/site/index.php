@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 $algo = user()->getState('yaamp-algo');
 
@@ -32,7 +32,7 @@ echo <<<END
 <li>YIIMP is multipool multialgo with auto exchange to Bitcoin or any coin we mine.</li>
 <li>We distribute hashpower in real time among the best coins.</li>
 <li>No registration required.</li>
-<li>Just plug in your stratum miner using your bitcoin wallet address as the username.</li> 
+<li>Just plug in your stratum miner using your bitcoin wallet address as the username.</li>
 <li>We also allow payouts in any currency we mine. Use your wallet address as the username.</li>
 <li>Payouts are made automatically twice a day for all balances above <b>0.001</b> or <b>0.0001</b> on Sunday.</li>
 <li>Blocks are distributed proportionally among valid submitted shares.</li>
@@ -75,11 +75,11 @@ echo <<<END
 
 <li><b>BitcoinTalk</b> - <a href='https://bitcointalk.org/index.php?topic=508786.0' target=_blank >https://bitcointalk.org/index.php?topic=508786.0</a></li>
 <!--li><b>IRC</b> - <a href='http://webchat.freenode.net/?channels=#yaamp' target=_blank >http://webchat.freenode.net/?channels=#yaamp</a></li-->
-		
+
 <li><b>API</b> - <a href='/site/api'>http://yiimp.ccminer.org/site/api</a></li>
 <li><b>Difficulty</b> - <a href='/site/diff'>http://yiimp.ccminer.org/site/diff</a></li>
 <li><b>Algo Switching</b> - <a href='/site/multialgo'>http://yiimp.ccminer.org/site/multialgo</a></li>
-	
+
 <br>
 
 </ul>

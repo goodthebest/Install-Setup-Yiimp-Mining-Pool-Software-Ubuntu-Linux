@@ -20,18 +20,18 @@ function showFlashMessage()
 function showPageContent($content)
 {
 	echo "<div class='content-out'>";
-	
+
 	if(controller()->id=='renting')
 		echo "<div class='content-inner' style='background: url(/images/beta_corner_banner2.png) top right no-repeat; '>";
 	else
 		echo "<div class='content-inner'>";
-	
+
 	showFlashMessage();
 	echo $content;
 
 //	echo "<br><br><br><br><br><br><br><br><br><br><br><br><br><br>";
 //	echo "<br><br><br><br><br><br><br><br><br><br><br><br><br><br>";
-	
+
 	echo "</div>";
 	echo "</div>";
 }

@@ -14,33 +14,33 @@ function logtime($text)
 	$global_lastlog = $t;
 }
 
-// 
+//
 
 function LimitRequest($name, $limit=1)
 {
 	$t = controller()->memcache->get("yaamp-timestamp-$name-{$_SERVER['REMOTE_ADDR']}");
 	$a = controller()->memcache->get("yaamp-average-$name-{$_SERVER['REMOTE_ADDR']}");
-	
+
 	if(!$a || !$t) $a = $limit;
-	
+
 	else
 	{
 		$p = 33;
 		$a = ($a * (100-$p) + (microtime(true)-$t) * $p) / 100;
 	}
-	
+
 	if($a < $limit) return false;
-	
+
 	controller()->memcache->set("yaamp-timestamp-$name-{$_SERVER['REMOTE_ADDR']}", microtime(true), 300);
 	controller()->memcache->set("yaamp-average-$name-{$_SERVER['REMOTE_ADDR']}", $a, 300);
-	
+
 	return true;
 }
 
 function getuserparam($address)
 {
 	if(empty($address)) return null;
-	
+
 	$address = substr($address, 0, 34);
 	$user = getdbosql('db_accounts', "username=:ad", array(':ad'=>$address));
 
@@ -50,10 +50,10 @@ function getuserparam($address)
 function getrenterparam($address)
 {
 	if(empty($address)) return null;
-	
+
 	$address = substr($address, 0, 34);
 	$renter = getdbosql('db_renters', "address=:ad", array(':ad'=>$address));
-	
+
 	return $renter;
 }
 
@@ -127,7 +127,7 @@ function rentallog($string)
 	$now = now();
 	if(!is_dir(YAAMP_LOGS)) mkdir(YAAMP_LOGS);
 	error_log("[$now] $string\n", 3, YAAMP_LOGS."/rental.log");
-	
+
 	debuglog($string);
 }
 
@@ -152,7 +152,7 @@ function XssFilter($data)
 	$data = str_replace("\\", "", $data);
 	$data = str_replace("&", "", $data);
 	$data = str_replace(";", "", $data);
-	
+
 //	mydump($data); die;
 	return $data;
 }
@@ -241,7 +241,7 @@ function make_bitly_url($url, $format = 'xml', $version = '2.0.1')
 {
 	$login = 'o_1uu6u4g2h4';
 	$appkey = 'R_433ebafeb24374d6c183c0fcbcc01575';
-	
+
 	$bitly = 'http://api.bit.ly/shorten?version='.$version.'&longUrl='.urlencode($url).'&login='.$login.'&apiKey='.$appkey.'&format='.$format;
 	$response = file_get_contents($bitly);
 //	debuglog($response);
@@ -261,19 +261,19 @@ function make_bitly_url($url, $format = 'xml', $version = '2.0.1')
 function resolveShortURL($url1)
 {
 	$ch = curl_init("$url1");
-	
+
 	curl_setopt($ch, CURLOPT_HEADER, true);
 	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	curl_setopt($ch, CURLOPT_ENCODING , "deflate,gzip");
-	
+
 	$http_data = curl_exec($ch);
 	$curl_info = curl_getinfo($ch);
 	$headers = substr($http_data, 0, $curl_info["header_size"]);
 
 	preg_match("!\r\n(?:Location|URI): *(.*?) *\r\n!", $headers, $matches);
 	$url = $matches[1];
-	
+
 //	debuglog(" short $url1 -> $url");
 	return empty($url)? $url1: $url;
 }

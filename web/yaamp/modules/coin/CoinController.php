@@ -3,9 +3,9 @@
 class CoinController extends CommonController
 {
 	public $defaultAction='index';
-	
+
 	/////////////////////////////////////////////////
-	
+
 	public function actionIndex()
 	{
 		if(!$this->admin) return;
@@ -18,32 +18,32 @@ class CoinController extends CommonController
 		$coin = new db_coins;
 		$coin->txmessage = true;
 		$coin->created = time();
-		
+
 		if(isset($_POST['db_coins']))
 		{
 			$coin->attributes = $_POST['db_coins'];
 			if($coin->save())
 				$this->redirect(array('index'));
 		}
-		
+
 		$this->render('_form', array('coin'=>$coin, 'update'=>false));
 	}
-		
+
 	public function actionUpdate()
 	{
 		if(!$this->admin) return;
 		$coin = getdbo('db_coins', getiparam('id'));
-		
+
 		if(isset($_POST['db_coins']))
 		{
 			$coin->attributes = $_POST['db_coins'];
 			if($coin->save())
 				$this->redirect(array('index'));
 		}
-		
+
 		$this->render('_form', array('coin'=>$coin, 'update'=>true));
 	}
-	
+
 }
 
 

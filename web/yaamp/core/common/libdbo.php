@@ -6,10 +6,10 @@ function getdbo($class, $id)
 {
 	$record = CActiveRecord::model($class);
 	$table = $record->getTableSchema();
-	
+
 	$sql = "$table->primaryKey=:db_key";
 	return $record->find($sql, array(':db_key'=>$id));
-	
+
 //	return $record->findByPk($id);
 }
 
@@ -34,20 +34,20 @@ function getdbocount($class, $sql='1', $params=array())
 function dborun($sql, $params=array())
 {
 	$command = app()->db->createCommand($sql);
-	
+
 	foreach($params as $name=>$value)
 		$command->bindValue($name, $value);
-	
+
 	return $command->execute();
 }
 
 function dboscalar($sql, $params=array())
 {
 	$command = app()->db->createCommand($sql);
-	
+
 	foreach($params as $name=>$value)
 		$command->bindValue($name, $value);
-	
+
 	return $command->queryScalar();
 }
 
@@ -57,17 +57,17 @@ function dborow($sql, $params=array())
 
 	foreach($params as $name=>$value)
 		$command->bindValue($name, $value);
-	
+
 	return $command->queryRow();
 }
 
 function dbocolumn($sql, $params=array())
 {
 	$command = app()->db->createCommand($sql);
-	
+
 	foreach($params as $name=>$value)
 		$command->bindValue($name, $value);
-	
+
 	return $command->queryColumn();
 }
 
@@ -77,7 +77,7 @@ function dbolist($sql, $params=array())
 
 	foreach($params as $name=>$value)
 		$command->bindValue($name, $value);
-	
+
 	return $command->queryAll();
 }
 

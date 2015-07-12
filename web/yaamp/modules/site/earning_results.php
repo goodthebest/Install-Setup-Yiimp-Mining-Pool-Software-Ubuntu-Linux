@@ -24,16 +24,16 @@ foreach($earnings as $earning)
 //	if(!$earning) debuglog($earning);
 	$coin = getdbo('db_coins', $earning->coinid);
 	if(!$coin) continue;
-	
+
 	$user = getdbo('db_accounts', $earning->userid);
 	if(!$user) continue;
-	
+
 	$block = getdbo('db_blocks', $earning->blockid);
 	if(!$block) continue;
-	
+
 	$t1 = datetoa2($earning->create_time). ' ago';
 	$t2 = datetoa2($earning->mature_time). ' ago';
-	
+
 	echo "<tr class='ssrow'>";
 	echo "<td><img width=16 src='$coin->image'></td>";
 	echo "<td><b>$coin->name ($coin->symbol_show)</b></td>";
@@ -47,10 +47,10 @@ foreach($earnings as $earning)
 		<a href='/site/clearearning?id=$earning->id'>[clear]</a>
 		<a href='/site/deleteearning?id=$earning->id'>[delete]</a>
 		</td>";
-	
+
 //	echo "<td style='font-size: .7em'>$earning->tx</td>";
 	echo "</tr>";
-	
+
 // 	if($block->category == 'generate' && $earning->status == 0)
 // 	{
 // 		$earning->status = 1;

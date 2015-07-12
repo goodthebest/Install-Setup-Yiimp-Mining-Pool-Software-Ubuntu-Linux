@@ -75,33 +75,33 @@ foreach($block['tx'] as $txhash)
 		$valuetx += $vout['value'];
 
 	echo "<tr class='ssrow'>";
-	
+
 	echo "<td><span style='font-family: monospace;'><a href='/explorer?id=$coin->id&txid={$tx['txid']}'>{$tx['txid']}</a></span></td>";
 	echo "<td>$valuetx</td>";
-	
+
 	echo "<td>";
 	foreach($tx['vin'] as $vin)
 	{
 		if(isset($vin['coinbase']))
 			echo "Generation";
-		
+
 	}
 	echo "</td>";
-	
+
 	echo "<td>";
 	foreach($tx['vout'] as $vout)
 	{
 		$value = $vout['value'];
-		
+
 		if(isset($vout['scriptPubKey']['addresses'][0]))
 			echo "<span style='font-family: monospace;'>{$vout['scriptPubKey']['addresses'][0]}</span> ($value)";
 		else
 			echo "($value)";
-		
+
 		echo '<br>';
 	}
 	echo "</td>";
-		
+
 	echo "</tr>";
 }
 

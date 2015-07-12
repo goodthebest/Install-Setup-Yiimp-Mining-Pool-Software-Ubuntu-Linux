@@ -40,7 +40,7 @@ echo <<<end
 
 <p>Minimum deposit 0.001 BTC.</p>
 
-<p>Choose a password to secure access to your account. The email is optional and may be used in the future 
+<p>Choose a password to secure access to your account. The email is optional and may be used in the future
 if you forget your password.</p>
 
 <table cellspacing=10>
@@ -50,7 +50,7 @@ if you forget your password.</p>
 <tr><td>Password</td><td><input type="password" name="deposit_password" placeholder='leave empty for no change' class="main-text-input" style='width: 280px;'></td></tr>
 <tr><td>Confirm</td><td><input type="password" name="deposit_confirm" class="main-text-input" style='width: 280px;'></td></tr>
 </table>
-		
+
 <br><br>
 <input type="submit" value="Save" class="main-submit-button">
 <input type="button" value="Cancel" class="main-submit-button" onclick='javascript:window.history.back()'>
@@ -70,7 +70,7 @@ if you forget your password.</p>
 </div></div><br>
 
 </td></tr></table>
-		
+
 <br><br><br><br><br><br><br><br><br><br>
 <br><br><br><br><br><br><br><br><br><br>
 <br><br><br><br><br><br><br><br><br><br>
@@ -101,7 +101,7 @@ function pool_current_refresh()
 	var url = "/renting/status_results";
 	$.get(url, '', pool_current_ready);
 }
-		
+
 ///////////////////////////////////////////////////////////////////////
 
 function main_refresh_price()
@@ -109,7 +109,7 @@ function main_refresh_price()
 	var url = "/renting/graph_price_results";
 	$.get(url, '', graph_init_price);
 }
-		
+
 function graph_init_price(data)
 {
 	$('#graph_results_price').empty();
@@ -145,7 +145,7 @@ function graph_init_price(data)
 
 	});
 }
-		
+
 </script>
 
 end;

@@ -10,7 +10,7 @@ echo '[';
 foreach($stats as $i=>$n)
 {
 	$m = $n->hashrate? bitcoinvaluetoa($n->earnings*24*1000000/$n->hashrate): 0;
-	
+
 	if($i) echo ',';
 	$d = date('Y-m-d H:i:s', $n->time);
 	echo "[\"$d\",$m]";

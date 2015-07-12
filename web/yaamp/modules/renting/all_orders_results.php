@@ -30,7 +30,7 @@ foreach($list as $job)
 {
 	$hashrate_bad = yaamp_job_rate_bad($job->id);
 	$hashrate = yaamp_job_rate($job->id)+$hashrate_bad;
-	
+
 	$title_percent = '';
 	if($hashrate_bad)
 	{
@@ -44,23 +44,23 @@ foreach($list as $job)
 	$maxhash = $job->speed? Itoa2($job->speed).'h/s': '';
 
 	$title = controller()->admin? "-o stratum+tcp://$job->host:$job->port -u $job->username -p $job->password": '';
-	
+
 	$servername = substr($job->host, 0, 22);
 	$price = mbitcoinvaluetoa($job->price);
 
 	$diff = $job->difficulty>0? round($job->difficulty, 3): '';
 	$d = datetoa2($job->time);
-	
+
 	if($job->active)
 		echo "<tr class='ssrow' style='background-color: #dfd'>";
 	else
 		echo "<tr class='ssrow'>";
 
- 	if($renter && $renter->id == $job->renterid)
+	if($renter && $renter->id == $job->renterid)
 		echo "<td title='$title'>$job->host</td>";
- 	else
- 		echo "<td title='$title'></td>";
- 	
+	else
+		echo "<td title='$title'></td>";
+
 //	echo "<td>$d</td>";
 //	echo "<td>$job->algo</td>";
 

@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 $server = getparam('server');
 echo <<<end
@@ -15,7 +15,7 @@ echo <<<end
 <a href='/site/emptymarkets'>EmptyMarket</a>&nbsp;
 
 <div align=right>
-Select Server: 
+Select Server:
 <select id='server_select'>
 <option value=''>all</option>
 <option value='yaamp1'>yaamp1</option>

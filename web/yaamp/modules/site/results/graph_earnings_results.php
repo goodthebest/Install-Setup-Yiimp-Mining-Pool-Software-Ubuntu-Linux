@@ -11,36 +11,36 @@ echo '[[';
 
 for($i = $t+$step, $j = 0; $i < time(); $i += $step)
 {
- 	if($i != $t+$step) echo ',';
- 	$m = 0;
- 	
- 	if(isset($stats[$j]) && $i > $stats[$j]->time)
- 	{
- 		$m = bitcoinvaluetoa($stats[$j]->balance);
- 		$j++;
- 	}
- 	
+	if($i != $t+$step) echo ',';
+	$m = 0;
+
+	if(isset($stats[$j]) && $i > $stats[$j]->time)
+	{
+		$m = bitcoinvaluetoa($stats[$j]->balance);
+		$j++;
+	}
+
 	$d = date('Y-m-d H:i:s', $i);
 	echo "[\"$d\",$m]";
-	
+
 }
 
 echo '],[';
 
 for($i = $t+$step, $j = 0; $i < time(); $i += $step)
 {
- 	if($i != $t+$step) echo ',';
- 	$m = 0;
- 	
- 	if(isset($stats[$j]) && $i > $stats[$j]->time)
- 	{
- 		$m = bitcoinvaluetoa($stats[$j]->pending);
- 		$j++;
- 	}
- 	
+	if($i != $t+$step) echo ',';
+	$m = 0;
+
+	if(isset($stats[$j]) && $i > $stats[$j]->time)
+	{
+		$m = bitcoinvaluetoa($stats[$j]->pending);
+		$j++;
+	}
+
 	$d = date('Y-m-d H:i:s', $i);
 	echo "[\"$d\",$m]";
-	
+
 }
 
 echo ']]';

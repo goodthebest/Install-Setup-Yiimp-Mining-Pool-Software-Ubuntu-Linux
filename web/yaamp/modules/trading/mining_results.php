@@ -56,12 +56,12 @@ foreach($niceorders as $order)
 	if(!$order->alive) continue;
 	if(!$order->workers) continue;
 	if(!$order->type == 0) continue;
-	
+
 	$index = $order->price*1000;
 	if(!isset($allorders[$index]))
 	{
 		$allorders[$index] = array();
-		
+
 		$allorders[$index]['price'] = $order->price;
 		$allorders[$index]['speed'] = 0;
 		$allorders[$index]['workers'] = 0;
@@ -114,31 +114,31 @@ foreach($list as $coin)
 	$pool_ttf = $coin->pool_ttf? sectoa2($coin->pool_ttf): '';
 	$reward = round($coin->reward, 3);
 	$btcmhd = mbitcoinvaluetoa(yaamp_profitability($coin));
-	
+
 	$pool_hash = yaamp_coin_rate($coin->id);
 	$pool_hash = $pool_hash? Itoa2($pool_hash).'h/s': '';
-	
+
 	show_orders($allorders, $services, $btcmhd);
 	show_services($services, $btcmhd);
-	
+
 	if(!$coin->auto_ready)
 		echo "<tr style='opacity: 0.4;'>";
 	else
 		echo "<tr class='ssrow'>";
-	
+
 	echo "<td width=18><img width=16 src='$coin->image'></td>";
 	echo "<td><b><a href='/site/coin?id=$coin->id'>$name</a></b></td>";
-	
+
 	echo "<td align=right style='font-size: .8em;'><b>$reward $coin->symbol</a></td>";
 	echo "<td align=right style='font-size: .8em;'>$difficulty</td>";
-	
+
 	if(!empty($coin->errors))
 		echo "<td align=right style='font-size: .8em; color: red;' title='$coin->errors'>$height</td>";
 	else
 		echo "<td align=right style='font-size: .8em;'>$height</td>";
-	
+
 	echo "<td align=right style='font-size: .8em;'>$pool_ttf</td>";
-		
+
 	echo "<td align=right style='font-size: .8em;'>$pool_hash</td>";
 	echo "<td align=right style='font-size: .8em;'><b>$btcmhd</b></td>";
 	echo "</tr>";
@@ -186,7 +186,7 @@ function show_services(&$services, $btcmhd=0)
 	{
 		if($service->price*1000 < $btcmhd) continue;
 		$service_btcmhd = mbitcoinvaluetoa($service->price*1000);
-		
+
 		echo "<tr class='ssrow'>";
 		echo "<td width=18><img width=16 src='/images/btc.png'></td>";
 		echo "<td><b>$service->name</b></td>";
@@ -207,7 +207,7 @@ function show_orders(&$allorders, &$services, $btcmhd=0)
 	$algo = user()->getState('yaamp-algo');
 	$price = controller()->memcache->get_database_scalar("current_price-$algo",
 		"select price from hashrate where algo=:algo order by time desc limit 1", array(':algo'=>$algo));
-	
+
 	foreach($allorders as $i=>$order)
 	{
 		if($order['price'] < $btcmhd) continue;
@@ -219,14 +219,14 @@ function show_orders(&$allorders, &$services, $btcmhd=0)
 		$limit = Itoa2($order['limit']*1000000000).'h/s';
 		$btc = round($order['btc']*1000, 1);
 		$profit = $price>$service_btcmhd? round(($price-$service_btcmhd)/$service_btcmhd*100).'%': '';
-		
+
 		show_services($services, $service_btcmhd);
-	
+
 		if(isset($order['me']))
 			echo "<tr class='ssrow' style='background-color: #dfd'>";
 		else
 			echo "<tr class='ssrow'>";
-		
+
 		echo "<td></td>";
 		echo "<td><b>$hash</b> ({$order['workers']})</td>";
 		echo "<td align=right style='font-size: .8em;'>$limit</td>";
@@ -236,7 +236,7 @@ function show_orders(&$allorders, &$services, $btcmhd=0)
 		echo "<td></td>";
 		echo "<td align=right style='font-size: .8em;'><b>$service_btcmhd</b></td>";
 		echo "</tr>";
-	
+
 		unset($allorders[$i]);
 	}
 }

@@ -295,7 +295,7 @@ class CDbConnection extends CApplicationComponent
 
 		if($this->emulatePrepare && constant('PDO::ATTR_EMULATE_PREPARES'))
 			$pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES,true);
-			
+
 		if($this->charset!==null)
 		{
 			if(strcasecmp($pdo->getAttribute(PDO::ATTR_DRIVER_NAME),'sqlite'))

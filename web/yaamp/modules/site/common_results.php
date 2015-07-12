@@ -93,12 +93,12 @@ foreach($algos as $item)
 	$t1 = time() - 24*60*60;
 	$total1 = dboscalar("select sum(amount*price) from blocks where category!='orphan' and time>$t1 and algo=:algo", array(':algo'=>$algo));
 	$hashrate1 = dboscalar("select avg(hashrate) from hashrate where time>$t1 and algo=:algo", array(':algo'=>$algo));
-	
+
 	if($algo == 'sha256')
 		$btcmhday1 = $hashrate1 != 0? mbitcoinvaluetoa($total1 / $hashrate1 * 1000000 * 1000000): '';
 	else
 		$btcmhday1 = $hashrate1 != 0? mbitcoinvaluetoa($total1 / $hashrate1 * 1000000 * 1000): '';
-	
+
 	$fees = yaamp_fee($algo);
 
 	$stratum = getdbosql('db_stratums', "algo=:algo", array(':algo'=>$algo));
@@ -284,7 +284,7 @@ foreach($list as $market)
 //	echo "<tr class='ssrow'>";
 	$algo_color = getAlgoColors($coin->algo);
 	echo "<tr style='background-color:$algo_color;'>";
-	
+
 	echo "<td><img width=16 src='$coin->image'></td>";
 	echo "<td><b><a href='/site/coin?id=$coin->id'>$coin->name ($coin->symbol)</a></b></td>";
 
@@ -356,7 +356,7 @@ foreach($orders as $order)
 //	echo "<tr class='ssrow'>";
 	$algo_color = getAlgoColors($coin->algo);
 	echo "<tr style='background-color:$algo_color;'>";
-	
+
 	$created = datetoa2($order->created). ' ago';
 	$price = $order->price? bitcoinvaluetoa($order->price): '';
 

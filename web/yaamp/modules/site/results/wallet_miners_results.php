@@ -26,20 +26,20 @@ foreach(yaamp_get_algos() as $algo)
 
 	$percent_bad = ($user_rate1 + $user_rate1_bad)? $user_rate1_bad * 100 / ($user_rate1 + $user_rate1_bad): 0;
 	$percent_bad = $percent_bad? round($percent_bad, 1).'%': '';
-	
+
 	$user_rate1 = $user_rate1? Itoa2($user_rate1).'h/s': '-';
 	$minercount = getdbocount('db_workers', "userid=$user->id and algo=:algo", array(':algo'=>$algo));
-	
+
 	$user_shares = controller()->memcache->get_database_scalar("wallet_user_shares-$user->id-$algo",
 		"select sum(difficulty) from shares where valid and algo=:algo and userid=$user->id", array(':algo'=>$algo));
 	if(!$user_shares && !$minercount) continue;
-	
+
 	$total_shares = controller()->memcache->get_database_scalar("wallet_total_shares-$algo",
 		"select sum(difficulty) from shares where valid and algo=:algo", array(':algo'=>$algo));
 	if(!$total_shares) continue;
-	
+
 	$percent_shares = round($user_shares * 100 / $total_shares, 4);
-	
+
 	echo "<tr class='ssrow'>";
 	echo "<td><b>$algo</b></td>";
 	echo "<td align=right>$minercount</td>";
@@ -69,22 +69,22 @@ if(count($workers))
 	echo "<th align=right width=60>Reject*</th>";
 	echo "</tr>";
 	echo "</thead>";
-	
+
 	foreach($workers as $worker)
 	{
 		$user_rate1 = yaamp_worker_rate($worker->id, $worker->algo);
 		$user_rate1_bad = yaamp_worker_rate_bad($worker->id, $worker->algo);
-		
+
 		$percent = ($user_rate1 + $user_rate1_bad)? $user_rate1_bad * 100 / ($user_rate1 + $user_rate1_bad): 0;
 		$percent = $percent? round($percent, 1).'%': '';
-		
+
 		$user_rate1 = $user_rate1? Itoa2($user_rate1).'h/s': '';
-		
-		$version = substr($worker->version, 0, 16); 
+
+		$version = substr($worker->version, 0, 16);
 		$password = substr($worker->password, 0, 16);
-		
+
 		$subscribe = Booltoa($worker->subscribe);
-		
+
 		echo "<tr class='ssrow'>";
 		echo "<td title='$worker->version'>$version</td>";
 		echo "<td title='$worker->password'>$password</td>";
@@ -95,7 +95,7 @@ if(count($workers))
 		echo "<td align=right>$percent</td>";
 		echo "</tr>";
 	}
-	
+
 	echo "</table>";
 }
 

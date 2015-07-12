@@ -43,7 +43,7 @@ echo <<<END
 <br><br><br><br><br><br><br><br><br><br>
 <br><br><br><br><br><br><br><br><br><br>
 <br><br><br><br><br><br><br><br><br><br>
-		
+
 <script>
 
 function page_refresh()
@@ -119,7 +119,7 @@ function main_refresh_price()
 	var url = "/renting/graph_price_results";
 	$.get(url, '', graph_init_price);
 }
-		
+
 function graph_init_price(data)
 {
 	$('#graph_results_price').empty();
@@ -173,12 +173,12 @@ function order_edit(jobid)
 			{
 				$('#order-edit-form').submit();
 			},
-			
+
 			"Cancel": function()
 			{
 				$(this).dialog('close');
 			},
-			
+
 			"Delete": function()
 			{
 				var r = confirm("Are you sure you want to delete this job?");
@@ -187,7 +187,7 @@ function order_edit(jobid)
 		}
 	});
 }
-			
+
 function order_new()
 {
 	$('#order-edit-dialog').load('/renting/orderdialog?address=$renter->address').dialog(
@@ -224,14 +224,14 @@ function show_job_graph(jobid)
 	{
 		$('#graph_toggle_job-'+jobid).attr('src', '/images/minus2-78.png');
 		$('#graph_placeholder_job-'+jobid).show();
-			
+
 		var url = "/renting/graph_job_results?jobid="+jobid;
 	//	var url = "/renting/graph_price_results";
-			
+
 		$.get(url, '', function (data)
 		{
 			$('#graph_results_job-'+jobid).empty();
-		
+
 			var t = $.parseJSON(data);
 			var plot1 = $.jqplot('graph_results_job-'+jobid, t,
 			{
@@ -247,12 +247,12 @@ function show_job_graph(jobid)
 						tickOptions: {formatString: '<font size=1>%#.3f &nbsp;</font>'}
 					}
 				},
-		
+
 				seriesDefaults:
 				{
 					markerOptions: { style: 'none' }
 				},
-		
+
 				grid:
 				{
 					borderWidth: 1,
@@ -260,12 +260,12 @@ function show_job_graph(jobid)
 					shadowDepth: 0,
 					background: '#ffffff'
 				},
-		
+
 			});
 		});
 	}
 }
-			
+
 function main_renter_tx()
 {
 	var w = window.open("/renting/tx?address=$renter->address", "yaamp_tx",
