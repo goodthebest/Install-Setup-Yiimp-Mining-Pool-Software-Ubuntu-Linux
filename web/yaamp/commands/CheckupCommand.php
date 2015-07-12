@@ -249,6 +249,7 @@ class CheckupCommand extends CConsoleCommand
 				dborun("DELETE FROM workers WHERE userid=".$user->id);
 				dborun("UPDATE earnings SET userid=0 WHERE userid=".$user->id);
 				dborun("UPDATE blocks SET userid=0 WHERE userid=".$user->id);
+				dborun("UPDATE payouts SET account_id=0 WHERE account_id=".$user->id);
 
 				$nbUpdated += $user->save();
 			}
