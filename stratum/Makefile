@@ -1,8 +1,7 @@
 
 CC=gcc
 
-CFLAGS=-c -g -I /usr/include/mysql -march=native
-LDFLAGS=-g
+CFLAGS=-c -g `mysql_config --cflags --libs` -march=native
 
 #CFLAGS += -DHASH_DEBUGLOG_
 #CFLAGS += -DRPC_DEBUGLOG_
@@ -11,9 +10,10 @@ LDFLAGS=-g
 #CFLAGS += -DCLIENT_DEBUGLOG_
 
 #CFLAGS=-c -O2 -I /usr/include/mysql
-#LDFLAGS=-O2
+LDFLAGS=-O2 `mysql_config --libs`
 
-LDLIBS=iniparser/libiniparser.a algos/libalgos.a sha3/libhash.a -lmysqlclient -lpthread -lm -lstdc++
+LDLIBS=iniparser/libiniparser.a algos/libalgos.a sha3/libhash.a -lpthread -lm -lstdc++
+LDLIBS+=-lmysqlclient
 
 SOURCES=stratum.cpp db.cpp coind.cpp coind_aux.cpp coind_template.cpp coind_submit.cpp util.cpp list.cpp \
 	rpc.cpp job.cpp job_send.cpp job_core.cpp merkle.cpp share.cpp socket.cpp coinbase.cpp \
@@ -50,7 +50,9 @@ $(OUTPUT): $(OBJECTS)
 clean:
 	rm -f *.o
 	rm -f algos/*.o
+	rm -f algos/*.a
 	rm -f sha3/*.o
+	rm -f sha3/*.a
 
 install: all
 	strip -s stratum
