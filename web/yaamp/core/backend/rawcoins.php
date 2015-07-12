@@ -56,7 +56,7 @@ function updateRawcoins()
 	$res = yobit_api_query('info');
 	if($res)
 	{
-		dborun("update markets set deleted=true where name='yobit'");
+		dborun("UPDATE markets SET deleted=true WHERE name='yobit'");
 		foreach($res->pairs as $i=>$item)
 		{
 			$e = explode('_', $i);
@@ -68,7 +68,7 @@ function updateRawcoins()
 	$list = cryptopia_api_query('GetMarkets');
 	if(isset($list->Data))
 	{
-		dborun("update markets set deleted=true where name='cryptopia'");
+		dborun("UPDATE markets SET deleted=true WHERE name='cryptopia'");
 		foreach($list->Data as $item) {
 			$e = explode('/', $item->Label);
 			if (strtoupper($e[1]) !== 'BTC')
@@ -78,15 +78,32 @@ function updateRawcoins()
 		}
 	}
 
-
 	$list = alcurex_api_query('market','?info=on');
 	if(isset($list->MARKETS))
 	{
-		dborun("update markets set deleted=true where name='alcurex'");
+		dborun("UPDATE markets SET deleted=true WHERE name='alcurex'");
 		foreach($list->MARKETS as $item) {
 			$e = explode('_', $item->Pair);
 			$symbol = strtoupper($e[0]);
 			updateRawCoin('alcurex', $symbol);
+		}
+	}
+
+	$list = banx_simple_api_query('marketsv2');
+	if(isset($list) && is_array($list))
+	{
+		dborun("UPDATE markets SET deleted=true WHERE name='banx'");
+		foreach($list as $item) {
+			$e = explode('/', $item->market);
+			$base = strtoupper($e[1]);
+			if ($base != 'BTC')
+				continue;
+			$symbol = strtoupper($e[0]);
+			if ($symbol == 'ATP')
+				continue;
+			$name = explode('/',$item->marketname);
+			updateRawCoin('banx', $symbol, $name[0]);
+			//debuglog("banx: $symbol {$name[0]}");
 		}
 	}
 

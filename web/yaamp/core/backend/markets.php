@@ -4,8 +4,6 @@ function BackendPricesUpdate()
 {
 //	debuglog(__FUNCTION__);
 
-	updateAlcurexMarkets();
-	updateCryptopiaMarkets();
 	updateBittrexMarkets();
 	updateCryptsyMarkets();
 	updateCCexMarkets();
@@ -13,6 +11,10 @@ function BackendPricesUpdate()
 	updatePoloniexMarkets();
 	updateYobitMarkets();
 	updateJubiMarkets();
+	updateAlcurexMarkets();
+	updateCryptopiaMarkets();
+	updateBanxioMarkets();
+
 
 	$list2 = getdbolist('db_coins', "installed and symbol2 is not null");
 	foreach($list2 as $coin2)
@@ -110,11 +112,11 @@ function getBestMarket($coin)
 			ORDER BY price DESC");
 	}
 
-	// note: you can add a record in market to hide this debug warning
-	if (!$market && $coin->enable)
+	if (!$market && empty($coin->market)) {
 		debuglog("best market for {$coin->symbol} is unknown");
-	//else
-	//	debuglog("best market for {$coin->symbol} is {$market->name}");
+		$coin->market = 'unknown';
+		$coin->save();
+	}
 
 	return $market;
 }
@@ -582,7 +584,7 @@ function updateAlcurexMarkets()
 					$coin->price2 = $market->price2;
 					$coin->save();
 				}
-//				debuglog("alcurex update $coin->symbol: $market->price $market->price2");
+//				debuglog("alcurex: $pair $market->price ".bitcoinvaluetoa($market->price2));
 			}
 		}
 	}
@@ -613,10 +615,44 @@ function updateCryptopiaMarkets()
 					$coin->price2 = $market->price2;
 					$coin->save();
 				}
-//				debuglog("cryptopia update $coin->symbol: $market->price $market->price2");
+//				debuglog("cryptopia: $pair $market->price ".bitcoinvaluetoa($market->price2));
 				break;
 			}
 		}
 	}
 }
 
+function updateBanxioMarkets()
+{
+	$data = banx_public_api_query('getmarketsummaries');
+	if(!$data || !is_array($data->result)) return;
+
+	$list = getdbolist('db_markets', "name='banx'");
+	foreach($list as $market)
+	{
+		$coin = getdbo('db_coins', $market->coinid);
+		if(!$coin || !$coin->installed) continue;
+
+		$pair = strtoupper($coin->symbol).'-BTC';
+		foreach ($data->result as $ticker) {
+			if ($ticker->marketname === $pair) {
+				$market->price = AverageIncrement($market->price, $ticker->bid);
+				$market->price2 = AverageIncrement($market->price2, $ticker->last);
+//				debuglog("banx: $pair {$ticker->bid} {$ticker->last} => {$market->price} {$market->price2}");
+				if (intval($ticker->dayvolume) > 1)
+					$market->save();
+				if (empty($coin->price2)) {
+					$coin->price = $market->price;
+					$coin->price2 = $market->price2;
+					$coin->save();
+				}
+				if ($coin->name == 'unknown' && !empty($market->currencylong)) {
+					$coin->name = $market->currencylong;
+					$coin->save();
+					debuglog("banx: update $symbol name {$coin->name}");
+				}
+				break;
+			}
+		}
+	}
+}
