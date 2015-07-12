@@ -11,7 +11,11 @@
 
 <?php
 
-$coin = getdbo('db_coins', $_GET['id']);
+$coin = getdbo('db_coins', getiparam('id'));
+if (!$coin) {
+	$this->goback();
+}
+
 $remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
 $info = $remote->getinfo();
 

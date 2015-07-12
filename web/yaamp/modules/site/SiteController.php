@@ -412,7 +412,7 @@ class SiteController extends CommonController
 	public function actionResetBlockchain()
 	{
 		if(!$this->admin) return;
-		$coin = getdbo('db_coins', $_GET['id']);
+		$coin = getdbo('db_coins', getiparam('id'));
 		$coin->action = 3;
 		$coin->save();
 
@@ -424,7 +424,7 @@ class SiteController extends CommonController
 	public function actionRestartCoin()
 	{
 		if(!$this->admin) return;
-		$coin = getdbo('db_coins', $_GET['id']);
+		$coin = getdbo('db_coins', getiparam('id'));
 
 		$coin->action = 4;
 		$coin->enable = false;
@@ -440,7 +440,7 @@ class SiteController extends CommonController
 	public function actionStartCoin()
 	{
 		if(!$this->admin) return;
-		$coin = getdbo('db_coins', $_GET['id']);
+		$coin = getdbo('db_coins', getiparam('id'));
 
 		$coin->action = 1;
 		$coin->enable = true;
@@ -456,7 +456,7 @@ class SiteController extends CommonController
 	public function actionStopCoin()
 	{
 		if(!$this->admin) return;
-		$coin = getdbo('db_coins', $_GET['id']);
+		$coin = getdbo('db_coins', getiparam('id'));
 
 		$coin->action = 2;
 		$coin->enable = false;
@@ -471,7 +471,7 @@ class SiteController extends CommonController
 	public function actionMakeConfigfile()
 	{
 		if(!$this->admin) return;
-		$coin = getdbo('db_coins', $_GET['id']);
+		$coin = getdbo('db_coins', getiparam('id'));
 
 		$coin->action = 5;
 		$coin->installed = true;
@@ -486,7 +486,7 @@ class SiteController extends CommonController
 	public function actionSetauto()
 	{
 		if(!$this->admin) return;
-		$coin = getdbo('db_coins', $_GET['id']);
+		$coin = getdbo('db_coins', getiparam('id'));
 
 		$coin->auto_ready = true;
 		$coin->save();
@@ -498,7 +498,7 @@ class SiteController extends CommonController
 	public function actionUnsetauto()
 	{
 		if(!$this->admin) return;
-		$coin = getdbo('db_coins', $_GET['id']);
+		$coin = getdbo('db_coins', getiparam('id'));
 
 		$coin->auto_ready = false;
 		$coin->save();
@@ -587,7 +587,7 @@ class SiteController extends CommonController
 	public function actionDeleteEarning()
 	{
 		if(!$this->admin) return;
-		$earning = getdbo('db_earnings', $_GET['id']);
+		$earning = getdbo('db_earnings', getiparam('id'));
 		$earning->delete();
 
 		$this->redirect('/site/earning');
