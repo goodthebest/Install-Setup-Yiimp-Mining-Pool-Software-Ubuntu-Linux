@@ -44,8 +44,10 @@ function updateRawcoins()
 
 	$poloniex = new poloniex;
 	$tickers = $poloniex->get_currencies();
-
-	dborun("update markets set deleted=true where name='poloniex'");
+	if (!$tickers)
+		$tickers = array();
+	else
+		dborun("update markets set deleted=true where name='poloniex'");
 	foreach($tickers as $symbol=>$ticker)
 	{
 		if($ticker['disabled']) continue;
