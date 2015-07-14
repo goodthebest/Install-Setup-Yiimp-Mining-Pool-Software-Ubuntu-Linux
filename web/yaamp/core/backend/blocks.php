@@ -4,11 +4,14 @@ function BackendBlockNew($coin, $db_block)
 {
 //	debuglog("NEW BLOCK $coin->name $db_block->height");
 	$reward = $db_block->amount;
+	if(!$reward || $db_block->algo == 'PoS' || $db_block->algo == 'MN') return;
 
-	$total_hash_power = dboscalar("select sum(difficulty) from shares where valid and algo='$coin->algo'");
+	$total_hash_power = dboscalar("SELECT SUM(difficulty) FROM shares WHERE valid AND algo=:algo", array(':algo'=>$coin->algo));
 	if(!$total_hash_power) return;
 
-	$list = dbolist("SELECT userid, sum(difficulty) as total from shares where valid and algo='$coin->algo' group by userid");
+	$list = dbolist("SELECT userid, SUM(difficulty) AS total FROM shares WHERE valid AND algo=:algo GROUP BY userid",
+			array(':algo'=>$coin->algo));
+
 	foreach($list as $item)
 	{
 		$hash_power = $item['total'];
@@ -36,14 +39,16 @@ function BackendBlockNew($coin, $db_block)
 		else	// immature
 			$earning->status = 0;
 
-		$earning->save();
+		if (!$earning->save())
+			debuglog(__FUNCTION__.": Unable to insert earning!");
 
 		$user->last_login = time();
 		$user->save();
 	}
 
 	$delay = time() - 5*60;
-	dborun("delete from shares where algo='$coin->algo' and time<$delay");
+	dborun("DELETE FROM shares WHERE algo=:algo AND time < :delay",
+		array(':algo'=>$coin->algo,':delay'=>$delay));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -51,7 +56,7 @@ function BackendBlockNew($coin, $db_block)
 function BackendBlockFind1()
 {
 //	debuglog(__METHOD__);
-	$list = getdbolist('db_blocks', "category='new' order by time");
+	$list = getdbolist('db_blocks', "category='new' ORDER BY time");
 	foreach($list as $db_block)
 	{
 		$coin = getdbo('db_coins', $db_block->coin_id);
@@ -79,7 +84,8 @@ function BackendBlockFind1()
 		$db_block->amount = $tx['details'][0]['amount'];
 		$db_block->confirmations = $tx['confirmations'];
 		$db_block->price = $coin->price;
-		$db_block->save();
+		if (!$db_block->save())
+			debuglog(__FUNCTION__.": unable to insert block!");
 
 		if($db_block->category != 'orphan')
 			BackendBlockNew($coin, $db_block);
@@ -171,7 +177,7 @@ function BackendBlockFind2()
 
 			$blockext = $remote->getblock($transaction['blockhash']);
 
-			$db_block = getdbosql('db_blocks', "blockhash='{$transaction['blockhash']}' or height={$blockext['height']}");
+			$db_block = getdbosql('db_blocks', "blockhash='{$transaction['blockhash']}' OR height={$blockext['height']}");
 			if($db_block) continue;
 
 //			debuglog("adding lost block $coin->name {$blockext['height']}");
@@ -182,12 +188,32 @@ function BackendBlockFind2()
 			$db_block->category = 'immature';			//$transaction['category'];
 			$db_block->time = $transaction['time'];
 			$db_block->amount = $transaction['amount'];
+			$db_block->algo = $coin->algo;
+
+			// masternode earnings...
+			if ($transaction['amount'] == 0 && $transaction['generated']) {
+				$db_block->algo = 'MN';
+				$tx = $remote->getrawtransaction($transaction['txid'], 1);
+
+				// assume the MN amount is in the last vout record (should check "addresses")
+				if (isset($tx['vout']) && !empty($tx['vout'])) {
+					$vout = end($tx['vout']);
+					$db_block->amount = $vout['value'];
+					debuglog("MN ".bitcoinvaluetoa($db_block->amount).' '.$coin->symbol.' ('.$blockext['height'].')');
+				}
+
+				if (!$coin->hasmasternodes) {
+					$coin->hasmasternodes = true;
+					$coin->save();
+				}
+			}
+
 			$db_block->confirmations = $transaction['confirmations'];
 			$db_block->height = $blockext['height'];
 			$db_block->difficulty = $blockext['difficulty'];
 			$db_block->price = $coin->price;
-			$db_block->algo = $coin->algo;
-			$db_block->save();
+			if (!$db_block->save())
+				debuglog(__FUNCTION__.": unable to insert block!");
 
 			BackendBlockNew($coin, $db_block);
 		}
@@ -219,7 +245,7 @@ function MonitorBTC()
 		if(!isset($transaction['blockhash'])) continue;
 		if($transaction['confirmations'] == 0) continue;
 		if($transaction['category'] != 'send') continue;
-		if($transaction['fee'] != -0.0001) continue;
+		//if($transaction['fee'] != -0.0001) continue;
 
 		debuglog(__FUNCTION__);
 		debuglog($transaction);
@@ -230,14 +256,6 @@ function MonitorBTC()
 			"<a href='$txurl'>{$transaction['address']}</a>");
 
 		if(!$b) debuglog('error sending email');
-
 	}
-
-
 }
-
-
-
-
-
 

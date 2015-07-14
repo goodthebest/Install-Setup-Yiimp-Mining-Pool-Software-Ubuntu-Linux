@@ -60,6 +60,8 @@ public:
 	int notreportingcounter;
 	bool usememorypool;
 
+	bool hasmasternodes;
+
 	YAAMP_JOB *job;
 //	YAAMP_JOB_TEMPLATE *templ;
 };

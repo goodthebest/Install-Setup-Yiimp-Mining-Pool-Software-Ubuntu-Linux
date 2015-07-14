@@ -97,11 +97,12 @@ void coinbase_create(YAAMP_COIND *coind, YAAMP_JOB_TEMPLATE *templ, json_value *
 	sprintf(templ->coinb2, "%s00000000", script2);
 	json_int_t available = templ->value;
 
-	if(strcmp(coind->symbol, "DRK") == 0 || strcmp(coind->symbol, "DASH") == 0)
-//	if(strcmp(coind->symbol, "DRK") == 0)
+//	if(strcmp(coind->symbol, "DASH") == 0)
+	if(coind->hasmasternodes)
 	{
-		char charity_payee[1024] = "";
-		strcpy(charity_payee, json_get_string(json_result, "payee"));
+		char charity_payee[1024] = { 0 };
+		const char *payee = json_get_string(json_result, "payee");
+		if (payee) snprintf(charity_payee, 1023, "%s", payee);
 
 		json_int_t charity_amount = json_get_int(json_result, "payee_amount");
 		bool charity_payments = json_get_bool(json_result, "masternode_payments");

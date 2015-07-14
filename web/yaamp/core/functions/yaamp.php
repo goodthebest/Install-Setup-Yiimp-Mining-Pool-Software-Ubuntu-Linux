@@ -79,6 +79,9 @@ function getAlgoColors($algo)
 		'zr5'		=> '#d0b0d0',
 		'drop'		=> '#d0b0d0',
 		'bmw'		=> '#a0a0a0',
+
+		'MN'		=> '#ffffff', // MasterNode Earnings
+		'PoS'		=> '#ffffff'  // Stake
 	);
 
 	if(!isset($a[$algo]))

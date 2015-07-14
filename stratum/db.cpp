@@ -141,7 +141,7 @@ void db_update_coinds(YAAMP_DB *db)
 
 	db_query(db, "select id, name, rpchost, rpcport, rpcuser, rpcpasswd, rpcencoding, master_wallet, reward, price, "\
 		"hassubmitblock, txmessage, enable, auto_ready, algo, pool_ttf, charity_address, charity_amount, charity_percent, "\
-		"reward_mul, symbol, auxpow, actual_ttf, network_ttf, usememorypool "\
+		"reward_mul, symbol, auxpow, actual_ttf, network_ttf, usememorypool, hasmasternodes "\
 		"from coins where enable and auto_ready and algo='%s' order by index_avg", g_stratum_algo);
 
 	MYSQL_RES *result = mysql_store_result(&db->mysql);
@@ -205,6 +205,7 @@ void db_update_coinds(YAAMP_DB *db)
 		coind->actual_ttf = max(coind->actual_ttf, 20);
 
 		if(row[24]) coind->usememorypool = atoi(row[24]);
+		if(row[25]) coind->hasmasternodes = atoi(row[25]);
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 
