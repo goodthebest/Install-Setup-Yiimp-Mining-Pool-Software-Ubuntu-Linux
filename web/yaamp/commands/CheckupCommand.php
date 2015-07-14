@@ -78,8 +78,10 @@ class CheckupCommand extends CConsoleCommand
 		//self::isDirWritable("$root/protected/data/.");
 		self::isDirWritable("$root/yaamp/runtime/.");
 		self::isDirWritable(YAAMP_LOGS."/.");
-	}
 
+		if (!is_readable('/etc/yiimp/keys.php'))
+			echo "private keys.php file missing in etc!\n";
+	}
 
 	/**
 	 * Check all required php modules are present

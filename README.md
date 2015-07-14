@@ -47,18 +47,19 @@ If you use lighttpd, use the following config:
 
 The recommended install folder for the stratum engine is /var/stratum. Copy all the .conf files, run.sh, the stratum binary and the blocknotify binary to this folder. 
 
-Some scripts are expecting the web folder to be /var/web. 
-
-Add your exchange API keys in:
-
-	web/yaamp/core/exchange/*
+Some scripts are expecting the web folder to be /var/web. You can use directory symlinks...
 
 
-Look at web/yaamp/core/trading/ there are a few place where there're hardcoded withdraw BTC address (cryptsy, bittrex and bleutrade).
+Add your exchange API public and secret keys in these two separated files:
 
-Edit web/serverconfig.php
+	/etc/yaamp/keys.php
+	web/serverconfig.php
 
-You need three backend shells (in screen) running these scripts:
+You can find sample config files in web/serverconfig.sample.php and web/keys.sample.php
+
+This web application includes some command line tools, add bin/ folder to your path and type "yiic" to list them, "yiic checkup can help to test your initial setup".
+
+You need at least three backend shells (in screen) running these scripts:
 
 	web/main.sh
 	web/loop2.sh
@@ -81,6 +82,7 @@ On the website, go to http://server.com/site/admintest to login as admin. You ha
 There are logs generated in the /var/stratum folder and /var/log/stratum/debug.log for the php log.
 
 More instructions coming as needed.
+
 
 There a lot of unused code in the php branch. Lot come from other projects I worked on and I've been lazy to clean it up before to integrate it to yaamp. It's mostly based on the Yii framework which implements a lightweight MVC.
 
