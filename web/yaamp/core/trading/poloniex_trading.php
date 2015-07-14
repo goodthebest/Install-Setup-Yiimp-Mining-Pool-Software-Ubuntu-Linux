@@ -7,6 +7,8 @@ function doPoloniexTrading()
 	$flushall = rand(0, 4) == 0;
 	$poloniex = new poloniex;
 
+	if (!YAAMP_ALLOW_EXCHANGE) return;
+
 	$tickers = $poloniex->get_ticker();
 	if(!$tickers) return;
 

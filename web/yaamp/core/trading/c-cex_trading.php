@@ -6,6 +6,9 @@ function doCCexTrading($quick=false)
 	if($quick) $flushall = false;
 
 //	debuglog("-------------- doCCexTrading() $flushall");
+
+	if (!YAAMP_ALLOW_EXCHANGE) return;
+
 	$ccex = new CcexAPI;
 
 	// upgrade orders

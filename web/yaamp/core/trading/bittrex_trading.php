@@ -7,6 +7,8 @@ function doBittrexTrading($quick=false)
 
 //	debuglog("-------------- doBittrexTrading() flushall $flushall");
 
+	if (!YAAMP_ALLOW_EXCHANGE) return;
+
 	$orders = bittrex_api_query('market/getopenorders');
 	if(!$orders || !$orders->success) return;
 

@@ -16,6 +16,8 @@ function doCryptsyTrading($quick=false)
 
 //	debuglog("-------------- doCryptsyTrading() $flushall");
 
+	if (!YAAMP_ALLOW_EXCHANGE) return;
+
 	$orders = cryptsy_api_query('allmyorders');
 	if(empty($orders)) return;
 	if(!is_array($orders) || !isset($orders['return'])) {

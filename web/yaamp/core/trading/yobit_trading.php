@@ -5,6 +5,8 @@ function doYobitTrading($quick=false)
 	$flushall = rand(0, 4) == 0;
 	if($quick) $flushall = false;
 
+	if (!YAAMP_ALLOW_EXCHANGE) return;
+
 	$coins = getdbolist('db_coins', "installed and id in (select distinct coinid from markets where name='yobit')");
 	foreach($coins as $coin)
 	{

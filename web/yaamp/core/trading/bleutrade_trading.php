@@ -7,6 +7,8 @@ function doBleutradeTrading($quick=false)
 
 //	debuglog("-------------- dobleutradeTrading() flushall $flushall");
 
+	if (!YAAMP_ALLOW_EXCHANGE) return;
+
 	$orders = bleutrade_api_query('market/getopenorders');
 	if(!$orders) return;
 
