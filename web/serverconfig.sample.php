@@ -41,3 +41,10 @@ $cold_wallet_table = array(
 	'1C23KmLeCaQSLLyKVykHEUse1R7jRDv9j9' => 0.10,
 );
 
+// Sample fixed pool fees
+$configFixedPoolFees = array(
+        'zr5' => 2.0,
+        'scrypt' => 20.0,
+        'sha256' => 5.0,
+);
+

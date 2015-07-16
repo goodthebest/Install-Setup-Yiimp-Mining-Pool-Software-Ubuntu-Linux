@@ -149,18 +149,10 @@ function yaamp_fee($algo)
 //	$fee = round(log($rate * $norm / 2000000 / $hashrate->difficulty + 1), 1) + YAAMP_FEES_MINING;
 	$fee = YAAMP_FEES_MINING;
 
-	// more fees on special algos
-	switch ($algo) {
-	case 'scrypt':
-		$fee = 25.0; // i don't like this one :p
-		break;
-	case 'zr5':
-		$fee = 15.0;
-		break;
-//	case 'bmw':
-	case 'drop':
-		$fee *= 2.0;
-		break;
+	// local fees config
+	global $configFixedPoolFees;
+	if (isset($configFixedPoolFees[$algo])) {
+		$fee = (float) $configFixedPoolFees[$algo];
 	}
 
 	controller()->memcache->set("yaamp_fee-$algo", $fee);
