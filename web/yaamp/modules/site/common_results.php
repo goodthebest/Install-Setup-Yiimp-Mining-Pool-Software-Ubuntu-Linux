@@ -435,6 +435,7 @@ function cronstate2text($state)
 //$state_block = memcache_get($this->memcache->memcache, 'cronjob_block_state');
 $state_main = memcache_get($this->memcache->memcache, 'cronjob_main_state');
 $btc = getdbosql('db_coins', "symbol='BTC'");
+if (!$btc) $btc = json_decode('{"id": 6, "balance": 0}');
 
 echo "<span style='font-weight: bold; color: red;'>";
 for($i=0; $i<10; $i++)

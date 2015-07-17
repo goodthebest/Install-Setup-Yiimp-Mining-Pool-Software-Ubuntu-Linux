@@ -176,6 +176,8 @@ function BackendStatsUpdate()
 	$tm = floor(time()/$step/60)*$step*60;
 
 	$btc = getdbosql('db_coins', "symbol='BTC'");
+	if (!$btc) $btc = json_decode('{"id": 6, "balance": 0}');
+
 	$topay = dboscalar("select sum(balance) from accounts where coinid=$btc->id");	//here: take other currencies too
 	$margin = $btc->balance - $topay;
 

@@ -117,7 +117,8 @@ function updateRawcoins()
 	foreach($list as $coin)
 	{
 		debuglog("$coin->symbol is not longer active");
-		$coin->delete();
+	//	if ($coin->symbol != 'BTC')
+	//		$coin->delete();
 	}
 }
 
