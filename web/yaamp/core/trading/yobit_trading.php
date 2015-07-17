@@ -5,6 +5,26 @@ function doYobitTrading($quick=false)
 	$flushall = rand(0, 4) == 0;
 	if($quick) $flushall = false;
 
+	$savebalance = getdbosql('db_balances', "name='yobit'");
+	if(!$savebalance) return;
+
+	$savebalance->balance = 0;
+
+	$balances = yobit_api_query2('getInfo');
+	if(!$balances || !isset($balances['return'])) return;
+	if(!isset($balances['return']['funds'])) return;
+
+	foreach($balances['return']['funds'] as $symbol => $amount)
+	{
+		if($amount<=0) continue;
+		if($symbol == 'btc')
+		{
+			$savebalance->balance = $amount;
+			$savebalance->save();
+			break;
+		}
+	}
+
 	if (!YAAMP_ALLOW_EXCHANGE) return;
 
 	$coins = getdbolist('db_coins', "installed and id in (select distinct coinid from markets where name='yobit')");
@@ -75,24 +95,12 @@ function doYobitTrading($quick=false)
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
-	$savebalance = getdbosql('db_balances', "name='yobit'");
-	if(!$savebalance) return;
-
-	$savebalance->balance = 0;
-
-	$balances = yobit_api_query2('getInfo');
-	if(!$balances || !isset($balances['return'])) return;
-
 	foreach($balances['return']['funds'] as $symbol=>$amount)
 	{
 // 		debuglog("$symbol, $amount");
 		$amount -= 0.0001;
 		if($amount<=0) continue;
-		if($symbol == 'btc')
-		{
-			$savebalance->balance = $amount;
-			continue;
-		}
+		if($symbol == 'btc') continue;
 
 		$coin = getdbosql('db_coins', "symbol=:symbol", array(':symbol'=>$symbol));
 		if(!$coin || $coin->dontsell) continue;
@@ -185,23 +193,4 @@ function doYobitTrading($quick=false)
 		sleep(1);
 	}
 
-	$savebalance->save();
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -16,6 +16,25 @@ function doCryptsyTrading($quick=false)
 
 //	debuglog("-------------- doCryptsyTrading() $flushall");
 
+	// add orders
+	$savebalance = getdbosql('db_balances', "name='cryptsy'");
+	$savebalance->balance = 0;
+
+	$balances = cryptsy_api_query('getinfo');
+	if(!$balances) return;
+	if(!isset($balances['return'])) {
+		debuglog("balances: ".strip_tags($balances));
+		return;
+	}
+	foreach($balances['return']['balances_available'] as $symbol=>$balance)
+	{
+		if($symbol == 'BTC') {
+			$savebalance->balance = floatval($balance);
+			$savebalance->save();
+			break;
+		}
+	}
+
 	if (!YAAMP_ALLOW_EXCHANGE) return;
 
 	$orders = cryptsy_api_query('allmyorders');
@@ -109,26 +128,10 @@ function doCryptsyTrading($quick=false)
 
 	sleep(2);
 
-	// add orders
-	$savebalance = getdbosql('db_balances', "name='cryptsy'");
-	$savebalance->balance = 0;
-
-	$balances = cryptsy_api_query('getinfo');
-	if(!$balances) return;
-	if(!isset($balances['return']))
-	{
-		debuglog($balances);
-		return;
-	}
-
 	foreach($balances['return']['balances_available'] as $symbol=>$balance)
 	{
 		if($symbol == 'Points') continue;
-		if($symbol == 'BTC')
-		{
-			$savebalance->balance = floatval($balance);
-			continue;
-		}
+		if($symbol == 'BTC') continue;
 
 		$balance = floatval($balance);
 		if(!$balance) continue;
@@ -226,8 +229,6 @@ function doCryptsyTrading($quick=false)
 		//	$savebalance->balance = 0;
 		}
 	}
-
-	$savebalance->save();
 
 //	debuglog('-------------- doCryptsyTrading() done');
 }

@@ -7,6 +7,21 @@ function doBittrexTrading($quick=false)
 
 //	debuglog("-------------- doBittrexTrading() flushall $flushall");
 
+	$balances = bittrex_api_query('account/getbalances');
+	if(!$balances || !isset($balances->result) || !$balances->success) return;
+
+	$savebalance = getdbosql('db_balances', "name='bittrex'");
+	$savebalance->balance = 0;
+
+	foreach($balances->result as $balance)
+	{
+		if($balance->Currency == 'BTC') {
+			$savebalance->balance = $balance->Available;
+			$savebalance->save();
+			break;
+		}
+	}
+
 	if (!YAAMP_ALLOW_EXCHANGE) return;
 
 	$orders = bittrex_api_query('market/getopenorders');
@@ -98,19 +113,10 @@ function doBittrexTrading($quick=false)
 	sleep(2);
 
 	// add orders
-	$balances = bittrex_api_query('account/getbalances');
-	if(!$balances || !isset($balances->result) || !$balances->success) return;
-
-	$savebalance = getdbosql('db_balances', "name='bittrex'");
-	$savebalance->balance = 0;
 
 	foreach($balances->result as $balance)
 	{
-		if($balance->Currency == 'BTC')
-		{
-			$savebalance->balance = $balance->Available;
-			continue;
-		}
+		if($balance->Currency == 'BTC') continue;
 
 		$amount = floatval($balance->Available);
 		if(!$amount) continue;
@@ -216,8 +222,5 @@ function doBittrexTrading($quick=false)
 		}
 	}
 
-	$savebalance->save();
-
 //	debuglog('-------------- doBittrexTrading() done');
 }
-

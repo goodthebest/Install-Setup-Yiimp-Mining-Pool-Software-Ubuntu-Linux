@@ -7,6 +7,21 @@ function doPoloniexTrading()
 	$flushall = rand(0, 4) == 0;
 	$poloniex = new poloniex;
 
+	// add orders
+	$savebalance = getdbosql('db_balances', "name='poloniex'");
+	$balances = $poloniex->get_balances();
+
+	if (is_array($balances))
+	foreach($balances as $symbol => $balance)
+	{
+		if($symbol == 'BTC')
+		{
+			$savebalance->balance = $balance;
+			$savebalance->save();
+			break;
+		}
+	}
+
 	if (!YAAMP_ALLOW_EXCHANGE) return;
 
 	$tickers = $poloniex->get_ticker();
@@ -94,19 +109,11 @@ function doPoloniexTrading()
 	}
 
 	// add orders
-	$savebalance = getdbosql('db_balances', "name='poloniex'");
-	$balances = $poloniex->get_balances();
 
 	foreach($balances as $symbol=>$balance)
 	{
 		if(!$balance) continue;
-		if($symbol == 'BTC')
-		{
-			$savebalance->balance = $balance;
-			$savebalance->save();
-
-			continue;
-		}
+		if($symbol == 'BTC') continue;
 
 		$coin = getdbosql('db_coins', "symbol=:symbol", array(':symbol'=>$symbol));
 		if(!$coin || $coin->dontsell) continue;
@@ -152,7 +159,7 @@ function doPoloniexTrading()
 
 	if($savebalance->balance >= 0.2)
 	{
-		$btcaddr = YAAMP_BTCADDRESS; //'14LS7Uda6EZGXLtRrFEZ2kWmarrxobkyu9';
+		$btcaddr = YAAMP_BTCADDRESS;
 
 		$amount = $savebalance->balance;	// - 0.0002;
 		debuglog("poloniex withdraw $amount to $btcaddr");

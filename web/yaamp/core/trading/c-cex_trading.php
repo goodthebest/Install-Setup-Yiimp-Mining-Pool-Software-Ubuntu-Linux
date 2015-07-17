@@ -7,9 +7,27 @@ function doCCexTrading($quick=false)
 
 //	debuglog("-------------- doCCexTrading() $flushall");
 
-	if (!YAAMP_ALLOW_EXCHANGE) return;
+//	debuglog("c-cex getbalance");
 
 	$ccex = new CcexAPI;
+
+	$savebalance = getdbosql('db_balances', "name='c-cex'");
+	$savebalance->balance = 0;
+
+	$balances = $ccex->getBalance();
+	if(!$balances || !isset($balances['return'])) return;
+
+	foreach($balances['return'] as $balance) foreach($balance as $symbol=>$amount)
+	{
+		if(!$amount) continue;
+		if($symbol == 'btc') {
+			$savebalance->balance = $amount;
+			$savebalance->save();
+			break;
+		}
+	}
+
+	if (!YAAMP_ALLOW_EXCHANGE) return;
 
 	// upgrade orders
 	$coins = getdbolist('db_coins', "enable and id in (select distinct coinid from markets where name='c-cex')");
@@ -91,23 +109,10 @@ function doCCexTrading($quick=false)
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
-	$savebalance = getdbosql('db_balances', "name='c-cex'");
-	$savebalance->balance = 0;
-
-//	debuglog("c-cex getbalance");
-	sleep(5);
-
-	$balances = $ccex->getBalance();
-	if(!$balances || !isset($balances['return'])) return;
-
 	foreach($balances['return'] as $balance) foreach($balance as $symbol=>$amount)
 	{
 		if(!$amount) continue;
-		if($symbol == 'btc')
-		{
-			$savebalance->balance = $amount;
-			continue;
-		}
+		if($symbol == 'btc') continue;
 
 		$coin = getdbosql('db_coins', "symbol=:symbol", array(':symbol'=>$symbol));
 		if(!$coin || $coin->dontsell) continue;
@@ -182,8 +187,6 @@ function doCCexTrading($quick=false)
 		$db_order->created = time();
 		$db_order->save();
 	}
-
-	$savebalance->save();
 
 //	debuglog('-------------- doCCexTrading() done');
 }

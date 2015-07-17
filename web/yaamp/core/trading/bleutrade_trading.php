@@ -7,6 +7,22 @@ function doBleutradeTrading($quick=false)
 
 //	debuglog("-------------- dobleutradeTrading() flushall $flushall");
 
+//	debuglog($balances);
+	$balances = bleutrade_api_query('account/getbalances');
+	if(!$balances || !isset($balances->result) || !$balances->success) return;
+
+	$savebalance = getdbosql('db_balances', "name='bleutrade'");
+	$savebalance->balance = 0;
+
+	foreach($balances->result as $balance)
+	{
+		if($balance->Currency == 'BTC') {
+			$savebalance->balance = $balance->Available;
+			$savebalance->save();
+			break;
+		}
+	}
+
 	if (!YAAMP_ALLOW_EXCHANGE) return;
 
 	$orders = bleutrade_api_query('market/getopenorders');
@@ -95,20 +111,10 @@ function doBleutradeTrading($quick=false)
 	sleep(2);
 
 	// add orders
-	$balances = bleutrade_api_query('account/getbalances');
-//	debuglog($balances);
-	if(!$balances || !isset($balances->result) || !$balances->success) return;
-
-	$savebalance = getdbosql('db_balances', "name='bleutrade'");
-	$savebalance->balance = 0;
 
 	foreach($balances->result as $balance)
 	{
-		if($balance->Currency == 'BTC')
-		{
-			$savebalance->balance = $balance->Available;
-			continue;
-		}
+		if($balance->Currency == 'BTC')	continue;
 
 		$amount = floatval($balance->Available);
 		if(!$amount) continue;
@@ -209,8 +215,6 @@ function doBleutradeTrading($quick=false)
 		//	$savebalance->balance = 0;
 		}
 	}
-
-	$savebalance->save();
 
 	//	debuglog('-------------- dobleutradeTrading() done');
 }
