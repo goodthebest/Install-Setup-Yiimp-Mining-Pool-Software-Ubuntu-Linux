@@ -5,6 +5,9 @@ function BackendUpdateServices()
 {
 //	debuglog(__FUNCTION__);
 
+	if (YAAMP_USE_NICEHASH_API != true)
+		return;
+
 	$table = array(
 		0=>'scrypt',
 		1=>'sha256',
@@ -19,13 +22,6 @@ function BackendUpdateServices()
 		10=>'whirlx',
 		11=>'qubit',
 		12=>'quark',
-
-	//	111=>'c11',
-	//	112=>'zr5',
-	//	113=>'drop',
-	//	114=>'skein',
-	//	115=>'skein2',
-	//	116=>'groestl',
 	);
 
 	$res = fetch_url('https://www.nicehash.com/api?method=stats.global.current');

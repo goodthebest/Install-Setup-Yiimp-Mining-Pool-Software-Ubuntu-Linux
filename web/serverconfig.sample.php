@@ -21,6 +21,7 @@ define('YAAMP_FEES_RENTING', 2);
 define('YAAMP_PAYMENTS_FREQ', 3*60*60);
 
 define('YAAMP_ALLOW_EXCHANGE', false);
+define('YAAMP_USE_NICEHASH_API', false);
 
 define('YAAMP_BTCADDRESS', '1Auhps1mHZQpoX4mCcVL8odU81VakZQ6dR');
 define('YAAMP_SITE_URL', 'yiimp.ccminer.org');
