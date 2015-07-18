@@ -56,6 +56,8 @@ usort($algos, 'cmp');
 $total_coins = 0;
 $total_miners = 0;
 
+$showestimates = false;
+
 echo "<tbody>";
 foreach($algos as $item)
 {
@@ -167,11 +169,13 @@ echo "<p style='font-size: .8em'>
 		</p>";
 
 echo "</div></div><br>";
-
-
 ?>
+
+<?php if (!$showestimates): ?>
 
 <style type="text/css">
 #maintable1 .estimate { display: none; }
 </style>
+
+<?php endif; ?>
 
