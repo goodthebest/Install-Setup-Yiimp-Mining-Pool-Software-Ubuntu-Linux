@@ -2,10 +2,19 @@
 
 function getCryptsyTicker($marketid)
 {
-	$res = fetch_url("http://pubapi.cryptsy.com/api.php?method=singleorderdata&marketid=$marketid");
-	if(!$res) return null;
+	try {
+		$res = @ fetch_url("http://pubapi2.cryptsy.com/api.php?method=singleorderdata&marketid=$marketid");
+		if(!$res)
+			$res = @ fetch_url("http://pubapi1.cryptsy.com/api.php?method=singleorderdata&marketid=$marketid");
+		if(!$res) return null;
 
-	$ticker = json_decode($res);
+		$ticker = json_decode($res);
+
+	} catch (Exception $e) {
+		debuglog("cryptsy ticker http failure");
+		$ticker = null;
+	}
+
 	return $ticker;
 }
 
