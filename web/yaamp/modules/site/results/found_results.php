@@ -7,6 +7,8 @@ function WriteBoxHeader($title)
 	echo "<div class='main-left-inner'>";
 }
 
+$showrental = (bool) YAAMP_RENTAL;
+
 $algo = user()->getState('yaamp-algo');
 
 $count = getparam('count');
@@ -37,6 +39,9 @@ foreach($db_blocks as $db_block)
 	$d = datetoa2($db_block->time);
 	if(!$db_block->coin_id)
 	{
+		if (!$showrental)
+			continue;
+
 		$reward = bitcoinvaluetoa($db_block->amount);
 
 		echo "<tr class='ssrow'>";

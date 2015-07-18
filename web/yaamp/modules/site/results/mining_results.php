@@ -7,6 +7,8 @@ function WriteBoxHeader($title)
 	echo "<div class='main-left-inner'>";
 }
 
+$showrental = (bool) YAAMP_RENTAL;
+
 $algo = user()->getState('yaamp-algo');
 
 $total_rate = yaamp_pool_rate();
@@ -24,7 +26,10 @@ if($algo == 'all')
 else
 	$worker = getdbocount('db_workers', "algo=:algo", array(':algo'=>$algo));
 
-$services = getdbolist('db_services', "algo=:algo order by price desc", array(':algo'=>$algo));
+if ($showrental)
+	$services = getdbolist('db_services', "algo=:algo ORDER BY price DESC", array(':algo'=>$algo));
+else
+	$services = array();
 
 ////////////////////////////////////////////////////////////////////////////////////
 
@@ -45,7 +50,7 @@ echo "<th align=right>Profit***</th>";
 echo "</tr>";
 echo "</thead>";
 
-if($algo != 'all')
+if($algo != 'all' && $showrental)
 {
 	$hashrate_jobs = yaamp_rented_rate($algo);
 	$hashrate_jobs = $hashrate_jobs? Itoa2($hashrate_jobs).'h/s': '';
@@ -182,7 +187,7 @@ if(controller()->admin && $services)
 	}
 }
 
-if(isset($price_rent))
+if(isset($price_rent) && $showrental)
 {
 	echo "<tr class='ssrow'>";
 	echo "<td width=18><img width=16 src='/images/btc.png'></td>";
@@ -208,9 +213,5 @@ echo "<p style='font-size: .8em'>
 		</p>";
 
 echo "</div></div><br>";
-
-
-
-
 
 

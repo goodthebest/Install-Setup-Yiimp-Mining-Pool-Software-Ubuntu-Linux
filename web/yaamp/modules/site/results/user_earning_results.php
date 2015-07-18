@@ -31,6 +31,8 @@ echo "<th align=right>Status</th>";
 echo "</tr>";
 echo "</thead>";
 
+$showrental = (bool) YAAMP_RENTAL;
+
 foreach($earnings as $earning)
 {
 	$coin = getdbo('db_coins', $earning->coinid);
@@ -43,6 +45,9 @@ foreach($earnings as $earning)
 	$d = datetoa2($earning->create_time);
 	if(!$coin)
 	{
+		if (!$showrental)
+			continue;
+
 		$reward = bitcoinvaluetoa($earning->amount);
 		$value = altcoinvaluetoa($earning->amount*1000);
 		$percent = $block? mbitcoinvaluetoa($earning->amount*100/$block->amount): '';

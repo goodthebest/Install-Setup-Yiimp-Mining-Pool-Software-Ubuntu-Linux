@@ -22,7 +22,9 @@ JavascriptFile("/extensions/jqplot/plugins/jqplot.highlighter.js");
 <a href='/site/connections'>Conns</a>&nbsp;
 <a href='/site/emptymarkets'>EmptyMarket</a>&nbsp;
 <a href='/coin'>New</a>&nbsp;
+<?php if (YAAMP_RENTAL) : ?>
 <a href='/renting/admin'>Rental</a>&nbsp;
+<?php endif; ?>
 
 <div id='main_results'></div>
 
@@ -34,7 +36,7 @@ JavascriptFile("/extensions/jqplot/plugins/jqplot.highlighter.js");
 <br><br><br><br><br><br><br><br><br><br>
 <br><br><br><br><br><br><br><br><br><br>
 
-<script>
+<script type="text/javascript">
 
 $(function()
 {

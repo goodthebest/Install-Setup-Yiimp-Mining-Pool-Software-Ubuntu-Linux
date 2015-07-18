@@ -2,6 +2,8 @@
 
 $mining = getdbosql('db_mining');
 
+$showrental = (bool) YAAMP_RENTAL;
+
 echo "<br><table width=100%><tr><td valign=top>";
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -9,19 +11,19 @@ echo "<br><table width=100%><tr><td valign=top>";
 echo "<table  class='dataGrid'>";
 echo "<thead>";
 echo "<tr>";
-echo "<th align=left>Algo</th>";
-echo "<th align=right></th>";
-echo "<th align=right>C</th>";
-echo "<th align=right>M</th>";
-echo "<th align=right>F</th>";
-echo "<th align=right>Rate</th>";
-echo "<th align=right>Rent</th>";
-echo "<th align=right>Bad</th>";
-echo "<th align=right>Now</th>";
-echo "<th align=right>Rent</th>";
+echo '<th align="left">Algo</th>';
+echo '<th align="right"></th>';
+echo '<th align="right">C</th>';
+echo '<th align="right">M</th>';
+echo '<th align="right">Fee</th>';
+echo '<th align="right">Rate</th>';
+echo '<th align="right" class="rental">Rent</th>';
+echo '<th align="right">Bad</th>';
+echo '<th align="right">Now</th>';
+echo '<th align="right" class="rental">Rent</th>';
 //echo "<th align=right>Norm</th>";
-echo "<th align=right>24E</th>";
-echo "<th align=right>24A</th>";
+echo '<th align="right">24E</th>';
+echo '<th align="right">24A</th>';
 echo "</tr>";
 echo "</thead>";
 
@@ -104,40 +106,42 @@ foreach($algos as $item)
 	$stratum = getdbosql('db_stratums', "algo=:algo", array(':algo'=>$algo));
 	$isup = Booltoa($stratum);
 
-	echo "<tr class='ssrow'>";
-	echo "<td style='background-color: $algo_color'><b><a href='/site/gomining?algo=$algo'>$algo</a></b></td>";
-	echo "<td align=right'>$isup</td>";
-	echo "<td align=right style='font-size: .8em;'>$coins</td>";
-	echo "<td align=right style='font-size: .8em;'>$count</td>";
-	echo "<td align=right style='font-size: .8em;'>{$fees}%</td>";
-	echo "<td align=right style='font-size: .8em;'>$hashrate</td>";
-	echo "<td align=right style='font-size: .8em;'>$hashrate_jobs</td>";
+	echo '<tr class="ssrow">';
+	echo '<td style="background-color: '.$algo_color.'"><b>';
+	echo CHtml::link($algo, '/site/gomining?algo='.$algo);
+	echo '</b></td>';
+	echo '<td align="right" style="width: 16px;">'.$isup.'</td>';
+	echo '<td align="right" style="font-size: .8em;">'.(empty($coins) ? '-' : $coins).'</td>';
+	echo '<td align="right" style="font-size: .8em;">'.(empty($count) ? '-' : $count).'</td>';
+	echo '<td align="right" style="font-size: .8em;">'.(empty($fees) ? '-' : "$fees %").'</td>';
+	echo '<td align="right" style="font-size: .8em;">'.$hashrate.'</td>';
+	echo '<td align="right" style="font-size: .8em;" class="rental">'.$hashrate_jobs.'</td>';
 
-	if($bad > 10)
-		echo "<td align=right style='font-size: .8em; color: white; background-color: #d9534f'>{$bad}%</td>";
+	if ($bad > 10)
+		echo '<td align="right" style="font-size: .8em; color: white; background-color: #d9534f">'.$bad.'%</td>';
 	else if($bad > 5)
-		echo "<td align=right style='font-size: .8em; color: white; background-color: #f0ad4e'>{$bad}%</td>";
+		echo '<td align="right" style="font-size: .8em; color: white; background-color: #f0ad4e">'.$bad.'%</td>';
 	else
-		echo "<td align=right style='font-size: .8em;'>{$bad}%</td>";
+		echo '<td align="right" style="font-size: .8em;">'.(empty($bad) ? '-' : "$bad %").'</td>';
 
-	if($norm>0)
-		echo "<td align=right style='font-size: .8em;' title='normalized $norm'>$price</td>";
+	if ($norm>0)
+		echo '<td align=right style="font-size: .8em;" title="normalized '.$norm.'">'.($price == 0.0 ? '-' : $price).'</td>';
 	else
-		echo "<td align=right style='font-size: .8em;'>$price</td>";
+		echo '<td align=right style="font-size: .8em;">'.($price == 0.0 ? '-' : $price).'</td>';
 
-	echo "<td align=right style='font-size: .8em;'>$rent</td>";
-	echo "<td align=right style='font-size: .8em;'>$avgprice</td>";
+	echo '<td align="right" style="font-size: .8em;" class="rental">'.$rent.'</td>';
+	echo '<td align="right" style="font-size: .8em;">'.($avgprice == 0.0 ? '-' : $avgprice).'</td>';
 
 	if($btcmhday1 != '-' && $btcmhday1 > $avgprice*1.1)
-		echo "<td align=right style='font-size: .8em; color: white; background-color: #5cb85c'>$btcmhday1</td>";
+		echo '<td align="right" style="font-size: .8em; color: white; background-color: #5cb85c">'.$btcmhday1.'</td>';
 	else if($btcmhday1 != '-' && $btcmhday1*1.3 < $avgprice)
-		echo "<td align=right style='font-size: .8em; color: white; background-color: #d9534f'>$btcmhday1</td>";
+		echo '<td align="right" style="font-size: .8em; color: white; background-color: #d9534f">'.$btcmhday1.'</td>';
 	else if($btcmhday1 != '-' && $btcmhday1*1.2 < $avgprice)
-		echo "<td align=right style='font-size: .8em; color: white; background-color: #e4804e'>$btcmhday1</td>";
+		echo '<td align="right" style="font-size: .8em; color: white; background-color: #e4804e">'.$btcmhday1.'</td>';
 	else if($btcmhday1 != '-' && $btcmhday1*1.1 < $avgprice)
-		echo "<td align=right style='font-size: .8em; color: white; background-color: #f0ad4e'>$btcmhday1</td>";
+		echo '<td align="right" style="font-size: .8em; color: white; background-color: #f0ad4e">'.$btcmhday1.'</td>';
 	else
-		echo "<td align=right style='font-size: .8em;'>$btcmhday1</td>";
+		echo '<td align="right" style="font-size: .8em;">'.($btcmhday1 == 0.0 ? '-' : $btcmhday1).'</td>';
 
 	echo "</tr>";
 }
@@ -145,20 +149,20 @@ foreach($algos as $item)
 $bad = ($total_hashrate+$total_hashrate_bad)? round($total_hashrate_bad * 100 / ($total_hashrate+$total_hashrate_bad), 1): '';
 $total_hashrate = Itoa2($total_hashrate).'h/s';
 
-echo "<tr class='ssrow'>";
-echo "<td colspan=2></td>";
-echo "<td align=right style='font-size: .8em;'>$total_coins</td>";
-echo "<td align=right style='font-size: .8em;'>$total_workers</td>";
-echo "<td align=right style='font-size: .8em;'></td>";
-echo "<td align=right style='font-size: .8em;'>$total_hashrate</td>";
-echo "<td align=right style='font-size: .8em;'></td>";
-echo "<td align=right style='font-size: .8em;'>{$bad}%</td>";
-echo "<td align=right style='font-size: .8em;'></td>";
-echo "<td align=right style='font-size: .8em;'></td>";
-echo "<td align=right style='font-size: .8em;'></td>";
-echo "</tr>";
+echo '<tr class="ssrow">';
+echo '<td colspan="2"></td>';
+echo '<td align="right" style="font-size: .8em;">'.$total_coins.'</td>';
+echo '<td align="right" style="font-size: .8em;">'.$total_workers.'</td>';
+echo '<td align="right" style="font-size: .8em;"></td>';
+echo '<td align="right" style="font-size: .8em;">'.$total_hashrate.'</td>';
+echo '<td align="right" style="font-size: .8em;" class="rental"></td>';
+echo '<td align="right" style="font-size: .8em;">'.$bad.'%</td>';
+echo '<td align="right" style="font-size: .8em;"></td>';
+echo '<td align="right" style="font-size: .8em;"></td>';
+echo '<td align="right" style="font-size: .8em;"></td>';
+echo '</tr>';
 
-echo "</table><br>";
+echo '</table><br>';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -181,17 +185,19 @@ echo "<th align=right>Total</th>";
 echo "</tr>";
 echo "</thead>";
 
-echo "<tr class='ssrow'><td>shit</td>";
+echo "<tr class='ssrow'><td>to sell</td>";
 foreach($markets as $market)
 {
 	$onsell = bitcoinvaluetoa(dboscalar("select sum(amount*bid) from orders where market='$market->name'"));
 
 	if($onsell > 0.2)
-		echo "<td align=right style='color: white; background-color: #d9534f'>$onsell</td>";
+		echo '<td align="right" style="color: white; background-color: #d9534f">'.$onsell.'</td>';
 	else if($onsell > 0.1)
-		echo "<td align=right style='color: white; background-color: #f0ad4e'>$onsell</td>";
+		echo '<td align="right" style="color: white; background-color: #f0ad4e">'.$onsell.'</td>';
+	else if($onsell == 0.0)
+		echo '<td align="right">-</td>';
 	else
-		echo "<td align=right>$onsell</td>";
+		echo '<td align="right">$onsell</td>';
 
 	$total_onsell += $onsell;
 }
@@ -201,17 +207,19 @@ $total_onsell = bitcoinvaluetoa($total_onsell);
 echo "<td align=right style='color: white; background-color: #c5b47f'>$total_onsell</td>";
 echo "</tr>";
 
-echo "<tr class='ssrow'><td>btc</td>";
+echo "<tr class='ssrow'><td>balance</td>";
 foreach($markets as $market)
 {
 	$balance = bitcoinvaluetoa($market->balance);
 
 	if($balance > 0.250)
-		echo "<td align=right style='color: white; background-color: #5cb85c'>$balance</td>";
+		echo '<td align="right" style="color: white; background-color: #5cb85c">'.$balance.'</td>';
 	else if($balance > 0.200)
-		echo "<td align=right style='color: white; background-color: #f0ad4e'>$balance</td>";
+		echo '<td align="right" style="color: white; background-color: #f0ad4e">'.$balance.'</td>';
+	else if($market->balance == 0.0)
+		echo '<td align="right">-</td>';
 	else
-		echo "<td align=right>$balance</td>";
+		echo '<td align="right">'.$balance.'</td>';
 
 	$total_balance += $balance;
 }
@@ -224,9 +232,9 @@ echo "</tr>";
 echo "<tr class='ssrow'><td>total</td>";
 foreach($markets as $market)
 {
-	$total = bitcoinvaluetoa($market->balance + dboscalar("select sum(amount*bid) from orders where market='$market->name'"));
+	$total = $market->balance + dboscalar("select sum(amount*bid) from orders where market='$market->name'");
 
-	echo "<td align=right>$total</td>";
+	echo '<td align=right>'.($total > 0.0 ? bitcoinvaluetoa($total) : '-').'</td>';
 	$total_total += $total;
 }
 
@@ -489,6 +497,7 @@ $btcaddr = YAAMP_BTCADDRESS; //'14LS7Uda6EZGXLtRrFEZ2kWmarrxobkyu9';
 
 echo "<a href='https://www.okcoin.com/market.do' target=_blank>Bitstamp $mining->usdbtc</a>, ";
 echo "<a href='https://blockchain.info/address/$btcaddr' target=_blank>wallet $btc->balance</a>, next payout $topay2<br>";
+
 echo "pay $topay, renter $renter, marg $margin, $margin2<br>";
 echo "mint $mints immature $immature off $off<br>";
 
@@ -522,6 +531,9 @@ foreach($db_blocks as $db_block)
 	$d = datetoa2($db_block->time);
 	if(!$db_block->coin_id)
 	{
+		if (!$showrental)
+			continue;
+
 		$reward = bitcoinvaluetoa($db_block->amount);
 
 		$algo_color = getAlgoColors($db_block->algo);
@@ -582,4 +594,13 @@ echo "</table><br>";
 
 echo "</td></tr></table>";
 
+?>
+
+<?php if (!$showrental) : ?>
+
+<style type="text/css">
+.dataGrid .rental { display: none; }
+</style>
+
+<?php endif; ?>
 

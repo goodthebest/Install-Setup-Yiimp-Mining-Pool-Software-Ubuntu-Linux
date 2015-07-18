@@ -50,7 +50,8 @@ result:
 }
 </pre>
 
-<!--
+<?php if (YAAMP_RENTAL) : ?>
+
 <p><b>Rental Status</b></p>
 
 request:
@@ -121,7 +122,8 @@ request:
 	http://<?=YAAMP_SITE_URL?>/api/rental_stop?key=API_KEY&jobid=xx</p>
 
 </pre>
--->
+
+<?php endif; /* RENTAL */ ?>
 
 <br><br>
 
