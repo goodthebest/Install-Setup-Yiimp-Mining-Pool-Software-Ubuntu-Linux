@@ -2,9 +2,13 @@
 *.a
 stratum/stratum
 stratum/blocknotify
+blocknotify/blocknotify
+bin/stratum
+bin/blocknotify
 stratum/config/
+log/
 *.log
 web/yaamp/runtime/*
 cookies/
-bin/blocknotify
-
+bin/blocknotif
+web/serverconfig.php
