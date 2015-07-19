@@ -34,6 +34,9 @@ function BackendClearEarnings()
 
 		$value = yaamp_convert_amount_user($coin, $earning->amount, $user);
 
+		if($user->coinid == 6 && !YAAMP_ALLOW_EXCHANGE)
+			continue;
+
 		$user->balance += $value;
 		$user->save();
 
