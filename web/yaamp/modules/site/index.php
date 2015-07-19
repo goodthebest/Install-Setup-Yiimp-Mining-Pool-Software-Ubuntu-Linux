@@ -11,7 +11,7 @@ JavascriptFile('/yaamp/ui/js/auto_refresh.js');
 
 $height = '240px';
 
-echo <<<END
+?>
 
 <div id='resume_update_button' style='color: #444; background-color: #ffd; border: 1px solid #eea;
 	padding: 10px; margin-left: 20px; margin-right: 20px; margin-top: 15px; cursor: pointer; display: none;'
@@ -53,10 +53,14 @@ echo <<<END
 
 <li>
 <p class="main-left-box" style='padding: 3px; font-size: .8em; background-color: #ffffee; font-family: monospace;'>
-	-o stratum+tcp://yiimp.ccminer.org:PORT -u WALLET_ADDRESS -p xx</p>
+	-o stratum+tcp://<?= YAAMP_SITE_URL ?>:PORT -u WALLET_ADDRESS -p xx</p>
 </li>
 
+<?php if (YAAMP_ALLOW_EXCHANGE): ?>
+<li>WALLET_ADDRESS can be of any currency we mine or a BTC address.</li>
+<?php else: ?>
 <li>WALLET_ADDRESS should be the currency you mine. DO NOT USE any BTC address here, <b>the auto exchange is disabled</b>!</li>
+<?php endif; ?>
 <li>Use -p "c=SYMBOL" if yiimp does not recognize the currency correctly.</li>
 <li>See the "Pool Status" area on the right for PORT numbers. Algorithms without associated coins are disabled.</li>
 
@@ -74,13 +78,13 @@ echo <<<END
 <ul>
 
 <li><b>BitcoinTalk</b> - <a href='https://bitcointalk.org/index.php?topic=508786.0' target=_blank >https://bitcointalk.org/index.php?topic=508786.0</a></li>
-<!--li><b>IRC</b> - <a href='http://webchat.freenode.net/?channels=#yaamp' target=_blank >http://webchat.freenode.net/?channels=#yaamp</a></li-->
+<li><b>IRC</b> - <a href='http://webchat.freenode.net/?channels=#yiimp' target=_blank >http://webchat.freenode.net/?channels=#yiimp</a></li>
 
-<li><b>API</b> - <a href='/site/api'>http://yiimp.ccminer.org/site/api</a></li>
-<li><b>Difficulty</b> - <a href='/site/diff'>http://yiimp.ccminer.org/site/diff</a></li>
-<!--
-<li><b>Algo Switching</b> - <a href='/site/multialgo'>http://yiimp.ccminer.org/site/multialgo</a></li>
--->
+<li><b>API</b> - <a href='/site/api'>http://<?= YAAMP_SITE_URL ?>/site/api</a></li>
+<li><b>Difficulty</b> - <a href='/site/diff'>http://<?= YAAMP_SITE_URL ?>/site/diff</a></li>
+<?php if (YAAMP_ALLOW_EXCHANGE): ?>
+<li><b>Algo Switching</b> - <a href='/site/multialgo'>http://<?= YAAMP_SITE_URL ?>/site/multialgo</a></li>
+<?php endif; ?>
 
 <br>
 
@@ -151,6 +155,4 @@ function pool_history_refresh()
 }
 
 </script>
-
-END;
 

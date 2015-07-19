@@ -198,7 +198,7 @@ function yaamp_profitability($coin)
 function yaamp_convert_amount_user($coin, $amount, $user)
 {
 	$refcoin = getdbo('db_coins', $user->coinid);
-	if(!$refcoin) $refcoin = getdbosql('db_coins', "symbol='BTC'");
+	if(!$refcoin && YAAMP_ALLOW_EXCHANGE) $refcoin = getdbosql('db_coins', "symbol='BTC'");
 	if(!$refcoin || $refcoin->price2<=0) return 0;
 
 	$value = $amount * $coin->price2 / $refcoin->price2;
@@ -208,7 +208,7 @@ function yaamp_convert_amount_user($coin, $amount, $user)
 function yaamp_convert_earnings_user($user, $status)
 {
 	$refcoin = getdbo('db_coins', $user->coinid);
-	if(!$refcoin) $refcoin = getdbosql('db_coins', "symbol='BTC'");
+	if(!$refcoin && YAAMP_ALLOW_EXCHANGE) $refcoin = getdbosql('db_coins', "symbol='BTC'");
 	if(!$refcoin || $refcoin->price2<=0) return 0;
 
 	$value = dboscalar("select sum(amount*price) from earnings where $status and userid=$user->id");

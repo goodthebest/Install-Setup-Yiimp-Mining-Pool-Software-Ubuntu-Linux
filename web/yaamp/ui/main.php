@@ -110,10 +110,10 @@ function showPageHeader()
 	echo "<span style='float: right;'>";
 
 	$mining = getdbosql('db_mining');
-	$nextpayment = date('H:i', $mining->last_payout+YAAMP_PAYMENTS_FREQ);
+	$nextpayment = date('H:i T', $mining->last_payout+YAAMP_PAYMENTS_FREQ);
 
-	echo "<span style='font-size: .8em;'>Next Payout: $nextpayment EUST</span>";
-	echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&copy; yiimp.ccminer.org</span>";
+	echo "<span style='font-size: .8em;'>Next Payout: $nextpayment</span>";
+	echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&copy; ".YAAMP_SITE_URL."</span>";
 
 	echo "</div>";
 	echo "</div>";
