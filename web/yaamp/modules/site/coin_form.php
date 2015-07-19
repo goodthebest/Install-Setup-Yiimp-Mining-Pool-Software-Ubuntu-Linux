@@ -160,21 +160,21 @@ echo "</div>";
 
 echo "<div id='tabs-4'>";
 
-// echo CUFHtml::openActiveCtrlHolder($coin, 'program');
-// echo CUFHtml::activeLabelEx($coin, 'program');
-// echo CUFHtml::activeTextField($coin, 'program', array('maxlength'=>200));
-// echo "<p class='formHint2'>.</p>";
-// echo CUFHtml::closeCtrlHolder();
+echo CUFHtml::openActiveCtrlHolder($coin, 'program');
+echo CUFHtml::activeLabelEx($coin, 'program');
+echo CUFHtml::activeTextField($coin, 'program', array('maxlength'=>128));
+echo "<p class='formHint2'>.</p>";
+echo CUFHtml::closeCtrlHolder();
 
-// echo CUFHtml::openActiveCtrlHolder($coin, 'conf_folder');
-// echo CUFHtml::activeLabelEx($coin, 'conf_folder');
-// echo CUFHtml::activeTextField($coin, 'conf_folder', array('maxlength'=>200));
-// echo "<p class='formHint2'>.</p>";
-// echo CUFHtml::closeCtrlHolder();
+echo CUFHtml::openActiveCtrlHolder($coin, 'conf_folder');
+echo CUFHtml::activeLabelEx($coin, 'conf_folder');
+echo CUFHtml::activeTextField($coin, 'conf_folder', array('maxlength'=>128));
+echo "<p class='formHint2'>.</p>";
+echo CUFHtml::closeCtrlHolder();
 
 echo CUFHtml::openActiveCtrlHolder($coin, 'rpchost');
 echo CUFHtml::activeLabelEx($coin, 'rpchost');
-echo CUFHtml::activeTextField($coin, 'rpchost', array('maxlength'=>200));
+echo CUFHtml::activeTextField($coin, 'rpchost', array('maxlength'=>128));
 echo "<p class='formHint2'>.</p>";
 echo CUFHtml::closeCtrlHolder();
 
@@ -183,25 +183,32 @@ if(empty($coin->rpcport))
 
 echo CUFHtml::openActiveCtrlHolder($coin, 'rpcport');
 echo CUFHtml::activeLabelEx($coin, 'rpcport');
-echo CUFHtml::activeTextField($coin, 'rpcport', array('maxlength'=>200));
+echo CUFHtml::activeTextField($coin, 'rpcport', array('maxlength'=>5));
 echo "<p class='formHint2'>.</p>";
 echo CUFHtml::closeCtrlHolder();
 
 if(empty($coin->rpcuser))
-	$coin->rpcuser = 'yaamprpc';
+	$coin->rpcuser = 'yiimprpc';
 
 echo CUFHtml::openActiveCtrlHolder($coin, 'rpcuser');
 echo CUFHtml::activeLabelEx($coin, 'rpcuser');
-echo CUFHtml::activeTextField($coin, 'rpcuser', array('maxlength'=>200));
+echo CUFHtml::activeTextField($coin, 'rpcuser', array('maxlength'=>128));
 echo "<p class='formHint2'>.</p>";
 echo CUFHtml::closeCtrlHolder();
 
+// generate a random password
 if(empty($coin->rpcpasswd))
-	$coin->rpcpasswd = 'e7ec005fhdsj3k6po6afbb84545eb24';
+	$coin->rpcpasswd = preg_replace("|[^\w]|m",'',base64_encode(pack("H*",md5("".time().YAAMP_SITE_URL))));
 
 echo CUFHtml::openActiveCtrlHolder($coin, 'rpcpasswd');
 echo CUFHtml::activeLabelEx($coin, 'rpcpasswd');
-echo CUFHtml::activeTextField($coin, 'rpcpasswd', array('maxlength'=>200));
+echo CUFHtml::activeTextField($coin, 'rpcpasswd', array('maxlength'=>128));
+echo "<p class='formHint2'>.</p>";
+echo CUFHtml::closeCtrlHolder();
+
+echo CUFHtml::openActiveCtrlHolder($coin, 'serveruser');
+echo CUFHtml::activeLabelEx($coin, 'serveruser');
+echo CUFHtml::activeTextField($coin, 'serveruser', array('maxlength'=>35));
 echo "<p class='formHint2'>.</p>";
 echo CUFHtml::closeCtrlHolder();
 
@@ -216,6 +223,34 @@ echo CUFHtml::activeLabelEx($coin, 'txmessage');
 echo CUFHtml::activeCheckBox($coin, 'txmessage');
 echo "<p class='formHint2'>.</p>";
 echo CUFHtml::closeCtrlHolder();
+
+echo CUFHtml::openActiveCtrlHolder($coin, 'hasmasternodes');
+echo CUFHtml::activeLabelEx($coin, 'hasmasternodes');
+echo CUFHtml::activeCheckBox($coin, 'hasmasternodes');
+echo "<p class='formHint2'>.</p>";
+echo CUFHtml::closeCtrlHolder();
+
+if ($coin->id) {
+	echo CHtml::tag("hr");
+	echo "<b>Sample config</b>:";
+	echo CHtml::opentag("pre");
+
+	$port = getAlgoPort($coin->algo);
+	echo "rpcuser={$coin->rpcuser}\n";
+	echo "rpcpassword={$coin->rpcpasswd}\n";
+	echo "rpcport={$coin->rpcport}\n";
+	echo "rpcthreads=8\n";
+	echo "rpcallowip=127.0.0.1\n";
+	echo "# onlynet=ipv4\n";
+	echo "maxconnections=12\n";
+	echo "daemon=1\n";
+	echo "gen=0\n";
+	echo "\n";
+	echo "alertnotify=echo %s | mail -s \"{$coin->name} alert!\" ".YAAMP_ADMIN_EMAIL."\n";
+	echo "blocknotify=/var/stratum/blocknotify ".YAAMP_SITE_URL.":$port {$coin->id} %s\n";
+
+	echo CHtml::closetag("pre");
+}
 
 echo "</div>";
 
