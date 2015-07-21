@@ -4,7 +4,10 @@ function BackendClearEarnings()
 {
 //	debuglog(__FUNCTION__);
 
-	$delay = time() - 150*60;
+	if (YAAMP_ALLOW_EXCHANGE)
+		$delay = time() - (int) YAAMP_PAYMENTS_FREQ;
+	else
+		$delay = time() - (YAAMP_PAYMENTS_FREQ / 2);
 	$total_cleared = 0;
 
 	$list = getdbolist('db_earnings', "status=1 and mature_time<$delay");
