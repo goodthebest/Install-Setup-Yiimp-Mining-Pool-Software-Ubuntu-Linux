@@ -36,10 +36,10 @@ char *db_clean_string(YAAMP_DB *db, char *string)
 	string[1000] = 0;
 	char tmp[1024];
 
-    unsigned long ret = mysql_real_escape_string(&db->mysql, tmp, string, strlen(string));
-    strcpy(string, tmp);
+	unsigned long ret = mysql_real_escape_string(&db->mysql, tmp, string, strlen(string));
+	strcpy(string, tmp);
 
-    return string;
+	return string;
 }
 
 void db_query(YAAMP_DB *db, const char *format, ...)

@@ -46,6 +46,7 @@ public:
 
 	int userid;
 	int workerid;
+	int coinid;
 	bool logtraffic;
 
 	int id_int;
