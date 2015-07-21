@@ -114,6 +114,44 @@ bool client_subscribe(YAAMP_CLIENT *client, json_value *json_params)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
+bool client_validate_user_address(YAAMP_CLIENT *client)
+{
+	if (!client->coinid) {
+		for(CLI li = g_list_coind.first; li; li = li->next) {
+			YAAMP_COIND *coind = (YAAMP_COIND *)li->data;
+			// debuglog("user %s testing on coin %s ...\n", client->username, coind->symbol);
+			if(!coind_can_mine(coind)) continue;
+			if(coind->pos) continue;
+			if(coind_validate_user_address(coind, client->username)) {
+				debuglog("new user %s for coin %s\n", client->username, coind->symbol);
+				client->coinid = coind->id;
+				// update the db now to prevent addresses conflicts
+				CommonLock(&g_db_mutex);
+				db_init_user_coinid(g_db, client);
+				CommonUnlock(&g_db_mutex);
+				return true;
+			}
+		}
+	}
+
+	if (!client->coinid) {
+		return false;
+	}
+
+	YAAMP_COIND *coind = (YAAMP_COIND *)object_find(&g_list_coind, client->coinid);
+	if(!coind) {
+		clientlog(client, "unable to find wallet for coinid %d...", client->coinid);
+		return false;
+	}
+
+	bool isvalid = coind_validate_user_address(coind, client->username);
+	if (isvalid) {
+		client->coinid = coind->id;
+	}
+	return isvalid;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
 
 bool client_authorize(YAAMP_CLIENT *client, json_value *json_params)
 {
@@ -156,6 +194,15 @@ bool client_authorize(YAAMP_CLIENT *client, json_value *json_params)
 
 #ifdef CLIENT_DEBUGLOG_
 	debuglog("new client %s, %s, %s\n", client->username, client->password, client->version);
+#endif
+
+#ifdef NO_EXCHANGE
+	// when auto exchange is disabled, only authorize good wallet address...
+	if (!client_validate_user_address(client)) {
+		clientlog(client, "bad mining address %s", client->username);
+		client_send_result(client, "false");
+		return false;
+	}
 #endif
 
 	client_send_result(client, "true");

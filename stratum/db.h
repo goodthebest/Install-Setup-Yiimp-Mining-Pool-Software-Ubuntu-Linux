@@ -27,6 +27,7 @@ void db_clear_worker(YAAMP_DB *db, YAAMP_CLIENT *client);
 void db_update_worker(YAAMP_DB *db, YAAMP_CLIENT *client);
 void db_update_workers(YAAMP_DB *db);
 
-void db_update_renters(YAAMP_DB *db);
+void db_init_user_coinid(YAAMP_DB *db, YAAMP_CLIENT *client);
 
+void db_update_renters(YAAMP_DB *db);
 

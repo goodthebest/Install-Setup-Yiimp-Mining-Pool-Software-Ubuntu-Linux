@@ -3,6 +3,10 @@ CC=gcc
 
 CFLAGS=-c -g `mysql_config --cflags --libs` -march=native
 
+# Comment this line to disable address check on login,
+# if you use the auto exchange feature...
+CFLAGS += -DNO_EXCHANGE
+
 #CFLAGS += -DHASH_DEBUGLOG_
 #CFLAGS += -DRPC_DEBUGLOG_
 #CFLAGS += -DREMOTE_DEBUGLOG_
@@ -54,7 +58,8 @@ clean:
 	rm -f sha3/*.o
 	rm -f sha3/*.a
 
-install: all
+install: clean all
 	strip -s stratum
 	cp stratum /usr/local/bin/
+	cp stratum ../bin/
 

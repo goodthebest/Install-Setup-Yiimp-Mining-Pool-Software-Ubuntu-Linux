@@ -6,10 +6,14 @@ function BackendBlockNew($coin, $db_block)
 	$reward = $db_block->amount;
 	if(!$reward || $db_block->algo == 'PoS' || $db_block->algo == 'MN') return;
 
-	$total_hash_power = dboscalar("SELECT SUM(difficulty) FROM shares WHERE valid AND algo=:algo", array(':algo'=>$coin->algo));
+	$sqlCond = "valid = 1";
+	if(!YAAMP_ALLOW_EXCHANGE) // only one coin mined
+		$sqlCond .= " AND coinid = ".intval($coin->id);
+
+	$total_hash_power = dboscalar("SELECT SUM(difficulty) FROM shares WHERE $sqlCond AND algo=:algo", array(':algo'=>$coin->algo));
 	if(!$total_hash_power) return;
 
-	$list = dbolist("SELECT userid, SUM(difficulty) AS total FROM shares WHERE valid AND algo=:algo GROUP BY userid",
+	$list = dbolist("SELECT userid, SUM(difficulty) AS total FROM shares WHERE $sqlCond AND algo=:algo GROUP BY userid",
 			array(':algo'=>$coin->algo));
 
 	foreach($list as $item)
