@@ -51,8 +51,12 @@ function BackendBlockNew($coin, $db_block)
 	}
 
 	$delay = time() - 5*60;
-	dborun("DELETE FROM shares WHERE algo=:algo AND time < :delay",
-		array(':algo'=>$coin->algo,':delay'=>$delay));
+	$sqlCond = "time < $delay";
+	if(!YAAMP_ALLOW_EXCHANGE) // only one coin mined
+		$sqlCond .= " AND coinid = ".intval($coin->id);
+
+	dborun("DELETE FROM shares WHERE algo=:algo AND $sqlCond",
+		array(':algo'=>$coin->algo));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
