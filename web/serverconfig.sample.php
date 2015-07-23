@@ -31,9 +31,12 @@ define('YAAMP_ADMIN_IP', '80.236.118.26');
 define('YAAMP_USE_NGINX', false);
 
 // Exchange public keys (private keys are in a separate config file)
-define('YIIMP_CRYPT_PUB', '');
-define('YIIMP_POLO_KEY', '');
-define('YIIMP_BITTREX_KEY', '');
+define('EXCH_CRYPTSY_KEY', '');
+define('EXCH_POLONIEX_KEY', '');
+define('EXCH_BITTREX_KEY', '');
+define('EXCH_BLEUTRADE_KEY', '');
+define('EXCH_YOBIT_KEY', '');
+define('EXCH_CCEX_KEY', '');
 
 // Automatic withdraw to Yaamp btc wallet if btc balance > 0.3
 define('YAMMP_BITTREX_AUTO_WITHDRAW', 0.3);

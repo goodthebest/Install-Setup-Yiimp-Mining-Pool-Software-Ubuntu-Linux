@@ -12,8 +12,8 @@ class poloniex {
 
 		public function __construct() {
 			require_once('/etc/yiimp/keys.php');
-			$this->api_key = YIIMP_POLO_KEY;
-			$this->api_secret = YIIMP_POLO_SEC;
+			$this->api_key = EXCH_POLONIEX_KEY;
+			$this->api_secret = EXCH_POLONIEX_SECRET;
 		}
 
 		private function query(array $req = array()) {

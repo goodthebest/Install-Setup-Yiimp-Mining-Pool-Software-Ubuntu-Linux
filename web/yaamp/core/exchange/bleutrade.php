@@ -6,8 +6,8 @@ function bleutrade_api_query($method, $params='')
 {
 	require_once('/etc/yiimp/keys.php');
 
-	$apikey = YIIMP_BLEUTRADE_KEY; // your API-key
-	$apisecret = YIIMP_BLEUTRADE_SEC; // your Secret-key
+	$apikey = EXCH_BLEUTRADE_KEY; // your API-key
+	$apisecret = EXCH_BLEUTRADE_SECRET; // your Secret-key
 
 	$nonce = time();
 	$uri = "https://bleutrade.com/api/v2/$method?apikey=$apikey&nonce=$nonce$params";

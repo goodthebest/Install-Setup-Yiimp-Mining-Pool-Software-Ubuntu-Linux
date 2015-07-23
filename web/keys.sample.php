@@ -5,9 +5,10 @@ define('YIIMP_MYSQLDUMP_USER', 'root');
 define('YIIMP_MYSQLDUMP_PASS', '<my_mysql_password>');
 
 /* Keys required to create/cancel orders and access your balances/deposit addresses */
-define('YIIMP_CRYPT_PVK', '<my_cryptsy_api_private_key>');
-define('YIIMP_POLO_SEC', '<my_poloniex_api_secret_key>');
-define('YIIMP_BITTREX_SEC', '<my_bittrex_api_secret_key>');
-define('YIIMP_YOBIT_SEC', '...');
-define('YIIMP_BLEUTRADE_SEC', '...');
+define('EXCH_CRYPTSY_SECRET', '<my_cryptsy_api_private_key>');
+define('EXCH_POLONIEX_SECRET', '<my_poloniex_api_secret_key>');
+define('EXCH_BITTREX_SECRET', '<my_bittrex_api_secret_key>');
+define('EXCH_BLEUTRADE_SECRET', '...');
+define('EXCH_CCEX_SECRET', '...');
+define('EXCH_YOBIT_SECRET', '...');
 

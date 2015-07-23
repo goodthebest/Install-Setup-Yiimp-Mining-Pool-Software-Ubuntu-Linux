@@ -7,8 +7,8 @@ function cryptsy_api_query($method, array $req = array())
 	require_once('/etc/yiimp/keys.php');
 
 	// API settings
-	$key = YIIMP_CRYPT_PUB; // your API-key
-	$secret = YIIMP_CRYPT_PVK; // your Secret-key
+	$key = EXCH_CRYPTSY_KEY; // your API-key
+	$secret = EXCH_CRYPTSY_SECRET; // your Secret-key
 
 	// $cookie_jar = tempnam(YAAMP_HTDOCS.'/yaamp/runtime/cookies','cryptsy_cook');
 	$cookie_jar = YAAMP_HTDOCS.'/yaamp/runtime/cookies/cryptsy_cookies.dat';

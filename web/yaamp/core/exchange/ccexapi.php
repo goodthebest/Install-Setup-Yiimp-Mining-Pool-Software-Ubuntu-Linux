@@ -10,8 +10,8 @@ class CcexAPI
 {
 
     protected $api_url = 'https://c-cex.com/t/';
-    protected $api_key = '9582CED05D859FA83E5E0E22F23E0A7E';
-    protected $api_secret = '';	// not used?
+    protected $api_key = EXCH_CCEX_KEY;
+    protected $api_secret = EXCH_CCEX_SECRET;	// not used yet
 
 //     public function __construct($api_key = '') {
 //         $this->api_key = $api_key;
