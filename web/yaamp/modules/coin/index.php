@@ -110,6 +110,15 @@ foreach($coins as $coin)
 		else if($market->name == 'alcurex')
 			$url = "https://alcurex.org/index.php/crypto/market?pair={$lowsymbol}_btc";
 
+		else if($market->name == 'allcoin')
+			$url = "https://www.allcoin.com/trade/{$coin->symbol}_BTC";
+
+		else if($market->name == 'banx')
+			$url = "https://www.banx.io/trade?c={$coin->symbol}&p=BTC";
+
+		else if($market->name == 'bitex')
+			$url = "https://bitex.club/markets/{$lowsymbol}btc";
+
 		echo "<a href='$url' target=_blank>$market->name</a> ";
 	}
 

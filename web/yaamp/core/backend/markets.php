@@ -10,6 +10,7 @@ function BackendPricesUpdate()
 	updateBleutradeMarkets();
 	updatePoloniexMarkets();
 	updateYobitMarkets();
+	updateAllcoinMarkets();
 	updateJubiMarkets();
 	updateAlcurexMarkets();
 	updateCryptopiaMarkets();
@@ -646,12 +647,46 @@ function updateBanxioMarkets()
 					$coin->price2 = $market->price2;
 					$coin->save();
 				}
-				if ($coin->name == 'unknown' && !empty($market->currencylong)) {
-					$coin->name = $market->currencylong;
+				if ($coin->name == 'unknown' && !empty($ticker->currencylong)) {
+					$coin->name = $ticker->currencylong;
 					$coin->save();
 					debuglog("banx: update $symbol name {$coin->name}");
 				}
 				break;
+			}
+		}
+	}
+}
+
+function updateAllcoinMarkets()
+{
+	$data = allcoin_api_query('pairs');
+	if(!is_object($data)) return;
+
+	$list = getdbolist('db_markets', "name='allcoin'");
+	foreach($list as $market)
+	{
+		$coin = getdbo('db_coins', $market->coinid);
+		if(!$coin || !$coin->installed) continue;
+
+		$pair = strtoupper($coin->symbol).'_BTC';
+
+		if (isset($data->data[$pair])) {
+			$ticker = $data->data[$pair];
+			$market->price = AverageIncrement($market->price, $ticker->top_bid);
+			$market->price2 = AverageIncrement($market->price2, $ticker->top_ask);
+
+			if (floatval($ticker->volume_24h_BTC) > 0.01)
+				$market->save();
+			if (empty($coin->price2)) {
+				$coin->price = $market->price;
+				$coin->price2 = $market->price2;
+				$coin->save();
+			}
+			if ($coin->name == 'unknown' && !empty($ticker->name)) {
+				$coin->name = $ticker->name;
+				$coin->save();
+				debuglog("allcoin: update $symbol name {$coin->name}");
 			}
 		}
 	}

@@ -67,6 +67,19 @@ function updateRawcoins()
 		}
 	}
 
+	$list = allcoin_api_query('pairs');
+	if(isset($list->data))
+	{
+		dborun("UPDATE markets SET deleted=true WHERE name='allcoin'");
+		foreach($list->data as $pair => $item) {
+			if (strtoupper($item->exchange) !== 'BTC')
+				continue;
+			if (intval($item->status) == -2)
+				continue;
+			updateRawCoin('allcoin', $item->type, $item->name);
+		}
+	}
+
 	$list = cryptopia_api_query('GetMarkets');
 	if(isset($list->Data))
 	{

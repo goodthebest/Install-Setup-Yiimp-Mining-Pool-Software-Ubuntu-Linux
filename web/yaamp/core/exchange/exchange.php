@@ -6,6 +6,7 @@ require_once("bittrex.php");
 require_once("ccexapi.php");
 require_once("bleutrade.php");
 require_once("yobit.php");
+require_once("allcoin.php");
 require_once("jubi.php");
 require_once("alcurex.php");
 require_once("cryptopia.php");
