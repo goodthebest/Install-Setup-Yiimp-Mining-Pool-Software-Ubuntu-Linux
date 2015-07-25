@@ -4,13 +4,13 @@ $mining = getdbosql('db_mining');
 
 $showrental = (bool) YAAMP_RENTAL;
 
-echo "<br><table width=100%><tr><td valign=top>";
+echo '<br><table width="100%"><tr><td valign="top">';
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-echo "<table  class='dataGrid'>";
-echo "<thead>";
-echo "<tr>";
+echo '<table class="dataGrid">';
+echo '<thead>';
+echo '<tr>';
 echo '<th align="left">Algo</th>';
 echo '<th align="right"></th>';
 echo '<th align="right">C</th>';
@@ -21,11 +21,11 @@ echo '<th align="right" class="rental">Rent</th>';
 echo '<th align="right">Bad</th>';
 echo '<th align="right">Now</th>';
 echo '<th align="right" class="rental">Rent</th>';
-//echo "<th align=right>Norm</th>";
+//echo '<th align="right">Norm</th>';
 echo '<th align="right">24E</th>';
 echo '<th align="right">24A</th>';
-echo "</tr>";
-echo "</thead>";
+echo '</tr>';
+echo '</thead>';
 
 $total_coins = 0;
 $total_workers = 0;
@@ -143,7 +143,7 @@ foreach($algos as $item)
 	else
 		echo '<td align="right" style="font-size: .8em;">'.($btcmhday1 == 0.0 ? '-' : $btcmhday1).'</td>';
 
-	echo "</tr>";
+	echo '</tr>';
 }
 
 $bad = ($total_hashrate+$total_hashrate_bad)? round($total_hashrate_bad * 100 / ($total_hashrate+$total_hashrate_bad), 1): '';
@@ -171,21 +171,21 @@ $total_balance = 0;
 $total_onsell = 0;
 $total_total = 0;
 
-echo "<table class='dataGrid'>";
-echo "<thead>";
+echo '<table class="dataGrid">';
+echo '<thead>';
 
-echo "<tr>";
-echo "<th></th>";
+echo '<tr>';
+echo '<th></th>';
 
 foreach($markets as $market)
-	echo "<th align=right><a href='/site/runExchange?id=$market->id'>$market->name</a></th>";
+	echo '<th align="right"><a href="/site/runExchange?id='.$market->id.'">'.$market->name.'</a></th>';
 
-echo "<th align=right>Total</th>";
+echo '<th align="right">Total</th>';
 
-echo "</tr>";
-echo "</thead>";
+echo '</tr>';
+echo '</thead>';
 
-echo "<tr class='ssrow'><td>to sell</td>";
+echo '<tr class="ssrow"><td>to sell</td>';
 foreach($markets as $market)
 {
 	$onsell = bitcoinvaluetoa(dboscalar("select sum(amount*bid) from orders where market='$market->name'"));
@@ -197,17 +197,17 @@ foreach($markets as $market)
 	else if($onsell == 0.0)
 		echo '<td align="right">-</td>';
 	else
-		echo '<td align="right">$onsell</td>';
+		echo '<td align="right">'.$onsell.'</td>';
 
 	$total_onsell += $onsell;
 }
 
 $total_onsell = bitcoinvaluetoa($total_onsell);
 
-echo "<td align=right style='color: white; background-color: #c5b47f'>$total_onsell</td>";
-echo "</tr>";
+echo '<td align="right" style="color: white; background-color: #c5b47f">'.$total_onsell.'</td>';
+echo '</tr>';
 
-echo "<tr class='ssrow'><td>balance</td>";
+echo '<tr class="ssrow"><td>balance</td>';
 foreach($markets as $market)
 {
 	$balance = bitcoinvaluetoa($market->balance);
@@ -226,41 +226,41 @@ foreach($markets as $market)
 
 $total_balance = bitcoinvaluetoa($total_balance);
 
-echo "<td align=right style='color: white; background-color: #eaa228'>$total_balance</td>";
-echo "</tr>";
+echo '<td align="right" style="color: white; background-color: #eaa228">'.$total_balance.'</td>';
+echo '</tr>';
 
-echo "<tr class='ssrow'><td>total</td>";
+echo '<tr class="ssrow"><td>total</td>';
 foreach($markets as $market)
 {
 	$total = $market->balance + dboscalar("select sum(amount*bid) from orders where market='$market->name'");
 
-	echo '<td align=right>'.($total > 0.0 ? bitcoinvaluetoa($total) : '-').'</td>';
+	echo '<td align="right">'.($total > 0.0 ? bitcoinvaluetoa($total) : '-').'</td>';
 	$total_total += $total;
 }
 
 $total_total = bitcoinvaluetoa($total_total);
 
-echo "<td align=right>$total_total</td>";
-echo "</tr>";
-echo "</table><br>";
+echo '<td align="right">'.$total_total.'</td>';
+echo '</tr>';
+echo '</table><br/>';
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 $minsent = time()-2*60*60;
 $list = getdbolist('db_markets', "lastsent<$minsent and lastsent>lasttraded order by lastsent");
 
-echo "<table class='dataGrid'>";
-echo "<thead class=''>";
+echo '<table class="dataGrid">';
+echo '<thead class="">';
 
-echo "<tr>";
-echo "<th width=20></th>";
-echo "<th>Name</th>";
-echo "<th>Exchange</th>";
-echo "<th>Sent</th>";
-echo "<th>Traded</th>";
-echo "<th></th>";
-echo "</tr>";
-echo "</thead><tbody>";
+echo '<tr>';
+echo '<th width="20px"></th>';
+echo '<th>Name</th>';
+echo '<th>Exchange</th>';
+echo '<th>Sent</th>';
+echo '<th>Traded</th>';
+echo '<th></th>';
+echo '</tr>';
+echo '</thead><tbody>';
 
 foreach($list as $market)
 {
@@ -292,46 +292,46 @@ foreach($list as $market)
 	else if($market->name == 'alcurex')
 		$marketurl = "https://alcurex.org/index.php/crypto/market?pair={$lowsymbol}_btc";
 
-//	echo "<tr class='ssrow'>";
+//	echo '<tr class="ssrow">';
 	$algo_color = getAlgoColors($coin->algo);
-	echo "<tr style='background-color:$algo_color;'>";
+	echo '<tr style="background-color: '.$algo_color.';">';
 
-	echo "<td><img width=16 src='$coin->image'></td>";
-	echo "<td><b><a href='/site/coin?id=$coin->id'>$coin->name ($coin->symbol)</a></b></td>";
+	echo '<td><img width="16px" src="'.$coin->image.'"></td>';
+	echo '<td><b><a href="/site/coin?id='.$coin->id.'">'.$coin->name.' ('.$coin->symbol.')</a></b></td>';
 
-	echo "<td><b><a href='$marketurl' target=_blank>$market->name</a></b></td>";
+	echo '<td><b><a href="'.$marketurl.'" target="_blank">'.$market->name.'</a></b></td>';
 
 	$sent = datetoa2($market->lastsent);
 	$traded = datetoa2($market->lasttraded);
 
-	echo "<td>$sent ago</td>";
-	echo "<td>$traded ago</td>";
+	echo '<td>'.$sent.' ago</td>';
+	echo '<td>'.$traded.' ago</td>';
 
-	echo "<td><a href='/site/clearmarket?id=$market->id'>clear</a></td>";
-	echo "</tr>";
+	echo '<td><a href="/site/clearmarket?id='.$market->id.'">clear</a></td>';
+	echo '</tr>';
 }
 
-echo "</tbody></table><br>";
+echo '</tbody></table><br>';
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 $orders = getdbolist('db_orders', "1 order by (amount*bid) desc");
 
-echo "<table class='dataGrid'>";
+echo '<table class="dataGrid">';
 //showTableSorter('maintable');
-echo "<thead>";
-echo "<tr>";
-echo "<th width=20></th>";
-echo "<th>Name</th>";
-echo "<th>Exchange</th>";
-echo "<th>Created</th>";
-echo "<th>Quantity</th>";
-echo "<th>Ask</th>";
-echo "<th>Bid</th>";
-echo "<th>Value</th>";
-//echo "<th></th>";
-echo "</tr>";
-echo "</thead><tbody>";
+echo '<thead>';
+echo '<tr>';
+echo '<th width="20px"></th>';
+echo '<th>Name</th>';
+echo '<th>Exchange</th>';
+echo '<th>Created</th>';
+echo '<th>Quantity</th>';
+echo '<th>Ask</th>';
+echo '<th>Bid</th>';
+echo '<th>Value</th>';
+//echo '<th></th>';
+echo '</tr>';
+echo '</thead><tbody>';
 
 $totalvalue = 0;
 $totalbid = 0;
@@ -367,9 +367,9 @@ foreach($orders as $order)
 	else
 		$marketurl = "";
 
-//	echo "<tr class='ssrow'>";
+//	echo '<tr class="ssrow">';
 	$algo_color = getAlgoColors($coin->algo);
-	echo "<tr style='background-color:$algo_color;'>";
+	echo '<tr style="background-color: '.$algo_color.';">';
 
 	$created = datetoa2($order->created). ' ago';
 	$price = $order->price? bitcoinvaluetoa($order->price): '';
@@ -383,39 +383,39 @@ foreach($orders as $order)
 	$bidpercent = $value>0? round(($value-$bidvalue)/$value*100, 1): 0;
 	$amount = round($order->amount, 3);
 
-	echo "<td><img width=16 src='$coin->image'></td>";
-	echo "<td><b><a href='/site/coin?id=$coin->id'>$coin->name</a></b></td>";
-	echo "<td><b><a href='$marketurl' target=_blank>$order->market</a></b></td>";
+	echo '<td><img width="16px" src="'.$coin->image.'"></td>';
+	echo '<td><b><a href="/site/coin?id='.$coin->id.'">'.$coin->name.'</a></b></td>';
+	echo '<td><b><a href="'.$marketurl.'" target="_blank">'.$order->market.'</a></b></td>';
 
-	echo "<td style='font-size: .8em'>$created</td>";
-	echo "<td style='font-size: .8em'>$amount</td>";
-	echo "<td style='font-size: .8em'>$price</td>";
-	echo "<td style='font-size: .8em'>$bid ({$bidpercent}%)</td>";
-	echo $bidvalue>0.01? "<td style='font-size: .8em'><b>$bidvalue</b></td>": "<td style='font-size: .8em'>$bidvalue</td>";
+	echo '<td style="font-size: .8em">'.$created.'</td>';
+	echo '<td style="font-size: .8em">'.$amount.'</td>';
+	echo '<td style="font-size: .8em">'.$price.'</td>';
+	echo '<td style="font-size: .8em">'."$bid ({$bidpercent}%)".'</td>';
+	echo $bidvalue>0.01? '<td style="font-size: .8em;"><b>'.$bidvalue.'</b></td>': '<td style="font-size: .8em;">'.$bidvalue.'</td>';
 
-// 	echo "<td>";
-// 	echo "<a href='/site/cancelorder?id=$order->id'>[cancel]</a> ";
-// 	echo "<a href='/site/sellorder?id=$order->id'>[sell]</a>";
-// 	echo "</td>";
-	echo "</tr>";
+// 	echo '<td>';
+// 	echo '<a href="/site/cancelorder?id='.$order->id.'">[cancel]</a> ';
+// 	echo '<a href="/site/sellorder?id='.$order->id.'">[sell]</a>';
+// 	echo '</td>';
+	echo '</tr>';
 }
 
 $bidpercent = $totalvalue>0? round(($totalvalue-$totalbid)/$totalvalue*100, 1): '';
 
-echo "<tr>";
-echo "<td></td>";
-echo "<td>Total</td>";
-echo "<td colspan=3></td>";
-echo "<td style='font-size: .8em'><b>$totalvalue</b></td>";
-echo "<td style='font-size: .8em'><b>$totalbid ({$bidpercent}%)</b></td>";
-echo "<td></td>";
-echo "</tr>";
+echo '<tr>';
+echo '<td></td>';
+echo '<td>Total</td>';
+echo '<td colspan="3"></td>';
+echo '<td style="font-size: .8em;"><b>'.$totalvalue.'</b></td>';
+echo '<td style="font-size: .8em;"><b>'."$totalbid ({$bidpercent}%)</b></td>";
+echo '<td></td>';
+echo '</tr>';
 
-echo "</tbody></table><br>";
+echo '</tbody></table><br>';
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-echo "</td><td>&nbsp;&nbsp;</td><td valign=top>";
+echo '</td><td>&nbsp;&nbsp;</td><td valign="top">';
 
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -445,7 +445,7 @@ $state_main = memcache_get($this->memcache->memcache, 'cronjob_main_state');
 $btc = getdbosql('db_coins', "symbol='BTC'");
 if (!$btc) $btc = json_decode('{"id": 6, "balance": 0}');
 
-echo "<span style='font-weight: bold; color: red;'>";
+echo '<span style="font-weight: bold; color: red;">';
 for($i=0; $i<10; $i++)
 {
 // 	if($i != $state_block-1 && $state_block>0)
@@ -461,7 +461,7 @@ for($i=0; $i<10; $i++)
 	}
 }
 
-echo "</span>";
+echo '</span>';
 
 $block_time = sectoa(time()-memcache_get($this->memcache->memcache, "cronjob_block_time_start"));
 $loop2_time = sectoa(time()-memcache_get($this->memcache->memcache, "cronjob_loop2_time_start"));
@@ -495,36 +495,36 @@ $off = bitcoinvaluetoa($off);
 
 $btcaddr = YAAMP_BTCADDRESS; //'14LS7Uda6EZGXLtRrFEZ2kWmarrxobkyu9';
 
-echo "<a href='https://www.okcoin.com/market.do' target=_blank>Bitstamp $mining->usdbtc</a>, ";
-echo "<a href='https://blockchain.info/address/$btcaddr' target=_blank>wallet $btc->balance</a>, next payout $topay2<br>";
+echo '<a href="https://www.okcoin.com/market.do" target="_blank">Bitstamp '.$mining->usdbtc.'</a>, ';
+echo '<a href="https://blockchain.info/address/'.$btcaddr.'" target="_blank">wallet '.$btc->balance.'</a>, next payout '.$topay2.'<br/>';
 
-echo "pay $topay, renter $renter, marg $margin, $margin2<br>";
-echo "mint $mints immature $immature off $off<br>";
+echo "pay $topay, renter $renter, marg $margin, $margin2<br/>";
+echo "mint $mints immature $immature off $off<br/>";
 
-echo '<br>';
+echo '<br/>';
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-echo "<div style='height: 160px;' id='graph_results_negative'></div>";
-//echo "<div style='height: 160px;' id='graph_results_profit'></div>";
-echo "<div style='height: 200px;' id='graph_results_assets'></div>";
+echo '<div style="height: 160px;" id="graph_results_negative"></div>';
+//echo '<div style="height: 160px;' id="graph_results_profit"></div>';
+echo '<div style="height: 200px;" id="graph_results_assets"></div>';
 
 ///////////////////////////////////////////////////////////////////////////
 
 $db_blocks = getdbolist('db_blocks', "1 order by time desc limit 50");
 
-echo "<br><table class='dataGrid'>";
-echo "<thead>";
-echo "<tr>";
-echo "<th></th>";
-echo "<th>Name</th>";
-echo "<th align=right>Amount</th>";
-echo "<th align=right>Diff</th>";
-echo "<th align=right>Block</th>";
-echo "<th align=right>Time</th>";
-echo "<th align=right>Status</th>";
-echo "</tr>";
-echo "</thead>";
+echo '<br><table class="dataGrid">';
+echo '<thead>';
+echo '<tr>';
+echo '<th></th>';
+echo '<th>Name</th>';
+echo '<th align=right>Amount</th>';
+echo '<th align=right>Diff</th>';
+echo '<th align=right>Block</th>';
+echo '<th align=right>Time</th>';
+echo '<th align=right>Status</th>';
+echo '</tr>';
+echo '</thead>';
 
 foreach($db_blocks as $db_block)
 {
@@ -537,24 +537,24 @@ foreach($db_blocks as $db_block)
 		$reward = bitcoinvaluetoa($db_block->amount);
 
 		$algo_color = getAlgoColors($db_block->algo);
-		echo "<tr style='background-color:$algo_color;'>";
-		echo "<td width=18><img width=16 src='/images/btc.png'></td>";
-		echo "<td><b>Rental</b> ($db_block->algo)</td>";
-		echo "<td align=right style='font-size: .8em'><b>$reward BTC</b></td>";
-		echo "<td align=right style='font-size: .8em'></td>";
-		echo "<td align=right style='font-size: .8em'></td>";
-		echo "<td align=right style='font-size: .8em'>$d ago</td>";
-		echo "<td align=right style='font-size: .8em'>";
-		echo "<span style='padding: 2px; color: white; background-color: #5cb85c'>Confirmed</span>";
-		echo "</td>";
-		echo "</tr>";
+		echo '<tr style="background-color: '.$algo_color.';">';
+		echo '<td width="18px"><img width="16px" src="/images/btc.png"></td>';
+		echo '<td><b>Rental</b> ('.$db_block->algo.')</td>';
+		echo '<td align="right" style="font-size: .8em"><b>$reward BTC</b></td>';
+		echo '<td align="right" style="font-size: .8em"></td>';
+		echo '<td align="right" style="font-size: .8em"></td>';
+		echo '<td align="right" style="font-size: .8em">'.$d.' ago</td>';
+		echo '<td align="right" style="font-size: .8em">';
+		echo '<span style="padding: 2px; color: white; background-color: #5cb85c;">Confirmed</span>';
+		echo '</td>';
+		echo '</tr>';
 		continue;
 	}
 
 	$coin = getdbo('db_coins', $db_block->coin_id);
 	if(!$coin)
 	{
-		debuglog("coin not found $db_block->coin_id");
+		debuglog("coin not found {$db_block->coin_id}");
 		continue;
 	}
 
@@ -562,37 +562,37 @@ foreach($db_blocks as $db_block)
 	$diff = Itoa2($db_block->difficulty, 3);
 
 	$algo_color = getAlgoColors($coin->algo);
-	echo "<tr style='background-color:$algo_color;'>";
-	echo "<td width=18><img width=16 src='$coin->image'></td>";
-	echo "<td><b><a href='/site/coin?id=$coin->id'>$coin->name</a></b></td>";
+	echo '<tr style="background-color: '.$algo_color.';">';
+	echo '<td width="18px"><img width="16px" src="'.$coin->image.'"></td>';
+	echo '<td><b><a href="/site/coin?id='.$coin->id.'">'.$coin->name.'</a></b></td>';
 
-	echo "<td align=right style='font-size: .8em'>$db_block->amount $coin->symbol</td>";
-	echo "<td align=right style='font-size: .8em' title='found $db_block->difficulty_user'>$diff</td>";
+	echo '<td align="right" style="font-size: .8em">'.$db_block->amount.' '.$coin->symbol.'</td>';
+	echo '<td align="right" style="font-size: .8em" title="found '.$db_block->difficulty_user.'">'.$diff.'</td>';
 
-	echo "<td align=right style='font-size: .8em'>$height</td>";
-	echo "<td align=right style='font-size: .8em'>$d ago</td>";
-	echo "<td align=right style='font-size: .8em'>";
+	echo '<td align="right" style="font-size: .8em">'.$height.'</td>';
+	echo '<td align="right" style="font-size: .8em">'.$d.' ago</td>';
+	echo '<td align="right" style="font-size: .8em">';
 
 	if($db_block->category == 'orphan')
-		echo "<span style='padding: 2px; color: white; background-color: #d9534f'>Orphan</span>";
+		echo '<span style="padding: 2px; color: white; background-color: #d9534f;">Orphan</span>';
 
 	else if($db_block->category == 'immature')
-		echo "<span style='padding: 2px; color: white; background-color: #f0ad4e'>Immature ($db_block->confirmations)</span>";
+		echo '<span style="padding: 2px; color: white; background-color: #f0ad4e">Immature ('.$db_block->confirmations.')</span>';
 
 	else if($db_block->category == 'generate')
-		echo "<span style='padding: 2px; color: white; background-color: #5cb85c'>Confirmed</span>";
+		echo '<span style="padding: 2px; color: white; background-color: #5cb85c">Confirmed</span>';
 
 	else if($db_block->category == 'new')
-		echo "<span style='padding: 2px; color: white; background-color: #ad4ef0'>New</span>";
+		echo '<span style="padding: 2px; color: white; background-color: #ad4ef0">New</span>';
 
-	echo "</td>";
-	echo "</tr>";
+	echo '</td>';
+	echo '</tr>';
 }
 
 
-echo "</table><br>";
+echo '</table><br/>';
 
-echo "</td></tr></table>";
+echo '</td></tr></table>';
 
 ?>
 
