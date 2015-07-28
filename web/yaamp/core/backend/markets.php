@@ -351,7 +351,10 @@ function updateCryptsyMarkets()
 			continue;
 		}
 
-		$price2 = ($ticker->return->$symbol->buyorders[0]->price + $ticker->return->$symbol->sellorders[0]->price)/2;
+		$price2 = $ticker->return->$symbol->buyorders[0]->price;
+		if (isset($ticker->return->$symbol->sellorders))
+			$price2 = ($price2 + $ticker->return->$symbol->sellorders[0]->price) / 2.0;
+
 		$market->price2 = AverageIncrement($market->price2, $price2);
 		$market->price = AverageIncrement($market->price, $ticker->return->$symbol->buyorders[0]->price);
 
