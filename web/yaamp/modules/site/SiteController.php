@@ -744,6 +744,11 @@ class SiteController extends CommonController
 				updateCCexMarkets();
 				break;
 
+			case 'empoex':
+				doEmpoexTrading(true);
+				updateEmpoexMarkets();
+				break;
+
 			case 'yobit':
 				doYobitTrading(true);
 				updateYobitMarkets();

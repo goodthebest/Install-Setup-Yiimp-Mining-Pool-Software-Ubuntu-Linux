@@ -10,12 +10,12 @@ function BackendPricesUpdate()
 	updateBleutradeMarkets();
 	updatePoloniexMarkets();
 	updateYobitMarkets();
+	updateEmpoexMarkets();
 	updateAllcoinMarkets();
 	updateJubiMarkets();
 	updateAlcurexMarkets();
 	updateCryptopiaMarkets();
 	updateBanxioMarkets();
-
 
 	$list2 = getdbolist('db_coins', "installed and symbol2 is not null");
 	foreach($list2 as $coin2)
@@ -690,6 +690,38 @@ function updateAllcoinMarkets()
 				$coin->name = $ticker->name;
 				$coin->save();
 				debuglog("allcoin: update $symbol name {$coin->name}");
+			}
+		}
+	}
+}
+
+function updateEmpoexMarkets()
+{
+	$markets = empoex_api_query('marketinfo');
+	if(!is_array($markets)) return;
+
+	$list = getdbolist('db_markets', "name='empoex'");
+	foreach($list as $market)
+	{
+		$coin = getdbo('db_coins', $market->coinid);
+		if(!$coin || !$coin->installed) continue;
+
+		$pair = strtoupper($coin->symbol).'-BTC';
+
+		foreach ($markets as $ticker) {
+			if ($ticker->pairname != $pair) continue;
+
+			$market->price = AverageIncrement($market->price, $ticker->bid);
+			$market->price2 = AverageIncrement($market->price2, $ticker->ask);
+
+			if (floatval($ticker->base_volume_24hr) > 0.01)
+				$market->save();
+
+			if (empty($coin->price2)) {
+				$coin->price = $market->price;
+				$coin->price2 = $market->price2;
+				$coin->market = 'empoex';
+				$coin->save();
 			}
 		}
 	}

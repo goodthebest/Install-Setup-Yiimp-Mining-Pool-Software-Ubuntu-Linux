@@ -11,4 +11,5 @@ define('EXCH_BITTREX_SECRET', '<my_bittrex_api_secret_key>');
 define('EXCH_BLEUTRADE_SECRET', '...');
 define('EXCH_CCEX_SECRET', '...');
 define('EXCH_YOBIT_SECRET', '...');
+define('EXCH_EMPOEX_SECKEY', '...');
 

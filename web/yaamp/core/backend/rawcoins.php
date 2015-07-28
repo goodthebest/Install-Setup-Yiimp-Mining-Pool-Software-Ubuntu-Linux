@@ -94,7 +94,7 @@ function updateRawcoins()
 	}
 
 	$list = alcurex_api_query('market','?info=on');
-	if(isset($list->MARKETS))
+	if(is_object($list) && isset($list->MARKETS))
 	{
 		dborun("UPDATE markets SET deleted=true WHERE name='alcurex'");
 		foreach($list->MARKETS as $item) {
@@ -105,7 +105,7 @@ function updateRawcoins()
 	}
 
 	$list = banx_simple_api_query('marketsv2');
-	if(isset($list) && is_array($list))
+	if(is_array($list))
 	{
 		dborun("UPDATE markets SET deleted=true WHERE name='banx'");
 		foreach($list as $item) {
@@ -119,6 +119,20 @@ function updateRawcoins()
 			$name = explode('/',$item->marketname);
 			updateRawCoin('banx', $symbol, $name[0]);
 			//debuglog("banx: $symbol {$name[0]}");
+		}
+	}
+
+	$list = empoex_api_query('marketinfo');
+	if(is_array($list))
+	{
+		dborun("UPDATE markets SET deleted=true WHERE name='empoex'");
+		foreach($list as $item) {
+			$e = explode('-', $item->pairname);
+			$base = strtoupper($e[1]);
+			if ($base != 'BTC')
+				continue;
+			$symbol = strtoupper($e[0]);
+			updateRawCoin('empoex', $symbol);
 		}
 	}
 
