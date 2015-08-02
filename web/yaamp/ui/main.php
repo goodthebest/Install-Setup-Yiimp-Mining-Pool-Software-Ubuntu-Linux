@@ -50,8 +50,8 @@ echo "</head>";
 
 ///////////////////////////////////////////////////////////////
 
-echo "<body class='page'>";
-echo "<a href='/site/mainbtc' style='display: none;'>main</a>";
+echo '<body class="page">';
+echo '<a href="/site/mainbtc" style="display: none;">main</a>';
 
 showPageHeader();
 showPageContent($content);
@@ -76,7 +76,7 @@ function showPageHeader()
 	echo '<div class="tabmenu-out">';
 	echo '<div class="tabmenu-inner">';
 
-	echo '&nbsp;&nbsp;&nbsp;&nbsp;<a href="/">'.YAAMP_SITE_NAME.'</a>';
+	echo '&nbsp;&nbsp;<a href="/">'.YAAMP_SITE_NAME.'</a>';
 
 	$action = controller()->action->id;
 	$wallet = user()->getState('yaamp-wallet');
@@ -111,13 +111,12 @@ function showPageHeader()
 			showItemHeader(controller()->id=='nicehash', '/nicehash', 'Nicehash');
 	}
 
-	echo "<span style='float: right;'>";
+	echo '<span style="float: right;">';
 
 	$mining = getdbosql('db_mining');
 	$nextpayment = date('H:i T', $mining->last_payout+YAAMP_PAYMENTS_FREQ);
 
-	echo "<span style='font-size: .8em;'>Next Payout: $nextpayment</span>";
-	echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&copy; ".YAAMP_SITE_URL."</span>";
+	echo '<span style="font-size: .8em;">Next Payout: '.$nextpayment.'</span>';
 
 	echo "</div>";
 	echo "</div>";
@@ -125,13 +124,13 @@ function showPageHeader()
 
 function showPageFooter()
 {
-	echo "<div class='footer'>";
+	echo '<div class="footer">';
 	$year = date("Y", time());
 
-	echo "<p>&copy; $year. All Rights Reserved. yiimp -
-		<a href='/site/terms'>Terms and conditions</a></p>";
+	echo "<p>&copy; $year ".YAAMP_SITE_NAME.' - '.
+		'<a href="http://github.com/tpruvot/yiimp">Open source Project</a></p>';
 
-	echo "</div><!-- footer -->";
+	echo '</div><!-- footer -->';
 }
 
 
