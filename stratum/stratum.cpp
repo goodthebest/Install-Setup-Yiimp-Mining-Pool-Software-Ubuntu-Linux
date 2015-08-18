@@ -79,11 +79,6 @@ static void neoscrypt_hash(const char* input, char* output, uint32_t len)
 	neoscrypt((unsigned char *)input, (unsigned char *)output, 0x80000620);
 }
 
-static void lyra2_hash(const char* input, char* output, uint32_t len)
-{
-	lyra2re_hash(input, output);
-}
-
 YAAMP_ALGO g_algos[] =
 {
 	{"sha256", sha256_double_hash, 1, 0, 0},
@@ -97,7 +92,9 @@ YAAMP_ALGO g_algos[] =
 	{"x14", x14_hash, 1, 0, 0},
 	{"x15", x15_hash, 1, 0, 0},
 
-	{"lyra2", lyra2_hash, 0x80, 0, 0},
+	{"lyra2", lyra2re_hash, 0x80, 0, 0},
+	{"lyra2v2", lyra2v2_hash, 0x80, 0, 0},
+
 	{"blake", blake_hash, 1, 0, 0},
 	{"fresh", fresh_hash, 0x100, 0, 0},
 	{"quark", quark_hash, 1, 0, 0},

@@ -7,8 +7,9 @@ function yaamp_get_algos()
 		'sha256',
 		'scrypt',
 		'scryptn',
-		'neoscrypt',
 		'lyra2',
+		'lyra2v2',
+		'neoscrypt',
 		'quark',
 		'qubit',
 		'c11',
@@ -18,7 +19,6 @@ function yaamp_get_algos()
 		'groestl', // dmd-gr -m 256
 		'skein',
 		'skein2',
-		'bmw',
 		'drop',
 		'zr5',
 	);
@@ -39,6 +39,7 @@ function yaamp_get_algo_norm($algo)
 		'nist5'		=> 16,
 		'neoscrypt'	=> 0.3,
 		'lyra2'		=> 1.3,
+		'lyra2v2'	=> 1.3,
 		'quark'		=> 5,
 		'fresh'		=> 5,
 		'qubit'		=> 5,
@@ -48,8 +49,6 @@ function yaamp_get_algo_norm($algo)
 		'keccak'	=> 160,
 		'skein2'	=> 300,
 		'zr5'		=> 5.5,
-		'drop'		=> 1.5,
-		'bmw'		=> 100,
 	);
 
 	if(!isset($a[$algo]))
@@ -74,11 +73,11 @@ function getAlgoColors($algo)
 		'quark'		=> '#c0c0c0',
 		'qubit'		=> '#d0a0f0',
 		'lyra2'		=> '#80a0f0',
+		'lyra2v2'	=> '#80c0f0',
 		'skein'		=> '#80a0a0',
 		'skein2'	=> '#a0a0a0',
-		'zr5'		=> '#d0b0d0',
 		'drop'		=> '#d0b0d0',
-		'bmw'		=> '#a0a0a0',
+		'zr5'		=> '#d0b0d0',
 
 		'MN'		=> '#ffffff', // MasterNode Earnings
 		'PoS'		=> '#ffffff'  // Stake
@@ -106,7 +105,7 @@ function getAlgoPort($algo)
 		'neoscrypt'	=> 4233,
 		'scryptn'	=> 4333,
 		'lyra2'		=> 4433,
-		'blake'		=> 4533,
+		'lyra2v2'	=> 4533,
 		'jha'		=> 4633,
 		'qubit'		=> 4733,
 		'zr5'		=> 4833,
@@ -116,7 +115,8 @@ function getAlgoPort($algo)
 		'skein2'	=> 5233,
 		'groestl'	=> 5333,
 		'zr5'		=> 5533,
-		'bmw'		=> 5633,
+		// 5555 to 5683 reserved
+		'blake'		=> 5733,
 	);
 
 	if(!isset($a[$algo]))

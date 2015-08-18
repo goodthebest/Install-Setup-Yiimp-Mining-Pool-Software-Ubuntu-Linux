@@ -19,7 +19,6 @@ screen -dmS debug tail -f $LOG_DIR/debug.log
 
 # Stratum ports
 
-screen -dmS bmw $STRATUM_DIR/run.sh bmw
 screen -dmS c11 $STRATUM_DIR/run.sh c11
 screen -dmS x11 $STRATUM_DIR/run.sh x11
 screen -dmS x13 $STRATUM_DIR/run.sh x13
@@ -32,6 +31,7 @@ screen -dmS quark $STRATUM_DIR/run.sh quark
 screen -dmS qubit $STRATUM_DIR/run.sh qubit
 #screen -dmS groestl $STRATUM_DIR/run.sh groestl # dmd-gr -m 256
 screen -dmS lyra2 $STRATUM_DIR/run.sh lyra2
+screen -dmS lyra2v2 $STRATUM_DIR/run.sh lyra2v2
 
 screen -dmS skein $STRATUM_DIR/run.sh skein
 screen -dmS skein2 $STRATUM_DIR/run.sh skein2
