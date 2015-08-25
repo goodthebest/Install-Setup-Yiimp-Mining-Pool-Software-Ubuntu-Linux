@@ -573,13 +573,13 @@ function updateAlcurexMarkets()
 				$lpair = strtolower($pair);
 				$last = alcurex_api_query('market', "?pair=$lpair&last=last");
 				if (is_object($last) && !empty($last->$lpair)) {
-					$last = reset($last->$lpair);
+					$last = $last->$lpair;
 					$market->price = AverageIncrement($market->price, $last->price);
 					$market->save();
 				}
 				$last = alcurex_api_query('market', "?pair=$lpair&last=sell");
 				if (is_object($last) && !empty($last->$lpair)) {
-					$last = reset($last->$lpair);
+					$last = $last->$lpair;
 					$market->price2 = AverageIncrement($market->price2, $last->price);
 					$market->save();
 				}
