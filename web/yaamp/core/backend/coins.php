@@ -56,11 +56,9 @@ function BackendCoinsUpdate()
 		else
 			$difficulty = $remote->getdifficulty();
 
-		if(is_array($difficulty))
-		{
-			$coin->difficulty = $difficulty['proof-of-work'];
-			if(isset($difficulty['proof-of-stake']))
-				 $coin->difficulty_pos = $difficulty['proof-of-stake'];
+		if(is_array($difficulty)) {
+			$coin->difficulty = arraySafeVal($difficulty,'proof-of-work');
+			$coin->difficulty_pos = arraySafeVal($difficulty,'proof-of-stake');
 		}
 		else
 			$coin->difficulty = $difficulty;

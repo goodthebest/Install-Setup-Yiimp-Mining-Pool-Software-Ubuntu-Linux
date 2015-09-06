@@ -5,6 +5,13 @@ function controller()
 	return app()->getController();
 }
 
+function arraySafeVal($arr,$p,$default=NULL)
+{
+	if (isset($arr[$p]))
+		return $arr[$p];
+	return $default;
+}
+
 function getparam($p)
 {
 	return isset($_REQUEST[$p])? $_REQUEST[$p]: '';
