@@ -119,6 +119,10 @@ function getAlgoPort($algo)
 		'blake'		=> 5733,
 	);
 
+	global $configCustomPorts;
+	if(isset($configCustomPorts[$algo]))
+		return $configCustomPorts[$algo];
+
 	if(!isset($a[$algo]))
 		return 3033;
 

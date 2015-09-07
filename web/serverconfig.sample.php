@@ -60,3 +60,8 @@ $configFixedPoolFees = array(
         'sha256' => 5.0,
 );
 
+// Sample custom stratum ports
+$configCustomPorts = array(
+//	'x11' => 7000,
+);
+
