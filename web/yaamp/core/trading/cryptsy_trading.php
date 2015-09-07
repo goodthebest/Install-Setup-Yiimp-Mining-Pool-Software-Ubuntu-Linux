@@ -32,7 +32,7 @@ function doCryptsyTrading($quick=false)
 	$balances = cryptsy_api_query('getinfo');
 	if(!$balances) return;
 	if(!isset($balances['return'])) {
-		debuglog("balances: ".strip_tags($balances));
+		debuglog("cryptsy balance: ".arraySafeVal($balances,'error'));
 		return;
 	}
 	foreach($balances['return']['balances_available'] as $symbol=>$balance)
