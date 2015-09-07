@@ -5,7 +5,7 @@ $defaultalgo = user()->getState('yaamp-algo');
 $rent = dboscalar("select rent from hashrate where algo=:algo order by time desc limit 1", array(':algo'=>$defaultalgo));
 $rent = mbitcoinvaluetoa($rent);
 
-$renter = getrenterparam(getparam('address'));
+$renter = getrenterparam(''.getparam('address'));
 
 echo "<div class='main-left-box'>";
 echo "<div class='main-left-title'>All started jobs ($defaultalgo) - Current Price $rent</div>";

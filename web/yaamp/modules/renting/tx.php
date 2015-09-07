@@ -2,7 +2,7 @@
 
 require dirname(__FILE__).'/../../ui/lib/pageheader.php';
 
-$renter = getrenterparam(getparam('address'));
+$renter = getrenterparam(''.getparam('address'));
 if(!$renter) return;
 
 $this->pageTitle = "$renter->address | yiimp";
