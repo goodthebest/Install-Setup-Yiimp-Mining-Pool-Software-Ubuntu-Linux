@@ -65,7 +65,8 @@ Add your exchange API public and secret keys in these two separated files:
 
 You can find sample config files in web/serverconfig.sample.php and web/keys.sample.php
 
-This web application includes some command line tools, add bin/ folder to your path and type "yiic" to list them, "yiic checkup can help to test your initial setup". Future script and maybe the "cron" threads will then use the yiic console interface.
+This web application includes some command line tools, add bin/ folder to your path and type "yiic" to list them, "yiic checkup" can help to test your initial setup.
+Future scripts and maybe the "cron" jobs will then use this yiic console interface.
 
 You need at least three backend shells (in screen) running these scripts:
 
@@ -85,7 +86,28 @@ All your coin's config files need to blocknotify their corresponding stratum usi
 
 	blocknotify=/var/stratum/blocknotify yaamp.com:port coinid %s
 
-On the website, go to http://server.com/site/adminRights to login as admin. You have to change it to something different in the code (web/yaamp/modules/site/SiteController.php). A real admin login may be added later...
+On the website, go to http://server.com/site/adminRights to login as admin. You have to change it to something different in the code (web/yaamp/modules/site/SiteController.php). A real admin login may be added later, but you can setup a password authentification with your web server, sample for lighttpd:
+
+	htpasswd -c /etc/yiimp/admin.htpasswd <adminuser>
+
+and in the lighttpd config file:
+
+	# Admin access
+	$HTTP["url"] =~ "^/site/adminRights" {
+	        auth.backend = "htpasswd"
+	        auth.backend.htpasswd.userfile = "/etc/yiimp/admin.htpasswd"
+	        auth.require = (
+	                "/" => (
+	                        "method" => "basic",
+	                        "realm" => "Yiimp Administration",
+	                        "require" => "valid-user"
+	                )
+	        )
+	}
+
+And finally remove the IP filter check in SiteController.php
+
+
 
 There are logs generated in the /var/stratum folder and /var/log/stratum/debug.log for the php log.
 
