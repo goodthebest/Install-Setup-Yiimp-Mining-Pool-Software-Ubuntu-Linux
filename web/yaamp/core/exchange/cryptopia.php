@@ -1,6 +1,7 @@
 <?php
 
 // https://www.cryptopia.co.nz/api/GetMarkets/24
+// https://www.cryptopia.co.nz/api/GetCurrencies
 
 function cryptopia_api_query($method, $params='')
 {

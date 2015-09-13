@@ -35,7 +35,8 @@ class CoindbCommand extends CConsoleCommand
 			return 1;
 
 		} elseif ($args[0] == 'labels') {
-			self::updateCoinsLabels();
+			$this->updateCoinsLabels();
+			$this->updateCryptopiaLabels();
 			echo "ok\n";
 			return 0;
 		}
@@ -50,6 +51,9 @@ class CoindbCommand extends CConsoleCommand
 		return parent::getHelp().'coindb labels';
 	}
 
+	/**
+	 * cryptocoincharts api
+	 */
 	public static function getCoinChartsData()
 	{
 		$json = file_get_contents('http://api.cryptocoincharts.info/listCoins');
@@ -63,9 +67,6 @@ class CoindbCommand extends CConsoleCommand
 		return $array;
 	}
 
-	/**
-	 * Link new coin pictures /images/coin-<SYMBOL>.png
-	 */
 	public function updateCoinsLabels()
 	{
 		$modelsPath = $this->basePath.'/yaamp/models';
@@ -74,20 +75,10 @@ class CoindbCommand extends CConsoleCommand
 
 		require_once($modelsPath.'/db_coinsModel.php');
 
-		$obj = CActiveRecord::model('db_coins');
-		$table = $obj->getTableSchema()->name;
-
-		try{
-			$coins = new $obj;
-		} catch (Exception $e) {
-			echo "Error Model: $table \n";
-			echo $e->getMessage();
-			continue;
-		}
-
+		$coins = new db_coins;
 		if ($coins instanceof CActiveRecord)
 		{
-			echo "$table: ".$coins->count()." records\n";
+			echo "".$coins->count()." coins in the database\n";
 
 			$nbUpdated = 0;
 			$dataset = $coins->findAll(array('condition'=>'name = :u', 'params'=>array(':u'=>'unknown')));
@@ -98,6 +89,55 @@ class CoindbCommand extends CConsoleCommand
 					if ($data['name'] != $coin->symbol) {
 						echo "{$coin->symbol}: {$data['name']}\n";
 						$coin->name = $data['name'];
+						$nbUpdated += $coin->save();
+					}
+				}
+			}
+			echo "$nbUpdated coin labels updated\n";
+		}
+	}
+
+	/**
+	 * Special for cryptopia coins
+	 */
+	protected function getCryptopiaCurrencies()
+	{
+		$array = array();
+		require_once($this->basePath.'/yaamp/core/exchange/cryptopia.php');
+		$data = cryptopia_api_query('GetCurrencies');
+
+		if (is_object($data) && !empty($data->Data))
+			foreach ($data->Data as $coin) {
+				$key = strtoupper($coin->Symbol);
+				if (empty($key)) continue;
+				$array[$key] = $coin;
+			}
+
+		return $array;
+	}
+
+	public function updateCryptopiaLabels()
+	{
+		$modelsPath = $this->basePath.'/yaamp/models';
+		require_once($modelsPath.'/db_coinsModel.php');
+
+		$coins = new db_coins;
+		if ($coins instanceof CActiveRecord)
+		{
+			$nbUpdated = 0;
+			$dataset = $coins->findAll(array(
+				'condition'=>"name=:u OR algo=''",
+				'params'=>array(':u'=>'unknown')
+			));
+			$json = self::getCryptopiaCurrencies();
+			foreach ($dataset as $coin) {
+				if ($coin->name == 'unknown' && isset($json[$coin->symbol])) {
+					$cc = $json[$coin->symbol];
+					if ($cc->Name != $coin->symbol) {
+						echo "{$coin->symbol}: {$cc->Name}\n";
+						$coin->name = $cc->Name;
+						if (empty($coin->algo))
+							$coin->algo = strtolower($cc->Algorithm);
 						$nbUpdated += $coin->save();
 					}
 				}
