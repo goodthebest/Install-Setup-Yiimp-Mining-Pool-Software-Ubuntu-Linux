@@ -5,7 +5,7 @@ $n = 0;
 
 echo '[';
 
-$series['diff'] = controller()->memcache->get("yiimp-explorer-diff-{$coin->symbol}");
+$series['diff'] = controller()->memcache->get("yiimp-explorer-diff-".$coin->symbol);
 
 if (empty($series['diff'])) {
 	$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
@@ -37,4 +37,4 @@ echo ']';
 
 // memcache the data
 if (!empty($series['diff']))
-	controller()->memcache->set("yiimp-explorer-diff-{$coin->symbol}", $series['diff'], 60);
+	controller()->memcache->set("yiimp-explorer-diff-".$coin->symbol, $series['diff'], 120);

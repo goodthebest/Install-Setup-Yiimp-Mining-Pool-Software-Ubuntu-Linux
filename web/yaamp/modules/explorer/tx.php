@@ -1,5 +1,16 @@
 <?php
 
+$this->pageTitle = $coin->name." bloc explorer";
+
+if ($coin) echo <<<ENDJS
+	<script>
+	$(function() {
+		$('#favicon').remove();
+		$('head').append('<link href="{$coin->image}" id="favicon" rel="shortcut icon">');
+	});
+	</script>
+ENDJS;
+
 $remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
 
 echo "<table class='dataGrid2'>";
@@ -55,7 +66,7 @@ echo "</table>";
 echo <<<end
 <form action="/explorer" method="get" style="padding: 10px; width: 200px;">
 <input type="hidden" name="id" value="$coin->id">
-<input type="text" name="height" class="main-text-input" placeholder="block height">
+<input type="text" name="height" class="main-text-input" placeholder="block height" style="width: 100px;">
 <input type="submit" value="Submit" class="main-submit-button" >
 </form>
 end;

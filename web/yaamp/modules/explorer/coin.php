@@ -5,7 +5,7 @@ JavascriptFile("/extensions/jqplot/plugins/jqplot.dateAxisRenderer.js");
 JavascriptFile("/extensions/jqplot/plugins/jqplot.barRenderer.js");
 JavascriptFile("/extensions/jqplot/plugins/jqplot.highlighter.js");
 
-$this->pageTitle = " - Explorer";
+$this->pageTitle = $coin->name." bloc explorer";
 
 if ($coin) echo <<<ENDJS
 	<script>
@@ -69,7 +69,7 @@ echo <<<end
 <input type="submit" value="Submit" class="main-submit-button" >
 </form>
 
-<div id="diff_graph">
+<div id="diff_graph" style="margin-right: 8px;">
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 </div>
 

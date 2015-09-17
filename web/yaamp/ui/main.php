@@ -16,11 +16,13 @@ echo <<<END
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
 <meta name="description" content="yet another anonymous mining pool for bitcoin and altcoin with auto profit switch and auto exchange">
-<meta name="keywords" content="anonymous,mining,pool,maxcoin,bitcoin,altcoin,auto,switch,exchange,profit,scrypt,x11,x13,x14,x15,lyra2,lyra2re,neoscrypt,sha256,quark">
+<meta name="keywords" content="anonymous,mining,pool,maxcoin,bitcoin,altcoin,auto,switch,exchange,profit,scrypt,x11,x13,x14,x15,lyra2,lyra2re,neoscrypt,sha256,quark,skein2,zr5">
 
 END;
 
-echo '<title>'.YAAMP_SITE_NAME.'</title>';
+$pageTitle = empty($this->pageTitle) ? YAAMP_SITE_NAME : YAAMP_SITE_NAME." - ".$this->pageTitle;
+
+echo '<title>'.$pageTitle.'</title>';
 
 echo CHtml::cssFile("/extensions/jquery/themes/ui-lightness/jquery-ui.css");
 echo CHtml::cssFile('/yaamp/ui/css/main.css');
