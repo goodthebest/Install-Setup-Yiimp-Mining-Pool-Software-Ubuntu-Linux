@@ -45,12 +45,16 @@ class ExplorerController extends CommonController
 			$this->render('index');
 	}
 
-
+	/**
+	 * Difficulty Graph
+	 */
+	public function actionGraph()
+	{
+		$id = getiparam('id');
+		$coin = getdbo('db_coins', $id);
+		if ($coin)
+			$this->renderPartial('graph', array('coin'=>$coin));
+		else
+			echo "[]";
+	}
 }
-
-
-
-
-
-
-

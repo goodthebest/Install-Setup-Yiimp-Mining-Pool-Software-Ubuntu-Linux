@@ -1,5 +1,21 @@
 <?php
 
+JavascriptFile("/extensions/jqplot/jquery.jqplot.js");
+JavascriptFile("/extensions/jqplot/plugins/jqplot.dateAxisRenderer.js");
+JavascriptFile("/extensions/jqplot/plugins/jqplot.barRenderer.js");
+JavascriptFile("/extensions/jqplot/plugins/jqplot.highlighter.js");
+
+$this->pageTitle = " - Explorer";
+
+if ($coin) echo <<<ENDJS
+	<script>
+	$(function() {
+		$('#favicon').remove();
+		$('head').append('<link href="{$coin->image}" id="favicon" rel="shortcut icon">');
+	});
+	</script>
+ENDJS;
+
 echo "<br>";
 echo "<div class='main-left-box'>";
 echo "<div class='main-left-title'>$coin->name Explorer</div>";
@@ -47,17 +63,76 @@ for($i = $coin->block_height; $i > $coin->block_height-25; $i--)
 echo "</table>";
 
 echo <<<end
-<form action="/explorer" method="get" style="padding: 10px; width: 200px;">
-<input type="hidden" name="id" value="$coin->id">
-<input type="text" name="height" class="main-text-input" placeholder="block height">
+<form action="/explorer" method="get" style="padding: 10px; width: 250px;">
+<input type="hidden" name="id" value="{$coin->id}">
+<input type="text" name="height" class="main-text-input" placeholder="block height" style="max-width: 100px;">
 <input type="submit" value="Submit" class="main-submit-button" >
 </form>
+
+<div id="diff_graph">
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+</div>
+
+<script type="text/javascript" event="">
+
+var last_graph_update = 0;
+
+function graph_refresh()
+{
+	var now = Date.now()/1000;
+
+	if (now < last_graph_update + 900) return;
+	last_graph_update = now;
+
+	var url = "/explorer/graph?id={$coin->id}";
+	$.get(url, '', diff_graph_data);
+}
+
+function diff_graph_data_trace(data)
+{
+	 $('#diff_graph').html(data);
+}
+
+function diff_graph_data(data)
+{
+	var t = $.parseJSON(data);
+	var plot1 = $.jqplot('diff_graph', t,
+	{
+		title: '<b>Difficulty</b>',
+		axes: {
+			xaxis: {
+				renderer: $.jqplot.DateAxisRenderer,
+				tickOptions: {formatString: '<font size="1">%H:%M</font>'}
+			},
+			yaxis: {
+				min: 0,
+				tickOptions: {formatString: '<font size="1">%#.3f &nbsp;</font>'}
+			}
+		},
+
+		seriesDefaults:
+		{
+			markerOptions: { style: 'none' }
+		},
+
+		grid:
+		{
+			borderWidth: 1,
+			shadowWidth: 0,
+			shadowDepth: 0,
+			background: '#ffffff'
+		},
+
+		highlighter:
+		{
+			show: true
+		},
+
+	});
+}
+</script>
 end;
 
-echo '<br><br><br><br><br><br><br><br><br><br>';
-echo '<br><br><br><br><br><br><br><br><br><br>';
-echo '<br><br><br><br><br><br><br><br><br><br>';
-
-
-
-
+app()->clientScript->registerScript('graph',"
+	graph_refresh();
+", CClientScript::POS_READY);
