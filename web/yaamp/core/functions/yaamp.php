@@ -7,9 +7,12 @@ function yaamp_get_algos()
 		'sha256',
 		'scrypt',
 		'scryptn',
+		'luffa',
 		'lyra2',
 		'lyra2v2',
 		'neoscrypt',
+		'nist5',
+		'penta',
 		'quark',
 		'qubit',
 		'c11',
@@ -69,7 +72,9 @@ function getAlgoColors($algo)
 		'x13'		=> '#d0f0c0',
 		'x14'		=> '#a0f0c0',
 		'x15'		=> '#f0b0a0',
-		'nist5'		=> '#f0d0f0',
+		'luffa'		=> '#a0c0c0',
+		'penta'		=> '#80c0c0',
+		'nist5'		=> '#e0d0e0',
 		'quark'		=> '#c0c0c0',
 		'qubit'		=> '#d0a0f0',
 		'lyra2'		=> '#80a0f0',
@@ -117,6 +122,8 @@ function getAlgoPort($algo)
 		'zr5'		=> 5533,
 		// 5555 to 5683 reserved
 		'blake'		=> 5733,
+		'penta'		=> 5833,
+		'luffa'		=> 5933,
 	);
 
 	global $configCustomPorts;

@@ -105,6 +105,8 @@ YAAMP_ALGO g_algos[] =
 	{"keccak", keccak_hash, 1, 0, 0},
 
 	{"bmw", bmw_hash, 1, 0, 0},
+	{"luffa", luffa_hash, 1, 0, 0},
+	{"penta", penta_hash, 1, 0, 0},
 	{"skein2", skein2_hash, 1, 0, 0},
 	{"zr5", zr5_hash, 1, 0, 0},
 	{"drop", drop_hash, 0x10000, 0x10000, 0},

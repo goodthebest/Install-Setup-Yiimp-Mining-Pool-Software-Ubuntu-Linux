@@ -9,7 +9,7 @@ LDFLAGS=-O2
 
 SOURCES=lyra2re.c lyra2v2.c Lyra2.c Sponge.c blake.c scrypt.c c11.c x11.c x13.c sha256.c keccak.c \
 	x14.c x15.c nist5.c fresh.c quark.c neoscrypt.c scryptn.c qubit.c skein.c groestl.c \
-	skein2.c zr5.c drop.c bmw.c
+	skein2.c zr5.c drop.c bmw.c luffa.c pentablake.c
 
 OBJECTS=$(SOURCES:.c=.o)
 OUTPUT=libalgos.a
