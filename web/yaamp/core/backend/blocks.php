@@ -76,6 +76,7 @@ function BackendBlockFind1()
 		$block = $remote->getblock($db_block->blockhash);
 		if(!$block || !isset($block['tx']) || !isset($block['tx'][0]))
 		{
+			$db_block->amount = 0;
 			$db_block->save();
 			continue;
 		}
@@ -83,6 +84,7 @@ function BackendBlockFind1()
 		$tx = $remote->gettransaction($block['tx'][0]);
 		if(!$tx || !isset($tx['details']) || !isset($tx['details'][0]))
 		{
+			$db_block->amount = 0;
 			$db_block->save();
 			continue;
 		}
@@ -131,8 +133,10 @@ function BackendBlocksUpdate()
 
 		$block->confirmations = $tx['confirmations'];
 
-		if($block->confirmations == -1)
+		if($block->confirmations == -1) {
 			$block->category = 'orphan';
+			$block->amount = 0;
+		}
 
 		else if(isset($tx['details']) && isset($tx['details'][0]))
 			$block->category = $tx['details'][0]['category'];
