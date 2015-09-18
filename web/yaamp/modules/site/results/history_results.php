@@ -8,17 +8,31 @@ echo "<div class='main-left-box'>";
 echo "<div class='main-left-title'>Pool Stats ($algo)</div>";
 echo "<div class='main-left-inner'>";
 
-echo "<table class='dataGrid2'>";
-echo "<thead>";
-echo "<tr>";
-echo "<th></th>";
-echo "<th>Name</th>";
-echo "<th align=right>Last Hour</th>";
-echo "<th align=right>Last 24 Hours</th>";
-echo "<th align=right>Last 7 Days</th>";
-echo "<th align=right>Last 30 Days</th>";
-echo "</tr>";
-echo "</thead>";
+echo <<<END
+<style type="text/css">
+td.symb, th.symb {
+	width: 50px;
+	max-width: 50px;
+	text-align: right;
+}
+td.symb {
+	font-size: .8em;
+}
+</style>
+
+<table class="dataGrid2">
+<thead>
+<tr>
+<th></th>
+<th>Name</th>
+<th class="symb">Sym.</th>
+<th align=right>Last Hour</th>
+<th align=right>Last 24 Hours</th>
+<th align=right>Last 7 Days</th>
+<th align=right>Last 30 Days</th>
+</tr>
+</thead>
+END;
 
 $t1 = time() - 60*60;
 $t2 = time() - 24*60*60;
@@ -74,6 +88,7 @@ foreach($list as $item)
 
 	echo '<td width=18><img width=16 src="'.$coin->image.'"></td>';
 	echo '<td><b><a href="/site/block?id='.$id.'">'.$name.'</a></b></td>';
+	echo '<td class="symb">'.$coin->symbol.'</td>';
 
 	echo '<td align="right" style="font-size: .9em;">'.$res1['a'].'</td>';
 	echo '<td align="right" style="font-size: .9em;">'.$res2['a'].'</td>';
@@ -95,6 +110,7 @@ foreach($others as $item)
 	echo '<tr class="ssrow">';
 	echo '<td width="18px"><img width="16px" src="'.$item['image'].'"></td>';
 	echo '<td><b><a href="/site/block?id='.$item['id'].'">'.$item['name'].'</a></b></td>';
+	echo '<td class="symb">'.$item['symbol'].'</td>';
 	echo '<td colspan="4"></td>';
 	echo '</tr>';
 }
@@ -135,7 +151,7 @@ $total4 = bitcoinvaluetoa($total4);
 
 echo '<tr class="ssrow" style="border-top: 2px solid #eee;">';
 echo '<td width="18px"><img width="16px" src="/images/btc.png"></td>';
-echo '<td><b>BTC Value</b></td>';
+echo '<td colspan="2"><b>BTC Value</b></td>';
 
 echo '<td align="right" style="font-size: .9em;">'.$total1.'</td>';
 echo '<td align="right" style="font-size: .9em;">'.$total2.'</td>';
@@ -148,7 +164,7 @@ echo "</tr>";
 
 echo '<tr class="ssrow" style="border-top: 2px solid #eee;">';
 echo '<td width="18px"></td>';
-echo '<td><b>Avg Hashrate</b></td>';
+echo '<td colspan="2"><b>Avg Hashrate</b></td>';
 
 echo '<td align="right" style="font-size: .9em;">'.$hashrate1.'h/s</td>';
 echo '<td align="right" style="font-size: .9em;">'.$hashrate2.'h/s</td>';
@@ -161,7 +177,7 @@ echo '</tr>';
 
 echo '<tr class="ssrow" style="border-top: 2px solid #eee;">';
 echo '<td width="18px"></td>';
-echo '<td><b>mBTC/Mh/d</b></td>';
+echo '<td colspan="2"><b>mBTC/Mh/d</b></td>';
 
 echo '<td align="right" style="font-size: .9em;">'.$btcmhday1.'</td>';
 echo '<td align="right" style="font-size: .9em;">'.$btcmhday2.'</td>';
