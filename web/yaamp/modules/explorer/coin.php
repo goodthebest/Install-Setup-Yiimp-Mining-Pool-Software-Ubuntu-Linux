@@ -2,7 +2,7 @@
 
 JavascriptFile("/extensions/jqplot/jquery.jqplot.js");
 JavascriptFile("/extensions/jqplot/plugins/jqplot.dateAxisRenderer.js");
-JavascriptFile("/extensions/jqplot/plugins/jqplot.barRenderer.js");
+//JavascriptFile("/extensions/jqplot/plugins/jqplot.barRenderer.js");
 JavascriptFile("/extensions/jqplot/plugins/jqplot.highlighter.js");
 
 $this->pageTitle = $coin->name." bloc explorer";
@@ -16,6 +16,10 @@ if ($coin) echo <<<ENDJS
 	</script>
 ENDJS;
 
+// version is used for multi algo coins
+// but each coin use different values...
+$multiAlgos = versionToAlgo($coin, 0) !== false;
+
 echo "<br>";
 echo "<div class='main-left-box'>";
 echo "<div class='main-left-title'>$coin->name Explorer</div>";
@@ -28,6 +32,7 @@ echo "<tr>";
 echo "<th>Time</th>";
 echo "<th>Height</th>";
 echo "<th>Diff</th>";
+if ($multiAlgos) echo "<th>Algo</th>";
 echo "<th>Transactions</th>";
 echo "<th>Confirmations</th>";
 echo "<th>Blockhash</th>";
@@ -35,7 +40,7 @@ echo "</tr>";
 echo "</thead>";
 
 $remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
-for($i = $coin->block_height; $i > $coin->block_height-25; $i--)
+for($i = $coin->block_height; $i > max(0, $coin->block_height-25); $i--)
 {
 	$hash = $remote->getblockhash($i);
 	if(!$hash) continue;
@@ -47,12 +52,14 @@ for($i = $coin->block_height; $i > $coin->block_height-25; $i--)
 	$confirms = isset($block['confirmations'])? $block['confirmations']: '';
 	$tx = count($block['tx']);
 	$diff = $block['difficulty'];
+	$algo = versionToAlgo($coin, $block['version']);
 
 //	debuglog($block);
 	echo "<tr class='ssrow'>";
 	echo "<td>$d</td>";
 	echo "<td><a href='/explorer?id=$coin->id&height=$i'>$i</a></td>";
 	echo "<td>$diff</td>";
+	if ($multiAlgos) echo "<td>$algo</td>";
 	echo "<td>$tx</td>";
 	echo "<td>$confirms</td>";
 	echo "<td><span style='font-family: monospace;'><a href='/explorer?id=$coin->id&hash=$hash'>$hash</a></span></td>";

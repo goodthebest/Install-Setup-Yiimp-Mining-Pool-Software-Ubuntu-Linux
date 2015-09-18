@@ -1,6 +1,6 @@
 <?php
 
-include "util.php";
+require_once("util.php");
 
 class ExplorerController extends CommonController
 {
