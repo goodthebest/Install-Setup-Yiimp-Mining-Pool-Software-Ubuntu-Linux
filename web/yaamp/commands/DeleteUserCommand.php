@@ -29,7 +29,7 @@ class DeleteUserCommand extends CConsoleCommand
 
 		if (!isset($args[0])) {
 
-			echo "Yii checkup command\n";
+			echo "Yii deleteuser command\n";
 			echo "Usage: yiic deleteuser <id>\n";
 			return 1;
 
@@ -47,7 +47,7 @@ class DeleteUserCommand extends CConsoleCommand
 	 */
 	public function getHelp()
 	{
-		return parent::getHelp().'checkup';
+		return parent::getHelp().'deleteuser';
 	}
 
 	/**
@@ -61,40 +61,24 @@ class DeleteUserCommand extends CConsoleCommand
 
 		require_once($modelsPath.'/db_accountsModel.php');
 
-		$obj = CActiveRecord::model('db_accounts');
-		$table = $obj->getTableSchema()->name;
+		$nbDeleted = 0;
 
-		try{
-			$users = new $obj;
-		} catch (Exception $e) {
-			echo "Error Model: $table \n";
-			echo $e->getMessage();
-			continue;
-		}
+		$users = new db_accounts;
 
-		if ($users instanceof CActiveRecord)
+		$user = $users->find(array('condition'=>'id=:id', 'params'=>array(':id'=>$id)));
+		if ($user && $user->id == $id)
 		{
-			//echo "$table: ".$users->count()." records\n";
+			$user->balance = 0;
+			dborun("DELETE FROM balanceuser WHERE userid=".$user->id);
+			dborun("DELETE FROM hashuser WHERE userid=".$user->id);
+			dborun("DELETE FROM shares WHERE userid=".$user->id);
+			dborun("DELETE FROM workers WHERE userid=".$user->id);
+			dborun("UPDATE earnings SET userid=0 WHERE userid=".$user->id);
+			dborun("UPDATE blocks SET userid=0 WHERE userid=".$user->id);
+			dborun("UPDATE payouts SET account_id=0 WHERE account_id=".$user->id);
 
-			$nbDeleted = 0;
-			foreach ($users->findAll() as $user)
-			{
-				if ($user->id != $id)
-					continue;
-
-				$user->balance = 0;
-				dborun("DELETE FROM balanceuser WHERE userid=".$user->id);
-				dborun("DELETE FROM hashuser WHERE userid=".$user->id);
-				dborun("DELETE FROM shares WHERE userid=".$user->id);
-				dborun("DELETE FROM workers WHERE userid=".$user->id);
-				dborun("UPDATE earnings SET userid=0 WHERE userid=".$user->id);
-				dborun("UPDATE blocks SET userid=0 WHERE userid=".$user->id);
-				dborun("UPDATE payouts SET account_id=0 WHERE account_id=".$user->id);
-
-				$nbDeleted += $user->delete();
-			}
-			echo "$nbDeleted user deleted\n";
+			$nbDeleted += $user->delete();
 		}
+		echo "$nbDeleted user deleted\n";
 	}
-
 }
