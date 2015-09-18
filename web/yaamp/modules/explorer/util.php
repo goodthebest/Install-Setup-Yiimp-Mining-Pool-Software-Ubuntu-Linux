@@ -147,6 +147,9 @@ function remove0x($string)
 // version is used for multi algo coins
 function versionToAlgo($coin, $version)
 {
+	$algos['MYR'] = array(
+		0=>'sha256', 1=>'scrypt', 2=>'groestl', 3=>'skein', 4=>'qubit'
+	);
 	$algos['DGB'] = array(
 		0=>'scrypt', 1=>'sha256', 2=>'groestl', 3=>'skein', 4=>'qubit'
 	);
@@ -155,8 +158,8 @@ function versionToAlgo($coin, $version)
 		7 =>'nist5',  8 =>'groestl', 9=>'penta', 10=>'whirl',
 		11=>'luffa',  12=>'keccak', 13=>'quark', 15=>'bastion'
 	);
-	if ($coin->symbol == 'DGB')
-		return arraySafeVal($algos['DGB'], ($version >> 9) & 7, '');
+	if ($coin->symbol == 'DGB' || $coin->symbol == 'MYR')
+		return arraySafeVal($algos[$coin->symbol], ($version >> 9) & 7, '');
 	else if (isset($algos[$coin->symbol]))
 		return arraySafeVal($algos[$coin->symbol], $version, '');
 	return false;

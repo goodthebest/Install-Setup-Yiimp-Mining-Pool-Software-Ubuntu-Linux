@@ -31,14 +31,16 @@ if (empty($json)) {
 		if (!$multiAlgos)
 			$series['diff'][$n] = array($dt,$diff);
 		else {
-			if ($algo == 'sha256') $diff /= 100000.;
-			if ($algo == 'skein') $diff /= 10.;
+			//if ($algo == 'sha256') $diff /= 100000.;
+			//if ($algo == 'skein') $diff /= 10.;
 			$series[$algo][$n] = array($dt,$diff);
 		}
 	}
 
 	if (!$multiAlgos)
 		$json = json_encode(array_values($series['diff']));
+	else if (!empty($coin->algo) && !empty($series[$coin->algo]))
+		$json = json_encode(array_values($series[$coin->algo]));
 	else {
 		$json = '';
 		foreach ($series as $algo => $data) {
@@ -47,9 +49,8 @@ if (empty($json)) {
 		}
 		$json = rtrim($json, ',');
 	}
+	// memcache the data
+	controller()->memcache->set("yiimp-explorer-diff-".$coin->symbol, $json, 120);
 }
 
 echo "[$json]";
-
-// memcache the data
-controller()->memcache->set("yiimp-explorer-diff-".$coin->symbol, $json, 120);
