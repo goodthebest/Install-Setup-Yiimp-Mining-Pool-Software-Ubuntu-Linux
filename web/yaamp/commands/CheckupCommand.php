@@ -178,23 +178,13 @@ class CheckupCommand extends CConsoleCommand
 
 		require_once($modelsPath.'/db_coinsModel.php');
 
-		$obj = CActiveRecord::model('db_coins');
-		$table = $obj->getTableSchema()->name;
-
-		try{
-			$test = new $obj;
-		} catch (Exception $e) {
-			echo "Error Model: $table \n";
-			echo $e->getMessage();
-			continue;
-		}
-
-		if ($test instanceof CActiveRecord)
+		$coins = new db_coins;
+		if ($coins instanceof CActiveRecord)
 		{
-			echo "$table: ".$test->count()." records\n";
+			echo "".$coins->count()." coins in the database\n";
 
-			$nbUpdated = 0;
-			foreach ($test->findAll() as $coin) {
+			$nbUpdated = 0; $nbDropped = 0;
+			foreach ($coins->findAll() as $coin) {
 				if (!empty($coin->image)) {
 					if (file_exists($this->basePath.$coin->image))
 						continue;
@@ -202,13 +192,17 @@ class CheckupCommand extends CConsoleCommand
 						$coin->image = "/images/coin-$coin->symbol.png";
 						$nbUpdated += $coin->save();
 					}
+					if (!file_exists($this->basePath.$coin->image)) {
+						$coin->image = NULL;
+						$nbDropped += $coin->save();
+					}
 				}
 				if (empty($coin->image) && file_exists($this->basePath."/images/coin-$coin->symbol.png")) {
 					$coin->image = "/images/coin-$coin->symbol.png";
 					$nbUpdated += $coin->save();
 				}
 			}
-			echo "$nbUpdated images updated\n";
+			echo "$nbUpdated images updated, $nbDropped removed.\n";
 		}
 	}
 
