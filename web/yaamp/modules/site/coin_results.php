@@ -42,34 +42,8 @@ foreach($list as $market)
 	$marketurl = '#';
 	$price = bitcoinvaluetoa($market->price);
 	$price2 = bitcoinvaluetoa($market->price2);
-	$lowsymbol = strtolower($coin->symbol);
 
-	if($market->name == 'cryptsy')
-		$marketurl = "https://www.cryptsy.com/markets/view/$market->marketid";
-
-	else if($market->name == 'bittrex')
-		$marketurl = "https://bittrex.com/Market/Index?MarketName=BTC-$coin->symbol";
-
-	else if($market->name == 'poloniex')
-		$marketurl = "https://poloniex.com/exchange/btc_$coin->symbol";
-
-	else if($market->name == 'bleutrade')
-		$marketurl = "https://bleutrade.com/exchange/$coin->symbol/BTC";
-
-	else if($market->name == 'c-cex')
-		$marketurl = "https://c-cex.com/?p=$lowsymbol-btc";
-
-	else if($market->name == 'yobit')
-		$marketurl = "https://yobit.net/en/trade/$coin->symbol/BTC";
-
-	else if($market->name == 'jubi')
-		$marketurl = "http://jubi.com/coin/$lowsymbol";
-
-	else if($market->name == 'cryptopia')
-		$marketurl = "https://www.cryptopia.co.nz/Exchange?market={$coin->symbol}_BTC";
-
-	else if($market->name == 'alcurex')
-		$marketurl = "https://alcurex.org/index.php/crypto/market?pair={$lowsymbol}_btc";
+	$marketurl = getMarketUrl($coin, $market->name);
 
 	if($bestmarket && $market->id == $bestmarket->id)
 		echo "<tr class='ssrow' style='background-color: #dfd'>";

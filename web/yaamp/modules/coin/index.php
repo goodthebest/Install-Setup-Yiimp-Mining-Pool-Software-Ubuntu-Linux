@@ -100,42 +100,7 @@ foreach($coins as $coin)
 	$list2 = getdbolist('db_markets', "coinid=$coin->id");
 	foreach($list2 as $market)
 	{
-		$url = '';
-		$lowsymbol = strtolower($coin->symbol);
-
-		if($market->name == 'cryptsy')
-			$url = "https://www.cryptsy.com/markets/view/{$coin->symbol}_BTC";
-
-		else if($market->name == 'bittrex')
-			$url = "https://bittrex.com/Market/Index?MarketName=BTC-$coin->symbol";
-
-		else if($market->name == 'poloniex')
-			$url = "https://poloniex.com/exchange/btc_$coin->symbol";
-
-		else if($market->name == 'c-cex')
-			$url = "https://c-cex.com/?p=$lowsymbol-btc";
-
-		else if($market->name == 'bleutrade')
-			$url = "https://bleutrade.com/exchange/$coin->symbol/BTC";
-
-		else if($market->name == 'yobit')
-			$url = "https://yobit.net/en/trade/$coin->symbol/BTC";
-
-		else if($market->name == 'cryptopia')
-			$url = "https://www.cryptopia.co.nz/Exchange?market={$coin->symbol}_BTC";
-
-		else if($market->name == 'alcurex')
-			$url = "https://alcurex.org/index.php/crypto/market?pair={$lowsymbol}_btc";
-
-		else if($market->name == 'allcoin')
-			$url = "https://www.allcoin.com/trade/{$coin->symbol}_BTC";
-
-		else if($market->name == 'banx')
-			$url = "https://www.banx.io/trade?c={$coin->symbol}&p=BTC";
-
-		else if($market->name == 'bitex')
-			$url = "https://bitex.club/markets/{$lowsymbol}btc";
-
+		$url = getMarketUrl($coin, $market->name);
 		echo "<a href='$url' target=_blank>$market->name</a> ";
 	}
 

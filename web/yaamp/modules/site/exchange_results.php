@@ -18,37 +18,49 @@ echo "<th>Value</th>";
 echo "</tr>";
 echo "</thead><tbody>";
 
+/* to move in an include file */
+function getMarketUrl($coin, $marketName)
+{
+	$symbol = !empty($coin->symbol2) ? $coin->symbol2 : $coin->symbol;
+	$lowsymbol = strtolower($symbol);
+
+	if($marketName == 'cryptsy')
+		$url = "https://www.cryptsy.com/markets/view/{$symbol}_BTC";
+	else if($marketName == 'bittrex')
+		$url = "https://bittrex.com/Market/Index?MarketName=BTC-{$symbol}";
+	else if($marketName == 'poloniex')
+		$url = "https://poloniex.com/exchange#btc_{$lowsymbol}";
+	else if($marketName == 'bleutrade')
+		$url = "https://bleutrade.com/exchange/{$symbol}/BTC";
+	else if($marketName == 'c-cex')
+		$url = "https://c-cex.com/?p={$lowsymbol}-btc";
+	else if($marketName == 'jubi')
+		$url = "http://jubi.com/coin/{$lowsymbol}";
+	else if($marketName == 'yobit')
+		$url = "https://yobit.net/en/trade/{$symbol}/BTC";
+	else if($marketName == 'cryptopia')
+		$url = "https://www.cryptopia.co.nz/Exchange?market={$symbol}_BTC";
+	else if($marketName == 'alcurex')
+		$url = "https://alcurex.org/index.php/crypto/market?pair={$lowsymbol}_btc";
+	else if($marketName == 'allcoin')
+		$url = "https://www.allcoin.com/trade/{$symbol}_BTC";
+	else if($marketName == 'banx')
+		$url = "https://www.banx.io/trade?c={$symbol}&p=BTC";
+	else if($marketName == 'bitex')
+		$url = "https://bitex.club/markets/{$lowsymbol}btc";
+	else
+		$url = "";
+
+	return $url;
+}
+
 $totalvalue = 0;
 $totalbid = 0;
 
 foreach($orders as $order)
 {
 	$coin = getdbo('db_coins', $order->coinid);
-	$lowsymbol = strtolower($coin->symbol);
-
-	if($order->market == 'cryptsy')
-		$marketurl = "https://www.cryptsy.com/markets/view/{$coin->symbol}_BTC";
-
-	else if($order->market == 'bittrex')
-		$marketurl = "https://bittrex.com/Market/Index?MarketName=BTC-$coin->symbol";
-
-	else if($order->market == 'poloniex')
-		$marketurl = "https://poloniex.com/exchange/btc_$coin->symbol";
-
-	else if($order->market == 'c-cex')
-		$marketurl = "https://c-cex.com/?p=$lowsymbol-btc";
-
-	else if($order->market == 'bleutrade')
-		$marketurl = "https://bleutrade.com/exchange/$coin->symbol/BTC";
-
-	else if($order->market == 'cryptopia')
-		$marketurl = "https://www.cryptopia.co.nz/Exchange?market={$coin->symbol}_BTC";
-
-	else if($order->market == 'alcurex')
-		$marketurl = "https://alcurex.org/index.php/crypto/market?pair={$lowsymbol}_btc";
-
-	else
-		$marketurl = "";
+	$marketurl = getMarketUrl($coin, $order->market);
 
 	echo "<tr class='ssrow'>";
 
@@ -118,29 +130,7 @@ foreach($exchanges as $exchange)
 	$coin = getdbo('db_coins', $exchange->coinid);
 	$lowsymbol = strtolower($coin->symbol);
 
-	if($exchange->market == 'cryptsy')
-		$marketurl = "https://www.cryptsy.com/markets/view/{$coin->symbol}_BTC";
-
-	else if($exchange->market == 'bittrex')
-		$marketurl = "https://bittrex.com/Market/Index?MarketName=BTC-$coin->symbol";
-
-	else if($exchange->market == 'poloniex')
-		$marketurl = "https://poloniex.com/exchange/btc_$coin->symbol";
-
-	else if($exchange->market == 'c-cex')
-		$marketurl = "https://c-cex.com/?p=$lowsymbol-btc";
-
-	else if($exchange->market == 'bleutrade')
-		$marketurl = "https://bleutrade.com/exchange/{$coin->symbol}/BTC";
-
-	else if($exchange->market == 'cryptopia')
-		$marketurl = "https://www.cryptopia.co.nz/Exchange?market={$coin->symbol}_BTC";
-
-        else if($exchange->market == 'alcurex')
-                $marketurl = "https://alcurex.org/index.php/crypto/market?pair={$lowsymbol}_btc";
-
-	else
-		$marketurl = "";
+	$marketurl = getMarketUrl($coin, $order->market);
 
 	if($exchange->status == 'waiting')
 		echo "<tr style='background-color: #e0d3e8;'>";
