@@ -70,10 +70,11 @@ for($i = $coin->block_height; $i > max(0, $coin->block_height-25); $i--)
 echo "</table>";
 
 echo <<<end
-<form action="/explorer" method="get" style="padding: 10px; width: 250px;">
+<form action="/explorer" method="get" style="padding: 10px;">
 <input type="hidden" name="id" value="{$coin->id}">
-<input type="text" name="height" class="main-text-input" placeholder="block height" style="max-width: 100px;">
-<input type="submit" value="Submit" class="main-submit-button" >
+<input type="text" name="height" class="main-text-input" placeholder="block height" style="width: 80px;">
+<input type="text" name="txid" class="main-text-input" placeholder="tx hash" style="width: 450px;">
+<input type="submit" value="Search" class="main-submit-button" >
 </form>
 
 <div id="diff_graph" style="margin-right: 8px;">
