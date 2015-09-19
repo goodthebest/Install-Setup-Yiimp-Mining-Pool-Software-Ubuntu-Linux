@@ -65,6 +65,7 @@ var main_timeout;
 function main_ready(data)
 {
 	$('#main_results').html(data);
+	$('#server_select').val('{$server}');
 
 //	window.location.hash = current_hash;
 	main_timeout = setTimeout(main_refresh, main_delay);

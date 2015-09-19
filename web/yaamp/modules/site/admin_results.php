@@ -2,27 +2,41 @@
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-echo "<br><table class='dataGrid'>";
-//showTableSorter('maintable');
-echo "<thead class=''>";
+//echo '<br><table id="maintable" class="dataGrid">';
+showTableSorter('maintable', '{
+headers: {
+	0:{sorter:false},
+	1:{sorter:false},
+	2:{sorter:"text"},
+	3:{sorter:"text"},
+	4:{sorter:"currency"},
+	5:{sorter:"currency"},
+	6:{sorter:"currency"},
+	7:{sorter:"currency"},
+	8:{sorter:"currency"},
+	9:{sorter:"currency"},
+	10:{sorter:"currency"}
+}}');
 
-echo "<tr>";
-echo "<th width=30></th>";
-echo "<th></th>";
-echo "<th>Name</th>";
+echo <<<end
+<thead class="">
+<tr>
+<th width="30"></th>
+<th></th>
 
-echo "<th>Server</th>";
+<th>Name</th>
+<th>Server</th>
+<th align="right">Diff/Height</th>
+<th align="right">Profit</th>
+<th align="right">Owed/BTC</th>
+<th align="right">Balance/BTC</th>
+<th align="right">Mint/BTC</th>
+<th align="right">Price</th>
+<th align="right">Win/Market</th>
 
-echo "<th align=right>Diff/Height</th>";
-echo "<th align=right>Profit</th>";
-echo "<th align=right>Owed/BTC</th>";
-echo "<th align=right>Balance/BTC</th>";
-echo "<th align=right>Mint/BTC</th>";
-echo "<th align=right>Price</th>";
-echo "<th align=right>Win/Market</th>";
-
-echo "</tr>";
-echo "</thead><tbody>";
+</tr>
+</thead><tbody>
+end;
 
 $current_algo = '';
 
@@ -34,12 +48,6 @@ if(!empty($server))
 }
 else
 	$coins = getdbolist('db_coins', "installed or enable order by algo, index_avg desc");
-
-$total = count($coins);
-echo "<tr>";
-echo "<td colspan=2></td>";
-echo "<td colspan=9>$total Coins</td>";
-echo "</tr>";
 
 foreach($coins as $coin)
 {
@@ -149,6 +157,12 @@ foreach($coins as $coin)
 
 	echo "</tr>";
 }
+
+$total = count($coins);
+echo "<tr>";
+echo "<td colspan=2></td>";
+echo "<td colspan=9>$total Coins</td>";
+echo "</tr>";
 
 echo "</tbody>";
 echo "</table>";
