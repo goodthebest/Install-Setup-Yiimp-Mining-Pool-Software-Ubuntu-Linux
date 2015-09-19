@@ -12,25 +12,46 @@
 
 <?php
 
-echo "<a href='/site/monsters'>refresh</a><br>";
+echo <<<end
+<div align="right" style="margin-top: -14px;">
+<input class="search" type="search" data-column="all" style="width: 140px;" placeholder="Search..." />
+</div>
+<style type="text/css">
+tr.ssrow.filtered { display: none; }
+</style>
+end;
 
-echo "<br><table class='dataGrid'>";
-echo "<thead>";
-echo "<tr>";
-echo "<th></th>";
-echo "<th></th>";
-echo "<th>Wallet</th>";
-echo "<th></th>";
-echo "<th>Last</th>";
-echo "<th>Blocks</th>";
-echo "<th>Balance</th>";
-echo "<th>Total Paid</th>";
-echo "<th>Miners</th>";
-echo "<th>Shares</th>";
-echo "<th></th>";
-echo "<th></th>";
-echo "</tr>";
-echo "</thead><tbody>";
+showTableSorter('maintable', "{
+	headers: { 0: { sorter: false} },
+	widgets: ['zebra','filter'],
+	widgetOptions: {
+		filter_external: '.search',
+		filter_columnFilters: false,
+		filter_childRows : true,
+		filter_ignoreCase: true
+	}
+}");
+
+echo <<<end
+<thead>
+<tr>
+<th></th>
+<th>Coin</th>
+<th></th>
+<th>Wallet</th>
+<th></th>
+<th>Last</th>
+<th>Blocks</th>
+<th>Balance</th>
+<th>Total Paid</th>
+<th>Miners</th>
+<th>Shares</th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+end;
 
 function showUser($userid, $what)
 {
@@ -53,9 +74,9 @@ function showUser($userid, $what)
 	echo "<tr class='ssrow'>";
 
 	if($coin)
-		echo "<td><img src='$coin->image' width=16> $coin->symbol</td>";
+		echo '<td><img src="'.$coin->image.'" width="16"></td><td>'.$coin->symbol.'</td>';
 	else
-		echo "<td></td>";
+		echo '<td colspan="2"></td>';
 
 	echo "<td>$user->id</td>";
 	echo "<td><a href='/site?address=$user->username'>$user->username</a></td>";

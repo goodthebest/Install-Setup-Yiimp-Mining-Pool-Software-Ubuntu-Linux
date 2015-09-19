@@ -18,7 +18,7 @@ JavascriptFile("/extensions/jqplot/plugins/jqplot.highlighter.js");
 <a href='/site/version'>Version</a>&nbsp;
 <a href='/site/earning'>Earnings</a>&nbsp;
 <a href='/site/payments'>Payments</a>&nbsp;
-<a href='/site/monsters'>Monitor</a>&nbsp;
+<a href='/site/monsters'>Big Miners</a>&nbsp;
 <a href='/site/connections'>Conns</a>&nbsp;
 <a href='/site/emptymarkets'>EmptyMarket</a>&nbsp;
 <a href='/coin'>New</a>&nbsp;

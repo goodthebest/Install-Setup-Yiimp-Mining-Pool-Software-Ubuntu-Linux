@@ -14,7 +14,7 @@ echo <<<end
 <a href='/site/monsters'>Big Miners</a>&nbsp;
 <a href='/site/emptymarkets'>EmptyMarket</a>&nbsp;
 
-<div align=right>
+<div align="right" style="margin-top: -14px;">
 Select Server:
 <select id='server_select'>
 <option value=''>all</option>
@@ -25,6 +25,7 @@ Select Server:
 <option value='yaamp5'>yaamp5</option>
 <option value='yaamp6'>yaamp6</option>
 </select>&nbsp;
+<input class="search" type="search" data-column="all" style="width: 140px;" placeholder="Search..." />
 </div>
 
 <div id='main_results'>
@@ -39,7 +40,7 @@ Select Server:
 <!-- br><a href='/site/updateprice'><img width=16 src=''><b>UPDATE PRICE</b></a -->
 <!-- br><a href='/site/dopayments'><img width=16 src=''><b>DO PAYMENTS</b></a -->
 
-<br><br><br><br><br><br><br><br><br><br>
+<br><br><br>
 
 <script>
 

@@ -2,7 +2,12 @@
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-//echo '<br><table id="maintable" class="dataGrid">';
+echo <<<end
+<style type="text/css">
+tr.ssrow.filtered { display: none; }
+</style>
+end;
+
 showTableSorter('maintable', '{
 headers: {
 	0:{sorter:false},
@@ -16,6 +21,13 @@ headers: {
 	8:{sorter:"currency"},
 	9:{sorter:"currency"},
 	10:{sorter:"currency"}
+},
+widgets: ["zebra","filter"],
+widgetOptions: {
+	filter_external: ".search",
+	filter_columnFilters: false,
+	filter_childRows : true,
+	filter_ignoreCase: true
 }}');
 
 echo <<<end
