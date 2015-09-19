@@ -5,10 +5,10 @@ $list = getdbolist('db_accounts', "coinid!=6 and (balance or last_login>UNIX_TIM
 echo "<br><table class='dataGrid'>";
 echo "<thead>";
 echo "<tr>";
-echo "<th>Wallet</th>";
-echo "<th>Last</th>";
 echo "<th width=20></th>";
 echo "<th>Coin</th>";
+echo "<th>Address</th>";
+echo "<th>Last</th>";
 echo "<th align=right>Pool</th>";
 echo "<th align=right>User</th>";
 echo "</tr>";
@@ -21,23 +21,21 @@ foreach($list as $user)
 	$d = datetoa2($user->last_login);
 
 	echo "<tr class='ssrow'>";
-	echo "<td><a href='/?address=$user->username'><b>$user->username</b></a></td>";
-	echo "<td>$d</td>";
 
-	if($coin)
-	{
+	if($coin) {
 		$coinbalance = bitcoinvaluetoa($coin->balance);
 		echo "<td><img width=16 src='$coin->image'></td>";
 		echo "<td><b><a href='/site/coin?id=$coin->id'>$coin->name</a></b></td>";
-		echo "<td align=right>$coinbalance</td>";
-	}
-	else
-	{
+	} else {
+		$coinbalance = '';
 		echo "<td></td>";
 		echo "<td></td>";
-		echo "<td align=right></td>";
 	}
 
+	echo "<td><a href='/?address=$user->username'><b>$user->username</b></a></td>";
+	echo "<td>$d</td>";
+
+	echo "<td align=right>$coinbalance</td>";
 	echo "<td align=right>$balance</td>";
 	echo "</tr>";
 }

@@ -1,23 +1,24 @@
 <?php
 
+echo getAdminSideBarLinks();
+
 $symbol = getparam('symbol');
-$string = "<option value='all'>-all-</option>";
+$coins = "<option value='all'>-all-</option>";
 
 $list = getdbolist('db_coins', "enable AND id IN (select distinct coinid from accounts where balance>0.0001)");
 foreach($list as $coin)
 {
 	if($coin->symbol == $symbol)
-		$string .= "<option value='$coin->symbol' selected>$coin->symbol</option>";
+		$coins .= "<option value='$coin->symbol' selected>$coin->symbol</option>";
 	else
-		$string .= "<option value='$coin->symbol'>$coin->symbol</option>";
+		$coins .= "<option value='$coin->symbol'>$coin->symbol</option>";
 }
 
-echo getAdminSideBarLinks();
 
 echo <<<end
 
-<div align="right" style="margin-top: -14px;">
-Select coin: <select id='coin_select'>$string</select>&nbsp;
+<div align="right" style="margin-top: -14px; margin-bottom: 6px;">
+Select coin: <select id='coin_select'>$coins</select>&nbsp;
 </div>
 
 <div id='main_results'></div>
@@ -67,5 +68,4 @@ function main_refresh()
 
 end;
 
-
-
+echo "Note: this table show users with a non-zero balance.";

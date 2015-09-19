@@ -16,11 +16,16 @@ else
 }
 
 //echo "<br><table class='dataGrid'>";
-showTableSorter('maintable');
+showTableSorter('maintable', "{
+	tableClass: 'dataGrid'
+}");
+
 echo "<thead>";
 echo "<tr>";
 echo "<th>ID</th>";
 echo "<th>Wallet</th>";
+echo "<th></th>";
+echo "<th>Address</th>";
 echo "<th>Last</th>";
 echo "<th align=right>Miners</th>";
 echo "<th align=right>Hashrate</th>";
@@ -61,19 +66,34 @@ foreach($users as $user)
 	$user_rate = Itoa2($user_rate);
 	$user_bad = Itoa2($user_bad);
 
+	$coinimg = ''; $coinsym = '';
+	$imgopt = array('width'=>'16');
+	if ($coin && $user->coinid == $coin->id) {
+		$coinsym = $coin->symbol;
+		$coinimg = CHtml::image($coin->image, $coinsym, $imgopt);
+	} else if ($user->coinid > 0) {
+		$user_coin = getdbosql('db_coins', "id=:id", array(':id'=>$user->coinid));
+		if ($user_coin) {
+			$coinsym = $user_coin->symbol;
+			$coinimg = CHtml::image($user_coin->image, $coinsym, $imgopt);
+		}
+	}
+
 	echo "<tr class='ssrow'>";
-	echo "<td>$user->id</td>";
+	echo "<td width=24>$user->id</td>";
+	echo "<td width=48>$coinsym</td>";
+	echo "<td width=16>$coinimg</td>";
 	echo "<td><a href='/?address=$user->username'><b>$user->username</b></a></td>";
 	echo "<td>$d</td>";
 	echo "<td align=right>$miner_count</td>";
 
-	echo "<td align=right>$user_rate</td>";
-	echo "<td align=right>$user_bad</td>";
+	echo "<td width=32 align=right>$user_rate</td>";
+	echo "<td width=32 align=right>$user_bad</td>";
 
 	if($percent > 50)
-		echo "<td align=right><b>{$percent}%</b></td>";
+		echo "<td width=32><b>{$percent}%</b></td>";
 	else
-		echo "<td align=right>{$percent}%</td>";
+		echo "<td width=32>{$percent}%</td>";
 
 	echo "<td align=right>$block_count</td>";
 	echo "<td align=right>$block_diff</td>";
@@ -89,13 +109,16 @@ foreach($users as $user)
 
 echo "</tbody>";
 
+// totals colspan
+$colspan = 8;
+
 $total_balance = bitcoinvaluetoa($total_balance);
 $total_paid = bitcoinvaluetoa($total_paid);
 $user_count = count($users);
 
 echo "<tr class='ssrow' style='border-top: 2px solid #eee;'>";
-echo "<td><b>Users Total ($user_count)</b></a></td>";
-echo "<td colspan=7></td>";
+echo "<td colspan=3><b>Users Total ($user_count)</b></a></td>";
+echo "<td colspan=$colspan></td>";
 echo "<td align=right><b>$total_balance</b></td>";
 echo "<td align=right><b>$total_paid</b></td>";
 echo "<td></td>";
@@ -107,15 +130,15 @@ if($coin)
 	$profit = bitcoinvaluetoa($balance - $total_balance);
 
 	echo "<tr class='ssrow' style='border-top: 2px solid #eee;'>";
-	echo "<td><b>Wallet Balance</b></a></td>";
-	echo "<td colspan=7></td>";
+	echo "<td colspan=3><b>Wallet Balance</b></a></td>";
+	echo "<td colspan=$colspan></td>";
 	echo "<td align=right><b>$balance</b></td>";
 	echo "<td colspan=2></td>";
 	echo "</tr>";
 
 	echo "<tr class='ssrow' style='border-top: 2px solid #eee;'>";
-	echo "<td><b>Wallet Profit</b></a></td>";
-	echo "<td colspan=7></td>";
+	echo "<td colspan=3><b>Wallet Profit</b></a></td>";
+	echo "<td colspan=$colspan></td>";
 	echo "<td align=right><b>$profit</b></td>";
 	echo "<td colspan=2></td>";
 	echo "</tr>";

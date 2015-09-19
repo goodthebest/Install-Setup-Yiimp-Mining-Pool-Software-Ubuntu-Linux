@@ -5,7 +5,7 @@ echo getAdminSideBarLinks();
 $server = getparam('server');
 
 echo <<<end
-<div align="right" style="margin-top: -14px;">
+<div align="right" style="margin-top: -14px; margin-bottom: 6px;">
 Select Server:
 <select id='server_select'>
 <option value=''>all</option>

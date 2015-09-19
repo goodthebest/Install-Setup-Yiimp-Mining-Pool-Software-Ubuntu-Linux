@@ -1,8 +1,28 @@
 <?php
 
-echo getAdminSideBarLinks()."<br>";
+echo getAdminSideBarLinks();
 
-echo "<br><table class='dataGrid'>";
+echo <<<end
+<div align="right" style="margin-top: -14px; margin-bottom: 6px;">
+<input class="search" type="search" data-column="all" style="width: 140px;" placeholder="Search..." />
+</div>
+<style type="text/css">
+tr.ssrow.filtered { display: none; }
+</style>
+end;
+
+showTableSorter('maintable', "{
+	tableClass: 'dataGrid',
+	headers: { 0: { sorter: false} },
+	widgets: ['zebra','filter'],
+	widgetOptions: {
+		filter_external: '.search',
+		filter_columnFilters: false,
+		filter_childRows : true,
+		filter_ignoreCase: true
+	}
+}");
+
 echo "<thead>";
 echo "<tr>";
 echo "<th>Coin</th>";

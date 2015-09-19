@@ -3,7 +3,7 @@
 //echo "<a href='/coin/create'>Add a coin</a>";
 
 echo <<<end
-<div align="right">
+<div align="right" style="margin-bottom: 6px;">
 <input class="search" type="search" data-column="all" style="width: 140px;" placeholder="Search..." />
 </div>
 <style type="text/css">
@@ -12,6 +12,7 @@ tr.ssrow.filtered { display: none; }
 end;
 
 showTableSorter('maintable', "{
+	tableClass: 'dataGrid',
 	headers: { 0: { sorter: false} },
 	widgets: ['zebra','filter'],
 	widgetOptions: {
