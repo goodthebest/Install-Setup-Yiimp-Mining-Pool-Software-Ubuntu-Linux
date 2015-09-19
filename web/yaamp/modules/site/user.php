@@ -3,7 +3,7 @@
 $symbol = getparam('symbol');
 $string = "<option value='all'>-all-</option>";
 
-$list = getdbolist('db_coins', "enable and id in (select distinct coinid from accounts where balance>0.0001)");
+$list = getdbolist('db_coins', "enable AND id IN (select distinct coinid from accounts where balance>0.0001)");
 foreach($list as $coin)
 {
 	if($coin->symbol == $symbol)
@@ -12,21 +12,12 @@ foreach($list as $coin)
 		$string .= "<option value='$coin->symbol'>$coin->symbol</option>";
 }
 
+echo getAdminSideBarLinks();
+
 echo <<<end
 
-<a href='/site/common'>Summary</a>&nbsp;
-<a href='/site/admin'>Coins</a>&nbsp;
-<a href='/site/exchange'>Exchange</a>&nbsp;
-<a href='/site/user'>Users</a>&nbsp;
-<a href='/site/worker'>Workers</a>&nbsp;
-<a href='/site/version'>Version</a>&nbsp;
-<a href='/site/earning'>Earnings</a>&nbsp;
-<a href='/site/payments'>Payments</a>&nbsp;
-<a href='/site/monsters'>Big Miners</a>&nbsp;
-<a href='/site/emptymarkets'>EmptyMarket</a>&nbsp;
-
-<div>
-Select Algo: <select id='coin_select'>$string</select>&nbsp;
+<div align="right" style="margin-top: -14px;">
+Select coin: <select id='coin_select'>$string</select>&nbsp;
 </div>
 
 <div id='main_results'></div>

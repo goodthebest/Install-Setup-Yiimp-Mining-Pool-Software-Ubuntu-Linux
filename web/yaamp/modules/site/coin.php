@@ -1,14 +1,3 @@
-
-<a href='/site/common'>Summary</a>&nbsp;
-<a href='/site/admin'>Coins</a>&nbsp;
-<a href='/site/exchange'>Exchange</a>&nbsp;
-<a href='/site/user?symbol=BTC'>Users</a>&nbsp;
-<a href='/site/worker'>Workers</a>&nbsp;
-<a href='/site/version'>Version</a>&nbsp;
-<a href='/site/earning'>Earnings</a>&nbsp;
-<a href='/site/payments'>Payments</a>&nbsp;
-<br>
-
 <?php
 
 $id = getiparam('id');
@@ -16,6 +5,8 @@ $coin = getdbo('db_coins', $id);
 if (!$coin) {
 	$this->goback();
 }
+
+echo getAdminSideBarLinks()."<br>";
 
 $remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
 $info = $remote->getinfo();

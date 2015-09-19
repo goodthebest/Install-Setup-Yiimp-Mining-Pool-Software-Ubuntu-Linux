@@ -1,19 +1,10 @@
 <?php
 
+echo getAdminSideBarLinks();
+
 $server = getparam('server');
+
 echo <<<end
-
-<a href='/site/common'>Summary</a>&nbsp;
-<a href='/site/admin'>Coins</a>&nbsp;
-<a href='/site/exchange'>Exchange</a>&nbsp;
-<a href='/site/user?symbol=BTC'>Users</a>&nbsp;
-<a href='/site/worker'>Workers</a>&nbsp;
-<a href='/site/version'>Version</a>&nbsp;
-<a href='/site/earning'>Earnings</a>&nbsp;
-<a href='/site/payments'>Payments</a>&nbsp;
-<a href='/site/monsters'>Big Miners</a>&nbsp;
-<a href='/site/emptymarkets'>EmptyMarket</a>&nbsp;
-
 <div align="right" style="margin-top: -14px;">
 Select Server:
 <select id='server_select'>

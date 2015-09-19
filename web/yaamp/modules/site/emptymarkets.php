@@ -1,5 +1,7 @@
 <?php
 
+echo getAdminSideBarLinks()."<br>";
+
 echo "<br><table class='dataGrid'>";
 echo "<thead>";
 echo "<tr>";
