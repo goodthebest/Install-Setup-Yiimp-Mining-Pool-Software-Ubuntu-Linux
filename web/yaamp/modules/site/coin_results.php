@@ -3,19 +3,24 @@
 $coin = getdbo('db_coins', getiparam('id'));
 if (!$coin) $this->goback();
 
+$PoS = ($coin->algo == 'PoS'); // or if 'stake' key is present in 'getinfo' method
+
 $remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
 
 $reserved1 = dboscalar("select sum(balance) from accounts where coinid=$coin->id");
 $reserved2 = dboscalar("select sum(amount*price) from earnings
 	where status!=2 and userid in (select id from accounts where coinid=$coin->id)");
 
-$reserved = ($reserved1 + $reserved2) * 2;
+$reserved = bitcoinvaluetoa(($reserved1 + $reserved2) * 2);
+$reserved1 = altcoinvaluetoa($reserved1);
+$reserved2 = bitcoinvaluetoa($reserved2);
+$balance = altcoinvaluetoa($coin->balance);
 
 $owed = dboscalar("select sum(amount) from earnings where status!=2 and coinid=$coin->id");
 $owed_btc = $owed? bitcoinvaluetoa($owed*$coin->price): '';
 $owed = $owed? altcoinvaluetoa($owed): '';
 
-echo "cleared $reserved1, earnings $reserved2, reserved $reserved, balance $coin->balance, owed $owed, owned btc $owed_btc<br><br>";
+echo "cleared $reserved1, earnings $reserved2, reserved $reserved, balance $balance, owed $owed, owned btc $owed_btc<br><br>";
 
 //////////////////////////////////////////////////////////////////////////////////////
 
@@ -57,16 +62,17 @@ foreach($list as $market)
 
 	$sent = datetoa2($market->lastsent);
 	$traded = datetoa2($market->lasttraded);
-	$late = $sent > $traded? 'late': '';
+	$late = $market->lastsent > $market->lasttraded ? 'late': '';
 
-	echo "<td>$sent ago</td>";
-	echo "<td>$traded ago</td>";
-	echo "<td>$late</td>";
-	echo "<td>$market->deposit_address ";
+	echo '<td>'.(empty($sent)   ? "" : "$sent ago").'</td>';
+	echo '<td>'.(empty($traded) ? "" : "$traded ago").'</td>';
+	echo '<td>'.$late.'</td>';
 
+	echo '<td>';
 	echo "<a href='/market/update?id=$market->id'>edit</a> ";
 	echo "<a href='javascript:showSellAmountDialog($market->id)'>sell</a> ";
-	echo "<a href='/market/delete?id=$market->id'>del</a></td>";
+	echo "<a href='/market/delete?id=$market->id'>del</a>";
+	echo ' '.$market->deposit_address.'</td>';
 
 	echo "<td>$market->message</td>";
 	echo "</tr>";
@@ -75,6 +81,12 @@ foreach($list as $market)
 echo "</tbody></table><br>";
 
 //////////////////////////////////////////////////////////////////////////////////////
+
+$info = $remote->getinfo();
+if (!empty($info)) {
+	$stake = isset($info['stake'])? $info['stake']: '';
+	if ($stake !== '') $PoS = true;
+}
 
 echo "<table class='dataGrid'>";
 //showTableSorter('maintable');
@@ -90,6 +102,7 @@ echo "<th>Difficulty</th>";
 echo "<th>Blocks</th>";
 echo "<th>Balance</th>";
 echo "<th>BTC</th>";
+if ($PoS) echo "<th>Stake</th>";
 echo "<th>Conns</th>";
 
 echo "<th>Price</th>";
@@ -110,12 +123,10 @@ else
 echo "<td><b><a href='/site/coin?id=$coin->id'>$coin->name</a></b></td>";
 echo "<td><b>$coin->symbol</b></td>";
 
-$info = $remote->getinfo();
 if(!$info)
 {
-	echo "ERROR $remote->error<br><br>";
-
-//	echo "<td></td>";
+	echo "<td colspan=8>ERROR $remote->error</td>";
+	echo "</tr></tbody></table>";
 	return;
 }
 
@@ -131,14 +142,15 @@ if(!empty($errors))
 else
 	echo "<td>$blocks</td>";
 
-echo "<td>$balance</td>";
+echo '<td>'.altcoinvaluetoa($balance).'</td>';
 
-$btc = $balance*$coin->price;
+$btc = bitcoinvaluetoa($balance*$coin->price);
 echo "<td>$btc</td>";
+if ($PoS) echo '<td>'.$stake.'</td>';
 echo "<td>$connections</td>";
 
-echo "<td>$coin->price</td>";
-echo "<td>$coin->reward</td>";
+echo '<td>'.bitcoinvaluetoa($coin->price).'</td>';
+echo '<td>'.$coin->reward.'</td>';
 
 if($coin->difficulty)
 	$index = round($coin->reward * $coin->price / $coin->difficulty * 10000, 3);
@@ -157,16 +169,17 @@ echo "<thead class=''>";
 
 echo "<tr>";
 echo "<th>Time</th>";
-echo "<th>Height</th>";
 echo "<th>Category</th>";
 echo "<th>Amount</th>";
-echo "<th>Confirmations</th>";
-echo "<th></th>";
+echo "<th>Height</th>";
+echo "<th>Difficulty</th>";
+echo "<th>Confirm</th>";
+echo "<th>Address</th>";
 echo "</tr>";
 echo "</thead><tbody>";
 
 //$transactions = $remote->listsinceblock('');
-$ts = $remote->listtransactions('', 10);
+$ts = $remote->listtransactions('', 15);
 
 $res_array = array();
 if (!empty($ts))
@@ -188,13 +201,13 @@ foreach($res_array as $transaction)
 	echo "<tr class='ssrow'>";
 	echo "<td><b>$d</b></td>";
 
-	if($block)
-		echo "<td>{$block['height']}</td>";
-	else
-		echo "<td></td>";
-
 	echo "<td>{$transaction['category']}</td>";
 	echo "<td>{$transaction['amount']}</td>";
+
+	if($block) {
+		echo "<td>{$block['height']}</td><td>{$block['difficulty']}</td>";
+	} else
+		echo "<td></td><td></td>";
 
 	if(isset($transaction['confirmations']))
 		echo "<td>{$transaction['confirmations']}</td>";
@@ -205,7 +218,7 @@ foreach($res_array as $transaction)
 	if(isset($transaction['address']))
 	{
 		$address = $transaction['address'];
-		echo "address $address<br>";
+		echo "$address<br>";
 	}
 
 //	if($block) foreach($block['tx'] as $i=>$tx)
