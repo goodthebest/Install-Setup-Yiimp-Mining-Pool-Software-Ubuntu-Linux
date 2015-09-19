@@ -1,25 +1,42 @@
 <?php
 
 //echo "<a href='/coin/create'>Add a coin</a>";
-echo '<br>';
 
-showTableSorter('maintable', '{headers: {0: {sorter: false}}}');
-echo "<thead>";
+echo <<<end
+<div align="right">
+<input class="search" type="search" data-column="all" style="width: 140px;" placeholder="Search..." />
+</div>
+<style type="text/css">
+tr.ssrow.filtered { display: none; }
+</style>
+end;
 
-echo "<tr>";
-echo "<th width=30></th>";
-echo "<th>Name</th>";
-echo "<th>Symbol</th>";
-echo "<th>Algo</th>";
-echo "<th>Status</th>";
-echo "<th>Version</th>";
-echo "<th>Created</th>";
-//echo "<th>Difficulty</th>";
-echo "<th>Height</th>";
-echo "<th>Message</th>";
-echo "<th>Links</th>";
-echo "</tr>";
-echo "</thead><tbody>";
+showTableSorter('maintable', "{
+	headers: { 0: { sorter: false} },
+	widgets: ['zebra','filter'],
+	widgetOptions: {
+		filter_external: '.search',
+		filter_columnFilters: false,
+		filter_childRows : true,
+		filter_ignoreCase: true
+	}
+}");
+
+echo <<<end
+<thead><tr>
+<th width="30"></th>
+<th>Name</th>
+<th>Symbol</th>
+<th>Algo</th>
+<th>Status</th>
+<th>Version</th>
+<th>Created</th>
+<th>Height</th>
+<th>Message</th>
+<th>Links</th>
+</tr></thead>
+<tbody>
+end;
 
 $total_active = 0;
 $total_installed = 0;
