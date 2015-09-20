@@ -13,7 +13,7 @@ echo getAdminSideBarLinks();
 //<a href='/renting/admin'>Jobs</a>&nbsp;
 ?>
 
-<a href='/site/connections'>Conns</a>&nbsp;
+<a href='/site/connections'>Connections</a>&nbsp;
 <?php if (YAAMP_RENTAL) : ?>
 <a href='/renting/admin'>Rental</a>&nbsp;
 <?php endif; ?>
