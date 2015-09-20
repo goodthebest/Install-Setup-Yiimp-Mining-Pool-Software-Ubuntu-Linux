@@ -156,12 +156,28 @@ function updateRawCoin($marketname, $symbol, $name='unknown')
 	$coin = getdbosql('db_coins', "symbol=:symbol", array(':symbol'=>$symbol));
 	if(!$coin && $marketname != 'yobit')
 	{
+		$algo = '';
+		if ($marketname == 'cryptopia') {
+			// get coin label and algo (different api)
+			$labels = cryptopia_api_query('GetCurrencies');
+			if (is_object($labels) && !empty($labels->Data)) {
+				foreach ($labels->Data as $coin) {
+					if ($coin->Symbol == $symbol) {
+						$name = $coin->Name;
+						$algo = $coin->Algorithm;
+						break;
+					}
+				}
+			}
+		}
+
 		debuglog("new coin $marketname $symbol $name");
 
 		$coin = new db_coins;
 		$coin->txmessage = true;
 		$coin->hassubmitblock = true;
 		$coin->name = $name;
+		$coin->algo = $algo;
 		$coin->symbol = $symbol;
 		$coin->created = time();
 		$coin->save();

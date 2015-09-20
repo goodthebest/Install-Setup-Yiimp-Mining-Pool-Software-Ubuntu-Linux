@@ -80,6 +80,8 @@ class DeleteCoinCommand extends CConsoleCommand
 			dborun("DELETE FROM blocks WHERE coin_id=".$coin->id);
 			dborun("DELETE FROM shares WHERE coinid=".$coin->id);
 			dborun("DELETE FROM earnings WHERE coinid=".$coin->id);
+			dborun("DELETE FROM markets WHERE coinid=".$coin->id);
+
 			$nbAccounts = dborun("DELETE FROM accounts WHERE coinid=".$coin->id);
 
 			$coin->installed=0;
