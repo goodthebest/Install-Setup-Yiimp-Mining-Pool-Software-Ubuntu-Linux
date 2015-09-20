@@ -164,12 +164,23 @@ class CoindbCommand extends CConsoleCommand
 	{
 		$sqlFolder = $this->basePath.'/../sql/';
 		$jsonFile = $sqlFolder.'labels.json';
+		//$jsonFile = $sqlFolder.'yobit.txt';
 		if (!file_exists($jsonFile))
 			return 0;
 
 		$nbUpdated = 0;
 
 		$json = json_decode(file_get_contents($jsonFile), true);
+	/*
+		$json = array();
+		$txt = explode("\n", file_get_contents($jsonFile));
+		foreach ($txt as $line)
+		{
+			$cells = explode("\t", $line);
+			if (count($cells) < 2) continue;
+			$json[$cells[0]] = $cells[1];
+		}
+	*/
 		if (!empty($json))
 		{
 			$coins = new db_coins;

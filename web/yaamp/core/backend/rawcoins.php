@@ -154,7 +154,7 @@ function updateRawCoin($marketname, $symbol, $name='unknown')
 	if($symbol == 'BTC') return;
 
 	$coin = getdbosql('db_coins', "symbol=:symbol", array(':symbol'=>$symbol));
-	if(!$coin)
+	if(!$coin && $marketname != 'yobit')
 	{
 		debuglog("new coin $marketname $symbol $name");
 
