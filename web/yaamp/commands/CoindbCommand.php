@@ -35,9 +35,12 @@ class CoindbCommand extends CConsoleCommand
 			return 1;
 
 		} elseif ($args[0] == 'labels') {
-			$this->updateCoinsLabels();
-			$this->updateCryptopiaLabels();
-			echo "ok\n";
+
+			$nbUpdated  = $this->updateCoinsLabels();
+			$nbUpdated += $this->updateCryptopiaLabels();
+			$nbUpdated += $this->updateFromJson();
+
+			echo "total updated: $nbUpdated\n";
 			return 0;
 		}
 	}
@@ -75,12 +78,13 @@ class CoindbCommand extends CConsoleCommand
 
 		require_once($modelsPath.'/db_coinsModel.php');
 
+		$nbUpdated = 0;
+
 		$coins = new db_coins;
 		if ($coins instanceof CActiveRecord)
 		{
 			echo "".$coins->count()." coins in the database\n";
 
-			$nbUpdated = 0;
 			$dataset = $coins->findAll(array('condition'=>'name = :u', 'params'=>array(':u'=>'unknown')));
 			$json = self::getCoinChartsData();
 			foreach ($dataset as $coin) {
@@ -93,8 +97,10 @@ class CoindbCommand extends CConsoleCommand
 					}
 				}
 			}
-			echo "$nbUpdated coin labels updated\n";
+			if ($nbUpdated)
+				echo "$nbUpdated coin labels updated from cryptocoincharts.info\n";
 		}
+		return $nbUpdated;
 	}
 
 	/**
@@ -122,14 +128,17 @@ class CoindbCommand extends CConsoleCommand
 		require_once($modelsPath.'/db_coinsModel.php');
 
 		$coins = new db_coins;
-		if ($coins instanceof CActiveRecord)
+		$nbUpdated = 0;
+
+		$dataset = $coins->findAll(array(
+			'condition'=>"name=:u OR algo=''",
+			'params'=>array(':u'=>'unknown')
+		));
+
+		if (!empty($dataset))
 		{
-			$nbUpdated = 0;
-			$dataset = $coins->findAll(array(
-				'condition'=>"name=:u OR algo=''",
-				'params'=>array(':u'=>'unknown')
-			));
 			$json = self::getCryptopiaCurrencies();
+
 			foreach ($dataset as $coin) {
 				if ($coin->name == 'unknown' && isset($json[$coin->symbol])) {
 					$cc = $json[$coin->symbol];
@@ -142,8 +151,46 @@ class CoindbCommand extends CConsoleCommand
 					}
 				}
 			}
-			echo "$nbUpdated coin labels updated\n";
+			if ($nbUpdated)
+				echo "$nbUpdated coin labels updated from cryptopia\n";
 		}
+		return $nbUpdated;
+	}
+
+	/**
+	 * To import from a json file placed in the sql/ folder
+	 */
+	public function updateFromJson()
+	{
+		$sqlFolder = $this->basePath.'/../sql/';
+		$jsonFile = $sqlFolder.'labels.json';
+		if (!file_exists($jsonFile))
+			return 0;
+
+		$nbUpdated = 0;
+
+		$json = json_decode(file_get_contents($jsonFile), true);
+		if (!empty($json))
+		{
+			$coins = new db_coins;
+			$dataset = $coins->findAll(array(
+				'condition'=>"name=:u",
+				'params'=>array(':u'=>'unknown')
+			));
+
+			if (!empty($dataset))
+			foreach ($dataset as $coin) {
+				if (isset($json[$coin->symbol])) {
+					$name = $json[$coin->symbol];
+					echo "{$coin->symbol}: {$name}\n";
+					$coin->name = $name;
+					$nbUpdated += $coin->save();
+				}
+			}
+			if ($nbUpdated)
+				echo "$nbUpdated coin labels updated from labels.json file\n";
+		}
+		return $nbUpdated;
 	}
 
 }
