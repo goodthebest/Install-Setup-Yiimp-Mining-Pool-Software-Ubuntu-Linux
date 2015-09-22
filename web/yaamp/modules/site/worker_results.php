@@ -19,6 +19,7 @@ echo "<th>Diff</th>";
 echo "<th>Shares</th>";
 echo "<th>Bad</th>";
 echo "<th>%</th>";
+echo "<th>Found</th>";
 echo "<th></th>";
 echo "</tr>";
 echo "</thead><tbody>";
@@ -83,10 +84,20 @@ foreach($workers as $worker)
 	}
 	echo "</td>";
 
+	$worker_blocs = dboscalar("SELECT COUNT(id) as blocs FROM blocks WHERE workerid=:worker AND algo=:algo", array(
+		':worker'=> $worker->id,
+		':algo'=> $algo
+	));
+	$user_blocs = dboscalar("SELECT COUNT(id) as blocs FROM blocks WHERE userid=:user AND algo=:algo
+		AND time > (SELECT min(time) FROM workers WHERE algo=:algo)", array(
+		':user'=> $worker->userid,
+		':algo'=> $algo
+	));
 	echo '<td>'.number_format($percent,1,'.','').'%</td>';
 
-	echo "<td>$name</td>";
-	echo "</tr>";
+	echo '<td>'.$worker_blocs.' / '.$user_blocs.'</td>';
+	echo '<td>'.$name.'</td>';
+	echo '</tr>';
 }
 
 echo "</tbody></table>";

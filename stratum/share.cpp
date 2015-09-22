@@ -167,7 +167,7 @@ void share_prune(YAAMP_DB *db)
 void block_prune(YAAMP_DB *db)
 {
 	int count = 0;
-	char buffer[128*1024] = "insert into blocks (height, blockhash, coin_id, userid, category, difficulty, difficulty_user, time, algo) values ";
+	char buffer[128*1024] = "insert into blocks (height, blockhash, coin_id, userid, workerid, category, difficulty, difficulty_user, time, algo) values ";
 
 	g_list_block.Enter();
 	for(CLI li = g_list_block.first; li; li = li->next)
@@ -186,8 +186,8 @@ void block_prune(YAAMP_DB *db)
 		}
 
 		if(count) strcat(buffer, ",");
-		sprintf(buffer+strlen(buffer), "(%d, '%s', %d, %d, 'new', %f, %f, %d, '%s')",
-			block->height, block->hash, block->coinid, block->userid,
+		sprintf(buffer+strlen(buffer), "(%d, '%s', %d, %d, %d, 'new', %f, %f, %d, '%s')",
+			block->height, block->hash, block->coinid, block->userid, block->workerid,
 			block->difficulty, block->difficulty_user, (int)block->created, g_stratum_algo);
 
 		object_delete(block);
@@ -198,13 +198,14 @@ void block_prune(YAAMP_DB *db)
 	if(count) db_query(db, buffer);
 }
 
-void block_add(int userid, int coinid, int height, double difficulty, double difficulty_user, const char *hash1, const char *hash2)
+void block_add(int userid, int workerid, int coinid, int height, double difficulty, double difficulty_user, const char *hash1, const char *hash2)
 {
 	YAAMP_BLOCK *block = new YAAMP_BLOCK;
 	memset(block, 0, sizeof(YAAMP_BLOCK));
 
 	block->created = time(NULL);
 	block->userid = userid;
+	block->workerid = workerid;
 	block->coinid = coinid;
 	block->height = height;
 	block->difficulty = difficulty;

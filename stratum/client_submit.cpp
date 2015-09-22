@@ -189,7 +189,7 @@ static void client_do_submit(YAAMP_CLIENT *client, YAAMP_JOB *job, YAAMP_JOB_VAL
 			{
 				debuglog("*** ACCEPTED %s %d\n", coind_aux->name, coind_aux->height+1);
 
-				block_add(client->userid, coind_aux->id, coind_aux->height, target_to_diff(coin_target_aux),
+				block_add(client->userid, client->workerid, coind_aux->id, coind_aux->height, target_to_diff(coin_target_aux),
 					target_to_diff(hash_int), coind_aux->aux.hash, "");
 			}
 
@@ -248,7 +248,7 @@ static void client_do_submit(YAAMP_CLIENT *client, YAAMP_JOB *job, YAAMP_JOB_VAL
 				strcpy(hash1, submitvalues->hash_hex);
 			}
 
-			block_add(client->userid, coind->id, templ->height,
+			block_add(client->userid, client->workerid, coind->id, templ->height,
 				target_to_diff(coin_target), target_to_diff(hash_int),
 				hash1, submitvalues->hash_be);
 

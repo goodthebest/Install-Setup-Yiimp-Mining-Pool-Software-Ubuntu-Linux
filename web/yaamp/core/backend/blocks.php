@@ -113,11 +113,25 @@ function BackendBlockFind1($coinid = NULL)
 		$db_block->amount = $tx['details'][0]['amount'];
 		$db_block->confirmations = $tx['confirmations'];
 		$db_block->price = $coin->price;
+
+		// save worker to compute blocs found per worker (current workers stats)
+		// now made directly in stratum - require DB update 2015-09-20
+		if (empty($db_block->workerid) && $db_block->userid > 0) {
+			$db_block->workerid = (int) dboscalar(
+				"SELECT workerid FROM shares WHERE userid=:user AND coinid=:coin AND valid=1 AND time <= :time ".
+				"ORDER BY difficulty DESC LIMIT 1", array(
+				':user' => $db_block->userid,
+				':coin' => $db_block->coin_id,
+				':time' => $db_block->time
+			));
+			if (!$db_block->workerid) $db_block->workerid = NULL;
+		}
+
 		if (!$db_block->save())
 			debuglog(__FUNCTION__.": unable to insert block!");
 
 		if($db_block->category != 'orphan')
-			BackendBlockNew($coin, $db_block);
+			BackendBlockNew($coin, $db_block); // will drop shares
 	}
 }
 
@@ -255,7 +269,7 @@ function BackendBlockFind2($coinid = NULL)
 			}
 
 			// masternode earnings...
-			if ($transaction['amount'] == 0 && $transaction['generated']) {
+			if (empty($db_block->userid) && $transaction['amount'] == 0 && $transaction['generated']) {
 				$db_block->algo = 'MN';
 				$tx = $remote->getrawtransaction($transaction['txid'], 1);
 
