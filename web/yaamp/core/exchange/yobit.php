@@ -35,7 +35,7 @@ function yobit_api_query2($method, $req = array())
 	$api_secret = EXCH_YOBIT_SECRET;
 
 	$req['method'] = $method;
-	$req['nonce'] = time();
+	$req['nonce'] = time(); //sleep(1);
 
 	$post_data = http_build_query($req, '', '&');
 	$sign = hash_hmac("sha512", $post_data, $api_secret);
@@ -63,8 +63,6 @@ function yobit_api_query2($method, $req = array())
 		debuglog($e);
 		curl_close($ch);
 		return null;
-	} else if ($method != "getInfo") {
-		debuglog("yobit $method $post_data ok");
 	}
 
 	curl_close($ch);

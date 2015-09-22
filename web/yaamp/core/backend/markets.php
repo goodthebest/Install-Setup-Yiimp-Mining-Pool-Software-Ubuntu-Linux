@@ -515,6 +515,18 @@ function updateYobitMarkets()
 		$ticker = yobit_api_query("ticker/$pair");
 		if(!$ticker) continue;
 
+		// todo: should be double checked (or reset) every x days..
+		if(empty($market->deposit_address) && !empty(EXCH_YOBIT_KEY))
+		{
+			sleep(1); // for the tapi nonce
+			$address = yobit_api_query2('GetDepositAddress', array("coinName"=>$coin->symbol));
+			if (!empty($address) && isset($address['return']) && $address['success']) {
+				$market->deposit_address = $address['return']['address'];
+				debuglog("yobit addr {$coin->symbol} ".$market->deposit_address);
+			}
+			else debuglog("yobit addr {$coin->symbol} ".json_encode($address));
+		}
+
 		$price2 = ($ticker->$pair->buy+$ticker->$pair->sell)/2;
 		$market->price2 = AverageIncrement($market->price2, $price2);
 		$market->price = AverageIncrement($market->price, $ticker->$pair->buy);
