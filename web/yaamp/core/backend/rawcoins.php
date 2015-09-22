@@ -164,7 +164,7 @@ function updateRawCoin($marketname, $symbol, $name='unknown')
 				foreach ($labels->Data as $coin) {
 					if ($coin->Symbol == $symbol) {
 						$name = $coin->Name;
-						$algo = $coin->Algorithm;
+						$algo = strtolower($coin->Algorithm);
 						break;
 					}
 				}
@@ -186,7 +186,7 @@ function updateRawCoin($marketname, $symbol, $name='unknown')
 		sleep(30);
 	}
 
-	else if($coin->name == 'unknown' && $name != 'unknown')
+	else if($coin && $coin->name == 'unknown' && $name != 'unknown')
 	{
 		$coin->name = $name;
 		$coin->save();

@@ -10,6 +10,8 @@ if (empty($json)) {
 	// version is used in multi algo coins
 	$multiAlgos = versionToAlgo($coin, 0) !== false;
 
+	$series['diff'] = array();
+
 	$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
 	for($i = $coin->block_height; $i > max(0, $coin->block_height-500); $i--)
 	{
