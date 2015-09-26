@@ -32,7 +32,7 @@ class ExplorerController extends CommonController
 			$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
 			$tx = $remote->getrawtransaction($txid, 1);
 
-			$hash = $tx['blockhash'];
+			$hash = arraySafeVal($tx,'blockhash');
 		}
 
 		if($coin && !empty($hash) && ctype_alnum($hash))
