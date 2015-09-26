@@ -106,6 +106,8 @@ extern YAAMP_DB *g_db;
 extern YAAMP_ALGO g_algos[];
 extern YAAMP_ALGO *g_current_algo;
 
+extern bool g_autoexchange;
+
 /////////////////////////////////////////////////////////////////////////////////////////
 
 YAAMP_ALGO *stratum_find_algo(const char *name);

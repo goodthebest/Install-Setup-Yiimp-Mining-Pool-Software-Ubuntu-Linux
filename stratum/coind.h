@@ -26,7 +26,9 @@ public:
 //	bool closing;
 
 	char name[1024];
-	char symbol[1024];
+	char symbol[256];
+	char symbol2[256];
+	char algo[256];
 	char wallet[1024];
 
 	char pubkey[1024];

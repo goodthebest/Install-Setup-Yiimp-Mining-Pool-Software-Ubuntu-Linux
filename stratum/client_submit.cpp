@@ -63,6 +63,9 @@ void client_do_submit(YAAMP_CLIENT *client, YAAMP_JOB *job, YAAMP_JOB_VALUES *su
 		if(!templ->auxs[i]) continue;
 		YAAMP_COIND *coind_aux = templ->auxs[i]->coind;
 
+		if(!coind_aux || !strcmp(coind->symbol, coind_aux->symbol2))
+			continue;
+
 		unsigned char target_aux[1024];
 		binlify(target_aux, coind_aux->aux.target);
 

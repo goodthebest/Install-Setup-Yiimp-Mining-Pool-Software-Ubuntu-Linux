@@ -18,13 +18,11 @@ static bool job_assign_client(YAAMP_JOB *job, YAAMP_CLIENT *client, double maxha
 	RETURN_ON_CONDITION(client_find_job_history(client, job->id), true);
 	RETURN_ON_CONDITION(maxhash > 0 && job->speed + client->speed > maxhash, true);
 
-#ifdef NO_EXCHANGE
-	if(maxhash >= 0. && client->coinid != job->coind->id) {
+	if(!g_autoexchange && maxhash >= 0. && client->coinid != job->coind->id) {
 		//debuglog("prevent client %c on %s, not the right coin\n",
 		//	client->username[0], job->coind->symbol);
-		return false;
+		return true;
 	}
-#endif
 
 	if(job->remote)
 	{
@@ -184,6 +182,7 @@ void job_assign_clients(YAAMP_JOB *job, double maxhash)
 
 void job_assign_clients_left(double factor)
 {
+	bool b;
 	for(CLI li = g_list_coind.first; li; li = li->next)
 	{
 		if(!job_has_free_client()) return;
@@ -198,13 +197,19 @@ void job_assign_clients_left(double factor)
 		for(CLI li = g_list_client.first; li; li = li->next)
 		{
 			YAAMP_CLIENT *client = (YAAMP_CLIENT *)li->data;
-#ifdef NO_EXCHANGE
-			debuglog("%s factor %f=>100 nethash %f\n", coind->symbol, factor, nethash);
-			if (client->coinid == coind->id)
-				factor = 100;
-#endif
-			bool b = job_assign_client(coind->job, client, nethash*factor);
-			if(!b) break;
+			if (!g_autoexchange) {
+				if (client->coinid == coind->id)
+					factor = 100.;
+				else
+					factor = 0.;
+			}
+
+			//debuglog("%s %s factor %f nethash %.3f\n", coind->symbol, client->username, factor, nethash);
+
+			if (factor > 0.) {
+				b = job_assign_client(coind->job, client, nethash*factor);
+				if(!b) break;
+			}
 		}
 
 		g_list_client.Leave();

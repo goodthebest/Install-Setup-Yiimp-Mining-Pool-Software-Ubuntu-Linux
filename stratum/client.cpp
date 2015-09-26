@@ -122,6 +122,7 @@ bool client_validate_user_address(YAAMP_CLIENT *client)
 			// debuglog("user %s testing on coin %s ...\n", client->username, coind->symbol);
 			if(!coind_can_mine(coind)) continue;
 			if(coind->pos) continue;
+			if(strlen(g_current_algo->name) && strcmp(g_current_algo->name, coind->algo)) continue;
 			if(coind_validate_user_address(coind, client->username)) {
 				debuglog("new user %s for coin %s\n", client->username, coind->symbol);
 				client->coinid = coind->id;
@@ -139,14 +140,25 @@ bool client_validate_user_address(YAAMP_CLIENT *client)
 	}
 
 	YAAMP_COIND *coind = (YAAMP_COIND *)object_find(&g_list_coind, client->coinid);
-	if(!coind) {
-		clientlog(client, "unable to find wallet for coinid %d...", client->coinid);
+	if (!coind) {
+		clientlog(client, "unable to find the wallet for coinid %d...", client->coinid);
 		return false;
+	} else {
+		if(g_current_algo && strlen(g_current_algo->name) && strcmp(g_current_algo->name, coind->algo)) {
+			clientlog(client, "%s address is on the wrong coin %s, reset to auto...", client->username, coind->symbol);
+			client->coinid = 0;
+			CommonLock(&g_db_mutex);
+			db_init_user_coinid(g_db, client);
+			CommonUnlock(&g_db_mutex);
+			return false;
+		}
 	}
 
 	bool isvalid = coind_validate_user_address(coind, client->username);
 	if (isvalid) {
 		client->coinid = coind->id;
+	} else {
+		clientlog(client, "unable to verify %s address for user coinid %d...", coind->symbol, client->coinid);
 	}
 	return isvalid;
 }
@@ -196,9 +208,8 @@ bool client_authorize(YAAMP_CLIENT *client, json_value *json_params)
 	debuglog("new client %s, %s, %s\n", client->username, client->password, client->version);
 #endif
 
-#ifdef NO_EXCHANGE
 	// when auto exchange is disabled, only authorize good wallet address...
-	if (!client_validate_user_address(client)) {
+	if (!g_autoexchange && !client_validate_user_address(client)) {
 
 		clientlog(client, "bad mining address %s", client->username);
 		client_send_result(client, "false");
@@ -209,7 +220,6 @@ bool client_authorize(YAAMP_CLIENT *client, json_value *json_params)
 
 		return false;
 	}
-#endif
 
 	client_send_result(client, "true");
 	client_send_difficulty(client, client->difficulty_actual);

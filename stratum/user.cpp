@@ -122,7 +122,13 @@ void db_update_workers(YAAMP_DB *db)
 
 void db_init_user_coinid(YAAMP_DB *db, YAAMP_CLIENT *client)
 {
-	db_query(db, "UPDATE accounts SET coinid=%d WHERE id=%d AND IFNULL(coinid,0) = 0",
-		client->coinid, client->userid);
+	if (!client->userid)
+		return;
+
+	if (!client->coinid)
+		db_query(db, "UPDATE accounts SET coinid=NULL WHERE id=%d", client->userid);
+	else
+		db_query(db, "UPDATE accounts SET coinid=%d WHERE id=%d AND IFNULL(coinid,0) = 0",
+			client->coinid, client->userid);
 }
 

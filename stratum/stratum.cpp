@@ -30,6 +30,7 @@ double g_stratum_difficulty;
 int g_stratum_max_ttf;
 bool g_stratum_reconnect;
 bool g_stratum_renting;
+bool g_autoexchange = true;
 
 time_t g_last_broadcasted = 0;
 YAAMP_DB *g_db = NULL;
@@ -145,6 +146,11 @@ int main(int argc, char **argv)
 	getifaddrs(&g_ifaddr);
 
 	initlog(argv[1]);
+
+#ifdef NO_EXCHANGE
+	// todo: init with a db setting or a yiimp shell command
+	g_autoexchange = false;
+#endif
 
 	char configfile[1024];
 	sprintf(configfile, "%s.conf", argv[1]);

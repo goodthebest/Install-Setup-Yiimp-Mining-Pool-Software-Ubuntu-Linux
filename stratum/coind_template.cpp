@@ -151,6 +151,16 @@ YAAMP_JOB_TEMPLATE *coind_create_template(YAAMP_COIND *coind)
 	if (strcmp(coind->symbol, "DRP")) // not in Dropcoin
 		strcpy(templ->flags, json_get_string(json_coinbaseaux, "flags"));
 
+	// temporary hack, until wallet is fixed...
+	if (!strcmp(coind->symbol, "MBL")) { // MBL: chainid in version
+		unsigned int nVersion = (unsigned int)json_get_int(json_result, "version");
+		if (nVersion & 0xFFFF0000UL == 0) {
+			nVersion |= (0x16UL << 16);
+			debuglog("%s version %s >> %08x\n", coind->symbol, templ->version, nVersion);
+		}
+		sprintf(templ->version, "%08x", nVersion);
+	}
+
 //	debuglog("%s ntime %s\n", coind->symbol, templ->ntime);
 //	uint64_t target = decode_compact(json_get_string(json_result, "bits"));
 //	coind->difficulty = target_to_diff(target);
