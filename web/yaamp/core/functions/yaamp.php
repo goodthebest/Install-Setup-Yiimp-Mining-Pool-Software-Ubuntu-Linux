@@ -22,40 +22,40 @@ function yaamp_get_algos()
 		'groestl', // dmd-gr -m 256
 		'skein',
 		'skein2',
-		'drop',
 		'zr5',
 	);
 }
 
+// mBTC coef per algo
 function yaamp_get_algo_norm($algo)
 {
+	global $configAlgoNormCoef;
+	if (isset($configAlgoNormCoef[$algo]))
+		return (float) $configAlgoNormCoef[$algo];
+
 	$a = array(
-		'sha256'	=> 1,
-		'scrypt'	=> 1,
-		'scryptn'	=> 0.5,
-		'c11'		=> 5.5,
-		'x11'		=> 5.5,
-		'x13'		=> 3.9,
-		'x14'		=> 3.7,
-		'x15'		=> 3.5,
-		'zr5'		=> 3,
-		'nist5'		=> 16,
-		'neoscrypt'	=> 0.3,
-		'lyra2'		=> 1.3,
-		'lyra2v2'	=> 1.3,
-		'quark'		=> 5,
-		'fresh'		=> 5,
-		'qubit'		=> 5,
-		'skein'		=> 90,
-		'groestl'	=> 5,
-		'blake'		=> 300,
-		'keccak'	=> 160,
-		'skein2'	=> 300,
-		'zr5'		=> 5.5,
+		'sha256'	=> 1.0,
+		'scrypt'	=> 1.0,
+		'scryptn'	=> 1.0,
+		'x11'		=> 1.0,
+		'x13'		=> 1.0,
+		'zr5'		=> 1.0,
+		'nist5'		=> 1.0,
+		'neoscrypt'	=> 1.0,
+		'lyra2'		=> 1.0,
+		'lyra2v2'	=> 1.0,
+		'quark'		=> 1.0,
+		'fresh'		=> 1.0,
+		'qubit'		=> 1.0,
+		'skein'		=> 1.0,
+		'groestl'	=> 1.0,
+		'blake'		=> 1.0,
+		'keccak'	=> 1.0,
+		'skein2'	=> 1.0,
 	);
 
 	if(!isset($a[$algo]))
-		return 0;
+		return 1.0;
 
 	return $a[$algo];
 }
@@ -81,7 +81,6 @@ function getAlgoColors($algo)
 		'lyra2v2'	=> '#80c0f0',
 		'skein'		=> '#80a0a0',
 		'skein2'	=> '#a0a0a0',
-		'drop'		=> '#d0b0d0',
 		'zr5'		=> '#d0b0d0',
 
 		'MN'		=> '#ffffff', // MasterNode Earnings
@@ -115,7 +114,7 @@ function getAlgoPort($algo)
 		'qubit'		=> 4733,
 		'zr5'		=> 4833,
 		'skein'		=> 4933,
-		'drop'		=> 5033,
+		//'drop'	=> 5033,
 		'keccak'	=> 5133,
 		'skein2'	=> 5233,
 		'groestl'	=> 5333,

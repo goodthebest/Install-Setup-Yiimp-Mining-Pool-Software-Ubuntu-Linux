@@ -94,7 +94,7 @@ foreach($exchanges as $exchange)
 	$coin = getdbo('db_coins', $exchange->coinid);
 	$lowsymbol = strtolower($coin->symbol);
 
-	$marketurl = getMarketUrl($coin, $order->market);
+	$marketurl = getMarketUrl($coin, $exchange->market);
 
 	if($exchange->status == 'waiting')
 		echo "<tr style='background-color: #e0d3e8;'>";
@@ -107,13 +107,13 @@ foreach($exchanges as $exchange)
 	$estimate = bitcoinvaluetoa($exchange->price_estimate);
 	$total = $exchange->price? bitcoinvaluetoa($exchange->quantity*$exchange->price): bitcoinvaluetoa($exchange->quantity*$coin->price);
 
-	echo "<td><img width=16 src='$coin->image'></td>";
-	echo "<td><b><a href='/site/coin?id=$coin->id'>$coin->name ($coin->symbol)</a></b></td>";
-	echo "<td><b><a href='$marketurl' target=_blank>$exchange->market</a></b></td>";
-	echo "<td>$sent</td>";
-	echo "<td>$exchange->quantity</td>";
-	echo "<td>$estimate</td>";
-	echo "<td>$price</td>";
+	echo '<td><img width="16" src="'.$coin->image.'"></td>';
+	echo '<td><b><a href="/site/coin?id='.$coin->id.'">'."$coin->name ($coin->symbol)</a></b></td>";
+	echo '<td><b><a href="'.$marketurl.'" target="_blank">'.$exchange->market.'</a></b></td>';
+	echo '<td>'.$sent.'</td>';
+	echo '<td>'.$exchange->quantity.'</td>';
+	echo '<td>'.$estimate.'</td>';
+	echo '<td>'.$price.'</td>';
 	echo $total>0.01? "<td><b>$total</b></td>": "<td>$total</td>";
 
 	echo "<td>";

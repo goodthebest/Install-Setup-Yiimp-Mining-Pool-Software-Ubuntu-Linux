@@ -38,7 +38,7 @@ foreach($earnings as $earning)
 	$coin = getdbo('db_coins', $earning->coinid);
 	$block = getdbo('db_blocks', $earning->blockid);
 	if (!$block) {
-		debuglog('missing block id {$earning->blockid}!');
+		debuglog("missing block id {$earning->blockid}!");
 		continue;
 	}
 

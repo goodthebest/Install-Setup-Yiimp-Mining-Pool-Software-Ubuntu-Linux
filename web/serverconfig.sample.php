@@ -65,3 +65,8 @@ $configCustomPorts = array(
 //	'x11' => 7000,
 );
 
+// mBTC Coefs per algo (default is 1.0)
+$configAlgoNormCoef = array(
+//	'x11' => 5.0,
+);
+
