@@ -1,5 +1,8 @@
 <?php
 
+if (isset($_GET['algo']))
+	user()->setState('yaamp-algo', $_GET['algo']);
+
 $algo = user()->getState('yaamp-algo');
 
 echo "<br><table class='dataGrid'>";
