@@ -8,7 +8,9 @@ $algo = user()->getState('yaamp-algo');
 echo "<br><table class='dataGrid'>";
 echo "<thead>";
 echo "<tr>";
-echo "<th>Wallet</th>";
+echo "<th width=20></th>";
+echo "<th>Coin</th>";
+echo "<th>Address</th>";
 echo "<th>Pass</th>";
 echo "<th>Client</th>";
 echo "<th>Version</th>";
@@ -38,8 +40,16 @@ foreach($workers as $worker)
 	$user_rate = Itoa2($user_rate).'h/s';
 
 	$name = $worker->worker;
+	$user = $coin = NULL;
+	$coinimg = ''; $coinlink = ''; $coinsym = '';
 	if ($worker->userid) {
-		$user = getdbosql('db_accounts', 'id=:id', array(':id'=>$worker->userid));
+		$user = getdbo('db_accounts', $worker->userid);
+		if ($user) {
+			$coin = getdbo('db_coins', $user->coinid);
+			$coinsym = $coin->symbol;
+			$coinimg = CHtml::image($coin->image, $coin->symbol, array('width'=>'16'));
+			$coinlink = CHtml::link($coin->name, '/site/coin?id='.$coin->id);
+		}
 		$name = $user->login;
 	}
 
@@ -48,6 +58,8 @@ foreach($workers as $worker)
 		$dns = '...'.substr($worker->dns, strlen($worker->dns) - 40);
 
 	echo "<tr class='ssrow'>";
+	echo '<td width="20">'.$coinimg.'</td>';
+	echo '<td><b>'.$coinlink.'</b>&nbsp;('.$coinsym.')</td>';
 	echo "<td><a href='/?address=$worker->name'><b>$worker->name</b></a></td>";
 	echo "<td>$worker->password</td>";
 	echo "<td title='$worker->ip'>$dns</td>";

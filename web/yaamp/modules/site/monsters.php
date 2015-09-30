@@ -13,7 +13,7 @@ end;
 
 showTableSorter('maintable', "{
 	tableClass: 'dataGrid',
-	headers: { 0: { sorter: false} },
+	headers: { 1: { sorter: false} },
 	widgets: ['zebra','filter'],
 	widgetOptions: {
 		filter_external: '.search',
@@ -26,10 +26,10 @@ showTableSorter('maintable', "{
 echo <<<end
 <thead>
 <tr>
+<th>UID</th>
 <th></th>
 <th>Coin</th>
-<th></th>
-<th>Wallet</th>
+<th>Address</th>
 <th></th>
 <th>Last</th>
 <th>Blocks</th>
@@ -64,13 +64,16 @@ function showUser($userid, $what)
 
 	echo "<tr class='ssrow'>";
 
-	if($coin)
-		echo '<td><img src="'.$coin->image.'" width="16"></td><td>'.$coin->symbol.'</td>';
-	else
-		echo '<td colspan="2"></td>';
+	echo "<td width=24>$user->id</td>";
 
-	echo "<td>$user->id</td>";
-	echo "<td><a href='/site?address=$user->username'>$user->username</a></td>";
+	if(!$coin)
+		echo '<td width=60 colspan="2"></td>';
+	else {
+		$coinlink = CHtml::link($coin->symbol, '/site/coin?id='.$coin->id);
+		echo '<td width=16><img src="'.$coin->image.'" width="16"></td><td width=48><b>'.$coinlink.'</b></td>';
+	}
+
+	echo "<td><a href='/site?address=$user->username'><b>$user->username</a></b></td>";
 	echo "<td>$what</td>";
 	echo "<td>$d</td>";
 

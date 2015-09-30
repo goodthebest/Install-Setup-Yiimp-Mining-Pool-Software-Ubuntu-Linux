@@ -25,6 +25,7 @@ foreach($orders as $order)
 {
 	$coin = getdbo('db_coins', $order->coinid);
 	$marketurl = getMarketUrl($coin, $order->market);
+	$coinimg = CHtml::image($coin->image, $coin->symbol, array('width'=>'16'));
 
 	echo "<tr class='ssrow'>";
 
@@ -39,8 +40,8 @@ foreach($orders as $order)
 	$totalbid += $bidvalue;
 	$bidpercent = $value>0? round(($value-$bidvalue)/$value*100, 1): 0;
 
-	echo "<td><img width=16 src='$coin->image'></td>";
-	echo "<td><b><a href='/site/coin?id=$coin->id'>$coin->name ($coin->symbol)</a></b></td>";
+	echo '<td width="16">'.$coinimg.'</td>';
+	echo "<td><b><a href='/site/coin?id=$coin->id'>$coin->name</a></b>&nbsp;($coin->symbol)</td>";
 	echo "<td><b><a href='$marketurl' target=_blank>$order->market</a></b></td>";
 
 	echo "<td>$created</td>";
@@ -93,6 +94,7 @@ foreach($exchanges as $exchange)
 {
 	$coin = getdbo('db_coins', $exchange->coinid);
 	$lowsymbol = strtolower($coin->symbol);
+	$coinimg = CHtml::image($coin->image, $coin->symbol, array('width'=>'16'));
 
 	$marketurl = getMarketUrl($coin, $exchange->market);
 
@@ -107,8 +109,8 @@ foreach($exchanges as $exchange)
 	$estimate = bitcoinvaluetoa($exchange->price_estimate);
 	$total = $exchange->price? bitcoinvaluetoa($exchange->quantity*$exchange->price): bitcoinvaluetoa($exchange->quantity*$coin->price);
 
-	echo '<td><img width="16" src="'.$coin->image.'"></td>';
-	echo '<td><b><a href="/site/coin?id='.$coin->id.'">'."$coin->name ($coin->symbol)</a></b></td>";
+	echo '<td width="16">'.$coinimg.'</td>';
+	echo '<td><b><a href="/site/coin?id='.$coin->id.'">'."$coin->name</a></b>&nbsp;($coin->symbol)</td>";
 	echo '<td><b><a href="'.$marketurl.'" target="_blank">'.$exchange->market.'</a></b></td>';
 	echo '<td>'.$sent.'</td>';
 	echo '<td>'.$exchange->quantity.'</td>';

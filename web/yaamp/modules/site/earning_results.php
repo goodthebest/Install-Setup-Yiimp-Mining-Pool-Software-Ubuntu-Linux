@@ -53,13 +53,16 @@ foreach($earnings as $earning)
 	$t1 = datetoa2($earning->create_time). ' ago';
 	$t2 = datetoa2($earning->mature_time). ' ago';
 
+	$coinimg = CHtml::image($coin->image, $coin->symbol, array('width'=>'16'));
+	$coinlink = CHtml::link($coin->name, '/site/coin?id='.$coin->id);
+
 	echo "<tr class='ssrow'>";
-	echo "<td><img width=16 src='$coin->image'></td>";
-	echo "<td><b>$coin->name ($coin->symbol_show)</b></td>";
-	echo "<td><b>$user->username</b></td>";
-	echo "<td>$earning->amount</td>";
+	echo "<td>$coinimg</td>";
+	echo "<td><b>$coinlink</b>&nbsp;($coin->symbol_show)</td>";
+	echo '<td><b><a href="/?address='.$user->username.'">'.$user->username.'</a></b></td>';
+	echo '<td>'.bitcoinvaluetoa($earning->amount).'</td>';
 	echo "<td>$block->height</td>";
-	echo "<td>$block->category ($block->confirmations) $earning->status</td>";
+	echo "<td>$block->category ($block->confirmations)</td>";
 	echo "<td>$t1 $t2</td>";
 
 	echo "<td>

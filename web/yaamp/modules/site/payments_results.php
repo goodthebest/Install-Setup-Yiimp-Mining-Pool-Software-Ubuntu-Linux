@@ -25,7 +25,7 @@ foreach($list as $user)
 	if($coin) {
 		$coinbalance = bitcoinvaluetoa($coin->balance);
 		echo "<td><img width=16 src='$coin->image'></td>";
-		echo "<td><b><a href='/site/coin?id=$coin->id'>$coin->name</a></b></td>";
+		echo "<td><b><a href='/site/coin?id=$coin->id'>$coin->name</a></b>&nbsp;($coin->symbol_show)</td>";
 	} else {
 		$coinbalance = '';
 		echo "<td></td>";

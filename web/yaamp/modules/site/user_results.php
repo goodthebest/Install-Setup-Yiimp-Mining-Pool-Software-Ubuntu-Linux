@@ -22,9 +22,9 @@ showTableSorter('maintable', "{
 
 echo "<thead>";
 echo "<tr>";
-echo "<th>ID</th>";
-echo "<th>Wallet</th>";
+echo "<th>UID</th>";
 echo "<th></th>";
+echo "<th>Coin</th>";
 echo "<th>Address</th>";
 echo "<th>Last</th>";
 echo "<th align=right>Miners</th>";
@@ -66,24 +66,24 @@ foreach($users as $user)
 	$user_rate = Itoa2($user_rate);
 	$user_bad = Itoa2($user_bad);
 
-	$coinimg = ''; $coinsym = '';
+	$coinimg = ''; $coinlink = '';
 	$imgopt = array('width'=>'16');
 	if ($coin && $user->coinid == $coin->id) {
-		$coinsym = $coin->symbol;
-		$coinimg = CHtml::image($coin->image, $coinsym, $imgopt);
+		$coinimg = CHtml::image($coin->image, $coin->symbol, $imgopt);
+		$coinlink = CHtml::link($coin->symbol, '/site/coin?id='.$coin->id);
 	} else if ($user->coinid > 0) {
 		$user_coin = getdbosql('db_coins', "id=:id", array(':id'=>$user->coinid));
 		if ($user_coin) {
-			$coinsym = $user_coin->symbol;
-			$coinimg = CHtml::image($user_coin->image, $coinsym, $imgopt);
+			$coinimg = CHtml::image($user_coin->image, $user_coin->symbol, $imgopt);
+			$coinlink = CHtml::link($user_coin->symbol, '/site/coin?id='.$user_coin->id);
 		}
 	}
 
 	echo "<tr class='ssrow'>";
 	echo "<td width=24>$user->id</td>";
-	echo "<td width=48>$coinsym</td>";
 	echo "<td width=16>$coinimg</td>";
-	echo "<td><a href='/?address=$user->username'><b>$user->username</b></a></td>";
+	echo "<td width=48><b>$coinlink</b></td>";
+	echo '<td><a href="/?address='.$user->username.'"><b>'.$user->username.'</b></a></td>';
 	echo "<td>$d</td>";
 	echo "<td align=right>$miner_count</td>";
 
