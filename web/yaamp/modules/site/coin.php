@@ -6,6 +6,9 @@ if (!$coin) {
 	$this->goback();
 }
 
+if (!empty($coin->algo) && $coin->algo != 'PoS')
+	user()->setState('yaamp-algo', $coin->algo);
+
 echo getAdminSideBarLinks()."<br>";
 
 $remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
