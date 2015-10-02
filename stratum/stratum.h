@@ -146,7 +146,8 @@ void sha256_double_hash_hex(const char *input, char *output, unsigned int len);
 //#include "algos/whirlpoolx.h"
 #include "algos/skein2.h"
 #include "algos/zr5.h"
-#include "algos/drop.h"
+#include "algos/hive.h"
+#include "algos/sib.h"
 //#include "jha.h"
 //#include "hash/m7m.h"
 

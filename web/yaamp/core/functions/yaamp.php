@@ -20,6 +20,8 @@ function yaamp_get_algos()
 		'x13',
 		'x15',
 		'groestl', // dmd-gr -m 256
+		//'hive',
+		'sib',
 		'skein',
 		'skein2',
 		'zr5',
@@ -72,6 +74,7 @@ function getAlgoColors($algo)
 		'x13'		=> '#d0f0c0',
 		'x14'		=> '#a0f0c0',
 		'x15'		=> '#f0b0a0',
+		'hive'		=> '#d0a0a0',
 		'luffa'		=> '#a0c0c0',
 		'penta'		=> '#80c0c0',
 		'nist5'		=> '#e0d0e0',
@@ -79,6 +82,7 @@ function getAlgoColors($algo)
 		'qubit'		=> '#d0a0f0',
 		'lyra2'		=> '#80a0f0',
 		'lyra2v2'	=> '#80c0f0',
+		'sib'		=> '#a0a0c0',
 		'skein'		=> '#80a0a0',
 		'skein2'	=> '#a0a0a0',
 		'zr5'		=> '#d0b0d0',
@@ -114,7 +118,7 @@ function getAlgoPort($algo)
 		'qubit'		=> 4733,
 		'zr5'		=> 4833,
 		'skein'		=> 4933,
-		//'drop'	=> 5033,
+		'sib'		=> 5033,
 		'keccak'	=> 5133,
 		'skein2'	=> 5233,
 		'groestl'	=> 5333,
@@ -123,6 +127,7 @@ function getAlgoPort($algo)
 		'blake'		=> 5733,
 		'penta'		=> 5833,
 		'luffa'		=> 5933,
+		'hive'		=> 6033,
 	);
 
 	global $configCustomPorts;
