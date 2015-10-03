@@ -21,11 +21,13 @@ if (empty($json)) {
 		$block = $remote->getblock($hash);
 		if(!$block) continue;
 
+		// only graph PoW blocks
+		if (arraySafeval($block,'nonce',0) == 0) continue;
+
 		$n++;
 
 		$tm = $block['time'];
 		$dt = date('Y-m-d H:i:s', $tm);
-		// $tx = count($block['tx']);
 		$diff = $block['difficulty'];
 		$vers = $block['version'];
 		$algo = versionToAlgo($coin, $vers);
@@ -33,8 +35,6 @@ if (empty($json)) {
 		if (!$multiAlgos)
 			$series['diff'][$n] = array($dt,$diff);
 		else {
-			//if ($algo == 'sha256') $diff /= 100000.;
-			//if ($algo == 'skein') $diff /= 10.;
 			$series[$algo][$n] = array($dt,$diff);
 		}
 	}

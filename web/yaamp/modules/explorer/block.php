@@ -51,6 +51,9 @@ echo "<tr><td>Merkle Root:</td><td><span style='font-family: monospace;'>{$block
 echo "<tr><td>Nonce:</td><td><span style='font-family: monospace;'>$nonce</span></td></tr>";
 echo "<tr><td>Bits:</td><td><span style='font-family: monospace;'>{$block['bits']}</span></td></tr>";
 
+if(isset($block['flags']))
+	echo "<tr><td>Flags:</td><td><span style='font-family: monospace;'>{$block['flags']}</span></td></tr>";
+
 if(isset($block['previousblockhash']))
 	echo "<tr><td>Previous Hash:</td><td><span style='font-family: monospace;'>
 		<a href='/explorer?id=$coin->id&hash={$block['previousblockhash']}'>{$block['previousblockhash']}</a></span></td></tr>";
@@ -116,9 +119,13 @@ foreach($block['tx'] as $txhash)
 	echo "</tr>";
 }
 
-echo "</table>";
+echo '</table><pre class="json">';
+
+if (user()->getState('yaamp_admin'))
+	echo json_encode($block, 128);
 
 echo <<<end
+</pre>
 <form action="/explorer" method="get" style="padding: 10px;">
 <input type="hidden" name="id" value="$coin->id">
 <input type="text" name="height" class="main-text-input" placeholder="block height" style="width: 80px;">

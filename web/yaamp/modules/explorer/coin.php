@@ -32,6 +32,7 @@ echo "<tr>";
 echo "<th>Time</th>";
 echo "<th>Height</th>";
 echo "<th>Diff</th>";
+echo "<th>Type</th>";
 if ($multiAlgos) echo "<th>Algo</th>";
 echo "<th>Transactions</th>";
 echo "<th>Confirmations</th>";
@@ -53,12 +54,17 @@ for($i = $coin->block_height; $i > max(0, $coin->block_height-25); $i--)
 	$tx = count($block['tx']);
 	$diff = $block['difficulty'];
 	$algo = versionToAlgo($coin, $block['version']);
+	$type = '';
+	if (arraySafeval($block,'nonce',0) > 0) $type = 'PoW';
+	else if (isset($block['auxpow'])) $type = 'Aux';
+	else if (isset($block['mint']) || arraySafeVal($block,'flags') == 'proof-of-stake') $type = 'PoS';
 
 //	debuglog($block);
 	echo "<tr class='ssrow'>";
 	echo "<td>$d</td>";
 	echo "<td><a href='/explorer?id=$coin->id&height=$i'>$i</a></td>";
 	echo "<td>$diff</td>";
+	echo "<td>$type</td>";
 	if ($multiAlgos) echo "<td>$algo</td>";
 	echo "<td>$tx</td>";
 	echo "<td>$confirms</td>";
