@@ -2,10 +2,12 @@
 /**
  * CoindbCommand is a console command :
  *  - labels: complete Unknown Coins Labels from CryptoCoinCharts.info
+ *  - icons: grab coin icons from web sites
  *
  * To use this command, enter the following on the command line:
  * <pre>
  * yiimp coindb labels
+ * yiimp coindb icons
  * </pre>
  *
  * @property string $help The command description.
@@ -31,7 +33,7 @@ class CoindbCommand extends CConsoleCommand
 		if (!isset($args[0])) {
 
 			echo "Yiimp coindb command\n";
-			echo "Usage: yiimp coindb labels\n";
+			echo "Usage: yiimp coindb [labels|icons]\n";
 			return 1;
 
 		} elseif ($args[0] == 'labels') {
@@ -39,6 +41,13 @@ class CoindbCommand extends CConsoleCommand
 			$nbUpdated  = $this->updateCoinsLabels();
 			$nbUpdated += $this->updateCryptopiaLabels();
 			$nbUpdated += $this->updateFromJson();
+
+			echo "total updated: $nbUpdated\n";
+			return 0;
+
+		} elseif ($args[0] == 'icons') {
+
+			$nbUpdated  = $this->grabBterIcons();
 
 			echo "total updated: $nbUpdated\n";
 			return 0;
@@ -100,6 +109,39 @@ class CoindbCommand extends CConsoleCommand
 			if ($nbUpdated)
 				echo "$nbUpdated coin labels updated from cryptocoincharts.info\n";
 		}
+		return $nbUpdated;
+	}
+
+	/**
+	 * Icon grabber
+	 */
+	public function grabBterIcons()
+	{
+		$url = 'http://bter.com/images/coin_icon/64/';
+		$nbUpdated = 0;
+		$sql = "SELECT DISTINCT coins.id FROM coins INNER JOIN markets M ON M.coinid = coins.id WHERE M.name='bter' AND IFNULL(coins.image,'') = ''";
+		$coins = dbolist($sql);
+		if (empty($coins))
+			return;
+		echo "bter: try to download new icons...\n";
+		foreach ($coins as $coin) {
+			$coin = getdbo('db_coins', $coin["id"]);
+			$local = $this->basePath."/images/coin-$coin->symbol.png";
+			try {
+				$data = @ file_get_contents($url.strtolower($coin->symbol).'.png');
+			} catch (Exception $e) {
+				continue;
+			}
+			if (strlen($data) < 2048) continue;
+			echo $coin->symbol." icon found\n";
+			file_put_contents($local, $data);
+			if (filesize($local) > 0) {
+				$coin->image = "/images/coin-$coin->symbol.png";
+				$nbUpdated += $coin->save();
+			}
+		}
+		if ($nbUpdated)
+			echo "$nbUpdated images downloaded from bter\n";
 		return $nbUpdated;
 	}
 

@@ -202,7 +202,8 @@ class CheckupCommand extends CConsoleCommand
 					$nbUpdated += $coin->save();
 				}
 			}
-			echo "$nbUpdated images updated, $nbDropped removed.\n";
+			if ($nbUpdated || $nbDropped)
+				echo "$nbUpdated images updated, $nbDropped removed.\n";
 		}
 	}
 
