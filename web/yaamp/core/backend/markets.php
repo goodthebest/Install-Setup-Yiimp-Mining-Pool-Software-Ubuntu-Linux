@@ -5,16 +5,17 @@ function BackendPricesUpdate()
 //	debuglog(__FUNCTION__);
 
 	updateBittrexMarkets();
-	updateCryptsyMarkets();
-	updateCCexMarkets();
-	updateBleutradeMarkets();
 	updatePoloniexMarkets();
-	updateYobitMarkets();
-	updateEmpoexMarkets();
-	updateAllcoinMarkets();
-	updateJubiMarkets();
-	updateAlcurexMarkets();
+	updateBleutradeMarkets();
+	updateCCexMarkets();
+	updateCryptsyMarkets();
 	updateCryptopiaMarkets();
+	updateYobitMarkets();
+	updateAllcoinMarkets();
+	updateAlcurexMarkets();
+	updateBterMarkets();
+	updateEmpoexMarkets();
+	updateJubiMarkets();
 	updateBanxioMarkets();
 
 	$list2 = getdbolist('db_coins', "installed and symbol2 is not null");
@@ -690,9 +691,8 @@ function updateAllcoinMarkets()
 			$ticker = $data->data[$pair];
 			$market->price = AverageIncrement($market->price, $ticker->top_bid);
 			$market->price2 = AverageIncrement($market->price2, $ticker->top_ask);
-
-			if (floatval($ticker->volume_24h_BTC) > 0.01)
-				$market->save();
+			$market->deleted = (floatval($ticker->volume_24h_BTC) < 0.01);
+			$market->save();
 			if (empty($coin->price2)) {
 				$coin->price = $market->price;
 				$coin->price2 = $market->price2;
@@ -702,6 +702,36 @@ function updateAllcoinMarkets()
 				$coin->name = $ticker->name;
 				$coin->save();
 				debuglog("allcoin: update $symbol name {$coin->name}");
+			}
+		}
+	}
+}
+
+function updateBterMarkets()
+{
+	$markets = bter_api_query('tickers');
+	if(!is_array($markets)) return;
+
+	$list = getdbolist('db_markets', "name='bter'");
+	foreach($list as $market)
+	{
+		$coin = getdbo('db_coins', $market->coinid);
+		if(!$coin || !$coin->installed) continue;
+
+		$lowsymbol = strtolower($coin->symbol);
+		$dbpair = $lowsymbol.'_btc';
+		foreach ($markets as $pair => $ticker) {
+			if ($pair != $dbpair) continue;
+
+			$market->price = AverageIncrement($market->price, $ticker['buy']);
+			$market->price2 = AverageIncrement($market->price2, $ticker['avg']);
+			$market->deleted = (floatval($ticker['vol_btc']) < 0.01);
+			$market->save();
+
+			if (empty($coin->price2)) {
+				$coin->price = $market->price;
+				$coin->price2 = $market->price2;
+				$coin->save();
 			}
 		}
 	}

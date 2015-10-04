@@ -20,12 +20,17 @@ function updateRawcoins()
 			updateRawCoin('bleutrade', $currency->Currency, $currency->CurrencyLong);
 	}
 
-	$list = cryptsy_api_query('getmarkets');
-	if(isset($list['return']))
+	$poloniex = new poloniex;
+	$tickers = $poloniex->get_currencies();
+	if (!$tickers)
+		$tickers = array();
+	else
+		dborun("update markets set deleted=true where name='poloniex'");
+	foreach($tickers as $symbol=>$ticker)
 	{
-		dborun("update markets set deleted=true where name='cryptsy'");
-		foreach($list['return'] as $item)
-			updateRawCoin('cryptsy', $item['primary_currency_code'], $item['primary_currency_name']);
+		if($ticker['disabled']) continue;
+		if($ticker['delisted']) continue;
+		updateRawCoin('poloniex', $symbol);
 	}
 
 	$ccex = new CcexAPI;
@@ -42,17 +47,30 @@ function updateRawcoins()
 		}
 	}
 
-	$poloniex = new poloniex;
-	$tickers = $poloniex->get_currencies();
-	if (!$tickers)
-		$tickers = array();
-	else
-		dborun("update markets set deleted=true where name='poloniex'");
-	foreach($tickers as $symbol=>$ticker)
+	$list = bter_api_query('marketlist');
+	if(is_object($list) && is_array($list->data))
 	{
-		if($ticker['disabled']) continue;
-		if($ticker['delisted']) continue;
-		updateRawCoin('poloniex', $symbol);
+		dborun("UPDATE markets SET deleted=true WHERE name='bter'");
+		foreach($list->data as $item) {
+			if (strtoupper($item->curr_b) !== 'BTC')
+				continue;
+			if (strpos($item->name, 'Asset') !== false)
+				continue;
+			if (strpos($item->name, 'BitShares') !== false && $item->symbol != 'BTS')
+				continue;
+			// ignore some dead coins and assets
+			if (in_array($item->symbol, array('BITGLD','DICE','ROX','TOKEN')))
+				continue;
+			updateRawCoin('bter', $item->symbol, $item->name);
+		}
+	}
+
+	$list = cryptsy_api_query('getmarkets');
+	if(isset($list['return']))
+	{
+		dborun("update markets set deleted=true where name='cryptsy'");
+		foreach($list['return'] as $item)
+			updateRawCoin('cryptsy', $item['primary_currency_code'], $item['primary_currency_name']);
 	}
 
 	$res = yobit_api_query('info');
