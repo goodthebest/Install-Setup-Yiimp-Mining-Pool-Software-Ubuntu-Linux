@@ -143,12 +143,10 @@ void sha256_double_hash_hex(const char *input, char *output, unsigned int len);
 #include "algos/bmw.h"
 #include "algos/luffa.h"
 #include "algos/pentablake.h"
-//#include "algos/whirlpoolx.h"
+#include "algos/whirlpoolx.h"
 #include "algos/skein2.h"
 #include "algos/zr5.h"
 #include "algos/hive.h"
 #include "algos/sib.h"
-//#include "jha.h"
-//#include "hash/m7m.h"
-
+#include "algos/m7m.h"
 

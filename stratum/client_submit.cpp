@@ -266,16 +266,17 @@ bool client_submit(YAAMP_CLIENT *client, json_value *json_params)
 	memset(&submitvalues, 0, sizeof(submitvalues));
 
 	build_submit_values(&submitvalues, templ, client->extranonce1, extranonce2, ntime, nonce);
-	// zr5 has data here, ignore it... reversed endian ?
-	if(submitvalues.hash_bin[30] || submitvalues.hash_bin[31]) {
-		if (g_current_algo && strcmp(g_current_algo->name, "zr5")) {
-			client_submit_error(client, job, 25, "Invalid share", extranonce2, ntime, nonce);
-			return true;
-		}
 
-		if (g_current_algo && !strcmp(g_current_algo->name, "zr5"))
-			fprintf(stderr, "Possible %s error, %02x%02x\n", g_current_algo->name,
-				(int) submitvalues.hash_bin[28], (int) submitvalues.hash_bin[29]);
+	// minimum hash diff begins with 0000, for all...
+	uint8_t pfx = submitvalues.hash_bin[30] | submitvalues.hash_bin[31];
+	if(pfx) {
+#ifdef HASH_DEBUGLOG_
+		debuglog("Possible %s error, hash starts with %02x%02x%02x%02x\n", g_current_algo->name,
+			(int) submitvalues.hash_bin[31], (int) submitvalues.hash_bin[30],
+			(int) submitvalues.hash_bin[29], (int) submitvalues.hash_bin[28]);
+#endif
+		client_submit_error(client, job, 25, "Invalid share", extranonce2, ntime, nonce);
+		return true;
 	}
 
 	uint64_t hash_int = get_hash_difficulty(submitvalues.hash_bin);

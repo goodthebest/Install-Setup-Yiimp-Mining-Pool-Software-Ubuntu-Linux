@@ -41,4 +41,5 @@ screen -dmS skein2 $STRATUM_DIR/run.sh skein2
 screen -dmS zr5 $STRATUM_DIR/run.sh zr5
 screen -dmS sib $STRATUM_DIR/run.sh sib
 #screen -dmS hive $STRATUM_DIR/run.sh hive
+screen -dmS m7m $STRATUM_DIR/run.sh m7m
 

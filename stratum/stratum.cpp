@@ -116,7 +116,7 @@ YAAMP_ALGO g_algos[] =
 
 //	{"whirlpoolx", whirlpoolx_hash, 1, 0, 0},
 //	{"jha", jha_hash, 1, 0, 0},
-//	{"m7", NULL, 1, 0},
+	{"m7m", m7m_hash, 0x10000, 0, 0},
 
 	{"", NULL, 0, 0},
 };

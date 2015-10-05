@@ -20,7 +20,7 @@ function yaamp_get_algos()
 		'x13',
 		'x15',
 		'groestl', // dmd-gr -m 256
-		//'hive',
+		'm7m',
 		'sib',
 		'skein',
 		'skein2',
@@ -76,6 +76,7 @@ function getAlgoColors($algo)
 		'x15'		=> '#f0b0a0',
 		'hive'		=> '#d0a0a0',
 		'luffa'		=> '#a0c0c0',
+		'm7m'		=> '#d0a0a0',
 		'penta'		=> '#80c0c0',
 		'nist5'		=> '#e0d0e0',
 		'quark'		=> '#c0c0c0',
@@ -127,7 +128,7 @@ function getAlgoPort($algo)
 		'blake'		=> 5733,
 		'penta'		=> 5833,
 		'luffa'		=> 5933,
-		'hive'		=> 6033,
+		'm7m'		=> 6033,
 	);
 
 	global $configCustomPorts;
