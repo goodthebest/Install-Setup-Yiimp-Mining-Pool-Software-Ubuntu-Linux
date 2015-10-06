@@ -32,7 +32,8 @@ screen -dmS nist5 $STRATUM_DIR/run.sh nist5
 screen -dmS penta $STRATUM_DIR/run.sh penta
 screen -dmS quark $STRATUM_DIR/run.sh quark
 screen -dmS qubit $STRATUM_DIR/run.sh qubit
-#screen -dmS groestl $STRATUM_DIR/run.sh groestl # dmd-gr -m 256
+#screen -dmS dmd-gr $STRATUM_DIR/run.sh dmd-gr
+screen -dmS myr-gr $STRATUM_DIR/run.sh myr-gr
 screen -dmS lyra2 $STRATUM_DIR/run.sh lyra2
 screen -dmS lyra2v2 $STRATUM_DIR/run.sh lyra2v2
 
@@ -40,6 +41,5 @@ screen -dmS skein $STRATUM_DIR/run.sh skein
 screen -dmS skein2 $STRATUM_DIR/run.sh skein2
 screen -dmS zr5 $STRATUM_DIR/run.sh zr5
 screen -dmS sib $STRATUM_DIR/run.sh sib
-#screen -dmS hive $STRATUM_DIR/run.sh hive
 screen -dmS m7m $STRATUM_DIR/run.sh m7m
 

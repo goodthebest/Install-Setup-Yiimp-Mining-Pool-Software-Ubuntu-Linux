@@ -19,7 +19,9 @@ function yaamp_get_algos()
 		'x11',
 		'x13',
 		'x15',
-		'groestl', // dmd-gr -m 256
+		'groestl', // dmd-gr -m 256 (deprecated)
+		'dmd-gr',
+		'myr-gr',
 		'm7m',
 		'sib',
 		'skein',
@@ -74,7 +76,9 @@ function getAlgoColors($algo)
 		'x13'		=> '#d0f0c0',
 		'x14'		=> '#a0f0c0',
 		'x15'		=> '#f0b0a0',
-		'hive'		=> '#d0a0a0',
+		'groestl'	=> '#d0a0a0',
+		'dmd-gr'	=> '#a0c0f0',
+		'myr-gr'	=> '#a0c0f0',
 		'luffa'		=> '#a0c0c0',
 		'm7m'		=> '#d0a0a0',
 		'penta'		=> '#80c0c0',
@@ -122,7 +126,9 @@ function getAlgoPort($algo)
 		'sib'		=> 5033,
 		'keccak'	=> 5133,
 		'skein2'	=> 5233,
-		'groestl'	=> 5333,
+		//'groestl'	=> 5333,
+		'dmd-gr'	=> 5333,
+		'myr-gr'	=> 5433,
 		'zr5'		=> 5533,
 		// 5555 to 5683 reserved
 		'blake'		=> 5733,

@@ -101,7 +101,9 @@ YAAMP_ALGO g_algos[] =
 	{"quark", quark_hash, 1, 0, 0},
 	{"nist5", nist5_hash, 1, 0, 0},
 	{"qubit", qubit_hash, 1, 0, 0},
-	{"groestl", groestl_hash, 1, 0, 0},
+	{"groestl", groestl_hash, 1, 0, 0}, /* diamond (double groestl) */
+	{"dmd-gr", groestl_hash, 0x100, 0, 0}, /* diamond (double groestl) */
+	{"myr-gr", groestlmyriad_hash, 0x100, 0, 0}, /* groestl + sha 64 */
 	{"skein", skein_hash, 1, 0, 0},
 	{"keccak", keccak_hash, 1, 0, 0},
 
@@ -114,7 +116,7 @@ YAAMP_ALGO g_algos[] =
 	{"hive", hive_hash, 0x10000, 0, 0},
 	{"sib", sib_hash, 1, 0, 0},
 
-//	{"whirlpoolx", whirlpoolx_hash, 1, 0, 0},
+	{"whirlpoolx", whirlpoolx_hash, 1, 0, 0},
 //	{"jha", jha_hash, 1, 0, 0},
 	{"m7m", m7m_hash, 0x10000, 0, 0},
 
