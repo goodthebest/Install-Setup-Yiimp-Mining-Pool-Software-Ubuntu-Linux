@@ -659,8 +659,11 @@ void sha256_double_hash_hex(const char *input, char *output, unsigned int len)
 	hexlify(output, (unsigned char *)output1, 32);
 }
 
+void sha256_hash_hex(const char *input, char *output, unsigned int len)
+{
+	char output1[32];
 
-
-
-
+	sha256_hash(input, output1, len);
+	hexlify(output, (unsigned char *)output1, 32);
+}
 

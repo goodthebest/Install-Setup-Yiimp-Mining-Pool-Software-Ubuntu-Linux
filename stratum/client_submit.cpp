@@ -1,6 +1,7 @@
 
 #include "stratum.h"
 
+//#define MERKLE_DEBUGLOG
 #define HASH_DEBUGLOG_
 //#define DONTSUBMIT
 
@@ -16,11 +17,19 @@ void build_submit_values(YAAMP_JOB_VALUES *submitvalues, YAAMP_JOB_TEMPLATE *tem
 
 	char doublehash[128];
 	memset(doublehash, 0, 128);
-	sha256_double_hash_hex((char *)coinbase_bin, doublehash, coinbase_len/2);
+
+	// some (old) wallet/algos need a simple SHA256 (blakecoin, whirlcoin, groestlcoin...)
+	YAAMP_HASH_FUNCTION merkle_hash = sha256_double_hash_hex;
+	if (g_current_algo->merkle_func)
+		merkle_hash = g_current_algo->merkle_func;
+	merkle_hash((char *)coinbase_bin, doublehash, coinbase_len/2);
 
 	string merkleroot = merkle_with_first(templ->txsteps, doublehash);
 	ser_string_be(merkleroot.c_str(), submitvalues->merkleroot_be, 8);
 
+#ifdef MERKLE_DEBUGLOG
+	printf("merkle root %s\n", merkleroot.c_str());
+#endif
 	sprintf(submitvalues->header, "%s%s%s%s%s%s", templ->version, templ->prevhash_be, submitvalues->merkleroot_be,
 		ntime, templ->nbits, nonce);
 
@@ -136,14 +145,19 @@ void client_do_submit(YAAMP_CLIENT *client, YAAMP_JOB *job, YAAMP_JOB_VALUES *su
 			char doublehash2[128];
 			memset(doublehash2, 0, 128);
 
-			sha256_double_hash_hex((char *)submitvalues->header_bin, doublehash2, strlen(submitvalues->header_be)/2);
+			YAAMP_HASH_FUNCTION merkle_hash = sha256_double_hash_hex;
+			//if (g_current_algo->merkle_func)
+			//	merkle_hash = g_current_algo->merkle_func;
+
+			merkle_hash((char *)submitvalues->header_bin, doublehash2, strlen(submitvalues->header_be)/2);
 
 			char hash1[1024];
 			memset(hash1, 0, 1024);
 
 			string_be(doublehash2, hash1);
 
-			block_add(client->userid, coind->id, templ->height, target_to_diff(coin_target), target_to_diff(hash_int),
+			block_add(client->userid, coind->id, templ->height,
+				target_to_diff(coin_target), target_to_diff(hash_int),
 				hash1, submitvalues->hash_be);
 
 #ifdef HASH_DEBUGLOG_

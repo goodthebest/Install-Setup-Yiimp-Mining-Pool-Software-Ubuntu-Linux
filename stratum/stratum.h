@@ -121,6 +121,7 @@ void scrypt_1024_1_1_256(const unsigned char *input, unsigned char *output);
 void scrypt_N_R_1_256(const char* input, char* output, uint32_t N, uint32_t R, uint32_t len);
 }
 
+void sha256_hash_hex(const char *input, char *output, unsigned int len);
 void sha256_double_hash_hex(const char *input, char *output, unsigned int len);
 
 #include "algos/c11.h"
@@ -135,6 +136,7 @@ void sha256_double_hash_hex(const char *input, char *output, unsigned int len);
 #include "algos/lyra2re.h"
 #include "algos/lyra2v2.h"
 #include "algos/blake.h"
+#include "algos/blakecoin.h"
 #include "algos/qubit.h"
 #include "algos/groestl.h"
 #include "algos/skein.h"
@@ -143,6 +145,7 @@ void sha256_double_hash_hex(const char *input, char *output, unsigned int len);
 #include "algos/bmw.h"
 #include "algos/luffa.h"
 #include "algos/pentablake.h"
+#include "algos/whirlpool.h"
 #include "algos/whirlpoolx.h"
 #include "algos/skein2.h"
 #include "algos/zr5.h"

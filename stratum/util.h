@@ -68,6 +68,8 @@ void clientlog(YAAMP_CLIENT *client, const char *format, ...);
 vector<string> merkle_steps(vector<string> input);
 string merkle_with_first(vector<string> steps, string f);
 
+//////////////////////////////////////////////////////////////////////////
+
 bool base58_decode(const char *input, char *output);
 
 void base64_encode(char *base64, const char *normal);
