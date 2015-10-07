@@ -48,6 +48,8 @@ class CoindbCommand extends CConsoleCommand
 		} elseif ($args[0] == 'icons') {
 
 			$nbUpdated  = $this->grabBterIcons();
+			$nbUpdated += $this->grabCcexIcons();
+			$nbUpdated += $this->grabCryptopiaIcons();
 
 			echo "total updated: $nbUpdated\n";
 			return 0;
@@ -109,39 +111,6 @@ class CoindbCommand extends CConsoleCommand
 			if ($nbUpdated)
 				echo "$nbUpdated coin labels updated from cryptocoincharts.info\n";
 		}
-		return $nbUpdated;
-	}
-
-	/**
-	 * Icon grabber
-	 */
-	public function grabBterIcons()
-	{
-		$url = 'http://bter.com/images/coin_icon/64/';
-		$nbUpdated = 0;
-		$sql = "SELECT DISTINCT coins.id FROM coins INNER JOIN markets M ON M.coinid = coins.id WHERE M.name='bter' AND IFNULL(coins.image,'') = ''";
-		$coins = dbolist($sql);
-		if (empty($coins))
-			return;
-		echo "bter: try to download new icons...\n";
-		foreach ($coins as $coin) {
-			$coin = getdbo('db_coins', $coin["id"]);
-			$local = $this->basePath."/images/coin-$coin->symbol.png";
-			try {
-				$data = @ file_get_contents($url.strtolower($coin->symbol).'.png');
-			} catch (Exception $e) {
-				continue;
-			}
-			if (strlen($data) < 2048) continue;
-			echo $coin->symbol." icon found\n";
-			file_put_contents($local, $data);
-			if (filesize($local) > 0) {
-				$coin->image = "/images/coin-$coin->symbol.png";
-				$nbUpdated += $coin->save();
-			}
-		}
-		if ($nbUpdated)
-			echo "$nbUpdated images downloaded from bter\n";
 		return $nbUpdated;
 	}
 
@@ -243,6 +212,111 @@ class CoindbCommand extends CConsoleCommand
 			if ($nbUpdated)
 				echo "$nbUpdated coin labels updated from labels.json file\n";
 		}
+		return $nbUpdated;
+	}
+
+	/**
+	 * Icon grabber - Bter
+	 */
+	public function grabBterIcons()
+	{
+		$url = 'http://bter.com/images/coin_icon/64/';
+		$nbUpdated = 0;
+		$sql = "SELECT DISTINCT coins.id FROM coins INNER JOIN markets M ON M.coinid = coins.id WHERE M.name='bter' AND IFNULL(coins.image,'') = ''";
+		$coins = dbolist($sql);
+		if (empty($coins))
+			return 0;
+		echo "bter: try to download new icons...\n";
+		foreach ($coins as $coin) {
+			$coin = getdbo('db_coins', $coin["id"]);
+			$symbol = $coin->symbol;
+			if (!empty($coin->symbol2)) $symbol = $coin->symbol2;
+			$local = $this->basePath."/images/coin-{$symbol}.png";
+			try {
+				$data = @ file_get_contents($url.strtolower($symbol).'.png');
+			} catch (Exception $e) {
+				continue;
+			}
+			if (strlen($data) < 2048) continue;
+			echo $coin->symbol." icon found\n";
+			file_put_contents($local, $data);
+			if (filesize($local) > 0) {
+				$coin->image = "/images/coin-{$symbol}.png";
+				$nbUpdated += $coin->save();
+			}
+		}
+		if ($nbUpdated)
+			echo "$nbUpdated icons downloaded from bter\n";
+		return $nbUpdated;
+	}
+
+	/**
+	 * Icon grabber - Ccex
+	 */
+	public function grabCcexIcons()
+	{
+		$url = 'http://c-cex.com/i/l/';
+		$nbUpdated = 0;
+		$sql = "SELECT DISTINCT coins.id FROM coins INNER JOIN markets M ON M.coinid = coins.id WHERE M.name='c-cex' AND IFNULL(coins.image,'') = ''";
+		$coins = dbolist($sql);
+		if (empty($coins))
+			return 0;
+		echo "c-cex: try to download new icons...\n";
+		foreach ($coins as $coin) {
+			$coin = getdbo('db_coins', $coin["id"]);
+			$symbol = $coin->symbol;
+			if (!empty($coin->symbol2)) $symbol = $coin->symbol2;
+			$local = $this->basePath."/images/coin-{$symbol}.png";
+			try {
+				$data = @ file_get_contents($url.strtolower($symbol).'.png');
+			} catch (Exception $e) {
+				continue;
+			}
+			if (strlen($data) < 2048) continue;
+			echo $symbol." icon found\n";
+			file_put_contents($local, $data);
+			if (filesize($local) > 0) {
+				$coin->image = "/images/coin-{$symbol}.png";
+				$nbUpdated += $coin->save();
+			}
+		}
+		if ($nbUpdated)
+			echo "$nbUpdated icons downloaded from c-cex\n";
+		return $nbUpdated;
+	}
+
+	/**
+	 * Icon grabber - Cryptopia
+	 */
+	public function grabCryptopiaIcons()
+	{
+		$url = 'https://www.cryptopia.co.nz/Content/Images/Coins/';
+		$nbUpdated = 0;
+		$sql = "SELECT DISTINCT coins.id FROM coins INNER JOIN markets M ON M.coinid = coins.id WHERE M.name='cryptopia' AND IFNULL(coins.image,'') = ''";
+		$coins = dbolist($sql);
+		if (empty($coins))
+			return 0;
+		echo "cryptopia: try to download new icons...\n";
+		foreach ($coins as $coin) {
+			$coin = getdbo('db_coins', $coin["id"]);
+			$symbol = $coin->symbol;
+			if (!empty($coin->symbol2)) $symbol = $coin->symbol2;
+			$local = $this->basePath."/images/coin-{$symbol}.png";
+			try {
+				$data = @ file_get_contents($url.strtolower($symbol).'-medium.png');
+			} catch (Exception $e) {
+				continue;
+			}
+			if (strlen($data) < 2048) continue;
+			echo $symbol." icon found\n";
+			file_put_contents($local, $data);
+			if (filesize($local) > 0) {
+				$coin->image = "/images/coin-{$symbol}.png";
+				$nbUpdated += $coin->save();
+			}
+		}
+		if ($nbUpdated)
+			echo "$nbUpdated icons downloaded from cryptopia\n";
 		return $nbUpdated;
 	}
 
