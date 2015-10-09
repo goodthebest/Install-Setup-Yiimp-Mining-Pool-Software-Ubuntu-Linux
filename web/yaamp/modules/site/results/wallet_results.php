@@ -213,7 +213,7 @@ echo "</div><br>";
 WriteBoxHeader("Last 24 Hours Payouts: $user->username");
 
 $t = time()-24*60*60;
-$list = getdbolist('db_payouts', "account_id=$user->id and time>$t order by time desc");
+$list = getdbolist('db_payouts', "account_id={$user->id} AND time>$t ORDER BY time DESC");
 
 echo "<table  class='dataGrid2'>";
 
@@ -225,11 +225,12 @@ echo "<th>Tx</th>";
 echo "</tr>";
 echo "</thead>";
 
-$total = 0;
+$total = 0; $firstid = 999999999;
 foreach($list as $payout)
 {
 	$d = datetoa2($payout->time);
 	$amount = bitcoinvaluetoa($payout->amount);
+	$firstid = min($firstid, (int) $payout->id);
 
 	$payout_tx = substr($payout->tx, 0, 36).'...';
 
@@ -251,11 +252,69 @@ foreach($list as $payout)
 
 $amount = bitcoinvaluetoa($total);
 
-echo "<tr class='ssrow'>";
-echo "<td align=right>Total:</td>";
-echo "<td align=right><b>$amount</b></td>";
-echo "<td></td>";
-echo "</tr>";
+echo <<<end
+<tr class="ssrow">
+<td align="right">Total:</td>
+<td align="right"><b>{$amount}</b></td>
+<td></td>
+</tr>
+end;
+
+// Search extra Payouts which were not in the db (yiimp payout check command)
+// In this case, the id are greater than last 24h ones and the fee column is filled
+$list_extra = getdbolist('db_payouts', "account_id={$user->id} AND id>$firstid AND fee > 0.0 ORDER BY time DESC");
+
+if (!empty($list_extra)) {
+
+	echo <<<end
+	<tr class="ssrow" style="color: darkred;">
+	<th colspan="3"><b>Extra payouts detected in the last 24H to explain negative balances (buggy Wallets)</b></th>
+	</tr>
+	<tr class="ssrow">
+	<td colspan="3" style="font-size: .9em; padding-bottom: 8px;">
+	Some wallets (LYB) have a problem and don't confirm a transaction in the requested time.<br/>
+	Please be honest and continue mining to handle these extra transactions sent to you.<br/>
+	</th>
+	</tr>
+	<tr class="ssrow">
+	<th align="right">Time</th> <th align="right">Amount</th> <th>Tx</th>
+	</tr>
+end;
+
+	$total = 0.0;
+	foreach($list_extra as $payout)
+	{
+		$d = datetoa2($payout->time);
+		$amount = bitcoinvaluetoa($payout->amount);
+
+		$payout_tx = substr($payout->tx, 0, 36).'...';
+
+		echo "<tr class='ssrow'>";
+
+		echo "<td align=right><b>$d ago</b></td>";
+		echo "<td align=right><b>$amount</b></td>";
+
+		if($user->coinid == 6)
+			$txurl = "https://blockchain.info/tx/$payout->tx";
+		else
+			$txurl = "/explorer?id=$user->coinid&txid=$payout->tx";
+		echo "<td style='font-family: monospace;'><a href='$txurl' target=_blank>$payout_tx</a></td>";
+		echo "</tr>";
+
+		$total += $payout->amount;
+	}
+
+	$amount = bitcoinvaluetoa($total);
+
+	echo <<<end
+	<tr class="ssrow" style="color: darkred;">
+	<td align="right">Total:</td>
+	<td align="right"><b>{$amount}</b></td>
+	<td></td>
+	</tr>
+end;
+}
+
 
 echo "</table><br>";
 echo "</div>";

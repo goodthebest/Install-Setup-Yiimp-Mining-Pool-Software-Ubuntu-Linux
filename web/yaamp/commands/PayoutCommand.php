@@ -30,6 +30,7 @@ class PayoutCommand extends CConsoleCommand
 
 		$command = arraySafeVal($args,0);
 		$coinsym = arraySafeVal($args,1);
+		$fixit = arraySafeVal($args,2); // optional
 
 		if (!isset($args[1]) || empty($coinsym)) {
 
@@ -39,7 +40,7 @@ class PayoutCommand extends CConsoleCommand
 
 		} elseif ($command == 'check') {
 
-			$nbUpdated  = $this->checkPayouts($coinsym);
+			$nbUpdated  = $this->checkPayouts($coinsym, $fixit);
 			echo "total updated: $nbUpdated\n";
 			return 0;
 		}
@@ -51,13 +52,13 @@ class PayoutCommand extends CConsoleCommand
 	 */
 	public function getHelp()
 	{
-		return parent::getHelp().'payout check';
+		return parent::getHelp().'payout check <symbol>';
 	}
 
 	/**
 	 * Check in a wallet completed payouts and missing/extra ones
 	 */
-	public function checkPayouts($symbol)
+	public function checkPayouts($symbol, $fixit)
 	{
 		$nbUpdated = 0; $nbCreated = 0;
 
@@ -97,14 +98,17 @@ class PayoutCommand extends CConsoleCommand
 		{
 			$totalsent = 0.0; $totalpayouts = 0.0;
 			// search the last time the user balance was 0
-			$since = dboscalar("SELECT time FROM balanceuser WHERE userid=:uid AND balance <= 0 ORDER BY time DESC",
+			//$since = (int) dboscalar("SELECT time FROM balanceuser WHERE userid=:uid AND balance <= 0 ORDER BY time DESC",
+			//	array(':uid'=>$uid)
+			//);
+			// check for previous detected problems
+			$since = (int) dboscalar("SELECT MAX(time) as time FROM payouts WHERE account_id=:uid AND fee > 0.0",
 				array(':uid'=>$uid)
 			);
 
-			//$since = 0;
 			if (empty($since)) $since = time()-(7*24*3600);
 
-			echo "User was at 0 at this date: ".strftime('%F %c', $since)."\n";
+			echo "User payouts since this date: ".strftime('%F %c', $since)."\n";
 
 			// Get their payouts
 			$payouts = $dbPayouts->findAll(array(
@@ -134,9 +138,9 @@ class PayoutCommand extends CConsoleCommand
 							break;
 						}
 					}
-					if (!$match) {
-						/*
-						// uncomment to do it manually on insufficient founds (need manual checks)
+					// These extra payouts will be shown during 24h in the user wallet txs
+					if (!$match && $coin->symbol == 'LYB' || $fixit == 'fixit') {
+						// do it manually on other wallets on insufficient founds (need manual checks)
 						$payout = new db_payouts;
 						$payout->account_id = $uid;
 						$payout->tx = $txid;
@@ -152,7 +156,6 @@ class PayoutCommand extends CConsoleCommand
 							$user->save();
 						}
 						$match = true;
-						*/
 						$time = strftime('%F %c', $time);
 						echo "extra user tx $txid $time $amount $symbol\n";
 					}
@@ -165,7 +168,6 @@ class PayoutCommand extends CConsoleCommand
 				//	echo "unknown tx $txid $time $amount $symbol to $address\n";
 				//}
 			}
-
 			// get the extra payouts
 			$payouts = $dbPayouts->findAll(array(
 				'condition'=>"completed=0 AND account_id=$uid AND time > ".intval($since),
@@ -184,7 +186,7 @@ class PayoutCommand extends CConsoleCommand
 		}
 
 		if ($nbCreated)
-			echo "$nbUpdated payouts confirmed, $nbUpdated payouts created\n";
+			echo "$nbUpdated payouts confirmed, $nbCreated payouts created\n";
 		else if ($nbUpdated)
 			echo "$nbUpdated payouts confirmed\n";
 		return $nbCreated;
