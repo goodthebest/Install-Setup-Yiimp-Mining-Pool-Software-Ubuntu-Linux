@@ -35,7 +35,7 @@ class PayoutCommand extends CConsoleCommand
 		if (!isset($args[1]) || empty($coinsym)) {
 
 			echo "Yiimp payout command\n";
-			echo "Usage: yiimp payout check <symbol>\n";
+			echo "Usage: yiimp payout check <symbol> [fixit]\n";
 			return 1;
 
 		} elseif ($command == 'check') {
@@ -97,24 +97,23 @@ class PayoutCommand extends CConsoleCommand
 		foreach ($ids as $uid => $user_addr)
 		{
 			$totalsent = 0.0; $totalpayouts = 0.0;
-			// search the last time the user balance was 0
-			//$since = (int) dboscalar("SELECT time FROM balanceuser WHERE userid=:uid AND balance <= 0 ORDER BY time DESC",
-			//	array(':uid'=>$uid)
-			//);
-			// check for previous detected problems
+
+			// check for previous resolved problems
 			$since = (int) dboscalar("SELECT MAX(time) as time FROM payouts WHERE account_id=:uid AND fee > 0.0",
 				array(':uid'=>$uid)
 			);
 
+			// else check the last week
 			if (empty($since)) $since = time()-(7*24*3600);
 
-			echo "User payouts since this date: ".strftime('%F %c', $since)."\n";
-
-			// Get their payouts
+			// Get db payouts
 			$payouts = $dbPayouts->findAll(array(
-				'condition'=>"account_id=$uid AND time > ".intval($since),
+				'condition'=>"account_id=$uid AND time >= ".intval($since),
 				'order'=>'time DESC',
 			));
+			if (empty($payouts)) $payouts = array();
+
+			echo "$user_addr payouts since ".strftime('%F %c', $since).": ".count($payouts)."\n";
 
 			// filter user raw transactions
 			foreach ($rawtxs as $ntx => $tx) {
@@ -136,11 +135,14 @@ class PayoutCommand extends CConsoleCommand
 								//echo "tx {$payout->tx} {$payout->amount} $symbol confirmed\n";
 							}
 							break;
+						} elseif ($payout->tx == $txid) {
+							echo "tx {$payout->tx} {$payout->amount} $symbol != $amount $symbol (possible match)\n";
+							$match = true;
 						}
 					}
 					// These extra payouts will be shown during 24h in the user wallet txs
-					if (!$match && $coin->symbol == 'LYB' || $fixit == 'fixit') {
-						// do it manually on other wallets on insufficient founds (need manual checks)
+					if (!$match && $fixit == 'fixit') {
+						// do it manually with the fixit cmdline argument (need manual checks)
 						$payout = new db_payouts;
 						$payout->account_id = $uid;
 						$payout->tx = $txid;
@@ -182,7 +184,10 @@ class PayoutCommand extends CConsoleCommand
 					echo "extra db tx: $time {$payout->tx} {$payout->amount} $symbol\n";
 				}
 			}
-			echo "Total sent to $user_addr: $totalsent (real) $totalpayouts (db) -> Diff $totaldiff $symbol\n";
+			if ($totaldiff != 0.0)
+				echo "$user_addr: Total sent $totalsent (real), $totalpayouts (db) -> Diff $totaldiff $symbol\n";
+			else
+				echo "$user_addr: ok\n";
 		}
 
 		if ($nbCreated)

@@ -419,10 +419,17 @@ function updateCCexMarkets()
 		if(!$ticker) continue;
 
 		$price2 = ($ticker['buy']+$ticker['sell'])/2;
+
 		$market->price2 = AverageIncrement($market->price2, $price2);
 		$market->price = AverageIncrement($market->price, $ticker['buy']);
 
 		$market->save();
+
+		if (empty($coin->price2)) {
+			$coin->price = $market->price;
+			$coin->price2 = $market->price2;
+			$coin->save();
+		}
 
 //		debuglog("ccex update $coin->symbol: $market->price $market->price2");
 	}
