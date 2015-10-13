@@ -40,6 +40,7 @@ echo "<a href='http://google.com/search?q=$coin->name%20$coin->symbol%20bitcoint
 
 echo "<br><div id='main_results'></div>";
 
+/* 
 echo "<br><a href='/site/makeconfigfile?id=$coin->id'><b>MAKE CONFIG & START</b></a>";
 
 if($info)
@@ -47,8 +48,8 @@ if($info)
 	echo "<br><a href='/site/restartcoin?id=$coin->id'><b>RESTART COIND</b></a>";
 	echo "<br><a href='/site/stopcoin?id=$coin->id'><b>STOP COIND</b></a>";
 
-//	if(isset($info['balance']) && $info['balance'] && !empty($coin->deposit_address))
-//		echo "<br><a href='javascript:showSellAmountDialog()'><b>SEND BALANCE TO</b></a> - $coin->deposit_address";
+	if(isset($info['balance']) && $info['balance'] && !empty($coin->deposit_address))
+		echo "<br><a href='javascript:showSellAmountDialog()'><b>SEND BALANCE TO</b></a> - $coin->deposit_address";
 }
 else
 {
@@ -59,6 +60,7 @@ else
 		echo "<br><a href='javascript:uninstall_coin();'><b>UNINSTALL COIN</b></a><br>";
 }
 
+*/
 echo "<br><a href='/site/clearearnings?id=$coin->id'><b>CLEAR EARNINGS</b></a>";
 echo "<br><a href='/site/deleteearnings?id=$coin->id'><b>DELETE EARNINGS</b></a>";
 echo "<br><a href='/site/payuserscoin?id=$coin->id'><b>DO PAYMENTS</b></a>";

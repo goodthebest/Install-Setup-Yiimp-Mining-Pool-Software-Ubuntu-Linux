@@ -18,6 +18,8 @@ function BackendPricesUpdate()
 	updateJubiMarkets();
 	updateBanxioMarkets();
 
+	updateOtherMarkets();
+
 	$list2 = getdbolist('db_coins', "installed and symbol2 is not null");
 	foreach($list2 as $coin2)
 	{
@@ -771,6 +773,32 @@ function updateEmpoexMarkets()
 				$coin->price2 = $market->price2;
 				$coin->market = 'empoex';
 				$coin->save();
+			}
+		}
+	}
+}
+
+// update other installed coins price from cryptonator
+function updateOtherMarkets()
+{
+	$coins = getdbolist('db_coins', "installed AND IFNULL(price,0.0) = 0.0");
+	foreach($coins as $coin)
+	{
+		$symbol = $coin->symbol;
+		if (!empty($coin->symbol2)) $symbol = $coin->symbol2;
+
+		$json = file_get_contents("https://www.cryptonator.com/api/full/".strtolower($symbol)."-btc");
+		$object = json_decode($json);
+		if (empty($object)) continue;
+
+		if (is_object($object) && isset($object->ticker)) {
+			$ticker = $object->ticker;
+			if ($ticker->target == 'BTC' && $ticker->volume > 1) {
+				$coin->price2 = $ticker->price;
+				$coin->price  = AverageIncrement((float)$coin->price, (float)$coin->price2);
+				if ($coin->save()) {
+					debuglog("update price of $symbol ".bitcoinvaluetoa($coin->price));
+				}
 			}
 		}
 	}
