@@ -97,7 +97,7 @@ echo "<th width=30></th>";
 echo "<th width=30></th>";
 echo "<th>Name</th>";
 echo "<th>Symbol</th>";
-
+echo "<th>Algo</th>";
 echo "<th>Difficulty</th>";
 echo "<th>Blocks</th>";
 echo "<th>Balance</th>";
@@ -120,8 +120,9 @@ if($coin->enable)
 else
 	echo "<td>[&nbsp;&nbsp;&nbsp;&nbsp;]</td>";
 
-echo "<td><b><a href='/site/coin?id=$coin->id'>$coin->name</a></b></td>";
-echo "<td><b>$coin->symbol</b></td>";
+echo '<td><b><a href="/site/coin?id='.$coin->id.'">'.$coin->name.'</a></b></td>';
+echo '<td width="60"><b>'.$coin->symbol.'</b></td>';
+echo '<td>'.$coin->algo.'</td>';
 
 if(!$info)
 {
@@ -136,7 +137,7 @@ $txfee = isset($info['paytxfee'])? $info['paytxfee']: '';
 $connections = isset($info['connections'])? $info['connections']: '';
 $blocks = isset($info['blocks'])? $info['blocks']: '';
 
-echo "<td>$coin->difficulty</td>";
+echo '<td>'.$coin->difficulty.'</td>';
 if(!empty($errors))
 	echo "<td style='color: red;' title='$errors'>$blocks</td>";
 else
@@ -152,31 +153,37 @@ echo "<td>$connections</td>";
 echo '<td>'.bitcoinvaluetoa($coin->price).'</td>';
 echo '<td>'.$coin->reward.'</td>';
 
+$index = '';
 if($coin->difficulty)
 	$index = round($coin->reward * $coin->price / $coin->difficulty * 10000, 3);
+echo '<td>'.$index.'</td>';
 
-echo "<td>$index</td>";
-echo "</tr>";
+echo '</tr>';
+echo '</tbody></table>';
 
-echo "</tbody></table>";
-echo "<br><br>";
+echo '<br><br>';
 
 //////////////////////////////////////////////////////////////////////////////////////
 
-echo "<table class='dataGrid'>";
-//showTableSorter('maintable');
-echo "<thead class=''>";
+echo <<<end
+<style type="text/css">
+tr.ssrow.orphan { color: darkred; }
+</style>
 
-echo "<tr>";
-echo "<th>Time</th>";
-echo "<th>Category</th>";
-echo "<th>Amount</th>";
-echo "<th>Height</th>";
-echo "<th>Difficulty</th>";
-echo "<th>Confirm</th>";
-echo "<th>Address</th>";
-echo "</tr>";
-echo "</thead><tbody>";
+<table class="dataGrid">
+<thead class="">
+<tr>
+<th>Time</th>
+<th>Category</th>
+<th>Amount</th>
+<th>Height</th>
+<th>Difficulty</th>
+<th>Confirm</th>
+<th>Address</th>
+<th>Tx(s)</th>
+</tr>
+</thead><tbody>
+end;
 
 //$transactions = $remote->listsinceblock('');
 $ts = $remote->listtransactions('', 15);
@@ -198,39 +205,48 @@ foreach($res_array as $transaction)
 
 	$d = datetoa2($transaction['time']);
 
-	echo "<tr class='ssrow'>";
-	echo "<td><b>$d</b></td>";
+	$category = $transaction['category'];
+	echo '<tr class="ssrow '.$category.'">';
+	echo '<td><b>'.$d.'</b></td>';
 
-	echo "<td>{$transaction['category']}</td>";
-	echo "<td>{$transaction['amount']}</td>";
+	echo '<td>'.$category.'</td>';
+	echo '<td>'.$transaction['amount'].'</td>';
 
 	if($block) {
-		echo "<td>{$block['height']}</td><td>{$block['difficulty']}</td>";
+		echo '<td>'.$block['height'].'</td><td>'.$block['difficulty'].'</td>';
 	} else
-		echo "<td></td><td></td>";
+		echo '<td></td><td></td>';
 
 	if(isset($transaction['confirmations']))
-		echo "<td>{$transaction['confirmations']}</td>";
+		echo '<td>'.$transaction['confirmations'].'</td>';
 	else
-		echo "<td></td>";
+		echo '<td></td>';
 
-	echo "<td>";
+	echo '<td width="280">';
 	if(isset($transaction['address']))
 	{
 		$address = $transaction['address'];
-		echo "$address<br>";
+		echo $address.'<br>';
 	}
+	echo '</td>';
 
-//	if($block) foreach($block['tx'] as $i=>$tx)
-//		echo "tx-$i <a href='$coin->block_explorer/tx/$tx' target=_blank>$tx</a><br>";
+	echo '<td>';
+	if(!empty($block)) foreach($block['tx'] as $i=>$tx) {
+		$label = substr($tx, 0, 7);
+		echo CHtml::link($label, '/explorer?id='.$coin->id.'&txid='.$tx, array('target'=>'_blank'));
+		if (count($block['tx']) > 5) {
+			echo '&nbsp;('.count($block['tx']).')';
+			break;
+		} else {
+			echo '&nbsp;';
+		}
+	}
+	echo '</td>';
 
-	echo "</td>";
-	echo "</tr>";
+	echo '</tr>';
 }
 
-echo "</tbody></table>";
-
-
+echo '</tbody></table>';
 
 
 
