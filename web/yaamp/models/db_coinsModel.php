@@ -30,6 +30,20 @@ class db_coins extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
+			'symbol2'	=> 'Official Symbol (if different)',
+			'auxpow'	=> 'AUX PoW',
+			'dontsell'	=> 'Don\'t sell',
+			'sellonbid'	=> 'Sell on Bid',
+			'txfee'		=> 'Tx Fee',
+			'program'	=> 'Daemon process name',
+			'conf_folder'	=> 'Conf. folder prefix',
+			'rpchost'	=> 'RPC Host',
+			'rpcport'	=> 'RPC Port',
+			'rpcuser'	=> 'RPC User',
+			'rpcpasswd'	=> 'RPC Password',
+			'serveruser'	=> 'Server process username',
+			'hassubmitblock'=> 'Has submitblock',
+			'hasmasternodes'=> 'Masternode',
 		);
 	}
 
