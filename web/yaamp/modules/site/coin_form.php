@@ -227,7 +227,6 @@ if ($coin->id) {
 	echo CHtml::tag("hr");
 	echo "<b>Sample config</b>:";
 	echo CHtml::opentag("pre");
-
 	$port = getAlgoPort($coin->algo);
 	echo "rpcuser={$coin->rpcuser}\n";
 	echo "rpcpassword={$coin->rpcpasswd}\n";
@@ -241,7 +240,16 @@ if ($coin->id) {
 	echo "\n";
 	echo "alertnotify=echo %s | mail -s \"{$coin->name} alert!\" ".YAAMP_ADMIN_EMAIL."\n";
 	echo "blocknotify=/var/stratum/blocknotify ".YAAMP_SITE_URL.":$port {$coin->id} %s\n";
+	echo CHtml::closetag("pre");
 
+	echo CHtml::tag("hr");
+	echo "<b>Miner command line</b>:";
+	echo CHtml::opentag("pre");
+	echo "-a {$coin->algo} ";
+	echo "-o stratum+tcp://".YAAMP_SITE_URL.':'.$port.' ';
+	echo "-u {$coin->master_wallet} ";
+	echo "-p c={$coin->symbol} ";
+	echo "\n";
 	echo CHtml::closetag("pre");
 }
 
