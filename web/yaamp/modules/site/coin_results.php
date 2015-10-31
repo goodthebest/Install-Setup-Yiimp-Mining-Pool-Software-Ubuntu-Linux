@@ -161,7 +161,7 @@ echo '<td>'.$index.'</td>';
 echo '</tr>';
 echo '</tbody></table>';
 
-echo '<br><br>';
+echo '<br>';
 
 //////////////////////////////////////////////////////////////////////////////////////
 
@@ -185,18 +185,22 @@ tr.ssrow.orphan { color: darkred; }
 </thead><tbody>
 end;
 
-//$transactions = $remote->listsinceblock('');
-$ts = $remote->listtransactions('', 15);
+// last week
+$list_since = time()-(7*24*3600);
+
+$ts = $remote->listtransactions('', 500);
 
 $res_array = array();
 if (!empty($ts))
 foreach($ts as $val)
 {
 	$t = $val['time'];
-	$res_array[$t] = $val;
+	if ($t > $list_since)
+		$res_array[$t] = $val;
 }
 
 krsort($res_array);
+$rows = 0;
 foreach($res_array as $transaction)
 {
 	$block = null;
@@ -244,9 +248,50 @@ foreach($res_array as $transaction)
 	echo '</td>';
 
 	echo '</tr>';
+
+	$rows++;
+	if ($rows > 15) break;
 }
 
 echo '</tbody></table>';
 
+//////////////////////////////////////////////////////////////////////////////////////
 
+echo <<<end
+<div id="sums" style="width: 400px; min-height: 250px; float: left; margin-top: 16px; margin-right: 16px;">
+<table class="dataGrid">
+<thead class="">
+<tr>
+<th>Day</th>
+<th>Category</th>
+<th>Sum</th>
+<th>BTC</th>
+</tr>
+</thead><tbody>
+end;
+
+$sums = array();
+foreach($res_array as $trans)
+{
+	$day = strftime('%F', $trans['time']); // YYYY-MM-DD
+	$key = $day.' '.$trans['category'];
+	$sums[$key] = arraySafeVal($sums, $key) + $trans['amount'];
+}
+
+foreach($sums as $key => $amount)
+{
+	$keys = explode(' ', $key);
+	$day = substr($keys[0], 5); // remove year
+	$category = $keys[1];
+	echo '<tr class="ssrow '.$category.'">';
+	echo '<td><b>'.$day.'</b></td>';
+
+	echo '<td>'.$category.'</td>';
+	echo '<td>'.$amount.'</td>';
+	echo '<td>'.bitcoinvaluetoa($coin->price * $amount).'</td>';
+
+	echo '</tr>';
+}
+
+echo '</tbody></table></div>';
 
