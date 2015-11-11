@@ -6,21 +6,23 @@ echo "<div class='main-left-title'>Block Explorer</div>";
 echo "<div class='main-left-inner'>";
 
 showTableSorter('maintable', '{headers: {0: {sorter: false}, 9: {sorter: false}}}');
-echo "<thead>";
 
-echo "<tr>";
-echo "<th width=30></th>";
-echo "<th>Name</th>";
-echo "<th>Symbol</th>";
-echo "<th>Algo</th>";
-echo "<th>Version</th>";
-echo "<th>Height</th>";
-echo "<th>Difficulty</th>";
-echo "<th>Connections</th>";
-echo "<th>Network Hash</th>";
-echo "<th></th>";
-echo "</tr>";
-echo "</thead><tbody>";
+echo <<<end
+<thead>
+<tr>
+<th width="30"></th>
+<th>Name</th>
+<th>Symbol</th>
+<th>Algo</th>
+<th>Version</th>
+<th>Height</th>
+<th>Difficulty</th>
+<th>Connections</th>
+<th>Network Hash</th>
+<th></th>
+</tr>
+</thead><tbody>
+end;
 
 $list = getdbolist('db_coins', "enable and visible order by name");
 foreach($list as $coin)
@@ -45,8 +47,8 @@ foreach($list as $coin)
 	$difficulty = Itoa2($coin->difficulty, 3);
 	$nethash = $coin->network_hash? strtoupper(Itoa2($coin->network_hash)).'H/s': '';
 
-	echo "<tr class='ssrow'>";
-	echo "<td><img src='$coin->image' width=18></td>";
+	echo '<tr class="ssrow">';
+	echo '<td><img src="'.$coin->image.'" width="18"></td>';
 
 	echo "<td><b><a href='/explorer?id=$coin->id'>$coin->name</a></b></td>";
 	echo "<td><b>$coin->symbol</b></td>";
@@ -56,7 +58,8 @@ foreach($list as $coin)
 
 	echo "<td>$coin->block_height</td>";
 	echo "<td>$difficulty</td>";
-	echo "<td>$coin->connections</td>";
+	$cnx_class = (intval($coin->connections) > 3) ? '' : 'low';
+	echo '<td class="'.$cnx_class.'">'.$coin->connections.'</td>';
 	echo "<td>$nethash</td>";
 
 	echo "<td>";
@@ -68,13 +71,19 @@ foreach($list as $coin)
 	echo "</tr>";
 }
 
-echo "</tbody>";
-echo "</table>";
+echo <<<end
+</tbody>
+</table>
 
-echo "<br></div></div>";
+<style type="text/css">
+td.low { color: red; font-weight: bold; }
+</style>
 
-echo '<br><br><br><br><br><br><br><br><br><br>';
-echo '<br><br><br><br><br><br><br><br><br><br>';
-echo '<br><br><br><br><br><br><br><br><br><br>';
+<br></div></div>
 
+<br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br>
+
+end;
 
