@@ -136,6 +136,8 @@ function doCCexTrading($quick=false)
 		sleep(5);
 
 		$orders = $ccex->getOrders($pair, 0);
+
+		if(!empty($orders) && !empty($orders['return']))
 		foreach($orders['return'] as $order)
 		{
 			if($order['type'] == 'sell') continue;
