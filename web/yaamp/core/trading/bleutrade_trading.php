@@ -209,7 +209,6 @@ function doBleutradeTrading($quick=false)
 			$withdraw->address = $btcaddr;
 			$withdraw->amount = $amount;
 			$withdraw->time = time();
-			$withdraw->uuid = $res->result->orderid;
 			$withdraw->save();
 
 		//	$savebalance->balance = 0;

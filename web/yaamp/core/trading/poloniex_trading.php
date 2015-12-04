@@ -169,14 +169,13 @@ function doPoloniexTrading()
 		$res = $poloniex->withdraw('BTC', $amount, $btcaddr);
 		debuglog($res);
 
-		if($res && $res->success)
+		if($res && isset($res->response) && strpos($res->response, 'Withdrew') !== false)
 		{
 			$withdraw = new db_withdraws;
 			$withdraw->market = 'poloniex';
 			$withdraw->address = $btcaddr;
 			$withdraw->amount = $amount;
 			$withdraw->time = time();
-		//	$withdraw->uuid = $res->result->uuid;
 			$withdraw->save();
 		}
 	}
