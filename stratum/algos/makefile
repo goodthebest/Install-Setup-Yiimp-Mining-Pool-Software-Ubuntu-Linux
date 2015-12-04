@@ -4,7 +4,7 @@ CC=gcc
 #CFLAGS=-c -g -I /usr/include/mysql
 #LDFLAGS=-g
 
-CFLAGS=-c -O3 -I /usr/include/mysql -march=native
+CFLAGS=-c -O2 -I /usr/include/mysql -march=native
 LDFLAGS=-O2 -lgmp
 
 SOURCES=lyra2re.c lyra2v2.c Lyra2.c Sponge.c blake.c scrypt.c c11.c x11.c x13.c sha256.c keccak.c \
