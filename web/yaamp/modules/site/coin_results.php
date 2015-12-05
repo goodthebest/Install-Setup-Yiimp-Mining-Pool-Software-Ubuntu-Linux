@@ -188,56 +188,59 @@ end;
 // last week
 $list_since = time()-(7*24*3600);
 
-$ts = $remote->listtransactions('', 500);
+$txs = $remote->listtransactions('', 2500);
 
-$res_array = array();
-if (!empty($ts))
-foreach($ts as $val)
+// to hide truncated days sums
+$tx = reset($txs); $lastday = '';
+if (count($txs) == 2500)
+	$lastday = strftime('%F', $tx['time']);
+
+$txs_array = array();
+if (!empty($txs)) foreach($txs as $tx)
 {
-	$t = $val['time'];
-	if ($t > $list_since)
-		$res_array[$t] = $val;
+	if (intval($tx['time']) > $list_since)
+		$txs_array[] = $tx;
 }
+krsort($txs_array);
 
-krsort($res_array);
 $rows = 0;
-foreach($res_array as $transaction)
+foreach($txs_array as $tx)
 {
 	$block = null;
-	if(isset($transaction['blockhash']))
-		$block = $remote->getblock($transaction['blockhash']);
+	if(isset($tx['blockhash']))
+		$block = $remote->getblock($tx['blockhash']);
 
-	$d = datetoa2($transaction['time']);
+	$d = datetoa2($tx['time']);
 
-	$category = $transaction['category'];
+	$category = $tx['category'];
 	echo '<tr class="ssrow '.$category.'">';
 	echo '<td><b>'.$d.'</b></td>';
 
 	echo '<td>'.$category.'</td>';
-	echo '<td>'.$transaction['amount'].'</td>';
+	echo '<td>'.$tx['amount'].'</td>';
 
 	if($block) {
 		echo '<td>'.$block['height'].'</td><td>'.$block['difficulty'].'</td>';
 	} else
 		echo '<td></td><td></td>';
 
-	if(isset($transaction['confirmations']))
-		echo '<td>'.$transaction['confirmations'].'</td>';
+	if(isset($tx['confirmations']))
+		echo '<td>'.$tx['confirmations'].'</td>';
 	else
 		echo '<td></td>';
 
 	echo '<td width="280">';
-	if(isset($transaction['address']))
+	if(isset($tx['address']))
 	{
-		$address = $transaction['address'];
+		$address = $tx['address'];
 		echo $address.'<br>';
 	}
 	echo '</td>';
 
 	echo '<td>';
-	if(!empty($block)) foreach($block['tx'] as $i=>$tx) {
-		$label = substr($tx, 0, 7);
-		echo CHtml::link($label, '/explorer?id='.$coin->id.'&txid='.$tx, array('target'=>'_blank'));
+	if(!empty($block)) foreach($block['tx'] as $i => $txid) {
+		$label = substr($txid, 0, 7);
+		echo CHtml::link($label, '/explorer?id='.$coin->id.'&txid='.$txid, array('target'=>'_blank'));
 		if (count($block['tx']) > 5) {
 			echo '&nbsp;('.count($block['tx']).')';
 			break;
@@ -271,11 +274,13 @@ echo <<<end
 end;
 
 $sums = array();
-foreach($res_array as $trans)
+foreach($txs_array as $tx)
 {
-	$day = strftime('%F', $trans['time']); // YYYY-MM-DD
-	$key = $day.' '.$trans['category'];
-	$sums[$key] = arraySafeVal($sums, $key) + $trans['amount'];
+	$day = strftime('%F', $tx['time']); // YYYY-MM-DD
+	if ($day == $lastday) break; // do not show truncated days
+
+	$key = $day.' '.$tx['category'];
+	$sums[$key] = arraySafeVal($sums, $key) + $tx['amount'];
 }
 
 foreach($sums as $key => $amount)
