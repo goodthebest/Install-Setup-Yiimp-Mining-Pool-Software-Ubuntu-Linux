@@ -43,6 +43,7 @@ screen -dmS blake $STRATUM_DIR/run.sh blake
 
 screen -dmS skein $STRATUM_DIR/run.sh skein
 screen -dmS skein2 $STRATUM_DIR/run.sh skein2
+screen -dmS yescrypt $STRATUM_DIR/run.sh yescrypt
 screen -dmS zr5 $STRATUM_DIR/run.sh zr5
 screen -dmS sib $STRATUM_DIR/run.sh sib
 screen -dmS m7m $STRATUM_DIR/run.sh m7m

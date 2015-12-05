@@ -28,6 +28,7 @@ function yaamp_get_algos()
 		'sib',
 		'skein',
 		'skein2',
+		'yescrypt',
 		'zr5',
 	);
 }
@@ -94,6 +95,7 @@ function getAlgoColors($algo)
 		'sib'		=> '#a0a0c0',
 		'skein'		=> '#80a0a0',
 		'skein2'	=> '#a0a0a0',
+		'yescrypt'	=> '#c0e0e0',
 		'zr5'		=> '#d0b0d0',
 
 		'MN'		=> '#ffffff', // MasterNode Earnings
@@ -140,6 +142,7 @@ function getAlgoPort($algo)
 		'penta'		=> 5833,
 		'luffa'		=> 5933,
 		'm7m'		=> 6033,
+		'yescrypt'	=> 6233,
 	);
 
 	global $configCustomPorts;

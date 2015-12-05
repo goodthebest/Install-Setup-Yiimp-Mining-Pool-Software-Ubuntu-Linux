@@ -10,6 +10,7 @@ LDFLAGS=-O2 -lgmp
 SOURCES=lyra2re.c lyra2v2.c Lyra2.c Sponge.c blake.c scrypt.c c11.c x11.c x13.c sha256.c keccak.c \
 	x14.c x15.c nist5.c fresh.c quark.c neoscrypt.c scryptn.c qubit.c skein.c groestl.c \
 	skein2.c zr5.c bmw.c luffa.c pentablake.c whirlpool.c whirlpoolx.c blakecoin.c \
+	yescrypt.c yescrypt-opt.c sha256_Y.c \
 	m7m.c magimath.cpp \
 	hive.c pomelo.c \
 	sib.c gost.c
