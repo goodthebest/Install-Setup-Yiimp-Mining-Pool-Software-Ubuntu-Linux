@@ -81,11 +81,7 @@ function dbolist($sql, $params=array())
 	return $command->queryAll();
 }
 
-
-
-
-
-
-
-
-
+function getdbolistWith($model, $with, $criteria)
+{
+	return CActiveRecord::model($model)->with($with)->findAll($criteria);
+}

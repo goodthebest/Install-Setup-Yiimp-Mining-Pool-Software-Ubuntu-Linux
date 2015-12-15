@@ -17,10 +17,16 @@ $count = $count? $count: 50;
 WriteBoxHeader("Last $count Blocks ($algo)");
 
 if($algo == 'all')
-	$db_blocks = getdbolist('db_blocks', "1 order by time desc limit :count", array(':count'=>$count));
-else
-	$db_blocks = getdbolist('db_blocks', "algo=:algo order by time desc limit :count", array(':algo'=>$algo, ':count'=>$count));
-
+	$db_blocks = getdbolist('db_blocks', "1 ORDER BY time DESC LIMIT :count", array(':count'=>$count));
+else {
+//	$db_blocks = getdbolist('db_blocks', "algo=:algo ORDER BY time DESC LIMIT :count", array(':algo'=>$algo, ':count'=>$count));
+	$criteria = new CDbCriteria();
+	$criteria->condition = 'blocks.algo=:algo AND IFNULL(coin.visible,1)=1'; // ifnull for rental
+	$criteria->params = array(':algo'=>$algo);
+	$criteria->limit = $count;
+	$criteria->order = 'blocks.time DESC';
+	$db_blocks = getdbolistWith('db_blocks', 'coin', $criteria);
+}
 echo "<table class='dataGrid2'>";
 echo "<thead>";
 echo "<tr>";
@@ -60,7 +66,7 @@ foreach($db_blocks as $db_block)
 	}
 
 	$reward = round($db_block->amount, 3);
-	$coin = getdbo('db_coins', $db_block->coin_id);
+	$coin = $db_block->coin ? $db_block->coin : getdbo('db_coins', $db_block->coin_id);
 	$difficulty = Itoa2($db_block->difficulty, 3);
 	$height = number_format($db_block->height, 0, '.', ' ');
 	$url = "/explorer?id=$coin->id&hash=$db_block->blockhash";
