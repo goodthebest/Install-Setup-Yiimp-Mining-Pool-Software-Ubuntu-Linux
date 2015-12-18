@@ -28,6 +28,7 @@ function yaamp_get_algos()
 		'sib',
 		'skein',
 		'skein2',
+		'velvet',
 		'yescrypt',
 		'zr5',
 	);
@@ -59,6 +60,8 @@ function yaamp_get_algo_norm($algo)
 		'blake'		=> 1.0,
 		'keccak'	=> 1.0,
 		'skein2'	=> 1.0,
+		'velvet'	=> 1.0,
+		'yescrypt'	=> 1.0,
 	);
 
 	if(!isset($a[$algo]))
@@ -76,7 +79,7 @@ function getAlgoColors($algo)
 		'scryptn'	=> '#d0d0d0',
 		'c11'		=> '#a0a0d0',
 		'x11'		=> '#f0f0a0',
-		'x13'		=> '#d0f0c0',
+		'x13'		=> '#ffd880',
 		'x14'		=> '#a0f0c0',
 		'x15'		=> '#f0b0a0',
 		'blake'		=> '#f0f0f0',
@@ -87,15 +90,17 @@ function getAlgoColors($algo)
 		'luffa'		=> '#a0c0c0',
 		'm7m'		=> '#d0a0a0',
 		'penta'		=> '#80c0c0',
-		'nist5'		=> '#e0d0e0',
+		'nist5'		=> '#c0e0e0',
 		'quark'		=> '#c0c0c0',
 		'qubit'		=> '#d0a0f0',
 		'lyra2'		=> '#80a0f0',
 		'lyra2v2'	=> '#80c0f0',
 		'sib'		=> '#a0a0c0',
 		'skein'		=> '#80a0a0',
-		'skein2'	=> '#a0a0a0',
-		'yescrypt'	=> '#c0e0e0',
+		'skein2'	=> '#c8a060',
+		'velvet'	=> '#aac0cc',
+		'whirlpool'	=> '#d0e0e0',
+		'yescrypt'	=> '#e0d0e0',
 		'zr5'		=> '#d0b0d0',
 
 		'MN'		=> '#ffffff', // MasterNode Earnings
@@ -142,6 +147,7 @@ function getAlgoPort($algo)
 		'penta'		=> 5833,
 		'luffa'		=> 5933,
 		'm7m'		=> 6033,
+		'velvet'	=> 6133,
 		'yescrypt'	=> 6233,
 	);
 
