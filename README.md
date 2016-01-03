@@ -84,7 +84,7 @@ Look at rc.local, it starts all three backend shells and all stratum processes. 
 
 All your coin's config files need to blocknotify their corresponding stratum using something like:
 
-	blocknotify=/var/stratum/blocknotify yaamp.com:port coinid %s
+	blocknotify=blocknotify yaamp.com:port coinid %s
 
 On the website, go to http://server.com/site/adminRights to login as admin. You have to change it to something different in the code (web/yaamp/modules/site/SiteController.php). A real admin login may be added later, but you can setup a password authentification with your web server, sample for lighttpd:
 
