@@ -189,19 +189,21 @@ end;
 $list_since = time()-(7*24*3600);
 
 $txs = $remote->listtransactions('', 2500);
+$txs_array = array(); $lastday = '';
 
-// to hide truncated days sums
-$tx = reset($txs); $lastday = '';
-if (count($txs) == 2500)
-	$lastday = strftime('%F', $tx['time']);
+if (!empty($txs)) {
+	// to hide truncated days sums
+	$tx = reset($txs);
+	if (count($txs) == 2500)
+		$lastday = strftime('%F', $tx['time']);
 
-$txs_array = array();
-if (!empty($txs)) foreach($txs as $tx)
-{
-	if (intval($tx['time']) > $list_since)
-		$txs_array[] = $tx;
+	if (!empty($txs)) foreach($txs as $tx)
+	{
+		if (intval($tx['time']) > $list_since)
+			$txs_array[] = $tx;
+	}
+	krsort($txs_array);
 }
-krsort($txs_array);
 
 $rows = 0;
 foreach($txs_array as $tx)
@@ -295,6 +297,12 @@ foreach($sums as $key => $amount)
 	echo '<td>'.$amount.'</td>';
 	echo '<td>'.bitcoinvaluetoa($coin->price * $amount).'</td>';
 
+	echo '</tr>';
+}
+
+if (empty($sums)) {
+	echo '<tr class="ssrow">';
+	echo '<td colspan="4"><i>No activity during the last 7 days</i></td>';
 	echo '</tr>';
 }
 

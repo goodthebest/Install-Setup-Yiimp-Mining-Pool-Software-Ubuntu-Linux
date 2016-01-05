@@ -119,7 +119,7 @@ function datetoa($d)
 
 function datetoa2($d)
 {
-	if(!$d) return '';
+	if(empty($d)) return '';
 
 	$table = array(
 					 // limit         divider
