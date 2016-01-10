@@ -97,6 +97,32 @@ void coinbase_create(YAAMP_COIND *coind, YAAMP_JOB_TEMPLATE *templ, json_value *
 	sprintf(templ->coinb2, "%s00000000", script2);
 	json_int_t available = templ->value;
 
+	if(strcmp(coind->symbol, "EGC") == 0)
+	{
+		char charity_payee[1024] = { 0 };
+		const char *payee = json_get_string(json_result, "payee");
+		if (payee) snprintf(charity_payee, 1023, "%s", payee);
+		else sprintf(charity_payee, "%s", "EdFwYw4Mo2Zq6CFM2yNJgXvE2DTJxgdBRX");
+
+		json_int_t charity_amount = json_get_int(json_result, "payee_amount");
+		if (!charity_amount) charity_amount = 100000000;
+
+		strcat(templ->coinb2, "02");
+		available -= charity_amount;
+
+		char script_payee[1024];
+		base58_decode(charity_payee, script_payee);
+
+		job_pack_tx(coind, templ->coinb2, available, NULL);
+
+		job_pack_tx(coind, templ->coinb2, charity_amount, script_payee);
+
+		strcat(templ->coinb2, "00000000");				// locktime
+
+		coind->reward = (double)available/100000000*coind->reward_mul;
+		return;
+	}
+
 //	if(strcmp(coind->symbol, "DASH") == 0)
 	if(coind->hasmasternodes)
 	{
