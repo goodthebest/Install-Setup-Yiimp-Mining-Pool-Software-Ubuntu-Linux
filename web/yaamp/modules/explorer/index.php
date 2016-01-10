@@ -31,6 +31,13 @@ foreach($list as $coin)
 	if(!empty($coin->symbol2)) continue;
 
 	$coin->version = substr($coin->version, 0, 20);
+	if (is_numeric($coin->version)) {
+		$version = sprintf("%07d", 0 + $coin->version);
+		$coin->version = substr($version, 0, 1).'.'.intval(substr($version, 1, 2)).
+			'.'.intval(substr($version, 3, 2)).'.'.intval(substr($version, 5));
+	} else {
+		$coin->version = ltrim($coin->version, 'v');
+	}
 
 	//if (!$coin->network_hash)
 		$coin->network_hash = controller()->memcache->get("yiimp-nethashrate-{$coin->symbol}");
@@ -41,6 +48,10 @@ foreach($list as $coin)
 		if (isset($info['networkhashps'])) {
 			$coin->network_hash = $info['networkhashps'];
 			controller()->memcache->set("yiimp-nethashrate-{$coin->symbol}", $info['networkhashps'], 60);
+		}
+		else if (isset($info['netmhashps'])) {
+			$coin->network_hash = floatval($info['netmhashps']) * 1e6;
+			controller()->memcache->set("yiimp-nethashrate-{$coin->symbol}", $coin->network_hash, 60);
 		}
 	}
 
