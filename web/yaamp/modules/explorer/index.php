@@ -32,9 +32,9 @@ foreach($list as $coin)
 
 	$coin->version = substr($coin->version, 0, 20);
 	if (is_numeric($coin->version)) {
-		$version = sprintf("%07d", 0 + $coin->version);
-		$coin->version = substr($version, 0, 1).'.'.intval(substr($version, 1, 2)).
-			'.'.intval(substr($version, 3, 2)).'.'.intval(substr($version, 5));
+		$version = sprintf("%08d", 0 + $coin->version);
+		$coin->version = intval(substr($version, 0, 2)).'.'.intval(substr($version, 2, 2)).
+			'.'.intval(substr($version, 4, 2)).'.'.intval(substr($version, 6));
 	} else {
 		$coin->version = ltrim($coin->version, 'v');
 	}

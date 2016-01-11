@@ -2,10 +2,11 @@
 
 JavascriptFile("/extensions/jqplot/jquery.jqplot.js");
 JavascriptFile("/extensions/jqplot/plugins/jqplot.dateAxisRenderer.js");
-//JavascriptFile("/extensions/jqplot/plugins/jqplot.barRenderer.js");
 JavascriptFile("/extensions/jqplot/plugins/jqplot.highlighter.js");
 
 $this->pageTitle = $coin->name." bloc explorer";
+
+$start = (int) getparam('start');
 
 if ($coin) echo <<<ENDJS
 	<script>
@@ -41,7 +42,9 @@ echo "</tr>";
 echo "</thead>";
 
 $remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
-for($i = $coin->block_height; $i > max(0, $coin->block_height-25); $i--)
+if (!$start || $start > $coin->block_height)
+	$start = $coin->block_height;
+for($i = $start; $i > max(1, $start-21); $i--)
 {
 	$hash = $remote->getblockhash($i);
 	if(!$hash) continue;
@@ -75,17 +78,48 @@ for($i = $coin->block_height; $i > max(0, $coin->block_height-25); $i--)
 
 echo "</table>";
 
+$pager = '';
+if ($start <= $coin->block_height - 20)
+	$pager  = '<a href="?id='.$coin->id.'&start='.min($coin->block_height,$start+20).'"><< Prev</a>';
+if ($start != $coin->block_height)
+	$pager .= '&nbsp; <a href="?id='.$coin->id.'">Now</a>';
+if ($start > 20)
+	$pager .= '&nbsp; <a href="?id='.$coin->id.'&start='.max(1,$start-20).'">Next >></a>';
+
 echo <<<end
-<form action="/explorer" method="get" style="padding: 10px;">
+<div id="pager" style="float: right; width: 200px; text-align: right; margin-right: 20px; margin-top: 4px;">$pager</div>
+<div id="form" style="width: 650px; height: 50px;">
+<form action="/explorer" method="get" style="padding-top: 4px; width: 650px;">
 <input type="hidden" name="id" value="{$coin->id}">
-<input type="text" name="height" class="main-text-input" placeholder="block height" style="width: 80px;">
-<input type="text" name="txid" class="main-text-input" placeholder="tx hash" style="width: 450px;">
+<input type="text" name="height" class="main-text-input" placeholder="Height" style="width: 80px;">
+<input type="text" name="txid" class="main-text-input" placeholder="Transaction hash" style="width: 450px;">
 <input type="submit" value="Search" class="main-submit-button" >
 </form>
+</div>
+end;
 
+if ($start != $coin->block_height)
+	return;
+
+echo <<<end
 <div id="diff_graph" style="margin-right: 8px;">
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 </div>
+
+<style type="text/css">
+.jqplot-title {
+	margin-bottom: 3px;
+}
+.jqplot-xaxis-tick {
+	margin-top: 4px;
+	font-size: 10px;
+}
+.jqplot-yaxis-tick {
+	font-size: 7pt;
+	margin-top: -4px;
+	margin-right: 8px;
+}
+</style>
 
 <script type="text/javascript" event="">
 
@@ -112,15 +146,15 @@ function diff_graph_data(data)
 	var t = $.parseJSON(data);
 	var plot1 = $.jqplot('diff_graph', t,
 	{
-		title: '<b>Difficulty</b>',
+		title: '<b>Network diff</b>',
 		axes: {
 			xaxis: {
 				renderer: $.jqplot.DateAxisRenderer,
-				tickOptions: {formatString: '<font size="1">%H:%M</font>'}
+				tickOptions: { formatString: '%H:%M' }
 			},
 			yaxis: {
-				min: 0,
-				tickOptions: {formatString: '<font size="1">%#.3f &nbsp;</font>'}
+				min: 0.0,
+				tickOptions: { labelPosition: 'top', formatString: '%.3f' }
 			}
 		},
 
@@ -128,6 +162,18 @@ function diff_graph_data(data)
 		{
 			markerOptions: { style: 'none' }
 		},
+
+		series:[
+			{
+				highlighter: { yvalues: 2, formatString: '<font size="1">%s %.3f<br/>Block %u</font>' }
+			},
+			{
+				showLine: false,
+				markerOptions: { style: 'circle', size: 6, color: 'silver' },
+				animation: { show: true },
+				highlighter: { yvalues: 3, formatString: '<font size="1">%s <span style="display:none;">%.1f</span>%g<br/>User block %u</font>' }
+			}
+		],
 
 		grid:
 		{
