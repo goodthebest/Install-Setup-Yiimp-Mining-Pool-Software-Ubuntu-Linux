@@ -1,5 +1,8 @@
 <?php
 
+JavascriptFile("/yaamp/ui/js/jquery.metadata.js");
+JavascriptFile("/yaamp/ui/js/jquery.tablesorter.widgets.js");
+
 echo getAdminSideBarLinks();
 
 echo '&nbsp;<a href="/site/emptymarkets">Empty Markets</a>&nbsp;';
@@ -40,28 +43,29 @@ Select Server:
 $('#server_select').change(function(event)
 {
 	var server = $('#server_select').val();
+	clearTimeout(main_timeout);
 	window.location.href = '/site/admin?server='+server;
 });
 
-//var current_hash;
-
 $(function()
 {
-//	current_hash = window.location.hash;
-//	window.location.hash = '';
-
 	main_refresh();
 });
 
 var main_delay=30000;
 var main_timeout;
+var lastSearch = false;
 
 function main_ready(data)
 {
 	$('#main_results').html(data);
 	$('#server_select').val('{$server}');
 
-//	window.location.hash = current_hash;
+	if (lastSearch !== false) {
+		$('input.search').val(lastSearch);
+		$('table.dataGrid').trigger('search');
+	}
+
 	main_timeout = setTimeout(main_refresh, main_delay);
 }
 
@@ -75,6 +79,7 @@ function main_refresh()
 	var url = "/site/admin_results?server=$server";
 
 	clearTimeout(main_timeout);
+	lastSearch = $('input.search').val();
 	$.get(url, '', main_ready).error(main_error);
 }
 

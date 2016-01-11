@@ -1,6 +1,7 @@
 <?php
 
-//echo "<a href='/coin/create'>Add a coin</a>";
+JavascriptFile("/yaamp/ui/js/jquery.metadata.js");
+JavascriptFile("/yaamp/ui/js/jquery.tablesorter.widgets.js");
 
 echo <<<end
 <div align="right" style="margin-bottom: 6px;">
@@ -13,7 +14,18 @@ end;
 
 showTableSorter('maintable', "{
 	tableClass: 'dataGrid',
-	headers: { 0: { sorter: false} },
+	headers: {
+		0:{sorter:false},
+		1:{sorter:'text'},
+		2:{sorter:'text'},
+		3:{sorter:'text'},
+		4:{sorter:'text'},
+		5:{sorter:'text'},
+		6:{sorter:'metadata'},
+		7:{sorter:'numeric'},
+		8:{sorter:'text'},
+		9:{sorter: false }
+	},
 	widgets: ['zebra','filter'],
 	widgetOptions: {
 		filter_external: '.search',
@@ -52,7 +64,7 @@ foreach($coins as $coin)
 	$coin->errors = substr($coin->errors, 0, 30);
 	$coin->version = substr($coin->version, 0, 20);
 	$difficulty = Itoa2($coin->difficulty, 3);
-	$d = datetoa2($coin->created);
+	$created = datetoa2($coin->created);
 
 	echo "<tr class='ssrow' title='$coin->specifications'>";
 	echo "<td><img src='$coin->image' width=18></td>";
@@ -76,10 +88,10 @@ foreach($coins as $coin)
 		echo "<td></td>";
 
 	echo "<td>$coin->version</td>";
-	echo "<td>$d ago</td>";
+	echo '<td data="'.$coin->created.'">'.$created.'</td>';
 
 //	echo "<td align=right>$difficulty</td>";
-	echo "<td align=right>$coin->block_height</td>";
+	echo '<td align="center">'.$coin->block_height.'</td>';
 
 	echo "<td>$coin->errors</td>";
 	echo "<td>";
@@ -116,12 +128,18 @@ $total = count($coins);
 
 echo "<tr class='ssrow'>";
 echo "<td></td>";
-echo "<td colspan=10><b>$total coins, $total_installed installed, $total_active running</b></td>";
+echo '<td colspan="6">';
+echo "<b>$total coins, $total_installed installed, $total_active running</b>";
+echo '<br/><br/><a href="/coin/create">Add a coin</a>';
+echo '<td style="display: none;"></td>';
+echo '<td style="display: none;"></td>';
+echo '<td style="display: none;"></td>';
+echo '<td style="display: none;"></td>';
+echo '<td style="display: none;" data="0"></td>';
+echo '</td>';
 echo "</tr>";
 
 echo "</table>";
 
 echo "<br><br><br><br><br>";
 echo "<br><br><br><br><br>";
-
-

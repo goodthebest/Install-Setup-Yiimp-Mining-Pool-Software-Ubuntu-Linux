@@ -11,8 +11,8 @@ end;
 showTableSorter('maintable', '{
 tableClass: "dataGrid",
 headers: {
-	0:{sorter:false},
-	1:{sorter:false},
+	0:{sorter:"metadata"}, /* reset filter */
+	1:{sorter:"metadata"},
 	2:{sorter:"text"},
 	3:{sorter:"text"},
 	4:{sorter:"currency"},
@@ -21,10 +21,13 @@ headers: {
 	7:{sorter:"currency"},
 	8:{sorter:"currency"},
 	9:{sorter:"currency"},
-	10:{sorter:"currency"}
+	10:{sorter:"currency"},
+	11:{sorter:"currency"}
 },
-widgets: ["zebra","filter"],
+widgets: ["zebra","filter","Storage","saveSort"],
 widgetOptions: {
+	saveSort: true,
+	filter_saveFilters: true,
 	filter_external: ".search",
 	filter_columnFilters: false,
 	filter_childRows : true,
@@ -42,16 +45,15 @@ echo <<<end
 <th align="right">Diff/Height</th>
 <th align="right">Profit</th>
 <th align="right">Owed/BTC</th>
-<th align="right">Balance/BTC</th>
-<th align="right">Mint/BTC</th>
+<th align="right">Balance/Mint</th>
 <th align="right">Price</th>
+<th align="right">BTC</th>
+<th align="right">USD</th>
 <th align="right">Win/Market</th>
 
 </tr>
 </thead><tbody>
 end;
-
-$current_algo = '';
 
 $server = getparam('server');
 if(!empty($server))
@@ -62,21 +64,17 @@ if(!empty($server))
 else
 	$coins = getdbolist('db_coins', "installed or enable order by algo, index_avg desc");
 
+$mining = getdbosql('db_mining');
+
 foreach($coins as $coin)
 {
-	if($coin->algo != $current_algo)
-	{
-		$current_algo = $coin->algo;
-		echo "<tr class='ssrow' id='$current_algo'>";
-	}
-	else
-		echo "<tr class='ssrow'>";
+	echo '<tr class="ssrow">';
 
 	$lowsymbol = strtolower($coin->symbol);
 	echo "<td><img src='$coin->image' width=24></td>";
 
 	$algo_color = getAlgoColors($coin->algo);
-	echo "<td style='background-color:$algo_color;'><b>";
+	echo '<td style="background-color:$algo_color;"><b>';
 
 	if($coin->enable)
 	{
@@ -109,6 +107,7 @@ foreach($coins as $coin)
 	echo "<br><span style='font-size: .8em'>$coin->rpcencoding <span style='background-color:$algo_color;'>&nbsp; ($coin->algo) &nbsp;</span></span></td>";
 
 	$difficulty = Itoa2($coin->difficulty, 3);
+	if ($difficulty > 1e20) $difficulty = '&nbsp;';
 
 	if(!empty($coin->errors))
 		echo "<td align=right style='color: red; font-size: .9em;' title='$coin->errors'><b>$difficulty</b><br>$coin->block_height</td>";
@@ -147,24 +146,28 @@ foreach($coins as $coin)
 	else
 		echo "<td align=right style='font-size: .9em'>$owed<br>$owed_btc</td>";
 
-	$btc = bitcoinvaluetoa($coin->balance*$coin->price);
-	echo "<td align=right style='font-size: .9em'>$coin->balance<br>$btc</td>";
-
-	$btc = bitcoinvaluetoa($coin->mint*$coin->price);
-	echo "<td align=right style='font-size: .9em'>$coin->mint<br>$btc</td>";
+	echo '<td align="right" style="font-size: .9em;">'.$coin->balance.'<br/>'.$coin->mint.'</td>';
 
 	$price = bitcoinvaluetoa($coin->price);
 	$price2 = bitcoinvaluetoa($coin->price2);
 //	$marketcount = getdbocount('db_markets', "coinid=$coin->id");
 
-	$marketname = '';
-	$bestmarket = getBestMarket($coin);
-	if($bestmarket)	$marketname = $bestmarket->name;
-
 	if($coin->dontsell)
 		echo "<td align=right style='font-size: .9em; background-color: #ffaaaa'>$price<br>$price2</td>";
 	else
 		echo "<td align=right style='font-size: .9em'>$price<br>$price2</td>";
+
+	$btc = bitcoinvaluetoa($coin->balance * $coin->price);
+	$mint = bitcoinvaluetoa($coin->mint * $coin->price);
+	echo '<td align="right" style="font-size: .9em;">'.$btc.'<br/>'.$mint.'</td>';
+
+	$fiat = round($coin->balance * $coin->price * $mining->usdbtc, 2). ' $';
+	$mint = round($coin->mint * $coin->price * $mining->usdbtc, 2). ' $';
+	echo '<td align="right" style="font-size: .9em;">'.$fiat.'<br/>'.$mint.'</td>';
+
+	$marketname = '';
+	$bestmarket = getBestMarket($coin);
+	if($bestmarket)	$marketname = $bestmarket->name;
 
 	echo "<td align=right style='font-size: .9em'>$coin->reward<br>$marketname</td>";
 

@@ -1,5 +1,8 @@
 <?php
 
+JavascriptFile("/yaamp/ui/js/jquery.metadata.js");
+JavascriptFile("/yaamp/ui/js/jquery.tablesorter.widgets.js");
+
 echo <<<end
 <div align="right" style="margin-top: -14px; margin-bottom: 6px;">
 <input class="search" type="search" data-column="all" style="width: 140px;" placeholder="Search..." />
@@ -11,7 +14,18 @@ end;
 
 showTableSorter('maintable', "{
 	tableClass: 'dataGrid',
-	headers: { 0: { sorter: false} },
+	headers: {
+		0:{sorter:false},
+		1:{sorter:'text'},
+		2:{sorter:'text'},
+		3:{sorter:'currency'},
+		4:{sorter:'numeric'},
+		5:{sorter:false},
+		6:{sorter:'metadata'},
+		7:{sorter:false},
+		8:{sorter:false},
+		9:{sorter:false}
+	},
 	widgets: ['zebra','filter'],
 	widgetOptions: {
 		filter_external: '.search',
@@ -51,7 +65,8 @@ foreach($earnings as $earning)
 	if(!$block) continue;
 
 	$t1 = datetoa2($earning->create_time). ' ago';
-	$t2 = datetoa2($earning->mature_time). ' ago';
+	$t2 = datetoa2($earning->mature_time);
+	if ($t2) $t2 = '+'.$t2;
 
 	$coinimg = CHtml::image($coin->image, $coin->symbol, array('width'=>'16'));
 	$coinlink = CHtml::link($coin->name, '/site/coin?id='.$coin->id);
@@ -63,7 +78,7 @@ foreach($earnings as $earning)
 	echo '<td>'.bitcoinvaluetoa($earning->amount).'</td>';
 	echo "<td>$block->height</td>";
 	echo "<td>$block->category ($block->confirmations)</td>";
-	echo "<td>$t1 $t2</td>";
+	echo '<td data="'.$earning->create_time.'">'."$t1 $t2</td>";
 
 	echo "<td>
 		<a href='/site/clearearning?id=$earning->id'>[clear]</a>
