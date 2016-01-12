@@ -162,8 +162,11 @@ function versionToAlgo($coin, $version)
 		7 =>'nist5',  8 =>'groestl', 9=>'penta', 10=>'whirl',
 		11=>'luffa',  12=>'keccak', 13=>'quark', 15=>'bastion'
 	);
+	$algos['RICHX'] = array(
+		0=>'sha256', 1=>'scrypt', 2=>'groestl', 3=>'skein', 4=>'qubit'
+	);
 	$algos['SFR'] = array(
-		 0=>'sha256', 1=>'scrypt', 2=>'groestl', 3=>'x11', 4=>'blake'
+		0=>'sha256', 1=>'scrypt', 2=>'groestl', 3=>'x11', 4=>'blake'
 	);
 	$algos['UIS'] = array(
 		0=>'blake256', 1=>'skein', 2=>'qubit', 3=>'yescrypt', 4=>'x11'
