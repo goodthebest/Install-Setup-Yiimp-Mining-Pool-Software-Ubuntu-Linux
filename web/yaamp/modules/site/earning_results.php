@@ -20,14 +20,14 @@ showTableSorter('maintable', "{
 		2:{sorter:'text'},
 		3:{sorter:'currency'},
 		4:{sorter:'numeric'},
-		5:{sorter:false},
+		5:{sorter:'metadata'},
 		6:{sorter:'metadata'},
-		7:{sorter:false},
-		8:{sorter:false},
-		9:{sorter:false}
+		7:{sorter:false}
 	},
-	widgets: ['zebra','filter'],
+	widgets: ['zebra','filter','Storage','saveSort'],
 	widgetOptions: {
+		saveSort: true,
+		filter_saveFilters: true,
 		filter_external: '.search',
 		filter_columnFilters: false,
 		filter_childRows : true,
