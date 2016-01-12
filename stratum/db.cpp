@@ -212,18 +212,22 @@ void db_update_coinds(YAAMP_DB *db)
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		coind->touch = true;
+		//coind->touch = true;
 		if(coind->newcoind)
 		{
 			debuglog("connecting to coind %s\n", coind->symbol);
 
 			bool b = rpc_connect(&coind->rpc);
+			if (!b) {
+				object_delete(coind);
+				continue;
+			}
 			coind_init(coind);
 
 			g_list_coind.AddTail(coind);
 			usleep(100*YAAMP_MS);
 		}
-
+		coind->touch = true;
 		coind_create_job(coind);
 	}
 
@@ -236,11 +240,7 @@ void db_update_coinds(YAAMP_DB *db)
 
 		if(!coind->touch)
 		{
-			debuglog("remove coind %s\n", coind->name);
-
-			rpc_close(&coind->rpc);
-			object_delete(coind);
-
+			coind_terminate(coind);
 			continue;
 		}
 

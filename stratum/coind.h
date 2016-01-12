@@ -91,6 +91,7 @@ bool coind_submit(YAAMP_COIND *coind, const char *block);
 bool coind_submitgetauxblock(YAAMP_COIND *coind, const char *hash, const char *block);
 
 void coind_init(YAAMP_COIND *coind);
+void coind_terminate(YAAMP_COIND *coind);
 //void coind_getauxblock(YAAMP_COIND *coind);
 
 void coind_create_job(YAAMP_COIND *coind, bool force=false);

@@ -171,8 +171,8 @@ YAAMP_JOB_TEMPLATE *coind_create_template(YAAMP_COIND *coind)
 //	char target[1024];
 //	strcpy(target, json_get_string(json_result, "target"));
 //	uint64_t coin_target = decode_compact(templ->nbits);
-//	debuglog("%s\n", templ->nbits);
-//	debuglog("%s\n", target);
+//	debuglog("nbits %s\n", templ->nbits);
+//	debuglog("target %s\n", target);
 //	debuglog("0000%016llx\n", coin_target);
 
 	if(coind->isaux)
@@ -239,6 +239,7 @@ void coind_create_job(YAAMP_COIND *coind, bool force)
 	if(!templ)
 	{
 		CommonUnlock(&coind->mutex);
+//		debuglog("%s: create job template failed!\n", coind->symbol);
 		return;
 	}
 
@@ -274,7 +275,10 @@ void coind_create_job(YAAMP_COIND *coind, bool force)
 	}
 
 	uint64_t coin_target = decode_compact(templ->nbits);
+	if (templ->nbits && !coin_target) coin_target = 0xFFFF000000000000ULL; // under decode_compact min diff
 	coind->difficulty = target_to_diff(coin_target);
+
+//	stratumlog("%s %d diff %g %llx %s\n", coind->name, height, coind->difficulty, coin_target, templ->nbits);
 
 	coind->newblock = false;
 

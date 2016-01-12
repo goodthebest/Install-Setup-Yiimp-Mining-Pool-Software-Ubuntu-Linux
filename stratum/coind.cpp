@@ -71,12 +71,11 @@ bool coind_can_mine(YAAMP_COIND *coind, bool isaux)
 	if(!coind->enable) return false;
 	if(!coind->auto_ready) return false;
 	if(!rpc_connected(&coind->rpc)) return false;
-	if(!coind->height || !coind->difficulty) return false;
-
+	if(!coind->height) return false;
+	if(!coind->difficulty) return false;
 	if(coind->isaux != isaux) return false;
 //	if(isaux && !coind->aux.chainid) return false;
 
-//	debuglog("can mine %s\n", coind->name);
 	return true;
 }
 
@@ -179,19 +178,20 @@ void coind_init(YAAMP_COIND *coind)
 //	CommonUnlock(&coind->mutex);
 //}
 
-//void coind_terminate(YAAMP_COIND *coind)
-//{
-//	debuglog("disconnecting from coind %s\n", coind->symbol);
+void coind_terminate(YAAMP_COIND *coind)
+{
+	debuglog("disconnecting from coind %s\n", coind->symbol);
 
-//	rpc_close(&coind->rpc);
-//	object_delete(coind);
+	rpc_close(&coind->rpc);
 
-//	pthread_mutex_unlock(&coind->mutex);
-//	pthread_mutex_destroy(&coind->mutex);
+	pthread_mutex_unlock(&coind->mutex);
+	pthread_mutex_destroy(&coind->mutex);
 //	pthread_cond_destroy(&coind->cond);
 
+	object_delete(coind);
+
 //	pthread_exit(NULL);
-//}
+}
 
 //void *coind_thread(void *p)
 //{
