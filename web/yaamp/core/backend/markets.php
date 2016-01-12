@@ -708,7 +708,7 @@ function updateSafecexMarkets()
 					$coin->price2 = $market->price2;
 					$coin->save();
 				}
-				debuglog("safecex: $pair $market->price ".bitcoinvaluetoa($market->price2));
+//				debuglog("safecex: $pair $market->price ".bitcoinvaluetoa($market->price2));
 				break;
 			}
 		}

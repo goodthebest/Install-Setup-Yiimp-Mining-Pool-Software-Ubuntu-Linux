@@ -87,9 +87,23 @@ function altcoinvaluetoa($v)
 	return sprintf('%.6f', round($v, 6, PHP_ROUND_HALF_DOWN));
 }
 
+function timestampfromstr($str)
+{
+	if (strpos("$str", ':')) {
+		$dt = DateTime::createFromFormat('Y-m-d H:i:s e', $str);
+		if (is_object($dt))
+			return $dt->getTimestamp();
+	}
+	return 0;
+}
+
 function datetoa($d)
 {
-	if(!$d) return '';
+	if (strpos($d, ':')) {
+		$d = timestampfromstr($d);
+	}
+
+	if(empty($d)) return '';
 
 	$t = wp_mktime($d);
 	$e = time() - $t;
@@ -119,6 +133,10 @@ function datetoa($d)
 
 function datetoa2($d)
 {
+	if (strpos($d, ':')) {
+		$d = timestampfromstr($d);
+	}
+
 	if(empty($d)) return '';
 
 	$table = array(
