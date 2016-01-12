@@ -85,16 +85,16 @@ function updateRawcoins()
 		}
 	}
 
-	$list = allcoin_api_query('pairs');
-	if(isset($list->data))
+	$list = safecex_api_query('getmarkets');
+	if(!empty($list))
 	{
-		dborun("UPDATE markets SET deleted=true WHERE name='allcoin'");
-		foreach($list->data as $pair => $item) {
-			if (strtoupper($item->exchange) !== 'BTC')
+		dborun("UPDATE markets SET deleted=true WHERE name='safecex'");
+		foreach($list as $pair => $item) {
+			$e = explode('/', $item->market);
+			if (strtoupper($e[1]) !== 'BTC')
 				continue;
-			if (intval($item->status) == -2)
-				continue;
-			updateRawCoin('allcoin', $item->type, $item->name);
+			$symbol = strtoupper($e[0]);
+			updateRawCoin('safecex', $symbol);
 		}
 	}
 

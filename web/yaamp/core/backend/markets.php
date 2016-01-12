@@ -8,13 +8,13 @@ function BackendPricesUpdate()
 	updatePoloniexMarkets();
 	updateBleutradeMarkets();
 	updateCCexMarkets();
-	updateCryptsyMarkets();
 	updateCryptopiaMarkets();
 	updateYobitMarkets();
-	updateAllcoinMarkets();
+	updateSafecexMarkets();
 	updateAlcurexMarkets();
 	updateBterMarkets();
 	updateEmpoexMarkets();
+	updateCryptsyMarkets();
 	updateJubiMarkets();
 	updateBanxioMarkets();
 
@@ -683,34 +683,33 @@ function updateBanxioMarkets()
 	}
 }
 
-function updateAllcoinMarkets()
+function updateSafecexMarkets()
 {
-	$data = allcoin_api_query('pairs');
-	if(!is_object($data)) return;
+	$data = safecex_api_query('getmarkets');
+	if(empty($data)) return;
 
-	$list = getdbolist('db_markets', "name='allcoin'");
+	$list = getdbolist('db_markets', "name='safecex'");
 	foreach($list as $market)
 	{
 		$coin = getdbo('db_coins', $market->coinid);
 		if(!$coin || !$coin->installed) continue;
 
-		$pair = strtoupper($coin->symbol).'_BTC';
+		$pair = strtoupper($coin->symbol).'/BTC';
 
-		if (isset($data->data[$pair])) {
-			$ticker = $data->data[$pair];
-			$market->price = AverageIncrement($market->price, $ticker->top_bid);
-			$market->price2 = AverageIncrement($market->price2, $ticker->top_ask);
-			$market->deleted = (floatval($ticker->volume_24h_BTC) < 0.01);
-			$market->save();
-			if (empty($coin->price2)) {
-				$coin->price = $market->price;
-				$coin->price2 = $market->price2;
-				$coin->save();
-			}
-			if ($coin->name == 'unknown' && !empty($ticker->name)) {
-				$coin->name = $ticker->name;
-				$coin->save();
-				debuglog("allcoin: update $symbol name {$coin->name}");
+		foreach ($data as $ticker) {
+			if ($ticker->market === $pair) {
+
+				$price2 = ($ticker->bid + $ticker->ask)/2;
+				$market->price2 = AverageIncrement($market->price2, $price2);
+				$market->price = AverageIncrement($market->price, $ticker->bid*0.98);
+				$market->save();
+				if (empty($coin->price)) {
+					$coin->price = $market->price;
+					$coin->price2 = $market->price2;
+					$coin->save();
+				}
+				debuglog("safecex: $pair $market->price ".bitcoinvaluetoa($market->price2));
+				break;
 			}
 		}
 	}

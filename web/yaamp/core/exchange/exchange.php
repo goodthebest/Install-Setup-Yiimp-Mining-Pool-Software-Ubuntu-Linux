@@ -1,12 +1,12 @@
 <?php
 
-require_once("cryptsy.php");
 require_once("poloniex.php");
 require_once("bittrex.php");
 require_once("ccexapi.php");
 require_once("bleutrade.php");
 require_once("yobit.php");
-require_once("allcoin.php");
+require_once("cryptsy.php");
+require_once("safecex.php");
 require_once("bter.php");
 require_once("empoex.php");
 require_once("jubi.php");
@@ -38,8 +38,8 @@ function getMarketUrl($coin, $marketName)
 		$url = "https://www.cryptopia.co.nz/Exchange?market={$symbol}_BTC";
 	else if($marketName == 'alcurex')
 		$url = "https://alcurex.org/index.php/crypto/market?pair={$lowsymbol}_btc";
-	else if($marketName == 'allcoin')
-		$url = "https://www.allcoin.com/trade/{$symbol}_BTC";
+	else if($marketName == 'safecex')
+		$url = "https://safecex.com/market?q={$symbol}/BTC";
 	else if($marketName == 'bter')
 		$url = "https://bter.com/trade/{$lowsymbol}_btc";
 	else if($marketName == 'banx')
