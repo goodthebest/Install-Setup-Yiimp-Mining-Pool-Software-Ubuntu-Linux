@@ -710,26 +710,61 @@ function updateSafecexMarkets()
 					$coin->save();
 				}
 
-				if(empty($market->deposit_address)) {
+				$last_checked = controller()->memcache->get('safecex_deposit_addresses_check');
+
+				if (empty($market->deposit_address) || isset($getbalances_called) || !$last_checked) {
+					// note: will try to get all missing installed coins deposit address
+					//       but these addresses are not automatically created on safecex.
 					if (!isset($getbalances_called)) {
 						// only one query is enough
 						$balances = safecex_api_user('getbalances');
 						$getbalances_called = true;
+						// allow to check once all new/changed deposit addresses (in 2 job loops)
+						if (dborun("UPDATE markets SET deposit_address=NULL WHERE name='safecex' AND deposit_address=' '"))
+							$need_new_loop = true;
+						controller()->memcache->set('safecex_deposit_addresses_check', time(), 12*3600); // recheck all in 12h
 					}
 					if(is_array($balances)) foreach ($balances as $balance) {
 						if ($balance->symbol == $coin->symbol) {
-							if (empty($market->deposit_address)) {
+							if (!isset($balance->deposit)) break;
+							if (empty(trim($market->deposit_address))) {
 								$market->deposit_address = $balance->deposit;
-								debuglog("safecex: {$coin->symbol} deposit address filled");
 								$market->save();
-							} else if ($market->deposit_address != $balance->deposit) {
-								debuglog("safecex: {$coin->symbol} deposit address differs!");
+								debuglog("safecex: {$coin->symbol} deposit address imported");
+							} else if (trim($market->deposit_address) != $balance->deposit) {
+								$market->deposit_address = $balance->deposit;
+								$market->save();
+								debuglog("safecex: {$coin->symbol} deposit address was wrong, updated.");
 							}
 						}
 					}
 				}
 			}
 		}
+	}
+
+	// update btc balance too btw
+	if (isset($getbalances_called) && is_array($balances)) {
+		foreach ($balances as $balance) {
+			if ($balance->symbol == 'BTC') {
+				$balance = floatval($balance->balance);
+				dborun("UPDATE balances SET balance=$balance WHERE name='safecex'");
+			}
+		}
+	}
+
+	// prevent api calls each 15mn for deposit addresses
+	// will be rechecked on new coins or if a market address is empty (or forced in 12 hours)
+	$list = dbolist("SELECT C.symbol AS symbol FROM markets M INNER JOIN coins C on M.coinid = C.id " .
+		"WHERE M.name='safecex' AND C.installed AND IFNULL(M.deposit_address,'')='' ORDER BY symbol");
+	$missing = array();
+	foreach($list as $row) {
+		$missing[] = $row['symbol'];
+	}
+	if(!empty($missing) && !isset($need_new_loop)) {
+		debuglog("safecex: no deposit address found for ".implode(',',$missing));
+		// stop asking safecex for inexistant deposit addresses (except on new coin or empty address, or 12h)
+		dborun("UPDATE markets SET deposit_address=' ' WHERE name='safecex' AND IFNULL(deposit_address,'')=''");
 	}
 }
 

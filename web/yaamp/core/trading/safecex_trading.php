@@ -5,7 +5,9 @@ function doSafecexTrading($quick=false)
 	$flushall = rand(0, 4) == 0;
 	if($quick) $flushall = false;
 
-	$balances = safecex_api_user('getbalances'); //,'&symbol=BTC');
+/*
+	// to use when other coin balances will be required.
+	$balances = safecex_api_user('getbalances');
 
 	if(empty($balances)) return;
 
@@ -18,6 +20,23 @@ function doSafecexTrading($quick=false)
 			if($balance->symbol == 'BTC') {
 				$savebalance->balance = $balance->balance;
 				$savebalance->save();
+				break;
+			}
+		}
+	}
+*/
+
+	// getbalance {"symbol":"BTC","balance":0.00118537,"pending":0,"orders":0.00029321,"total":0.00147858}
+
+	$db_balance = getdbosql('db_balances', "name='safecex'");
+	if (is_object($db_balance) && $db_balance->name=='safecex') {
+		$balance = safecex_api_user('getbalance','&symbol=BTC');
+		if (is_object($balance)) {
+			$db_balance->balance = 0;
+			if ($balance->symbol == 'BTC') {
+				$db_balance->balance = $balance->balance;
+				//$db_balance->onsell = $balance->orders;
+				$db_balance->save();
 				break;
 			}
 		}

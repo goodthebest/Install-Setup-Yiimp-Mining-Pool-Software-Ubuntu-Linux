@@ -94,7 +94,7 @@ function updateRawcoins()
 			if (strtoupper($e[1]) !== 'BTC')
 				continue;
 			$symbol = strtoupper($e[0]);
-			updateRawCoin('safecex', $symbol);
+			updateRawCoin('safecex', $symbol, $item->name);
 		}
 	}
 
