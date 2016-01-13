@@ -10,8 +10,8 @@ if (!defined('YAAMP_DBHOST')) define('YAAMP_DBHOST', 'localhost');
 if (!defined('YAAMP_DBNAME')) define('YAAMP_DBNAME', 'yaamp');
 if (!defined('YAAMP_DBUSER')) define('YAAMP_DBUSER', 'root');
 if (!defined('YAAMP_DBPASSWORD')) define('YAAMP_DBPASSWORD', '');
-if (!defined('YIIMP_MYSQLDUMP_USER')) define('YIIMP_MYSQLDUMP_USER', 'root');
-if (!defined('YIIMP_MYSQLDUMP_PASS')) define('YIIMP_MYSQLDUMP_PASS', '');
+//if (!defined('YIIMP_MYSQLDUMP_USER')) define('YIIMP_MYSQLDUMP_USER', 'root');
+//if (!defined('YIIMP_MYSQLDUMP_PASS')) define('YIIMP_MYSQLDUMP_PASS', '');
 
 if (!defined('YIIMP_PUBLIC_EXPLORER')) define('YIIMP_PUBLIC_EXPLORER', true);
 
@@ -29,15 +29,6 @@ if (!defined('EXCH_CCEX_KEY')) define('EXCH_CCEX_KEY', '');
 if (!defined('EXCH_POLONIEX_KEY')) define('EXCH_POLONIEX_KEY', '');
 if (!defined('EXCH_SAFECEX_KEY')) define('EXCH_SAFECEX_KEY', '');
 if (!defined('EXCH_YOBIT_KEY')) define('EXCH_YOBIT_KEY', '');
-
-if (!defined('EXCH_BITTREX_SECRET')) define('EXCH_BITTREX_SECRET', '');
-if (!defined('EXCH_BLEUTRADE_SECRET')) define('EXCH_BLEUTRADE_SECRET', '');
-if (!defined('EXCH_CCEX_SECRET')) define('EXCH_CCEX_SECRET', '');
-if (!defined('EXCH_CRYPTSY_SECRET')) define('EXCH_CRYPTSY_SECRET', '');
-if (!defined('EXCH_EMPOEX_SECKEY')) define('EXCH_EMPOEX_SECKEY', '');
-if (!defined('EXCH_POLONIEX_SECRET')) define('EXCH_POLONIEX_SECRET', '');
-if (!defined('EXCH_SAFECEX_SECRET')) define('EXCH_SAFECEX_SECRET', '');
-if (!defined('EXCH_YOBIT_SECRET')) define('EXCH_YOBIT_SECRET', '');
 
 if (!defined('YAAMP_BTCADDRESS')) define('YAAMP_BTCADDRESS', '');
 if (!defined('YAAMP_SITE_URL')) define('YAAMP_SITE_URL', 'localhost');

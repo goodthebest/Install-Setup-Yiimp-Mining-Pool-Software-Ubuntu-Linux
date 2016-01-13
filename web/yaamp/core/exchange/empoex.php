@@ -20,8 +20,12 @@ function empoex_api_query($method)
 function empoex_api_user($method, $params = "")
 {
 	require_once('/etc/yiimp/keys.php');
+	if (!defined('EXCH_EMPOEX_SECKEY')) define('EXCH_EMPOEX_SECKEY', '');
 
-	$api_key    = EXCH_EMPOEX_SECKEY;
+	// optional secret key
+	if (empty(EXCH_EMPOEX_SECKEY) && strpos($method, 'public') === FALSE) return FALSE;
+
+	$api_key = EXCH_EMPOEX_SECKEY;
 
 	$url = "https://api.empoex.com/$method/$api_key/$params";
 

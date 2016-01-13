@@ -95,7 +95,7 @@ class poloniex {
 		}
 
 		public function generate_address($currency) {
-			debuglog("generate_address($currency)");
+			debuglog("poloniex: generate address $currency");
 			return $this->query(
 				array(
 					'command' => 'generateNewAddress',

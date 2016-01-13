@@ -5,6 +5,9 @@ function cryptsy_api_query($method, array $req = array())
 //	debuglog("calling cryptsy_api_query $method");
 
 	require_once('/etc/yiimp/keys.php');
+	if (!defined('EXCH_CRYPTSY_SECRET')) define('EXCH_CRYPTSY_SECRET', '');
+
+	if (empty(EXCH_CRYPTSY_KEY)) return FALSE;
 
 	// API settings
 	$key = EXCH_CRYPTSY_KEY; // your API-key

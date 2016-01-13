@@ -3,6 +3,11 @@
 function bittrex_api_query($method, $params='')
 {
 	require_once('/etc/yiimp/keys.php');
+	if (!defined('EXCH_BITTREX_SECRET')) define('EXCH_BITTREX_SECRET', '');
+
+	// optional secret key
+	if (empty(EXCH_BITTREX_SECRET) && strpos($method, 'public') === FALSE) return FALSE;
+	if (empty(EXCH_BITTREX_KEY) && strpos($method, 'public') === FALSE) return FALSE;
 
 	$apikey = EXCH_BITTREX_KEY; // your API-key
 	$apisecret = EXCH_BITTREX_SECRET; // your Secret-key

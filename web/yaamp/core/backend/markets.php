@@ -102,13 +102,13 @@ function getBestMarket($coin)
 		// else take one of the big exchanges...
 			$market = getdbosql('db_markets', "coinid=$coin->id AND price!=0 AND
 				deposit_address IS NOT NULL AND deposit_address != '' AND
-				name IN ('poloniex','bittrex','cryptsy') ORDER BY price DESC");
+				name IN ('poloniex','bittrex') ORDER BY price DESC");
 	}
 	if(!$market) {
 		// else the best price
 		$market = getdbosql('db_markets', "coinid=$coin->id AND price!=0 AND
 			deposit_address IS NOT NULL AND deposit_address != ''
-			AND	name!='yobit' ORDER BY price DESC");
+			AND	name!='safecex' AND name!='cryptsy' ORDER BY price DESC");
 	}
 	if(!$market) {
 		$market = getdbosql('db_markets', "coinid=$coin->id AND price!=0 AND
@@ -703,13 +703,31 @@ function updateSafecexMarkets()
 				$market->price2 = AverageIncrement($market->price2, $price2);
 				$market->price = AverageIncrement($market->price, $ticker->bid*0.98);
 				$market->save();
+
 				if (empty($coin->price)) {
 					$coin->price = $market->price;
 					$coin->price2 = $market->price2;
 					$coin->save();
 				}
-//				debuglog("safecex: $pair $market->price ".bitcoinvaluetoa($market->price2));
-				break;
+
+				if(empty($market->deposit_address)) {
+					if (!isset($getbalances_called)) {
+						// only one query is enough
+						$balances = safecex_api_user('getbalances');
+						$getbalances_called = true;
+					}
+					if(is_array($balances)) foreach ($balances as $balance) {
+						if ($balance->symbol == $coin->symbol) {
+							if (empty($market->deposit_address)) {
+								$market->deposit_address = $balance->deposit;
+								debuglog("safecex: {$coin->symbol} deposit address filled");
+								$market->save();
+							} else if ($market->deposit_address != $balance->deposit) {
+								debuglog("safecex: {$coin->symbol} deposit address differs!");
+							}
+						}
+					}
+				}
 			}
 		}
 	}
