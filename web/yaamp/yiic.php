@@ -3,6 +3,7 @@
 if(php_sapi_name() != "cli") return;
 
 require_once('serverconfig.php');
+require_once('yaamp/defaultconfig.php');
 require_once('yaamp/core/core.php');
 require_once('yaamp/ui/lib/lib.php');
 

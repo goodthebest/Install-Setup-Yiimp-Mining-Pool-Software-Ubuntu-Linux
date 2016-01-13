@@ -1,6 +1,7 @@
 <?php
 
 require_once('serverconfig.php');
+require_once('yaamp/defaultconfig.php');
 
 function ld($string)
 {

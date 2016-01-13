@@ -21,6 +21,7 @@ define('YAAMP_FEES_RENTING', 2);
 define('YAAMP_PAYMENTS_FREQ', 3*60*60);
 
 define('YAAMP_ALLOW_EXCHANGE', false);
+define('YIIMP_PUBLIC_EXPLORER', true);
 define('YAAMP_USE_NICEHASH_API', false);
 
 define('YAAMP_BTCADDRESS', '1Auhps1mHZQpoX4mCcVL8odU81VakZQ6dR');
@@ -38,6 +39,7 @@ define('EXCH_BITTREX_KEY', '');
 define('EXCH_BLEUTRADE_KEY', '');
 define('EXCH_YOBIT_KEY', '');
 define('EXCH_CCEX_KEY', '');
+define('EXCH_SAFECEX_KEY', '');
 
 // Automatic withdraw to Yaamp btc wallet if btc balance > 0.3
 define('EXCH_AUTO_WITHDRAW', 0.3);
