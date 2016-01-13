@@ -1,26 +1,53 @@
 <?php
 
+JavascriptFile("/yaamp/ui/js/jquery.metadata.js");
+JavascriptFile("/yaamp/ui/js/jquery.tablesorter.widgets.js");
+
 $id = getiparam('id');
 if($id)
 	$db_blocks = getdbolist('db_blocks', "coin_id=:id order by time desc limit 250", array(':id'=>$id));
 else
 	$db_blocks = getdbolist('db_blocks', "1 order by time desc limit 250");
 
-echo "<table class='dataGrid'>";
-//showTableSorter('maintable');
-echo "<thead>";
-echo "<tr>";
-echo "<th width=20></th>";
-echo "<th>Name</th>";
-echo "<th>Time</th>";
-echo "<th>Height</th>";
-echo "<th>Amount</th>";
-echo "<th>Status</th>";
-echo "<th>Difficulty</th>";
-echo "<th>Found Diff</th>";
-echo "<th>Blockhash</th>";
-echo "</tr>";
-echo "</thead><tbody>";
+showTableSorter('maintable', "{
+	tableClass: 'dataGrid',
+	headers: {
+		0:{sorter:false},
+		1:{sorter:false},
+		2:{sorter:'metadata'},
+		3:{sorter:'numeric'},
+		4:{sorter:'currency'},
+		5:{sorter:'text'},
+		6:{sorter:'numeric'},
+		7:{sorter:'numeric'},
+		8:{sorter:'text'}
+	},
+	widgets: ['zebra','filter'],
+	widgetOptions: {
+		filter_columnFilters: false,
+		filter_ignoreCase: true
+	}
+}");
+
+echo <<<end
+<style type="text/css">
+td.orphan { color: darkred; }
+</style>
+
+<thead>
+<tr>
+<th width="20"></th>
+<th>Name</th>
+<th>Time</th>
+<th>Height</th>
+<th>Amount</th>
+<th>Status</th>
+<th>Difficulty</th>
+<th>Found Diff</th>
+<th>Blockhash</th>
+</tr>
+</thead><tbody>
+end;
 
 foreach($db_blocks as $db_block)
 {
@@ -41,19 +68,29 @@ foreach($db_blocks as $db_block)
 	else
 		echo "<tr class='ssrow'>";
 
-	echo "<td><img width=16 src='$coin->image'></td>";
-	echo "<td><b>$coin->name ($coin->symbol)</b></td>";
+	echo '<td><img width="16" src="'.$coin->image.'"></td>';
+
+	echo '<td>';
+	if ($this->admin)
+		echo '<a href="/site/coin?id='.$coin->id.'"><b>'.$coin->name.'</b></a>';
+	else
+		echo '<b>'.$coin->name.'</b>';
+	echo '&nbsp;('.$coin->symbol.')</td>';
 
 //	$db_block->confirmations = $blockext['confirmations'];
 //	$db_block->save();
 
 	$d = datetoa2($db_block->time);
-	echo "<td><b>$d ago</b></td>";
+	echo '<td data="'.$db_block->time.'"><b>'.$d.' ago</b></td>';
 
-	echo "<td>$db_block->height</td>";
+	if (YIIMP_PUBLIC_EXPLORER)
+		echo '<td><a href="/explorer?id='.$coin->id.'&height='.$db_block->height.'">'.$db_block->height.'</a></td>';
+	else
+		echo "<td>$db_block->height</td>";
+
 	echo "<td>$db_block->amount</td>";
 
-	echo "<td>";
+	echo '<td class="'.strtolower($db_block->category).'">';
 
 	if($db_block->category == 'orphan')
 		echo "Orphan";
@@ -69,7 +106,12 @@ foreach($db_blocks as $db_block)
 	echo "<td>$db_block->difficulty</td>";
 	echo "<td>$db_block->difficulty_user</td>";
 
-	echo "<td style='font-size: .8em; font-family: monospace;'><a href='/explorer?id=$coin->id&hash=$db_block->blockhash'>$db_block->blockhash</a></td>";
+	echo '<td style="font-size: .8em; font-family: monospace;">';
+	if (YIIMP_PUBLIC_EXPLORER)
+		echo '<a href="/explorer?id='.$coin->id.'&hash='.$db_block->blockhash.'">'.$db_block->blockhash.'</a>';
+	else
+		echo $db_block->blockhash;
+	echo "</td>";
 	echo "</tr>";
 }
 
