@@ -18,20 +18,25 @@ function bleutrade_api_query($method, $params='')
 
 	$uri = "https://bleutrade.com/api/v2/$method?apikey=$apikey&nonce=$nonce$params";
 
-//	if (strpos($method,'public/') === FALSE && !strpos($method,'getdepositaddress'))
-//		debuglog("bleutrade $method $params");
-
 	$sign = hash_hmac('sha512', $uri, $apisecret);
 	$ch = curl_init($uri);
 
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	curl_setopt($ch, CURLOPT_HTTPHEADER, array("apisign:$sign"));
-	curl_setopt($ch, CURLOPT_ENCODING , 'gzip');
+	//curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+	//curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+	curl_setopt($ch, CURLOPT_SSLVERSION, 1 /*CURL_SSLVERSION_TLSv1*/);
+	curl_setopt($ch, CURLOPT_SSL_SESSIONID_CACHE, 0);
+	curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/4.0 (compatible; Bleutrade API PHP client; '.php_uname('s').'; PHP/'.phpversion().')');
+	curl_setopt($ch, CURLOPT_ENCODING , '');
 
 	$data = curl_exec($ch);
 	$obj = json_decode($data);
 
-	if(!is_object($obj)) debuglog("bleutrade: $method fail ".strip_tags($data).curl_error($ch));
+	if(!is_object($obj)) {
+		$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		debuglog("bleutrade: $method failed ($status) ".strip_tags($data).' '.curl_error($ch));
+	}
 
 	curl_close($ch);
 
