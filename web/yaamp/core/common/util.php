@@ -2,7 +2,19 @@
 
 function controller()
 {
+	// console app has no controller
+	if (app() instanceof CConsoleApplication)
+		return app();
+
 	return app()->getController();
+}
+
+function cache()
+{
+	if (app() instanceof CConsoleApplication)
+		return app()->cache;
+
+	return app()->getController()->memcache;
 }
 
 function arraySafeVal($arr,$p,$default=NULL)

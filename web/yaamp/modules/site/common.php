@@ -7,13 +7,11 @@ JavascriptFile("/extensions/jqplot/plugins/jqplot.highlighter.js");
 
 echo getAdminSideBarLinks();
 
-
-//<a href='/site/memcached'>Memcache</a>&nbsp;
 //<a href='/site/eval'>Eval</a>&nbsp;
-//<a href='/renting/admin'>Jobs</a>&nbsp;
 ?>
-
+<a href='/site/memcached'>Memcache</a>&nbsp;
 <a href='/site/connections'>Connections</a>&nbsp;
+
 <?php if (YAAMP_RENTAL) : ?>
 <a href='/renting/admin'>Rental</a>&nbsp;
 <?php endif; ?>
