@@ -33,6 +33,7 @@ define('YAAMP_ADMIN_IP', '80.236.118.26');
 define('YAAMP_USE_NGINX', false);
 
 // Exchange public keys (private keys are in a separate config file)
+define('EXCH_CRYPTOPIA_KEY', '');
 define('EXCH_CRYPTSY_KEY', '');
 define('EXCH_POLONIEX_KEY', '');
 define('EXCH_BITTREX_KEY', '');
