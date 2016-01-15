@@ -6,7 +6,7 @@
  *
  * To use this command, enter the following on the command line:
  * <pre>
- * php protected/yiic.php checkup
+ * php web/yaamp/yiic.php checkup
  * </pre>
  *
  * @property string $help The command description.
@@ -31,8 +31,8 @@ class CheckupCommand extends CConsoleCommand
 
 		if (isset($args[0])) {
 
-			echo "Yii checkup command\n";
-			echo "Usage: yiic checkup\n";
+			echo "Yiimp checkup command\n";
+			echo "Usage: yiimp checkup\n";
 			return 1;
 
 		} else {
@@ -44,7 +44,7 @@ class CheckupCommand extends CConsoleCommand
 
 			self::autolinkCoinsImages();
 
-			if (YAAMP_ALLOW_EXCHANGE == false)
+			if (!YAAMP_ALLOW_EXCHANGE)
 				self::cleanUserBalancesBTC();
 
 			echo "ok\n";
