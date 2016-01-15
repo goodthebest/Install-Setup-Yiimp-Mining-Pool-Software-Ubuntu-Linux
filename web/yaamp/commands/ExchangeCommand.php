@@ -92,6 +92,11 @@ class ExchangeCommand extends CConsoleCommand
 			if (!arraySafeVal($info,'success',0) || !is_array($info['return'])) echo "error\n";
 			else echo("yobit btc: ".json_encode($info['return']['funds']['btc'])."\n");
 		}
+		if (!empty(EXCH_BANX_USERNAME)) {
+			//$balance = banx_api_user('account/getbalance','?currency=BTC');
+			$balance = banx_api_user('account/getbalances');
+			echo("banx all: ".json_encode($balance->result)."\n");
+		}
 
 		// only one secret key
 		$balance = empoex_api_user('account/balance','BTC');

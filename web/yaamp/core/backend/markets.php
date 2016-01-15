@@ -745,8 +745,10 @@ function updateBanxioMarkets()
 	$data = banx_public_api_query('getmarketsummaries');
 	if(!$data || !is_array($data->result)) return;
 
-	$list = getdbolist('db_markets', "name='banx'");
-	foreach($list as $market)
+	$symbols = array();
+
+	$currencies = getdbolist('db_markets', "name='banx'");
+	foreach($currencies as $market)
 	{
 		$coin = getdbo('db_coins', $market->coinid);
 		if(!$coin || !$coin->installed) continue;
@@ -767,11 +769,53 @@ function updateBanxioMarkets()
 				if ($coin->name == 'unknown' && !empty($ticker->currencylong)) {
 					$coin->name = $ticker->currencylong;
 					$coin->save();
-					debuglog("banx: update $symbol name {$coin->name}");
+					debuglog("$exchange: update $symbol label {$coin->name}");
 				}
+				// store for deposit addresses
+				$symbols[$ticker->currencylong] = $coin->symbol;
+				$symbols[$ticker->partnerlong] = $coin->symbol;
 				break;
 			}
 		}
+	}
+
+	if(!empty(EXCH_BANX_USERNAME))
+	{
+		// deposit addresses
+		$last_checked = cache()->get($exchange.'-deposit_address-check');
+		if (!$last_checked) {
+			// no coin symbols in the results wtf ! only labels :/
+			$query = banx_api_user('account/getdepositaddresses');
+		}
+		if (!isset($query)) return;
+		if (!is_object($query)) return;
+		if (!$query->success || !is_array($query->result)) return;
+
+		foreach($query->result as $account)
+		{
+			if (!isset($account->currency) || !isset($account->address)) continue;
+			if (empty($account->currency) || empty($account->address)) continue;
+
+			$label = $account->currency;
+			if (!isset($symbols[$label])) continue;
+
+			$symbol = $symbols[$label];
+
+			if($symbol == 'BTC') continue;
+
+			$coin = getdbosql('db_coins', "symbol=:symbol", array(':symbol'=>$symbol));
+			if(!$coin) continue;
+
+			$market = getdbosql('db_markets', "coinid={$coin->id} and name='$exchange'");
+			if(!$market) continue;
+
+			if ($market->deposit_address != $account->address) {
+				$market->deposit_address = $account->address;
+				$market->save();
+				debuglog("$exchange: deposit address for $symbol updated");
+			}
+		}
+		cache()->set($exchange.'-deposit_address-check', time(), 12*3600);
 	}
 }
 
