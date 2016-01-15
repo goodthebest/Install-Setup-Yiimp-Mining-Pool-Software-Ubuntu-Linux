@@ -137,6 +137,7 @@ function AverageIncrement($value1, $value2)
 
 function updateBleutradeMarkets()
 {
+	$exchange = 'bleutrade';
 	$list = bleutrade_api_query('public/getcurrencies');
 	if(!is_object($list)) return;
 
@@ -145,15 +146,15 @@ function updateBleutradeMarkets()
 	//	debuglog($currency);
 		if($currency->Currency == 'BTC') continue;
 
-		$coin = getdbosql('db_coins', "symbol='$currency->Currency'");
+		$coin = getdbosql('db_coins', "symbol='{$currency->Currency}'");
 		if(!$coin || !$coin->installed) continue;
 
-		$market = getdbosql('db_markets', "coinid=$coin->id and name='bleutrade'");
+		$market = getdbosql('db_markets', "coinid=$coin->id and name='$exchange'");
 		if(!$market)
 		{
 			$market = new db_markets;
 			$market->coinid = $coin->id;
-			$market->name = 'bleutrade';
+			$market->name = $exchange;
 		}
 
 		$market->txfee = $currency->TxFee;
@@ -171,21 +172,30 @@ function updateBleutradeMarkets()
 		$ticker = bleutrade_api_query('public/getticker', "&market=$pair");
 		if(!$ticker || !$ticker->success || !$ticker->result) continue;
 
-		if(empty($market->deposit_address))
-		{
-			$address = bleutrade_api_query('account/getdepositaddress', "&currency=$coin->symbol");
-
-			if(is_object($address) && is_object($address->result))
-				$market->deposit_address = $address->result->Address;
-		}
-
 		$price2 = ($ticker->result[0]->Bid+$ticker->result[0]->Ask)/2;
 		$market->price2 = AverageIncrement($market->price2, $price2);
 		$market->price = AverageIncrement($market->price, $ticker->result[0]->Bid);
 
+		if(!empty(EXCH_BLEUTRADE_KEY))
+		{
+			$last_checked = cache()->get($exchange.'-deposit_address-check-'.$coin->symbol);
+			if(empty($market->deposit_address) && !$last_checked)
+			{
+				$address = bleutrade_api_query('account/getdepositaddress', "&currency={$coin->symbol}");
+				if(is_object($address) && is_object($address->result)) {
+					$addr = $address->result->Address;
+					if (!empty($addr) && $addr != $market->deposit_address) {
+						$market->deposit_address = $addr;
+						debuglog("$exchange: deposit address for {$coin->symbol} updated");
+					}
+				}
+			}
+			cache()->set($exchange.'-deposit_address-check-'.$coin->symbol, time(), 24*3600);
+		}
+
 		$market->save();
 
-//		debuglog("bleutrade update $coin->symbol: $market->price $market->price2");
+//		debuglog("$exchange: update $coin->symbol: $market->price $market->price2");
 	}
 
 }
@@ -194,6 +204,7 @@ function updateBleutradeMarkets()
 
 function updateBittrexMarkets()
 {
+	$exchange = 'bittrex';
 	$list = bittrex_api_query('public/getcurrencies');
 	if(!is_object($list)) return;
 
@@ -237,12 +248,22 @@ function updateBittrexMarkets()
 		$ticker = bittrex_api_query('public/getticker', "&market=$pair");
 		if(!$ticker || !$ticker->success || !$ticker->result) continue;
 
-		if(empty($market->deposit_address))
+		// deposit address
+		if(!empty(EXCH_BITTREX_KEY))
 		{
-			$address = bittrex_api_query('account/getdepositaddress', "&currency=$coin->symbol");
-
-			if(is_object($address) && isset($address->result))
-				$market->deposit_address = $address->result->Address;
+			$last_checked = cache()->get($exchange.'-deposit_address-check-'.$coin->symbol);
+			if(empty($market->deposit_address) && !$last_checked)
+			{
+				$address = bittrex_api_query('account/getdepositaddress', "&currency={$coin->symbol}");
+				if(is_object($address) && isset($address->result)) {
+					$addr = $address->result->Address;
+					if (!empty($addr) && $addr != $market->deposit_address) {
+						$market->deposit_address = $addr;
+						debuglog("$exchange: deposit address for {$coin->symbol} updated");
+					}
+				}
+			}
+			cache()->set($exchange.'-deposit_address-check-'.$coin->symbol, time(), 24*3600);
 		}
 
 		$price2 = ($ticker->result->Bid+$ticker->result->Ask)/2;
@@ -251,7 +272,7 @@ function updateBittrexMarkets()
 
 		$market->save();
 
-//		debuglog("bittrex update $coin->symbol: $market->price $market->price2");
+//		debuglog("$exchange: update $coin->symbol: $market->price $market->price2");
 	}
 }
 
@@ -259,7 +280,8 @@ function updateBittrexMarkets()
 
 function updateCryptsyMarkets()
 {
-//	dborun("update markets set price=0 where name='cryptsy'");
+	$exchange = 'cryptsy';
+//	dborun("update markets set price=0 where name='$exchange'");
 //	return;
 
 	$markets = cryptsy_api_query('getmarkets');
@@ -284,14 +306,14 @@ function updateCryptsyMarkets()
 		$coin = getdbosql('db_coins', "symbol=:symbol", array(':symbol'=>$symbol));
 		if(!$coin || !$coin->installed) continue;
 
-//		debuglog("cryptsy:  $coin->name $symbol");
+//		debuglog("$exchange:  $coin->name $symbol");
 
-		$market = getdbosql('db_markets', "coinid=$coin->id and name='cryptsy'");
+		$market = getdbosql('db_markets', "coinid=$coin->id and name='$exchange'");
 		if(!$market)
 		{
 			$market = new db_markets;
 			$market->coinid = $coin->id;
-			$market->name = 'cryptsy';
+			$market->name = $exchange;
 
 			foreach($markets['return'] as $item)
 			{
@@ -346,7 +368,7 @@ function updateCryptsyMarkets()
 
 		if(!isset($ticker->return->$symbol->buyorders[0]))
 		{
-			debuglog("error cryptsy $coin->name id {$market->marketid}");
+			debuglog("$exchange: error $coin->name id {$market->marketid}");
 			if (isset($ticker->error))
 				debuglog($ticker->error);
 			else
@@ -366,30 +388,46 @@ function updateCryptsyMarkets()
 //		debuglog("cryptsy update $coin->symbol: $market->price $market->price2");
 	}
 
-	$list = cryptsy_api_query('getmydepositaddresses');
-	if (empty($list)) return;
-
-	foreach($list['return'] as $symbol=>$item)
+	if(!empty(EXCH_CRYPTSY_KEY))
 	{
-		//		debuglog($item);
-		if($symbol == 'BTC') continue;
+		// deposit addresses
+		$list = array();
+		$last_checked = cache()->get($exchange.'-deposit_address-check');
+		if (!$last_checked) {
+			$list = cryptsy_api_query('getmydepositaddresses');
+		}
+		if (empty($list)) return;
+		if (!is_array($list)) return;
+		$success = arraySafeVal($list,'success',0);
+		if (!$success || !is_array($list['return'])) return;
 
-		$coin = getdbosql('db_coins', "symbol=:symbol", array(':symbol'=>$symbol));
-		if(!$coin) continue;
+		foreach($list['return'] as $symbol => $address)
+		{
+			if($symbol == 'BTC') continue;
 
-		$market = getdbosql('db_markets', "coinid=$coin->id and name='cryptsy'");
-		if(!$market) continue;
+			$coin = getdbosql('db_coins', "symbol=:symbol", array(':symbol'=>$symbol));
+			if(!$coin) continue;
 
-		$market->deposit_address = $item;
-		$market->save();
+			$market = getdbosql('db_markets', "coinid={$coin->id} and name='$exchange'");
+			if(!$market) continue;
+
+			if (!is_string($address))
+				debuglog("$exchange: $symbol deposit address format error ".json_encode($address));
+			else if (!empty($address) && $market->deposit_address != $address) {
+				$market->deposit_address = $address;
+				$market->save();
+				debuglog("$exchange: deposit address for $symbol updated");
+			}
+		}
+		cache()->set($exchange.'-deposit_address-check', time(), 12*3600);
 	}
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
 
 function updateCCexMarkets()
 {
+	$exchange = 'c-cex';
 //	dborun("update markets set price=0 where name='c-cex'");	<- add that line
 	$ccex = new CcexAPI;
 
@@ -407,12 +445,13 @@ function updateCCexMarkets()
 		$coin = getdbosql('db_coins', "symbol=:symbol", array(':symbol'=>$symbol));
 		if(!$coin || !$coin->installed) continue;
 
-		$market = getdbosql('db_markets', "coinid=$coin->id and name='c-cex'");
+		$market = getdbosql('db_markets', "coinid={$coin->id} and name='$exchange'");
 		if(!$market)
 		{
+			// is that required ?
 			$market = new db_markets;
 			$market->coinid = $coin->id;
-			$market->name = 'c-cex';
+			$market->name = $exchange;
 		}
 
 		$market->save();
@@ -433,7 +472,7 @@ function updateCCexMarkets()
 			$coin->save();
 		}
 
-//		debuglog("ccex update $coin->symbol: $market->price $market->price2");
+//		debuglog("$exchange: update $coin->symbol: $market->price $market->price2");
 	}
 }
 
@@ -441,6 +480,7 @@ function updateCCexMarkets()
 
 function updatePoloniexMarkets()
 {
+	$exchange = 'poloniex';
 	$poloniex = new poloniex;
 
 	$tickers = $poloniex->get_ticker();
@@ -460,13 +500,11 @@ function updatePoloniexMarkets()
 		$market = getdbosql('db_markets', "coinid=$coin->id and name='poloniex'");
 		if(!$market)
 		{
+			// is that required ?
 			$market = new db_markets;
 			$market->coinid = $coin->id;
 			$market->name = 'poloniex';
 		}
-
-		if(empty($market->deposit_address) && $coin->installed)
-			$poloniex->generate_address($coin->symbol);
 
 		$price2 = ($ticker['highestBid']+$ticker['lowestAsk'])/2;
 		$market->price2 = AverageIncrement($market->price2, $price2);
@@ -474,24 +512,40 @@ function updatePoloniexMarkets()
 
 		$market->save();
 
-//		debuglog("poloniex update $coin->symbol: $market->price $market->price2");
+		if(empty($market->deposit_address) && $coin->installed && !empty(EXCH_POLONIEX_KEY)) {
+			$poloniex->generate_address($coin->symbol);
+		}
+
+//		debuglog("$exchange: update $coin->symbol: $market->price $market->price2");
 	}
 
-	$list = $poloniex->get_deposit_addresses();
-	if (!is_array($list)) return;
-
-	foreach($list as $symbol=>$item)
+	// deposit addresses
+	if(!empty(EXCH_POLONIEX_KEY))
 	{
-		if($symbol == 'BTC') continue;
+		$list = array();
+		$last_checked = cache()->get($exchange.'-deposit_address-check');
+		if (!$last_checked) {
+			$list = $poloniex->get_deposit_addresses();
+			if (!is_array($list)) return;
+		}
 
-		$coin = getdbosql('db_coins', "symbol=:symbol", array(':symbol'=>$symbol));
-		if(!$coin) continue;
+		foreach($list as $symbol=>$item)
+		{
+			if($symbol == 'BTC') continue;
 
-		$market = getdbosql('db_markets', "coinid=$coin->id and name='poloniex'");
-		if(!$market) continue;
+			$coin = getdbosql('db_coins', "symbol=:symbol", array(':symbol'=>$symbol));
+			if(!$coin) continue;
 
-		$market->deposit_address = $item;
-		$market->save();
+			$market = getdbosql('db_markets', "coinid=$coin->id and name='poloniex'");
+			if(!$market) continue;
+
+			if ($market->deposit_address != $item) {
+				$market->deposit_address = $item;
+				$market->save();
+				debuglog("$exchange: deposit address for {$coin->symbol} updated");
+			}
+		}
+		cache()->set($exchange.'-deposit_address-check', time(), 12*3600);
 	}
 }
 
@@ -499,6 +553,7 @@ function updatePoloniexMarkets()
 
 function updateYobitMarkets()
 {
+	$exchange = 'yobit';
 	$res = yobit_api_query('info');
 	if(!is_object($res)) return;
 
@@ -512,12 +567,13 @@ function updateYobitMarkets()
 		$coin = getdbosql('db_coins', "symbol=:symbol", array(':symbol'=>$symbol));
 		if(!$coin || !$coin->installed) continue;
 
-		$market = getdbosql('db_markets', "coinid=$coin->id and name='yobit'");
+		$market = getdbosql('db_markets', "coinid={$coin->id} and name='$exchange'");
 		if(!$market)
 		{
+			// is that required ?
 			$market = new db_markets;
 			$market->coinid = $coin->id;
-			$market->name = 'yobit';
+			$market->name = $exchange;
 		}
 
 		$pair = strtolower($coin->symbol).'_btc';
@@ -525,30 +581,35 @@ function updateYobitMarkets()
 		$ticker = yobit_api_query("ticker/$pair");
 		if(!$ticker) continue;
 
-		// todo: should be double checked (or reset) every x days..
-		if(empty($market->deposit_address) && !empty(EXCH_YOBIT_KEY))
+		if(!empty(EXCH_YOBIT_KEY))
 		{
+			$last_checked = cache()->get($exchange.'-deposit_address-check-'.$coin->symbol);
+			if ($last_checked) continue;
+
 			sleep(1); // for the tapi nonce
 			$address = yobit_api_query2('GetDepositAddress', array("coinName"=>$coin->symbol));
 			if (!empty($address) && isset($address['return']) && $address['success']) {
-				$market->deposit_address = $address['return']['address'];
-				debuglog("yobit addr {$coin->symbol} ".$market->deposit_address);
+				$addr = $address['return']['address'];
+				if (!empty($addr) && $addr != $market->deposit_address) {
+					$market->deposit_address = $addr;
+					debuglog("$exchange: deposit address for {$coin->symbol} updated");
+				}
 			}
-			else debuglog("yobit addr {$coin->symbol} ".json_encode($address));
+			cache()->set($exchange.'-deposit_address-check-'.$coin->symbol, time(), 24*3600);
 		}
 
-		$price2 = ($ticker->$pair->buy+$ticker->$pair->sell)/2;
+		$price2 = ($ticker->$pair->buy + $ticker->$pair->sell) / 2;
 		$market->price2 = AverageIncrement($market->price2, $price2);
 		$market->price = AverageIncrement($market->price, $ticker->$pair->buy);
-
-//		debuglog("yobit update $coin->symbol: $market->price $market->price2");
 
 		$market->save();
 	}
 }
 
+// http://www.jubi.com/ ?
 function updateJubiMarkets()
 {
+	$exchange = 'jubi';
 	$btc = jubi_api_query('ticker', "?coin=btc");
 	if(!is_object($btc)) return;
 
@@ -560,7 +621,7 @@ function updateJubiMarkets()
 
 		$lowsymbol = strtolower($coin->symbol);
 
-		$ticker = jubi_api_query('ticker', "?coin=$lowsymbol");
+		$ticker = jubi_api_query('ticker', "?coin=".$lowsymbol);
 		if(!is_object($ticker)) continue;
 
 		if (isset($btc->sell) && $btc->sell != 0.)
@@ -580,10 +641,11 @@ function updateJubiMarkets()
 
 function updateAlcurexMarkets()
 {
+	$exchange = 'alcurex';
 	$data = alcurex_api_query('market', "?info=on");
 	if(!is_object($data)) return;
 
-	$list = getdbolist('db_markets', "name='alcurex'");
+	$list = getdbolist('db_markets', "name='$exchange'");
 	foreach($list as $market)
 	{
 		$coin = getdbo('db_coins', $market->coinid);
@@ -618,10 +680,11 @@ function updateAlcurexMarkets()
 
 function updateCryptopiaMarkets()
 {
+	$exchange = 'cryptopia';
 	$data = cryptopia_api_query('GetMarkets', 24);
 	if(!is_object($data)) return;
 
-	$list = getdbolist('db_markets', "name='cryptopia'");
+	$list = getdbolist('db_markets', "name='$exchange'");
 	foreach($list as $market)
 	{
 		$coin = getdbo('db_coins', $market->coinid);
@@ -641,15 +704,44 @@ function updateCryptopiaMarkets()
 					$coin->price2 = $market->price2;
 					$coin->save();
 				}
-//				debuglog("cryptopia: $pair $market->price ".bitcoinvaluetoa($market->price2));
+//				debuglog("$exchange: $pair $market->price ".bitcoinvaluetoa($market->price2));
 				break;
 			}
 		}
 	}
+
+	if(empty(EXCH_CRYPTOPIA_KEY)) return;
+
+	$last_checked = cache()->get($exchange.'-deposit_address-check');
+	if ($last_checked) return;
+
+	$addresses = array();
+	$query = cryptopia_api_user('GetBalance');
+	if (is_object($query) && is_array($query->Data))
+	foreach($query->Data as $balance) {
+		$addresses[$balance->Symbol] = $balance->Address;
+	}
+
+	if (!empty($addresses)) {
+	foreach($list as $market)
+		$coin = getdbo('db_coins', $market->coinid);
+		if(!$coin) continue;
+
+		if (isset($addresses[$coin->symbol])) {
+			$addr = $addresses[$coin->symbol];
+			if ($market->deposit_address != $addr) {
+				debuglog("$exchange: deposit address for {$coin->symbol} updated");
+				$market->deposit_address = $addr;
+				$market->save();
+			}
+		}
+	}
+	cache()->set($exchange.'-deposit_address-check', time(), 12*3600);
 }
 
 function updateBanxioMarkets()
 {
+	$exchange = 'banx';
 	$data = banx_public_api_query('getmarketsummaries');
 	if(!$data || !is_array($data->result)) return;
 
@@ -685,10 +777,11 @@ function updateBanxioMarkets()
 
 function updateSafecexMarkets()
 {
+	$exchange = 'safecex';
 	$data = safecex_api_query('getmarkets');
 	if(empty($data)) return;
 
-	$list = getdbolist('db_markets', "name='safecex'");
+	$list = getdbolist('db_markets', "name='$exchange'");
 	foreach($list as $market)
 	{
 		$coin = getdbo('db_coins', $market->coinid);
@@ -710,8 +803,10 @@ function updateSafecexMarkets()
 					$coin->save();
 				}
 
-				$last_checked = controller()->memcache->get('safecex_deposit_addresses_check');
+				if (empty(EXCH_SAFECEX_KEY)) continue;
 
+				// deposit addresses (in getbalances api)
+				$last_checked = cache()->get($exchange.'-deposit_address-check');
 				if (empty($market->deposit_address) || isset($getbalances_called) || !$last_checked) {
 					// note: will try to get all missing installed coins deposit address
 					//       but these addresses are not automatically created on safecex.
@@ -720,9 +815,9 @@ function updateSafecexMarkets()
 						$balances = safecex_api_user('getbalances');
 						$getbalances_called = true;
 						// allow to check once all new/changed deposit addresses (in 2 job loops)
-						if (dborun("UPDATE markets SET deposit_address=NULL WHERE name='safecex' AND deposit_address=' '"))
+						if (dborun("UPDATE markets SET deposit_address=NULL WHERE name='$exchange' AND deposit_address=' '"))
 							$need_new_loop = true;
-						controller()->memcache->set('safecex_deposit_addresses_check', time(), 12*3600); // recheck all in 12h
+						cache()->set($exchange.'-deposit_address-check', time(), 12*3600); // recheck all in 12h
 					}
 					if(is_array($balances)) foreach ($balances as $balance) {
 						if ($balance->symbol == $coin->symbol) {
@@ -730,11 +825,11 @@ function updateSafecexMarkets()
 							if (empty(trim($market->deposit_address))) {
 								$market->deposit_address = $balance->deposit;
 								$market->save();
-								debuglog("safecex: {$coin->symbol} deposit address imported");
+								debuglog("$exchange: {$coin->symbol} deposit address imported");
 							} else if (trim($market->deposit_address) != $balance->deposit) {
 								$market->deposit_address = $balance->deposit;
 								$market->save();
-								debuglog("safecex: {$coin->symbol} deposit address was wrong, updated.");
+								debuglog("$exchange: {$coin->symbol} deposit address was wrong, updated.");
 							}
 						}
 					}
@@ -743,37 +838,39 @@ function updateSafecexMarkets()
 		}
 	}
 
-	// update btc balance too btw
-	if (isset($getbalances_called) && is_array($balances)) {
-		foreach ($balances as $balance) {
+	if (isset($getbalances_called))
+	{
+		// update btc balance too btw
+		if (is_array($balances)) foreach ($balances as $balance) {
 			if ($balance->symbol == 'BTC') {
 				$balance = floatval($balance->balance);
-				dborun("UPDATE balances SET balance=$balance WHERE name='safecex'");
+				dborun("UPDATE balances SET balance=$balance WHERE name='$exchange'");
 			}
 		}
-	}
 
-	// prevent api calls each 15mn for deposit addresses
-	// will be rechecked on new coins or if a market address is empty (or forced in 12 hours)
-	$list = dbolist("SELECT C.symbol AS symbol FROM markets M INNER JOIN coins C on M.coinid = C.id " .
-		"WHERE M.name='safecex' AND C.installed AND IFNULL(M.deposit_address,'')='' ORDER BY symbol");
-	$missing = array();
-	foreach($list as $row) {
-		$missing[] = $row['symbol'];
-	}
-	if(!empty($missing) && !isset($need_new_loop)) {
-		debuglog("safecex: no deposit address found for ".implode(',',$missing));
-		// stop asking safecex for inexistant deposit addresses (except on new coin or empty address, or 12h)
-		dborun("UPDATE markets SET deposit_address=' ' WHERE name='safecex' AND IFNULL(deposit_address,'')=''");
+		// prevent api calls each 15mn for deposit addresses
+		// will be rechecked on new coins or if a market address is empty (or forced in 12 hours)
+		$list = dbolist("SELECT C.symbol AS symbol FROM markets M INNER JOIN coins C on M.coinid = C.id " .
+			"WHERE M.name='$exchange' AND C.installed AND IFNULL(M.deposit_address,'')='' ORDER BY symbol");
+		$missing = array();
+		foreach($list as $row) {
+			$missing[] = $row['symbol'];
+		}
+		if(!empty($missing) && !isset($need_new_loop)) {
+			debuglog("$exchange: no deposit address found for ".implode(',',$missing));
+			// stop asking safecex for inexistant deposit addresses (except on new coin or empty address, or 12h)
+			dborun("UPDATE markets SET deposit_address=' ' WHERE name='$exchange' AND IFNULL(deposit_address,'')=''");
+		}
 	}
 }
 
 function updateBterMarkets()
 {
+	$exchange = 'bter';
 	$markets = bter_api_query('tickers');
 	if(!is_array($markets)) return;
 
-	$list = getdbolist('db_markets', "name='bter'");
+	$list = getdbolist('db_markets', "name='$exchange'");
 	foreach($list as $market)
 	{
 		$coin = getdbo('db_coins', $market->coinid);
@@ -800,10 +897,11 @@ function updateBterMarkets()
 
 function updateEmpoexMarkets()
 {
+	$exchange = 'empoex';
 	$markets = empoex_api_query('marketinfo');
 	if(!is_array($markets)) return;
 
-	$list = getdbolist('db_markets', "name='empoex'");
+	$list = getdbolist('db_markets', "name='$exchange'");
 	foreach($list as $market)
 	{
 		$coin = getdbo('db_coins', $market->coinid);
@@ -839,7 +937,7 @@ function updateOtherMarkets()
 		$symbol = $coin->symbol;
 		if (!empty($coin->symbol2)) $symbol = $coin->symbol2;
 
-		$json = file_get_contents("https://www.cryptonator.com/api/full/".strtolower($symbol)."-btc");
+		$json = @ file_get_contents("https://www.cryptonator.com/api/full/".strtolower($symbol)."-btc");
 		$object = json_decode($json);
 		if (empty($object)) continue;
 
