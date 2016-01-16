@@ -335,6 +335,9 @@ function updateCryptsyMarkets()
 			}
 		}
 
+		// Cryptsy! Unfair methods...
+		$currency['maintenancemode'] = 666;
+
 		$market->txfee = $currency['withdrawalfee']*100;
 		switch($currency['maintenancemode'])
 		{
@@ -349,6 +352,9 @@ function updateCryptsyMarkets()
 				break;
 			case 3:
 				$market->message = 'Network Issues';
+				break;
+			case 666:
+				$market->message = 'Funds holded';
 				break;
 			default:
 				$market->message = 'Unknown Error';
