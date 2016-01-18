@@ -159,7 +159,7 @@ function versionToAlgo($coin, $version)
 	);
 	$algos['J'] = array(
 		2 =>'sha256', 3=>'x11', 4=>'x13', 5=>'x15', 6=>'scrypt',
-		7 =>'nist5',  8 =>'groestl', 9=>'penta', 10=>'whirl',
+		7 =>'nist5',  8 =>'groestl', 9=>'penta', 10=>'whirlpool',
 		11=>'luffa',  12=>'keccak', 13=>'quark', 15=>'bastion'
 	);
 	$algos['RICHX'] = array(

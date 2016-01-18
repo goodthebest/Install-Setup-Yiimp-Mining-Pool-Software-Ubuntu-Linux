@@ -66,10 +66,10 @@ foreach($coins as $coin)
 	$difficulty = Itoa2($coin->difficulty, 3);
 	$created = datetoa2($coin->created);
 
-	echo "<tr class='ssrow' title='$coin->specifications'>";
-	echo "<td><img src='$coin->image' width=18></td>";
+	echo '<tr class="ssrow">';
+	echo '<td><img src="'.$coin->image.'" width="18"></td>';
 
-	echo "<td><b><a href='/coin/update?id=$coin->id'>$coin->name</a></b></td>";
+	echo '<td><b><a href="/coin/update?id='.$coin->id.'">'.$coin->name.'</a></b></td>';
 
 	if($this->admin)
 		echo "<td><b><a href='/site/update?id=$coin->id'>$coin->symbol</a></b></td>";
