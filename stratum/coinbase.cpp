@@ -84,7 +84,7 @@ void coinbase_create(YAAMP_COIND *coind, YAAMP_JOB_TEMPLATE *templ, json_value *
 	char script1[4*1024];
 	sprintf(script1, "%s%s%s08", eheight, templ->flags, etime);
 
-	char script2[4*1024] = "7961616d702e636f6d00";		// yaamp.com
+	char script2[4*1024] = "7969696d7000"; // "yiimp\0" in hex ascii
 	if(!coind->pos && !coind->isaux && templ->auxs_size)
 		coinbase_aux(templ, script2);
 
@@ -97,27 +97,41 @@ void coinbase_create(YAAMP_COIND *coind, YAAMP_JOB_TEMPLATE *templ, json_value *
 	sprintf(templ->coinb2, "%s00000000", script2);
 	json_int_t available = templ->value;
 
-	if(strcmp(coind->symbol, "EGC") == 0)
+	// sample coins using mandatory dev/foundation fees
+	if(strcmp(coind->symbol, "EGC") == 0 && !coind->charity_percent) {
+		if (coind->charity_percent <= 0)
+			coind->charity_percent = 2;
+		if (strlen(coind->charity_address) == 0)
+			sprintf(coind->charity_address, "EdFwYw4Mo2Zq6CFM2yNJgXvE2DTJxgdBRX");
+	}
+	else if(strcmp(coind->symbol, "LTCR") == 0) {
+		if (coind->charity_percent <= 0)
+			coind->charity_percent = 10;
+		if (strlen(coind->charity_address) == 0)
+			sprintf(coind->charity_address, "BCDrF1hWdKTmrjXXVFTezPjKBmGigmaXg5");
+	}
+
+	// 2 txs are required on these coins, one for foundation (dev fees)
+	if(coind->charity_percent)
 	{
 		char charity_payee[1024] = { 0 };
 		const char *payee = json_get_string(json_result, "payee");
 		if (payee) snprintf(charity_payee, 1023, "%s", payee);
-		else sprintf(charity_payee, "%s", "EdFwYw4Mo2Zq6CFM2yNJgXvE2DTJxgdBRX");
-
-		json_int_t charity_amount = json_get_int(json_result, "payee_amount");
-		if (!charity_amount) charity_amount = 100000000;
-
-		strcat(templ->coinb2, "02");
-		available -= charity_amount;
+		else sprintf(charity_payee, "%s", coind->charity_address);
+		if (strlen(charity_payee) == 0)
+			stratumlog("ERROR %s has no charity_address set!\n", coind->name);
 
 		char script_payee[1024];
 		base58_decode(charity_payee, script_payee);
 
+		json_int_t charity_amount = (available * coind->charity_percent) / 100;
+		available -= charity_amount;
+		coind->charity_amount = charity_amount;
+
+		strcat(templ->coinb2, "02");
 		job_pack_tx(coind, templ->coinb2, available, NULL);
-
 		job_pack_tx(coind, templ->coinb2, charity_amount, script_payee);
-
-		strcat(templ->coinb2, "00000000");				// locktime
+		strcat(templ->coinb2, "00000000"); // locktime
 
 		coind->reward = (double)available/100000000*coind->reward_mul;
 		return;
@@ -136,12 +150,12 @@ void coinbase_create(YAAMP_COIND *coind, YAAMP_JOB_TEMPLATE *templ, json_value *
 
 		if(charity_payments && charity_enforce)
 		{
-			strcat(templ->coinb2, "02");
 			available -= charity_amount;
 
 			char script_payee[1024];
 			base58_decode(charity_payee, script_payee);
 
+			strcat(templ->coinb2, "02");
 			job_pack_tx(coind, templ->coinb2, charity_amount, script_payee);
 		}
 		else
@@ -152,12 +166,12 @@ void coinbase_create(YAAMP_COIND *coind, YAAMP_JOB_TEMPLATE *templ, json_value *
 		strcat(templ->coinb2, "01");
 
 	job_pack_tx(coind, templ->coinb2, available, NULL);
-	strcat(templ->coinb2, "00000000");				// locktime
+	strcat(templ->coinb2, "00000000"); // locktime
 
 	coind->reward = (double)available/100000000*coind->reward_mul;
 //	debuglog("coinbase %f\n", coind->reward);
 
-//	debuglog("new job: %x, %s, %s, %s\n", coind->templ->id, coind->templ->version, coind->templ->nbits, coind->templ->ntime);
+//	debuglog("coinbase %s: version %s, nbits %s, time %s\n", coind->symbol, templ->version, templ->nbits, templ->ntime);
 //	debuglog("coinb1 %s\n", templ->coinb1);
 //	debuglog("coinb2 %s\n", templ->coinb2);
 }
