@@ -8,11 +8,21 @@ class SiteController extends CommonController
 
 	public function actionAdminRights()
 	{
-		debuglog("admin login {$_SERVER['REMOTE_ADDR']}");
+		$client_ip = $_SERVER['REMOTE_ADDR'];
 
-		user()->setState('yaamp_admin', false);
-		if ($_SERVER['REMOTE_ADDR'] === YAAMP_ADMIN_IP)
-			user()->setState('yaamp_admin', true);
+		$valid = false;
+		if (strpos(YAAMP_ADMIN_IP, ','))
+			$valid = in_array($client_ip, explode(',',YAAMP_ADMIN_IP), true);
+		else
+			$valid = ($client_ip === YAAMP_ADMIN_IP);
+
+		if ($valid)
+			debuglog("admin connect from $client_ip");
+		else
+	                debuglog("admin connect failure from $client_ip");
+
+		user()->setState('yaamp_admin', $valid);
+
 		$this->redirect("/site/common");
 	}
 
