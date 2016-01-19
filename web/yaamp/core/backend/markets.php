@@ -202,7 +202,7 @@ function updateBleutradeMarkets()
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
-function updateBittrexMarkets()
+function updateBittrexMarkets($force = false)
 {
 	$exchange = 'bittrex';
 	$list = bittrex_api_query('public/getcurrencies');
@@ -215,24 +215,11 @@ function updateBittrexMarkets()
 		$coin = getdbosql('db_coins', "symbol='$currency->Currency'");
 		if(!$coin || !$coin->installed) continue;
 
-		$market = getdbosql('db_markets', "coinid=$coin->id and name='bittrex'");
-		if(!$market)
-		{
-			$market = new db_markets;
-			$market->coinid = $coin->id;
-			$market->name = 'bittrex';
-		}
+		$market = getdbosql('db_markets', "coinid=$coin->id and name='$exchange'");
+		if(!$market) continue;
 
 		$market->txfee = $currency->TxFee;
 		$market->message = $currency->Notice;
-
-		if($coin->symbol == 'EGMA')
-		{
-			$market->price = 0.00000001;
-			$market->save();
-
-			continue;
-		}
 
 		if(!$currency->IsActive)
 		{
@@ -252,7 +239,7 @@ function updateBittrexMarkets()
 		if(!empty(EXCH_BITTREX_KEY))
 		{
 			$last_checked = cache()->get($exchange.'-deposit_address-check-'.$coin->symbol);
-			if(empty($market->deposit_address) && !$last_checked)
+			if($force || (empty($market->deposit_address) && !$last_checked))
 			{
 				$address = bittrex_api_query('account/getdepositaddress', "&currency={$coin->symbol}");
 				if(is_object($address) && isset($address->result)) {
@@ -263,7 +250,7 @@ function updateBittrexMarkets()
 					}
 				}
 			}
-			cache()->set($exchange.'-deposit_address-check-'.$coin->symbol, time(), 24*3600);
+			cache()->set($exchange.'-deposit_address-check-'.$coin->symbol, time(), 12*3600);
 		}
 
 		$price2 = ($ticker->result->Bid+$ticker->result->Ask)/2;
