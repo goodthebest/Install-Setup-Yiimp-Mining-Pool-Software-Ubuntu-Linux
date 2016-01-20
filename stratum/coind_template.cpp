@@ -115,7 +115,6 @@ YAAMP_JOB_TEMPLATE *coind_create_template(YAAMP_COIND *coind)
 	{
 		coind_error(coind, "getblocktemplate result");
 		json_value_free(json);
-
 		return NULL;
 	}
 
@@ -124,7 +123,6 @@ YAAMP_JOB_TEMPLATE *coind_create_template(YAAMP_COIND *coind)
 	{
 		coind_error(coind, "getblocktemplate transactions");
 		json_value_free(json);
-
 		return NULL;
 	}
 
@@ -133,7 +131,6 @@ YAAMP_JOB_TEMPLATE *coind_create_template(YAAMP_COIND *coind)
 	{
 		coind_error(coind, "getblocktemplate coinbaseaux");
 		json_value_free(json);
-
 		return NULL;
 	}
 
@@ -204,6 +201,7 @@ YAAMP_JOB_TEMPLATE *coind_create_template(YAAMP_COIND *coind)
 	templ->txmerkles[0] = 0;
 	templ->txcount = txhashes.size();
 	templ->txsteps = merkle_steps(txhashes);
+	txhashes.clear();
 
 	vector<string>::const_iterator i;
 	for(i = templ->txsteps.begin(); i != templ->txsteps.end(); ++i)
@@ -251,6 +249,10 @@ void coind_create_job(YAAMP_COIND *coind, bool force)
 		strcmp(templ->coinb2, job_last->templ->coinb2) == 0)
 	{
 //		debuglog("coind_create_job %s %d same template %x \n", coind->name, coind->height, coind->job->id);
+		if (templ->txcount) {
+			templ->txsteps.clear();
+			templ->txdata.clear();
+		}
 		delete templ;
 
 		CommonUnlock(&coind->mutex);
