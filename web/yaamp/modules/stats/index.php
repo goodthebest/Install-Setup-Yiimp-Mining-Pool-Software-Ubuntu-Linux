@@ -38,10 +38,15 @@ $total3 = bitcoinvaluetoa($row3['b']);
 
 $height = '240px';
 
-$algos = yaamp_get_algos();
+//$algos = yaamp_get_algos();
+$algos = array();
+$enabled = dbolist("SELECT algo, count(id) as count FROM coins WHERE enable AND visible GROUP BY algo ORDER BY algo");
+foreach ($enabled as $row) {
+	$algos[$row['algo']] = $row['count'];
+}
 
 $string = '';
-foreach($algos as $a)
+foreach($algos as $a => $count)
 {
 	if($a == $algo)
 		$string .= "<option value='$a' selected>$a</option>";
