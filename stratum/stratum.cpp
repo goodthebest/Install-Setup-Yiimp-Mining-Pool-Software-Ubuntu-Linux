@@ -118,6 +118,8 @@ YAAMP_ALGO g_algos[] =
 	{"hive", hive_hash, 0x10000, 0, 0},
 	{"m7m", m7m_hash, 0x10000, 0, 0},
 	{"velvet", velvet_hash, 0x10000, 0, 0},
+	{"argon2", argon2_hash, 0x10000, 0, sha256_hash_hex },
+
 	{"sib", sib_hash, 1, 0, 0},
 
 	{"whirlcoin", whirlpool_hash, 1, 0, sha256_hash_hex }, /* old sha merkleroot */
