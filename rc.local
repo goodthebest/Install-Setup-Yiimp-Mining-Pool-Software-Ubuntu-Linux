@@ -39,7 +39,7 @@ screen -dmS lyra2v2 $STRATUM_DIR/run.sh lyra2v2
 
 screen -dmS blake $STRATUM_DIR/run.sh blake
 #screen -dmS keccak $STRATUM_DIR/run.sh keccak
-#screen -dmS whirlpool $STRATUM_DIR/run.sh whirlpool
+screen -dmS whirlpool $STRATUM_DIR/run.sh whirlpool
 
 screen -dmS skein $STRATUM_DIR/run.sh skein
 screen -dmS skein2 $STRATUM_DIR/run.sh skein2
