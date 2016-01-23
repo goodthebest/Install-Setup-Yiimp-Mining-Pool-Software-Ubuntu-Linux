@@ -12,13 +12,13 @@ class ApiController extends CommonController
 	{
 		if(!LimitRequest('api-status', 10)) return;
 
-		echo "{";
+		$stats = array();
 		foreach(yaamp_get_algos() as $i=>$algo)
 		{
-			if($i) echo ", ";
-
 			$coins = (int) controller()->memcache->get_database_count_ex("api_status_coins-$algo",
 				'db_coins', "enable and visible and auto_ready and algo=:algo", array(':algo'=>$algo));
+
+			if (!$coins) continue;
 
 			$workers = (int) controller()->memcache->get_database_scalar("api_status_workers-$algo",
 				"select COUNT(id) FROM workers WHERE algo=:algo",
@@ -74,24 +74,25 @@ class ApiController extends CommonController
 			$port = getAlgoPort($algo);
 			if($port == '-') $port = 0;
 
-			echo "\"$algo\": ";
-			echo "{";
-			echo "\"name\": \"$algo\", ";
-			echo "\"port\": $port, ";
-			echo "\"coins\": $coins, ";
-			echo "\"fees\": $fees, ";
-			echo "\"hashrate\": $hashrate, ";
-			echo "\"workers\": $workers, ";
-			echo "\"lastbloc\": $lastbloc, ";
-			echo "\"timesincelast\": $timesincelast, ";
-			echo "\"estimate_current\": $price, ";
-			echo "\"estimate_last24h\": $avgprice, ";
-			echo "\"actual_last24h\": $btcmhday1, ";
-			echo "\"rental_current\": $rental";
-			echo "}";
+			$stat  = "\"$algo\": ";
+			$stat .= "{";
+			$stat .= "\"name\": \"$algo\", ";
+			$stat .= "\"port\": $port, ";
+			$stat .= "\"coins\": $coins, ";
+			$stat .= "\"fees\": $fees, ";
+			$stat .= "\"hashrate\": $hashrate, ";
+			$stat .= "\"workers\": $workers, ";
+			$stat .= "\"lastbloc\": $lastbloc, ";
+			$stat .= "\"timesincelast\": $timesincelast, ";
+			$stat .= "\"estimate_current\": $price, ";
+			$stat .= "\"estimate_last24h\": $avgprice, ";
+			$stat .= "\"actual_last24h\": $btcmhday1, ";
+			$stat .= "\"rental_current\": $rental";
+			$stat .= "}";
+			$stats[] = $stat;
 		}
 
-		echo "}";
+		echo "{".implode(', ', $stats)."}";
 	}
 
 	public function actionWallet()
