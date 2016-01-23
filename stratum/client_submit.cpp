@@ -134,7 +134,8 @@ void client_do_submit(YAAMP_CLIENT *client, YAAMP_JOB *job, YAAMP_JOB_VALUES *su
 		for(i = templ->txdata.begin(); i != templ->txdata.end(); ++i)
 			sprintf(block_hex+strlen(block_hex), "%s", (*i).c_str());
 
-		if(coind->txmessage)
+		// POS coins need a zero byte appended to block, the daemon replaces it with the signature
+		if(coind->pos)
 			strcat(block_hex, "00");
 
 		bool b = coind_submit(coind, block_hex);
@@ -169,9 +170,9 @@ void client_do_submit(YAAMP_CLIENT *client, YAAMP_JOB *job, YAAMP_JOB_VALUES *su
 		}
 
 		else {
-			debuglog("*** REJECTED :( %s %d\n", coind->name, templ->height);
+			debuglog("*** REJECTED :( %s block %d %d txs\n", coind->name, templ->height, templ->txcount);
 #ifdef HASH_DEBUGLOG_
-			debuglog("block %s\n", block_hex);
+			//debuglog("block %s\n", block_hex);
 			debuglog("--------------------------------------------------------------\n");
 #endif
 		}

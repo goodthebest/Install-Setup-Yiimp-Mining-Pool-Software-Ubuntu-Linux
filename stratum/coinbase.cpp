@@ -98,7 +98,7 @@ void coinbase_create(YAAMP_COIND *coind, YAAMP_JOB_TEMPLATE *templ, json_value *
 	json_int_t available = templ->value;
 
 	// sample coins using mandatory dev/foundation fees
-	if(strcmp(coind->symbol, "EGC") == 0 && !coind->charity_percent) {
+	if(strcmp(coind->symbol, "EGC") == 0) {
 		if (coind->charity_percent <= 0)
 			coind->charity_percent = 2;
 		if (strlen(coind->charity_address) == 0)
@@ -167,6 +167,9 @@ void coinbase_create(YAAMP_COIND *coind, YAAMP_JOB_TEMPLATE *templ, json_value *
 
 	job_pack_tx(coind, templ->coinb2, available, NULL);
 	strcat(templ->coinb2, "00000000"); // locktime
+
+	//if(coind->txmessage)
+	//	strcat(templ->coinb2, "00");
 
 	coind->reward = (double)available/100000000*coind->reward_mul;
 //	debuglog("coinbase %f\n", coind->reward);

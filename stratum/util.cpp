@@ -116,7 +116,7 @@ void clientlog(YAAMP_CLIENT *client, const char *format, ...)
 	time(&rawtime);
 	timeinfo = localtime(&rawtime);
 
-	strftime(buffer2, 80, "%Y/%m/%d %H:%M:%S", timeinfo);
+	strftime(buffer2, 80, "%Y-%m-%d %H:%M:%S", timeinfo);
 
 	char buffer3[YAAMP_SMALLBUFSIZE];
 	sprintf(buffer3, "%s [%s] %s, %s, %s\n", buffer2, client->sock->ip, client->username, g_current_algo->name, buffer);
