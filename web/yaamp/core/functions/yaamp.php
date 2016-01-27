@@ -29,8 +29,10 @@ function yaamp_get_algos()
 		'sib',
 		'skein',
 		'skein2',
+		'vanilla',
 		'velvet',
 		'yescrypt',
+		'whirlpool',
 		'zr5',
 	);
 }
@@ -101,6 +103,7 @@ function getAlgoColors($algo)
 		'sib'		=> '#a0a0c0',
 		'skein'		=> '#80a0a0',
 		'skein2'	=> '#c8a060',
+		'vanilla'	=> '#f0f0f0',
 		'velvet'	=> '#aac0cc',
 		'whirlpool'	=> '#d0e0e0',
 		'yescrypt'	=> '#e0d0e0',
@@ -147,6 +150,7 @@ function getAlgoPort($algo)
 		'zr5'		=> 5533,
 		// 5555 to 5683 reserved
 		'blake'		=> 5733,
+		'vanilla'	=> 5755,
 		'penta'		=> 5833,
 		'luffa'		=> 5933,
 		'm7m'		=> 6033,
