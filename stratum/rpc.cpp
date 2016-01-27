@@ -141,7 +141,7 @@ char *rpc_do_call(YAAMP_RPC *rpc, char const *data)
 	}
 
 	int bufpos = 0;
-	char buffer[YAAMP_SMALLBUFSIZE];
+	char buffer[YAAMP_SMALLBUFSIZE] = { 0 };
 
 	while(1)
 	{
