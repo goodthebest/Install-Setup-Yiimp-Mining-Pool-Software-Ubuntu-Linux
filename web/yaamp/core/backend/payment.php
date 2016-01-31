@@ -28,7 +28,8 @@ function BackendCoinPayments($coin)
 
 	$users = getdbolist('db_accounts', "balance>$min and coinid=$coin->id");
 
-	if($coin->symbol == 'MUE' || $coin->symbol == 'DIME')
+	// todo: db field
+	if($coin->symbol == 'MUE' || $coin->symbol == 'BOD' || $coin->symbol == 'DIME' || $coin->symbol == 'BTCRY')
 	{
 		foreach($users as $user)
 		{
@@ -152,9 +153,17 @@ function BackendCoinPayments($coin)
 	// sometimes the wallet take too much time to answer, so use tx field to double check
 	set_time_limit(120);
 
-	$tx = $remote->sendmany('', $addresses, 1, '');
+	if (!$coin->txmessage)
+		$tx = $remote->sendmany('', $addresses);
+	else
+		$tx = $remote->sendmany('', $addresses, 1, YAAMP_SITE_NAME);
+
 	if(!$tx) {
-		debuglog($remote->error);
+		debuglog("sendmany: unable to send $total_to_pay {$remote->error} ".json_encode($addresses));
+		return;
+	}
+	else if(!is_string($tx)) {
+		debuglog("sendmany: result is not a string tx=".json_encode($tx));
 		return;
 	}
 
@@ -206,7 +215,10 @@ function BackendCoinPayments($coin)
 	// redo failed payouts
 	if (!empty($addresses))
 	{
-		$tx = $remote->sendmany('', $addresses, 1, '');
+		if (!$coin->txmessage)
+			$tx = $remote->sendmany('', $addresses);
+		else
+			$tx = $remote->sendmany('', $addresses, 1, YAAMP_SITE_NAME." retry");
 
 		if(empty($tx)) {
 			debuglog($remote->error);
