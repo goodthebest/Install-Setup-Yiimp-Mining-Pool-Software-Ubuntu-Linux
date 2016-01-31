@@ -69,8 +69,9 @@ function updateRawcoins()
 	if(isset($list['return']))
 	{
 		dborun("update markets set deleted=true where name='cryptsy'");
-		foreach($list['return'] as $item)
-			updateRawCoin('cryptsy', $item['primary_currency_code'], $item['primary_currency_name']);
+// disabled
+//		foreach($list['return'] as $item)
+//			updateRawCoin('cryptsy', $item['primary_currency_code'], $item['primary_currency_name']);
 	}
 
 	$res = yobit_api_query('info');
