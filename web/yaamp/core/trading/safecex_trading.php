@@ -20,7 +20,6 @@ function doSafecexTrading($quick=false)
 			if($balance->symbol == 'BTC') {
 				$savebalance->balance = $balance->balance;
 				$savebalance->save();
-				break;
 			}
 		}
 	}
@@ -37,7 +36,6 @@ function doSafecexTrading($quick=false)
 				$db_balance->balance = $balance->balance;
 				//$db_balance->onsell = $balance->orders;
 				$db_balance->save();
-				break;
 			}
 		}
 	}
