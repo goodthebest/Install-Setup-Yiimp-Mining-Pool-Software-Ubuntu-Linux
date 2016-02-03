@@ -96,7 +96,7 @@ int rpc_send(YAAMP_RPC *rpc, const char *format, ...)
 {
 	if(!rpc_connected(rpc)) return -1;
 
-	char buffer[YAAMP_SMALLBUFSIZE];
+	char buffer[YAAMP_SMALLBUFSIZE] = { 0 };
 	va_list args;
 
 	va_start(args, format);
@@ -113,13 +113,65 @@ int rpc_send(YAAMP_RPC *rpc, const char *format, ...)
 	return bytes;
 }
 
+// Attempt to read decred HTTP 1.1 chunked data... not finished
+char *rpc_get_chunks(YAAMP_RPC *rpc, char *buffer)
+{
+	char *val, *databuf = NULL;
+	int datalen, reslen = 0;
+	int respos = 0;
+
+	header_value(buffer, "Connection:", val);
+	bool close = (strcmp(val, "close") == 0);
+
+	const char *p = strstr(buffer, "\r\n\r\n");
+	// read chunk len
+	if (p && sscanf(p+4, "%x", &datalen))
+	{
+		p += 4;
+		reslen += datalen;
+		databuf = (char *)realloc(databuf, reslen + 4);
+		if(!databuf) {
+			debuglog("ERR: %s OOM", __func__);
+			goto done;
+		}
+
+		p = strstr(p, "\r\n");
+		if (p) p += 2;
+		while (datalen && p) {
+			memcpy(databuf + respos, p, datalen);
+			databuf[respos + datalen]='\0';
+			respos += reslen;
+			p = strstr(p+datalen, "\r\n");
+			if (!p || !sscanf(p+2, "%x", &datalen)) break;
+			//debuglog("chunk: len %d\n", datalen);
+			if (!datalen) break;
+
+			reslen += datalen;
+			databuf = (char *)realloc(databuf, reslen + 4);
+			int bytes = recv(rpc->sock, buffer, min(YAAMP_SMALLBUFSIZE, datalen), 0);
+			if (bytes <=0) break;
+			p = buffer;
+		}
+	}
+
+done:
+	CommonUnlock(&rpc->mutex);
+
+	if (close) {
+		rpc_connect(rpc);
+	}
+
+	return databuf;
+}
+
 /////////////////////////////////////////////////////////////////////////////////
 
-char *rpc_do_call(YAAMP_RPC *rpc, char const *data)
+char *rpc_do_call(YAAMP_RPC *rpc, char const *data, int http_ver)
 {
 	CommonLock(&rpc->mutex);
 
-	rpc_send(rpc, "POST / HTTP/1.1\r\n");
+	// HTTP 1.1 accepts chunked data, and keep the connection
+	rpc_send(rpc, "POST / HTTP/1.%d\r\n", http_ver);
 	rpc_send(rpc, "Authorization: Basic %s\r\n", rpc->credential);
 	rpc_send(rpc, "Host: %s:%d\n", rpc->host, rpc->port);
 	rpc_send(rpc, "Accept: */*\r\n");
@@ -149,7 +201,6 @@ char *rpc_do_call(YAAMP_RPC *rpc, char const *data)
 #ifdef RPC_DEBUGLOG_
 		debuglog("got %s\n", buffer+bufpos);
 #endif
-
 		if(bytes <= 0)
 		{
 			debuglog("ERROR: recv1, %d, %d, %s, %s\n", bytes, errno, data, buffer);
@@ -178,12 +229,30 @@ char *rpc_do_call(YAAMP_RPC *rpc, char const *data)
 
 	char tmp[1024];
 
+	header_value(buffer, "Transfer-Encoding:", tmp);
+	if (!strcmp(tmp, "chunked") && http_ver == 1) {
+		//return rpc_get_chunks(rpc, buffer);
+		CommonUnlock(&rpc->mutex);
+		rpc_connect(rpc);
+		return rpc_do_call(rpc, data, 0);
+	}
+
 	int datalen = atoi(header_value(buffer, "Content-Length:", tmp));
 	if(!datalen)
 	{
-		CommonUnlock(&rpc->mutex);
-		return NULL;
+		if (http_ver == 0) {
+			const char *end = strstr(buffer, "\r\n\r\n");
+			if (end) datalen = strlen(end + 4);
+		}
+		if (!datalen) {
+			debuglog("ERROR: rpc No Content-Length header!\n");
+			CommonUnlock(&rpc->mutex);
+			return NULL;
+		}
 	}
+
+	p = strstr(buffer, "\r\n\r\n");
+	bufpos = strlen(p+4);
 
 	char *databuf = (char *)malloc(datalen+1);
 	if(!databuf)
@@ -192,8 +261,6 @@ char *rpc_do_call(YAAMP_RPC *rpc, char const *data)
 		return NULL;
 	}
 
-	p = strstr(buffer, "\r\n\r\n");
-	bufpos = strlen(p+4);
 	memcpy(databuf, p+4, bufpos+1);
 
 	while(bufpos < datalen)
@@ -242,7 +309,7 @@ json_value *rpc_call(YAAMP_RPC *rpc, char const *method, char const *params)
 	else
 		sprintf(message, "{\"method\":\"%s\",\"id\":\"%d\"}", method, ++rpc->id);
 
-	char *buffer = rpc_do_call(rpc, message);
+	char *buffer = rpc_do_call(rpc, message, 1);
 
 	free(message);
 	if(!buffer) return NULL;

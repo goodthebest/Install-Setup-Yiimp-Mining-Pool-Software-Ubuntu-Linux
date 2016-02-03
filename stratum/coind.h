@@ -30,6 +30,7 @@ public:
 	char symbol2[256];
 	char algo[256];
 	char wallet[1024];
+	char account[256];
 
 	char pubkey[1024];
 	char script_pubkey[1024];

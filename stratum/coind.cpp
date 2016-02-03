@@ -131,7 +131,10 @@ bool coind_validate_address(YAAMP_COIND *coind)
 	if(!ismine) stratumlog("%s wallet %s is not mine.\n", coind->name, coind->wallet);
 
 	const char *p = json_get_string(json_result, "pubkey");
-	if(p) strcpy(coind->pubkey, p);
+	strcpy(coind->pubkey, p ? p : "");
+
+	const char *acc = json_get_string(json_result, "account");
+	strcpy(coind->account, acc ? acc : "");
 
 	json_value_free(json);
 	base58_decode(coind->wallet, coind->script_pubkey);
@@ -143,15 +146,22 @@ void coind_init(YAAMP_COIND *coind)
 {
 	yaamp_create_mutex(&coind->mutex);
 
+	char account[YAAMP_SMALLBUFSIZE] = { 0 };
 	bool valid = coind_validate_address(coind);
 	if(valid) return;
 
-	json_value *json = rpc_call(&coind->rpc, "getaccountaddress", "[\"\"]");
+	if(!strcmp(coind->symbol, "DCRD"))
+		sprintf(account, "default");
+
+	char params[YAAMP_SMALLBUFSIZE];
+	sprintf(params, "[\"%s\"]", account);
+
+	json_value *json = rpc_call(&coind->rpc, "getaccountaddress", params);
 	if(!json)
 	{
-		json = rpc_call(&coind->rpc, "getaddressesbyaccount", "[\"\"]");
-		if (!json && json_is_array(json) && json->u.object.length) {
-			stratumlog("is array...");
+		json = rpc_call(&coind->rpc, "getaddressesbyaccount", params);
+		if (json && json_is_array(json) && json->u.object.length) {
+			debuglog("is array...");
 			if (json->u.object.values[0].value->type == json_string)
 				json = json->u.object.values[0].value;
 		}
@@ -161,11 +171,21 @@ void coind_init(YAAMP_COIND *coind)
 		}
 	}
 
-	strcpy(coind->wallet, json->u.object.values[0].value->u.string.ptr);
+	if (json->u.object.values[0].value->type == json_string) {
+		strcpy(coind->wallet, json->u.object.values[0].value->u.string.ptr);
+	}
+	else {
+		strcpy(coind->wallet, "");
+		stratumlog("ERROR getaccountaddress %s\n", coind->name);
+	}
+
 	json_value_free(json);
 
-	debuglog(">>>>>>>>>>>>>>>>>>>> using wallet %s\n", coind->wallet);
 	coind_validate_address(coind);
+	if (strlen(coind->wallet)) {
+		debuglog(">>>>>>>>>>>>>>>>>>>> using wallet %s %s\n",
+			coind->wallet, coind->account);
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -142,11 +142,18 @@ YAAMP_JOB_TEMPLATE *coind_create_template(YAAMP_COIND *coind)
 	templ->height = json_get_int(json_result, "height");
 	sprintf(templ->version, "%08x", (unsigned int)json_get_int(json_result, "version"));
 	sprintf(templ->ntime, "%08x", (unsigned int)json_get_int(json_result, "curtime"));
-	strcpy(templ->nbits, json_get_string(json_result, "bits"));
-	strcpy(templ->prevhash_hex, json_get_string(json_result, "previousblockhash"));
 
-	if (strcmp(coind->symbol, "DRP")) // not in Dropcoin
-		strcpy(templ->flags, json_get_string(json_coinbaseaux, "flags"));
+	const char *bits = json_get_string(json_result, "bits");
+	strcpy(templ->nbits, bits ? bits : "");
+	const char *prev = json_get_string(json_result, "previousblockhash");
+	strcpy(templ->prevhash_hex, prev ? prev : "");
+	const char *flags = json_get_string(json_coinbaseaux, "flags");
+	strcpy(templ->flags, flags ? flags : "");
+
+	if (!coind->height || !flags || !prev || !bits) {
+		stratumlog("%s incompatible getblocktemplate format : height=%d value=%d bits=%s prev=%s\n",
+			coind->symbol, coind->height, templ->value, bits, prev);
+	}
 
 	// temporary hack, until wallet is fixed...
 	if (!strcmp(coind->symbol, "MBL")) { // MBL: chainid in version
