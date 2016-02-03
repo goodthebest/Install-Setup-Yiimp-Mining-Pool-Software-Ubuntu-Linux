@@ -8,7 +8,9 @@ struct YAAMP_RPC
 
 	char host[1024];
 	char credential[1024];
+	char cert[1024];
 
+	int ssl;
 	int sock;
 	int id;
 

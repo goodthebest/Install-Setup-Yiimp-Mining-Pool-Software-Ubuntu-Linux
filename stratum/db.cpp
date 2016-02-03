@@ -172,7 +172,28 @@ void db_update_coinds(YAAMP_DB *db)
 		if(row[6]) coind->pos = strcmp(row[6], "POS")? false: true;
 		if(row[10]) coind->hassubmitblock = atoi(row[10]);
 
-		if(row[2]) strcpy(coind->rpc.host, row[2]);
+		coind->rpc.ssl = 0;
+		if(row[2]) {
+			char buffer[1024];
+			char cert[1024];
+			strcpy(buffer, row[2]);
+			// sample ssl host : "https://mycert@127.0.0.1"
+			if (strstr(buffer, "https://") != NULL) {
+				strcpy(buffer, row[2] + 8);
+				if (strstr(buffer, "@") != NULL) {
+					int p = (strstr(buffer, "@") - buffer);
+					strcpy(cert, buffer); cert[p] = '\0';
+					strcpy(buffer, row[2] + 8 + p + 1);
+				} else {
+					strcpy(cert, "yiimp");
+				}
+				coind->rpc.ssl = 1;
+				sprintf(coind->rpc.cert, "/usr/share/ca-certificates/%s.crt", cert);
+			}
+			strcpy(coind->rpc.cert, "");
+			strcpy(coind->rpc.host, buffer);
+		}
+
 		if(row[3]) coind->rpc.port = atoi(row[3]);
 
 		if(row[4] && row[5])
