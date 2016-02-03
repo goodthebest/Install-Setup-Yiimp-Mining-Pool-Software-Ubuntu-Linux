@@ -37,9 +37,9 @@ $bitcoin = new Bitcoin('username','password');
 // Optionally, you can specify a host and port.
 $bitcoin = new Bitcoin('username','password','host','port');
 // Defaults are:
-//	host = localhost
-//	port = 8332
-//	proto = http
+//  host = localhost
+//  port = 8332
+//  proto = http
 
 // If you wish to make an SSL connection you can set an optional CA certificate or leave blank
 // This will set the protocol to HTTPS and some CURL flags
@@ -99,6 +99,22 @@ class Bitcoin {
         // Set some defaults
         $this->proto         = 'http';
         $this->CACertificate = null;
+
+        // Hack to be able to connect to wallets over TLS
+        // sample coin HOST:  https://dcrd@127.0.0.1
+        // where dcrd is the certificate filename.
+        if (strstr($host, 'https://') !== false) {
+            $host = substr($host, strlen('https://'));
+            if (strstr($host, '@') !== false) {
+                $parts = explode('@', $host);
+                $cert = $parts[0];
+                $host = $parts[1];
+            } else {
+                $cert = 'yiimp';
+            }
+            $this->host = $host;
+            $this->setSSL("/usr/share/ca-certificates/$cert.crt");
+        }
     }
 
     /**
@@ -122,29 +138,29 @@ class Bitcoin {
         // If no parameters are passed, this will be an empty array
         if($method == 'getblocktemplate')
         {
-        	$param = $params[0];
-       		$request = "{\"method\":\"$method\",\"params\":[$param],\"id\":$this->id}";
-       	//	debuglog($request);
+            $param = $params[0];
+            $request = "{\"method\":\"$method\",\"params\":[$param],\"id\":$this->id}";
+        //  debuglog($request);
         }
 
         else
         {
-		    $params = array_values($params);
+            $params = array_values($params);
 
-	        // Build the request, it's ok that params might have any empty array
-	        $request = json_encode(array(
-	            'method' => $method,
-	            'params' => $params,
-	            'id'     => $this->id
-	        ));
+            // Build the request, it's ok that params might have any empty array
+            $request = json_encode(array(
+                'method' => $method,
+                'params' => $params,
+                'id'     => $this->id
+            ));
         }
 
         // Build the cURL session
         $curl    = curl_init("{$this->proto}://{$this->username}:{$this->password}@{$this->host}:{$this->port}/{$this->url}");
         $options = array(
-        	CURLOPT_CONNECTTIMEOUT => 20,
-        	CURLOPT_TIMEOUT		   => 30,
-        	CURLOPT_RETURNTRANSFER => TRUE,
+            CURLOPT_CONNECTTIMEOUT => 20,
+            CURLOPT_TIMEOUT        => 30,
+            CURLOPT_RETURNTRANSFER => TRUE,
             CURLOPT_FOLLOWLOCATION => TRUE,
             CURLOPT_MAXREDIRS      => 10,
             CURLOPT_HTTPHEADER     => array('Content-type: application/json'),
@@ -157,6 +173,7 @@ class Bitcoin {
             if ($this->CACertificate != null) {
                 $options[CURLOPT_CAINFO] = $this->CACertificate;
                 $options[CURLOPT_CAPATH] = DIRNAME($this->CACertificate);
+                $options[CURLOPT_SSLVERSION] = 1; // TLSv1
             }
             else {
                 // If not we need to assume the SSL cannot be verified so we set this flag to FALSE to allow the connection
@@ -168,7 +185,7 @@ class Bitcoin {
 
         // Execute the request and decode to an array
         $this->raw_response = curl_exec($curl);
-//		debuglog($this->raw_response);
+//      debuglog($this->raw_response);
         $this->response     = json_decode($this->raw_response, TRUE);
 
         // If the status is not 200, something is wrong
@@ -178,7 +195,7 @@ class Bitcoin {
         $curl_error = curl_error($curl);
 
         curl_close($curl);
-//		debuglog($this->response);
+//      debuglog($this->response);
 
         if (!empty($curl_error)) {
             $this->error = $curl_error;
