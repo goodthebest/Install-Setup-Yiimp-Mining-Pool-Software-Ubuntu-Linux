@@ -39,6 +39,7 @@ screen -dmS lyra2v2 $STRATUM_DIR/run.sh lyra2v2
 
 screen -dmS blake $STRATUM_DIR/run.sh blake
 screen -dmS vanilla $STRATUM_DIR/run.sh vanilla # blake 8
+screen -dmS decred $STRATUM_DIR/run.sh decred # blake 14
 
 #screen -dmS keccak $STRATUM_DIR/run.sh keccak
 screen -dmS whirlpool $STRATUM_DIR/run.sh whirlpool

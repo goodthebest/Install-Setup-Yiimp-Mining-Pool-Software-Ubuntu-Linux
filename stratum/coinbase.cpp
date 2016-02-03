@@ -196,6 +196,12 @@ void coinbase_create(YAAMP_COIND *coind, YAAMP_JOB_TEMPLATE *templ, json_value *
 	job_pack_tx(coind, templ->coinb2, available, NULL);
 	strcat(templ->coinb2, "00000000"); // locktime
 
+	if(!strcmp(coind->symbol, "DCR")) {
+		// bypass coinbase and merkle for now... sent without changes
+		const unsigned char *hdr = (unsigned char *) &templ->header[36];
+		hexlify(templ->coinb1, hdr, 192 - 80);
+	}
+
 	//if(coind->txmessage)
 	//	strcat(templ->coinb2, "00");
 

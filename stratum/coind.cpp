@@ -150,7 +150,7 @@ void coind_init(YAAMP_COIND *coind)
 	yaamp_create_mutex(&coind->mutex);
 
 	coind->rpc.curl = 0;
-	if(!strcmp(coind->symbol, "DCR") || !strcmp(coind->symbol, "DCRD")) {
+	if(!strcmp(coind->symbol, "DCR")) {
 		coind->rpc.curl = 1;
 		sprintf(account, "default");
 	}

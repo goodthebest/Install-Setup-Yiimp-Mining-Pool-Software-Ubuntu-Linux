@@ -114,7 +114,7 @@ static int coind_parse_decred_header(YAAMP_JOB_TEMPLATE *templ, json_value *json
 		uint32_t size;
 		uint32_t ntime;
 		uint32_t nonce;
-		char extra[36];
+		unsigned char extra[36];
 	} header;
 
 	const char *header_hex = json_get_string(json, "header");
@@ -125,7 +125,7 @@ static int coind_parse_decred_header(YAAMP_JOB_TEMPLATE *templ, json_value *json
 	binlify((unsigned char*) &header, header_hex);
 
 	templ->height = header.height;
-	sprintf(templ->version, "%08x", header.version);
+	sprintf(templ->version, "%08x", bswap32(header.version));
 	sprintf(templ->ntime, "%08x", header.ntime);
 	sprintf(templ->nbits, "%08x", header.nbits);
 
@@ -133,6 +133,9 @@ static int coind_parse_decred_header(YAAMP_JOB_TEMPLATE *templ, json_value *json
 	templ->prevhash_hex[64] = '\0';
 	for(int i=0; i < 32; i++)
 		sprintf(templ->prevhash_hex + (i*2), "%02x", (uint8_t) header.prevblock[31-i]);
+
+	// store all other stuff
+	memcpy(templ->header, &header, sizeof(header));
 
 	return 0;
 }
@@ -192,7 +195,7 @@ YAAMP_JOB_TEMPLATE *coind_create_template(YAAMP_COIND *coind)
 	const char *flags = json_get_string(json_coinbaseaux, "flags");
 	strcpy(templ->flags, flags ? flags : "");
 
-	if (!strcmp(coind->symbol, "DCR") || !strcmp(coind->symbol, "DCRD")) {
+	if (!strcmp(coind->symbol, "DCR")) {
 		coind_parse_decred_header(templ, json_result);
 	}
 	else

@@ -99,6 +99,7 @@ YAAMP_ALGO g_algos[] =
 	{"blake", blake_hash, 1, 0 },
 	{"blakecoin", blakecoin_hash, 0x100, 0, sha256_hash_hex },
 	{"vanilla", blakecoin_hash, 1, 0 },
+	{"decred", decred_hash, 1, 0 },
 
 	{"fresh", fresh_hash, 0x100, 0, 0},
 	{"quark", quark_hash, 1, 0, 0},
