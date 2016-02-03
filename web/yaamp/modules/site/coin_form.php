@@ -2,7 +2,7 @@
 
 echo getAdminSideBarLinks();
 
-echo " - <a href='/site/coin?id=$coin->id'>$coin->name</a><br>";
+echo " - <a href='/site/coin?id={$coin->id}'>{$coin->name}</a><br/>";
 
 //include "current.php";
 $this->widget('UniForm');
@@ -24,6 +24,7 @@ echo <<<end
 <li><a href="#tabs-2">Settings</a></li>
 <li><a href="#tabs-3">Exchange</a></li>
 <li><a href="#tabs-4">Daemon</a></li>
+<li><a href="#tabs-5">Links</a></li>
 </ul><br>
 end;
 
@@ -191,7 +192,7 @@ echo CUFHtml::closeCtrlHolder();
 
 echo CUFHtml::openActiveCtrlHolder($coin, 'market');
 echo CUFHtml::activeLabelEx($coin, 'market');
-echo CUFHtml::activeTextField($coin, 'market', array('maxlength'=>200));
+echo CUFHtml::activeTextField($coin, 'market', array('maxlength'=>128,'style'=>'width: 180px;'));
 echo '<p class="formHint2">Selected exchange</p>';
 echo CUFHtml::closeCtrlHolder();
 
@@ -271,6 +272,12 @@ echo CUFHtml::activeTextField($coin, 'serveruser', array('maxlength'=>35,'style'
 echo '<p class="formHint2">Daemon process username</p>';
 echo CUFHtml::closeCtrlHolder();
 
+echo CUFHtml::openActiveCtrlHolder($coin, 'rpcencoding');
+echo CUFHtml::activeLabelEx($coin, 'rpcencoding');
+echo CUFHtml::activeTextField($coin, 'rpcencoding', array('maxlength'=>5,'style'=>'width: 60px;'));
+echo '<p class="formHint2">POW/POS</p>';
+echo CUFHtml::closeCtrlHolder();
+
 if ($coin->id) {
 	echo CHtml::tag("hr");
 	echo "<b>Sample config</b>:";
@@ -302,6 +309,38 @@ if ($coin->id) {
 }
 
 echo "</div>";
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+
+echo '<div id="tabs-5">';
+
+echo CUFHtml::openActiveCtrlHolder($coin, 'link_bitcointalk');
+echo CUFHtml::activeLabelEx($coin, 'link_bitcointalk');
+echo CUFHtml::activeTextField($coin, 'link_bitcointalk');
+echo "<p class='formHint2'></p>";
+echo CUFHtml::closeCtrlHolder();
+
+echo CUFHtml::openActiveCtrlHolder($coin, 'link_github');
+echo CUFHtml::activeLabelEx($coin, 'link_github');
+echo CUFHtml::activeTextField($coin, 'link_github');
+echo "<p class='formHint2'></p>";
+echo CUFHtml::closeCtrlHolder();
+
+echo CUFHtml::openActiveCtrlHolder($coin, 'link_exchange');
+echo CUFHtml::activeLabelEx($coin, 'link_exchange');
+echo CUFHtml::activeTextField($coin, 'link_exchange');
+echo "<p class='formHint2'></p>";
+echo CUFHtml::closeCtrlHolder();
+
+echo CUFHtml::openActiveCtrlHolder($coin, 'link_explorer');
+echo CUFHtml::activeLabelEx($coin, 'link_explorer');
+echo CUFHtml::activeTextField($coin, 'link_explorer');
+echo "<p class='formHint2'></p>";
+echo CUFHtml::closeCtrlHolder();
+
+echo "</div>";
+
 
 echo "</div>";
 

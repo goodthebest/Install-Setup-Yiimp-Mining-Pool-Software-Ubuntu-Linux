@@ -45,6 +45,7 @@ class db_coins extends CActiveRecord
 			'hassubmitblock'=> 'Has submitblock',
 			'hasmasternodes'=> 'Masternodes',
 			'market'	=> 'Preferred market',
+			'rpcencoding'	=> 'RPC Type',
 			'specifications'=> 'Notes'
 		);
 	}
