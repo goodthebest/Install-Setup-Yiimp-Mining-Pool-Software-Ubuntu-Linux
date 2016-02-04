@@ -128,7 +128,11 @@ static int coind_parse_decred_header(YAAMP_JOB_TEMPLATE *templ, json_value *json
 	sprintf(templ->version, "%08x", header.version);
 	sprintf(templ->ntime, "%08x", header.ntime);
 	sprintf(templ->nbits, "%08x", header.nbits);
-	hexlify(templ->prevhash_hex, (const unsigned char*) header.prevblock, 32);
+
+	//hexlify(templ->prevhash_hex, (const unsigned char*) header.prevblock, 32);
+	templ->prevhash_hex[64] = '\0';
+	for(int i=0; i < 32; i++)
+		sprintf(templ->prevhash_hex + (i*2), "%02x", (uint8_t) header.prevblock[31-i]);
 
 	return 0;
 }
@@ -192,9 +196,9 @@ YAAMP_JOB_TEMPLATE *coind_create_template(YAAMP_COIND *coind)
 		coind_parse_decred_header(templ, json_result);
 	}
 	else
-	if (!coind->height || !flags || !prev || !bits) {
-		stratumlog("%s warning, gbt incorrect : version=%s height=%d value=%d bits=%s prev=%s\n",
-			coind->symbol, templ->version, templ->height, templ->value, templ->nbits, templ->prevhash_hex);
+	if (!templ->height || !prev || !bits) {
+		stratumlog("%s warning, gbt incorrect : version=%s height=%d value=%d bits=%s time=%s prev=%s\n",
+			coind->symbol, templ->version, templ->height, templ->value, templ->nbits, templ->ntime, templ->prevhash_hex);
 	}
 
 	// temporary hack, until wallet is fixed...
