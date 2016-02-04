@@ -153,10 +153,13 @@ function BackendCoinPayments($coin)
 	// sometimes the wallet take too much time to answer, so use tx field to double check
 	set_time_limit(120);
 
+	// default account
+	$account = '';
+
 	if (!$coin->txmessage)
-		$tx = $remote->sendmany('', $addresses);
+		$tx = $remote->sendmany($account, $addresses);
 	else
-		$tx = $remote->sendmany('', $addresses, 1, YAAMP_SITE_NAME);
+		$tx = $remote->sendmany($account, $addresses, 1, YAAMP_SITE_NAME);
 
 	if(!$tx) {
 		debuglog("sendmany: unable to send $total_to_pay {$remote->error} ".json_encode($addresses));
@@ -216,9 +219,9 @@ function BackendCoinPayments($coin)
 	if (!empty($addresses))
 	{
 		if (!$coin->txmessage)
-			$tx = $remote->sendmany('', $addresses);
+			$tx = $remote->sendmany($account, $addresses);
 		else
-			$tx = $remote->sendmany('', $addresses, 1, YAAMP_SITE_NAME." retry");
+			$tx = $remote->sendmany($account, $addresses, 1, YAAMP_SITE_NAME." retry");
 
 		if(empty($tx)) {
 			debuglog($remote->error);
