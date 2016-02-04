@@ -4,7 +4,8 @@ CC=gcc
 #CFLAGS=-c -g -I /usr/include/mysql
 #LDFLAGS=-g
 
-CFLAGS=-c -std=gnu99 -O2 -I.. -I/usr/include/mysql -march=native
+CXXFLAGS = -O2 -I.. -march=native
+CFLAGS= $(CXXFLAGS) -std=gnu99
 LDFLAGS=-O2 -lgmp
 
 SOURCES=lyra2re.c lyra2v2.c Lyra2.c Sponge.c blake.c scrypt.c c11.c x11.c x13.c sha256.c keccak.c \
@@ -25,10 +26,10 @@ $(OUTPUT): $(OBJECTS)
 	ar rc $@ $(OBJECTS)
 
 .cpp.o:
-	$(CC) $(CFLAGS) $< -o $@
+	$(CC) $(CXXFLAGS) -c $< -o $@
 
 .c.o:
-	$(CC) $(CFLAGS) $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 #	$(CC) $(CFLAGS) -std=gnu99 -Wno-pointer-sign -Wno-pointer-to-int-cast -funroll-loops -fvariable-expansion-in-unroller -fmerge-all-constants -fbranch-target-load-optimize2 -fsched2-use-superblocks -falign-loops=16 -falign-functions=16 -falign-jumps=16 -falign-labels=16 -Ofast -flto -fuse-linker-plugin -ftree-loop-if-convert-stores -DUSE_ASM -pg $<
 

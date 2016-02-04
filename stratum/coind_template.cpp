@@ -95,6 +95,44 @@ YAAMP_JOB_TEMPLATE *coind_create_template_memorypool(YAAMP_COIND *coind)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+static int coind_parse_decred_header(YAAMP_JOB_TEMPLATE *templ, json_value *json)
+{
+	struct __attribute__((__packed__)) {
+		uint32_t version;
+		char prevblock[32];
+		char merkleroot[32];
+		char stakeroot[32];
+		uint16_t votebits;
+		char finalstate[6];
+		uint16_t voters;
+		uint8_t freshstake;
+		uint8_t revoc;
+		uint32_t poolsize;
+		uint32_t nbits;
+		uint64_t sbits;
+		uint32_t height;
+		uint32_t size;
+		uint32_t ntime;
+		uint32_t nonce;
+		char extra[36];
+	} header;
+
+	const char *header_hex = json_get_string(json, "header");
+	if (!header_hex) return -1;
+
+	//debuglog("HEADER: %s\n", header_hex);
+
+	binlify((unsigned char*) &header, header_hex);
+
+	templ->height = header.height;
+	sprintf(templ->version, "%08x", header.version);
+	sprintf(templ->ntime, "%08x", header.ntime);
+	sprintf(templ->nbits, "%08x", header.nbits);
+	hexlify(templ->prevhash_hex, (const unsigned char*) header.prevblock, 32);
+
+	return 0;
+}
+
 YAAMP_JOB_TEMPLATE *coind_create_template(YAAMP_COIND *coind)
 {
 	if(coind->usememorypool)
@@ -150,9 +188,13 @@ YAAMP_JOB_TEMPLATE *coind_create_template(YAAMP_COIND *coind)
 	const char *flags = json_get_string(json_coinbaseaux, "flags");
 	strcpy(templ->flags, flags ? flags : "");
 
+	if (!strcmp(coind->symbol, "DCR") || !strcmp(coind->symbol, "DCRD")) {
+		coind_parse_decred_header(templ, json_result);
+	}
+	else
 	if (!coind->height || !flags || !prev || !bits) {
-		stratumlog("%s incompatible getblocktemplate format : height=%d value=%d bits=%s prev=%s\n",
-			coind->symbol, coind->height, templ->value, bits, prev);
+		stratumlog("%s warning, gbt incorrect : version=%s height=%d value=%d bits=%s prev=%s\n",
+			coind->symbol, templ->version, templ->height, templ->value, templ->nbits, templ->prevhash_hex);
 	}
 
 	// temporary hack, until wallet is fixed...

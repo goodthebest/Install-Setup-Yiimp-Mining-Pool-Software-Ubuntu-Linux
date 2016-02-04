@@ -261,6 +261,18 @@ void json_value_free (json_value *);
 void json_value_free_ex (json_settings * settings,
                          json_value *);
 
+// todo
+char* json_dumps(json_value * value, int opt);
+
+typedef json_value json_t;
+#define json_typeof(json)      ((json)->type)
+#define json_is_array(json)    (json && json_typeof(json) == json_array)
+#define json_is_integer(json)  (json && json_typeof(json) == json_integer)
+#define json_is_string(json)   (json && json_typeof(json) == json_string)
+#define json_is_null(json)     (json && json_typeof(json) == json_null)
+
+int json_integer_value(const json_value *json);
+char* json_string_value(const json_value *json);
 
 #ifdef __cplusplus
    } /* extern "C" */

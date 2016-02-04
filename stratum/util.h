@@ -123,7 +123,7 @@ static inline uint16_t le16dec(const void *pp)
 }
 #endif
 
-
-
-
-
+static inline uint32_t bswap32(uint32_t x) {
+	__asm__ __volatile__ ("bswapl %0" : "=r" (x) : "0" (x));
+	return x;
+}

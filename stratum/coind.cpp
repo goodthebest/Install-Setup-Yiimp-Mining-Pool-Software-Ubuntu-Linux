@@ -144,16 +144,20 @@ bool coind_validate_address(YAAMP_COIND *coind)
 
 void coind_init(YAAMP_COIND *coind)
 {
+	char params[YAAMP_SMALLBUFSIZE];
+	char account[YAAMP_SMALLBUFSIZE] = { 0 };
+
 	yaamp_create_mutex(&coind->mutex);
 
-	char account[YAAMP_SMALLBUFSIZE] = { 0 };
+	coind->rpc.curl = 0;
+	if(!strcmp(coind->symbol, "DCR") || !strcmp(coind->symbol, "DCRD")) {
+		coind->rpc.curl = 1;
+		sprintf(account, "default");
+	}
+
 	bool valid = coind_validate_address(coind);
 	if(valid) return;
 
-	if(!strcmp(coind->symbol, "DCRD"))
-		sprintf(account, "default");
-
-	char params[YAAMP_SMALLBUFSIZE];
 	sprintf(params, "[\"%s\"]", account);
 
 	json_value *json = rpc_call(&coind->rpc, "getaccountaddress", params);

@@ -978,3 +978,26 @@ void json_value_free (json_value * value)
    json_value_free_ex (&settings, value);
 }
 
+char* json_dumps(json_value * value, int opt)
+{
+   return strdup(""); // unsupported
+}
+
+int json_integer_value(const json_value *json)
+{
+   json_int_t n;
+   if(!json_is_integer(json))
+      return 0;
+
+   n = *(json);
+
+   return (int) n;
+}
+
+char* json_string_value(const json_value *json)
+{
+   if(!json_is_string(json))
+      return 0;
+
+   return json->u.string.ptr;
+}

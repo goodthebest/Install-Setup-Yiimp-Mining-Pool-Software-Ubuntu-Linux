@@ -1,10 +1,7 @@
 
 CC=gcc
 
-#CFLAGS=-c -g -I /usr/include/mysql
-#LDFLAGS=-g
-
-CFLAGS=-c -O3 -I /usr/include/mysql -march=native
+CFLAGS= -O3 -march=native
 LDFLAGS=-O2
 
 SOURCES=sph_jh.c sph_blake.c sph_bmw.c sph_groestl.c sph_skein.c sph_keccak.c sph_luffa.c sph_cubehash.c sph_shavite.c \
@@ -20,10 +17,10 @@ $(OUTPUT): $(OBJECTS)
 	ar rc $@ $(OBJECTS)
 
 .cpp.o:
-	$(CC) $(CFLAGS) $<
+	$(CC) $(CFLAGS) -c $<
  
 .c.o:
-	$(CC) $(CFLAGS) $<
+	$(CC) $(CFLAGS) -c $<
 
 clean:
 	rm *.o

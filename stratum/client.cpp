@@ -173,11 +173,17 @@ bool client_authorize(YAAMP_CLIENT *client, json_value *json_params)
 	{
 		strncpy(client->username, json_params->u.array.values[0]->u.string.ptr, 1023);
 
-		client->username[34] = 0;
-		strncpy(client->worker, client->username+35, 1023);
-
-//		debuglog("%s\n", client->username);
-//		debuglog("%s\n", client->worker);
+		char sep = client->username[34];
+		if (sep == '.' || sep == ',' || sep == ':') {
+			client->username[34] = 0;
+			strncpy(client->worker, client->username+35, 1023-35);
+//			debuglog("%s\n", client->username);
+//			debuglog("%s\n", client->worker);
+		} else if (strlen(client->username) > 35) {
+			client->username[35] = 0;
+			strncpy(client->worker, client->username+36, 1023-36);
+			debuglog("address %s was too long, truncated to 35 chars\n", client->username);
+		}
 	}
 
 	bool reset = client_initialize_multialgo(client);
@@ -225,7 +231,6 @@ bool client_authorize(YAAMP_CLIENT *client, json_value *json_params)
 
 	if(client->jobid_locked)
 		job_send_jobid(client, client->jobid_locked);
-
 	else
 		job_send_last(client);
 

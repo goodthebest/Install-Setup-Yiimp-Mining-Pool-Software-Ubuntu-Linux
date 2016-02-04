@@ -1,7 +1,8 @@
 
 CC=gcc
 
-CFLAGS=-c -g `mysql_config --cflags --libs` -march=native
+CFLAGS= -g -march=native
+SQLFLAGS= `mysql_config --cflags --libs`
 
 # Comment this line to disable address check on login,
 # if you use the auto exchange feature...
@@ -24,6 +25,11 @@ SOURCES=stratum.cpp db.cpp coind.cpp coind_aux.cpp coind_template.cpp coind_subm
 	client.cpp client_submit.cpp client_core.cpp client_difficulty.cpp remote.cpp remote_template.cpp \
 	user.cpp object.cpp json.cpp base58.cpp
 
+CFLAGS += -DHAVE_CURL
+SOURCES += rpc_curl.cpp
+LDCURL = $(shell /usr/bin/pkg-config --static --libs libcurl)
+LDFLAGS += $(LDCURL)
+
 OBJECTS=$(SOURCES:.cpp=.o)
 OUTPUT=stratum
 
@@ -43,13 +49,13 @@ projectcode2:
 $(SOURCES): stratum.h util.h
 
 $(OUTPUT): $(OBJECTS)
-	$(CC) $(LDFLAGS) $(OBJECTS) $(LDLIBS) -o $@
+	$(CC) $(OBJECTS) $(LDLIBS) $(LDFLAGS) -o $@
 
 .cpp.o:
-	$(CC) $(CFLAGS) $<
+	$(CC) $(CFLAGS) $(SQLFLAGS) -c $<
 
 .c.o:
-	$(CC) $(CFLAGS) $<
+	$(CC) $(CFLAGS) -c $<
 
 clean:
 	rm -f *.o

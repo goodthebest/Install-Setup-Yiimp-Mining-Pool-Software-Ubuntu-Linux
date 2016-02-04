@@ -113,65 +113,14 @@ int rpc_send(YAAMP_RPC *rpc, const char *format, ...)
 	return bytes;
 }
 
-// Attempt to read decred HTTP 1.1 chunked data... not finished
-char *rpc_get_chunks(YAAMP_RPC *rpc, char *buffer)
-{
-	char *val, *databuf = NULL;
-	int datalen, reslen = 0;
-	int respos = 0;
-
-	header_value(buffer, "Connection:", val);
-	bool close = (strcmp(val, "close") == 0);
-
-	const char *p = strstr(buffer, "\r\n\r\n");
-	// read chunk len
-	if (p && sscanf(p+4, "%x", &datalen))
-	{
-		p += 4;
-		reslen += datalen;
-		databuf = (char *)realloc(databuf, reslen + 4);
-		if(!databuf) {
-			debuglog("ERR: %s OOM", __func__);
-			goto done;
-		}
-
-		p = strstr(p, "\r\n");
-		if (p) p += 2;
-		while (datalen && p) {
-			memcpy(databuf + respos, p, datalen);
-			databuf[respos + datalen]='\0';
-			respos += reslen;
-			p = strstr(p+datalen, "\r\n");
-			if (!p || !sscanf(p+2, "%x", &datalen)) break;
-			//debuglog("chunk: len %d\n", datalen);
-			if (!datalen) break;
-
-			reslen += datalen;
-			databuf = (char *)realloc(databuf, reslen + 4);
-			int bytes = recv(rpc->sock, buffer, min(YAAMP_SMALLBUFSIZE, datalen), 0);
-			if (bytes <=0) break;
-			p = buffer;
-		}
-	}
-
-done:
-	CommonUnlock(&rpc->mutex);
-
-	if (close) {
-		rpc_connect(rpc);
-	}
-
-	return databuf;
-}
-
 /////////////////////////////////////////////////////////////////////////////////
 
-char *rpc_do_call(YAAMP_RPC *rpc, char const *data, int http_ver)
+char *rpc_do_call(YAAMP_RPC *rpc, char const *data)
 {
 	CommonLock(&rpc->mutex);
 
 	// HTTP 1.1 accepts chunked data, and keep the connection
-	rpc_send(rpc, "POST / HTTP/1.%d\r\n", http_ver);
+	rpc_send(rpc, "POST / HTTP/1.1\r\n");
 	rpc_send(rpc, "Authorization: Basic %s\r\n", rpc->credential);
 	rpc_send(rpc, "Host: %s:%d\n", rpc->host, rpc->port);
 	rpc_send(rpc, "Accept: */*\r\n");
@@ -230,25 +179,23 @@ char *rpc_do_call(YAAMP_RPC *rpc, char const *data, int http_ver)
 	char tmp[1024];
 
 	header_value(buffer, "Transfer-Encoding:", tmp);
-	if (!strcmp(tmp, "chunked") && http_ver == 1) {
-		//return rpc_get_chunks(rpc, buffer);
+	if (!strcmp(tmp, "chunked")) {
+#ifdef HAVE_CURL
+		if (!rpc->curl) debuglog("%s chunked transfer detected, switching to curl!\n",
+			rpc->coind->symbol);
+		rpc->curl = 1;
+#endif
 		CommonUnlock(&rpc->mutex);
 		rpc_connect(rpc);
-		return rpc_do_call(rpc, data, 0);
+		return NULL;
 	}
 
 	int datalen = atoi(header_value(buffer, "Content-Length:", tmp));
 	if(!datalen)
 	{
-		if (http_ver == 0) {
-			const char *end = strstr(buffer, "\r\n\r\n");
-			if (end) datalen = strlen(end + 4);
-		}
-		if (!datalen) {
-			debuglog("ERROR: rpc No Content-Length header!\n");
-			CommonUnlock(&rpc->mutex);
-			return NULL;
-		}
+		debuglog("ERROR: rpc No Content-Length header!\n");
+		CommonUnlock(&rpc->mutex);
+		return NULL;
 	}
 
 	p = strstr(buffer, "\r\n\r\n");
@@ -296,6 +243,11 @@ json_value *rpc_call(YAAMP_RPC *rpc, char const *method, char const *params)
 {
 //	debuglog("rpc_call :%d %s\n", rpc->port, method);
 
+#ifdef HAVE_CURL
+	if (rpc->ssl || rpc->curl)
+		return rpc_curl_call(rpc, method, params);
+#endif
+
 	int s1 = current_timestamp();
 	if(!rpc_connected(rpc)) return NULL;
 
@@ -309,7 +261,7 @@ json_value *rpc_call(YAAMP_RPC *rpc, char const *method, char const *params)
 	else
 		sprintf(message, "{\"method\":\"%s\",\"id\":\"%d\"}", method, ++rpc->id);
 
-	char *buffer = rpc_do_call(rpc, message, 1);
+	char *buffer = rpc_do_call(rpc, message);
 
 	free(message);
 	if(!buffer) return NULL;
