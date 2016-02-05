@@ -14,6 +14,9 @@ echo getAdminSideBarLinks()."<br>";
 $remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
 $info = $remote->getinfo();
 
+$sellamount = $coin->balance;
+//if ($info) $sellamount = floatval($sellamount) - arraySafeVal($info, "paytxfee") * 3;
+
 echo "<br><a href='/site/update?id=$coin->id'><b>COIN PROPERTIES</b></a>";
 echo " || <a href='/coin/update?id=$coin->id'><b>EXTRA</b></a>";
 
@@ -83,13 +86,16 @@ function uninstall_coin()
 	window.location.href = '/site/uninstallcoin?id=$coin->id';
 }
 
-$(function()
-{
-	main_refresh();
-});
-
 var main_delay=30000;
 var main_timeout;
+
+function main_refresh()
+{
+	var url = "/site/coin_results?id={$_REQUEST['id']}";
+
+	clearTimeout(main_timeout);
+	$.get(url, '', main_ready).error(main_error);
+}
 
 function main_ready(data)
 {
@@ -102,45 +108,38 @@ function main_error()
 	main_timeout = setTimeout(main_refresh, main_delay*2);
 }
 
-function main_refresh()
+function showSellAmountDialog(marketid, marketname, address)
 {
-	var url = "/site/coin_results?id={$_GET['id']}";
-
-	clearTimeout(main_timeout);
-	$.get(url, '', main_ready).error(main_error);
-}
-
-function showSellAmountDialog(marketid)
-{
+	$("#dlgaddr").html(address);
 	$("#sell-amount-dialog").dialog(
 	{
     	autoOpen: true,
 		width: 400,
 		height: 240,
 		modal: true,
-		title: 'Sell $coin->symbol to market '+marketid,
+		title: 'Send $coin->symbol to '+marketname,
 
 		buttons:
 		{
-			"Sell": function()
+			"Send / Sell": function()
 			{
 				amount = $('#input_sell_amount').val();
 				window.location.href = '/market/sellto?id='+marketid+'&amount='+amount;
 			},
 		}
 	});
+	return false;
 }
 
 </script>
 
-<div id="sell-amount-dialog" style='display: none;'>
+<div id="sell-amount-dialog" style="display: none;">
 <br>
-Address: xxxxxxxxxxxx<br><br>
-Amount: <input type=text id='input_sell_amount' value='$coin->balance'>
+Address: <span id="dlgaddr">xxxxxxxxxxxx</span><br><br>
+Amount: <input type=text id="input_sell_amount" value="$sellamount">
 <br>
 </div>
 
 END;
 
-
-
+JavascriptReady("main_refresh();");

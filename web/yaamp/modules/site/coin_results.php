@@ -69,10 +69,20 @@ foreach($list as $market)
 	echo '<td>'.$late.'</td>';
 
 	echo '<td>';
-	echo "<a href='/market/update?id=$market->id'>edit</a> ";
-	echo "<a href='javascript:showSellAmountDialog($market->id)'>sell</a> ";
-	echo "<a href='/market/delete?id=$market->id'>del</a>";
-	echo ' '.$market->deposit_address.'</td>';
+	if (!empty($market->deposit_address)) {
+		$name = CJavaScript::encode($market->name);
+		$addr = CJavaScript::encode($market->deposit_address);
+		echo CHtml::link(
+			YAAMP_ALLOW_EXCHANGE ? "sell" : "send",
+			"javascript:;", array(
+				'onclick'=>"return showSellAmountDialog({$market->id}, $name, $addr);"
+			)
+		);
+		echo ' '.$market->deposit_address;
+	}
+	echo ' <a href="/market/update?id='.$market->id.'">edit</a>';
+	echo ' <a style="color:darkred" href="/market/delete?id='.$market->id.'">delete</a>';
+	echo '</td>';
 
 	echo "<td>$market->message</td>";
 	echo "</tr>";
