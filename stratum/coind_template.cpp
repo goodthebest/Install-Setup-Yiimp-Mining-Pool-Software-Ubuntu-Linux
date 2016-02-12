@@ -95,7 +95,7 @@ YAAMP_JOB_TEMPLATE *coind_create_template_memorypool(YAAMP_COIND *coind)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-static int coind_parse_decred_header(YAAMP_JOB_TEMPLATE *templ, json_value *json)
+static int coind_parse_decred_header(YAAMP_JOB_TEMPLATE *templ, const char *header_hex)
 {
 	struct __attribute__((__packed__)) {
 		uint32_t version;
@@ -115,10 +115,8 @@ static int coind_parse_decred_header(YAAMP_JOB_TEMPLATE *templ, json_value *json
 		uint32_t ntime;
 		uint32_t nonce;
 		unsigned char extra[36];
+		uint32_t hashtag[3];
 	} header;
-
-	const char *header_hex = json_get_string(json, "header");
-	if (!header_hex) return -1;
 
 	//debuglog("HEADER: %s\n", header_hex);
 
@@ -133,12 +131,57 @@ static int coind_parse_decred_header(YAAMP_JOB_TEMPLATE *templ, json_value *json
 	templ->prevhash_hex[64] = '\0';
 	for(int i=0; i < 32; i++)
 		sprintf(templ->prevhash_hex + (i*2), "%02x", (uint8_t) header.prevblock[31-i]);
+	ser_string_be2(templ->prevhash_hex, templ->prevhash_be, 8);
 
 	// store all other stuff
 	memcpy(templ->header, &header, sizeof(header));
 
 	return 0;
 }
+
+static YAAMP_JOB_TEMPLATE *coind_create_template_decred(YAAMP_COIND *coind)
+{
+	json_value *gw = rpc_call(&coind->rpc, "getwork", "[]");
+	if(!gw || gw->type == json_null) {
+		coind_error(coind, "getwork");
+		return NULL;
+	}
+	json_value *gwr = json_get_object(gw, "result");
+	if(!gwr || gwr->type == json_null) {
+		coind_error(coind, "getwork result");
+		return NULL;
+	}
+	const char *header_hex = json_get_string(gwr, "data");
+	if (!header_hex || !strlen(header_hex)) {
+		coind_error(coind, "getwork data");
+		return NULL;
+	}
+
+	YAAMP_JOB_TEMPLATE *templ = new YAAMP_JOB_TEMPLATE;
+	memset(templ, 0, sizeof(YAAMP_JOB_TEMPLATE));
+
+	templ->created = time(NULL);
+
+	coind_parse_decred_header(templ, header_hex);
+	json_value_free(gw);
+
+	// bypass coinbase and merkle for now... send without nonce/extradata
+	const unsigned char *hdr = (unsigned char *) &templ->header[36];
+	hexlify(templ->coinb1, hdr, 192 - 80);
+	strcpy(templ->coinb2, "");
+
+	vector<string> txhashes;
+	txhashes.push_back("");
+
+	templ->txmerkles[0] = 0;
+	templ->txcount = txhashes.size();
+	templ->txsteps = merkle_steps(txhashes);
+	txhashes.clear();
+
+	return templ;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 YAAMP_JOB_TEMPLATE *coind_create_template(YAAMP_COIND *coind)
 {
@@ -195,11 +238,7 @@ YAAMP_JOB_TEMPLATE *coind_create_template(YAAMP_COIND *coind)
 	const char *flags = json_get_string(json_coinbaseaux, "flags");
 	strcpy(templ->flags, flags ? flags : "");
 
-	if (!strcmp(coind->symbol, "DCR")) {
-		coind_parse_decred_header(templ, json_result);
-	}
-	else
-	if (!templ->height || !prev || !bits) {
+	if (!templ->height || !bits || !prev) {
 		stratumlog("%s warning, gbt incorrect : version=%s height=%d value=%d bits=%s time=%s prev=%s\n",
 			coind->symbol, templ->version, templ->height, templ->value, templ->nbits, templ->ntime, templ->prevhash_hex);
 	}
@@ -289,7 +328,14 @@ void coind_create_job(YAAMP_COIND *coind, bool force)
 
 	CommonLock(&coind->mutex);
 
-	YAAMP_JOB_TEMPLATE *templ = coind_create_template(coind);
+	YAAMP_JOB_TEMPLATE *templ;
+
+	// DCR gbt block header is not compatible with getwork submit, so...
+	if (!strcmp(coind->symbol, "DCR"))
+		templ = coind_create_template_decred(coind);
+	else
+		templ = coind_create_template(coind);
+
 	if(!templ)
 	{
 		CommonUnlock(&coind->mutex);

@@ -1,6 +1,23 @@
 
 #include "stratum.h"
 
+bool coind_submitwork(YAAMP_COIND *coind, const char *block)
+{
+	int paramlen = strlen(block);
+
+	char *params = (char *)malloc(paramlen+1024);
+	if(!params) return false;
+
+	sprintf(params, "[\"%s\"]", block);
+	json_value *json_res = rpc_call(&coind->rpc, "getwork", params);
+	free(params);
+
+	bool b = json_res && json_res->type == json_boolean && json_res->u.boolean;
+	json_value_free(json_res);
+
+	return b;
+}
+
 bool coind_submitblock(YAAMP_COIND *coind, const char *block)
 {
 	int paramlen = strlen(block);
@@ -71,7 +88,9 @@ bool coind_submit(YAAMP_COIND *coind, const char *block)
 {
 	bool b;
 
-	if(coind->hassubmitblock)
+	if(!strcmp(coind->symbol,"DCR"))
+		b = coind_submitwork(coind, block);
+	else if(coind->hassubmitblock)
 		b = coind_submitblock(coind, block);
 	else
 		b = coind_submitblocktemplate(coind, block);

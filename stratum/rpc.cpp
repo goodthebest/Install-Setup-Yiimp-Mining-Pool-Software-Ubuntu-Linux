@@ -278,6 +278,10 @@ json_value *rpc_call(YAAMP_RPC *rpc, char const *method, char const *params)
 	if(s2-s1 > 2000)
 		debuglog("delay rpc_call %s:%d %s in %d ms\n", rpc->host, rpc->port, method, s2-s1);
 
+	if (!strcmp(method, "getwork")) {
+		return json;
+	}
+
 	if(json->type != json_object)
 	{
 		json_value_free(json);
