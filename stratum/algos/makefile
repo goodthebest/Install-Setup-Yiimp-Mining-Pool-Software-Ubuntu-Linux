@@ -24,6 +24,7 @@ all: $(SOURCES) $(OUTPUT)
 
 $(OUTPUT): $(OBJECTS)
 	ar rc $@ $(OBJECTS)
+	touch ../stratum.cpp
 
 .cpp.o:
 	$(CC) $(CXXFLAGS) -c $< -o $@
@@ -35,5 +36,5 @@ $(OUTPUT): $(OBJECTS)
 
 clean:
 	rm -f *.o
-	rm -f ar2/*.o ar2/*.a
+	rm -f ar2/*.o
 
