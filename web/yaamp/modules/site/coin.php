@@ -91,7 +91,7 @@ var main_timeout;
 
 function main_refresh()
 {
-	var url = "/site/coin_results?id={$_REQUEST['id']}";
+	var url = "/site/coin_results?id={$id}";
 
 	clearTimeout(main_timeout);
 	$.get(url, '', main_ready).error(main_error);
