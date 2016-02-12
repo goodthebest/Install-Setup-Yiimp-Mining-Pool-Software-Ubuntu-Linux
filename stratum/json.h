@@ -74,7 +74,7 @@ typedef struct
 
 typedef enum
 {
-   json_none,
+   json_none = 0,
    json_object,
    json_array,
    json_integer,

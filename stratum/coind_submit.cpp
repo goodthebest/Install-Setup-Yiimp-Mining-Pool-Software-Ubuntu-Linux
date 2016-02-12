@@ -9,8 +9,11 @@ bool coind_submitwork(YAAMP_COIND *coind, const char *block)
 	if(!params) return false;
 
 	sprintf(params, "[\"%s\"]", block);
-	json_value *json_res = rpc_call(&coind->rpc, "getwork", params);
+	json_value *json = rpc_call(&coind->rpc, "getwork", params);
 	free(params);
+
+	if(!json) return false;
+	json_value *json_res = json_get_object(json, "result");
 
 	bool b = json_res && json_res->type == json_boolean && json_res->u.boolean;
 	json_value_free(json_res);
