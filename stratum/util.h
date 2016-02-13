@@ -97,6 +97,7 @@ double target_to_diff(uint64_t target);
 uint64_t get_hash_difficulty(unsigned char *input);
 
 long long current_timestamp();
+long long current_timestamp_dms();
 
 void string_lower(char *s);
 void string_upper(char *s);

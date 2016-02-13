@@ -76,7 +76,7 @@ void job_send_jobid(YAAMP_CLIENT *client, int jobid)
 
 void job_broadcast(YAAMP_JOB *job)
 {
-	int s1 = current_timestamp();
+	int s1 = current_timestamp_dms();
 	int count = 0;
 
 	YAAMP_JOB_TEMPLATE *templ = job->templ;
@@ -106,7 +106,7 @@ void job_broadcast(YAAMP_JOB *job)
 	g_list_client.Leave();
 	g_last_broadcasted = time(NULL);
 
-	int s2 = current_timestamp();
+	int s2 = current_timestamp_dms();
 	if(!count) return;
 
 	///////////////////////
@@ -115,8 +115,8 @@ void job_broadcast(YAAMP_JOB *job)
 	if (templ->nbits && !coin_target) coin_target = 0xFFFF000000000000ULL; // under decode_compact min diff
 	double coin_diff = target_to_diff(coin_target);
 
-	debuglog("%s %d - diff %.9f job %x to %d/%d/%d clients, hash %.3f/%.3f in %d ms\n", job->name,
-		templ->height, coin_diff, job->id, count, job->count, g_list_client.count, job->speed, job->maxspeed, s2-s1);
+	debuglog("%s %d - diff %.9f job %x to %d/%d/%d clients, hash %.3f/%.3f in %.1f ms\n", job->name,
+		templ->height, coin_diff, job->id, count, job->count, g_list_client.count, job->speed, job->maxspeed, 0.1*(s2-s1));
 
 //	for(int i=0; i<templ->auxs_size; i++)
 //	{

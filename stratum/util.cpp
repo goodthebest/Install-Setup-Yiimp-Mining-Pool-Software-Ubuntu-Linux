@@ -594,13 +594,40 @@ uint64_t htoi64(const char *s)
     return val;
 }
 
+#if 0
+// gettimeofday seems deprecated in POSIX
 long long current_timestamp()
 {
-    struct timeval te;
-    gettimeofday(&te, NULL);
+	long long milliseconds;
+	struct timeval te;
 
-    long long milliseconds = te.tv_sec*1000LL + te.tv_usec/1000;
-    return milliseconds;
+	gettimeofday(&te, NULL);
+
+	milliseconds = te.tv_sec*1000LL + te.tv_usec/1000;
+	return milliseconds;
+}
+#else
+long long current_timestamp()
+{
+	long long milliseconds;
+	struct timespec te;
+
+	clock_gettime(CLOCK_REALTIME, &te);
+
+	milliseconds = 1000LL*te.tv_sec + round(te.tv_nsec/1e6);
+	return milliseconds;
+}
+#endif
+
+long long current_timestamp_dms() // allow 0.1 ms time
+{
+	long long dms;
+	struct timespec te;
+
+	clock_gettime(CLOCK_REALTIME, &te);
+
+	dms = 10000LL*te.tv_sec + round(te.tv_nsec/1e5);
+	return dms;
 }
 
 void string_lower(char *s)

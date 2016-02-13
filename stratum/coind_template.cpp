@@ -158,7 +158,7 @@ retry:
 		if (!jr || json_is_null(jr)) return NULL;
 		const char *err = json_get_string(jr, "message");
 		if (err && !strcmp(err, "internal error")) {
-			sleep(500*YAAMP_MS); // not enough voters (testnet)
+			usleep(500*YAAMP_MS); // not enough voters (testnet)
 			if (--retry_max > 0) goto retry;
 			debuglog("%s getwork %s\n", coind->symbol, err);
 		}
@@ -344,6 +344,7 @@ void coind_create_job(YAAMP_COIND *coind, bool force)
 	YAAMP_JOB_TEMPLATE *templ;
 
 	// DCR gbt block header is not compatible with getwork submit, so...
+
 	if (coind->usegetwork && !strcmp(coind->symbol, "DCR"))
 		templ = coind_create_template_decred(coind);
 	else
