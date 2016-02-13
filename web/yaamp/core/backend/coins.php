@@ -168,6 +168,10 @@ function BackendCoinsUpdate()
 				}
 			}
 
+			else if(strpos($remote->error, "not enough voters") || $coin->symbol == 'DCR') {
+				// ignore temporary gbt errors, we use getwork
+			}
+
 			else
 			{
 				$coin->auto_ready = false;

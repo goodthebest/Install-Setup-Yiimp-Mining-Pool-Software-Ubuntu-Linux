@@ -141,14 +141,27 @@ static int coind_parse_decred_header(YAAMP_JOB_TEMPLATE *templ, const char *head
 
 static YAAMP_JOB_TEMPLATE *coind_create_template_decred(YAAMP_COIND *coind)
 {
+	int retry_max = 3;
+retry:
 	json_value *gw = rpc_call(&coind->rpc, "getwork", "[]");
-	if(!gw || gw->type == json_null) {
+	if(!gw || json_is_null(gw)) {
 		coind_error(coind, "getwork");
 		return NULL;
 	}
 	json_value *gwr = json_get_object(gw, "result");
-	if(!gwr || gwr->type == json_null) {
-		coind_error(coind, "getwork result");
+	if(!gwr) {
+		coind_error(coind, "getwork json result");
+		return NULL;
+	}
+	else if (json_is_null(gwr)) {
+		json_value *jr = json_get_object(gw, "error");
+		if (!jr || json_is_null(jr)) return NULL;
+		const char *err = json_get_string(jr, "message");
+		if (err && !strcmp(err, "internal error")) {
+			sleep(500*YAAMP_MS); // not enough voters (testnet)
+			if (--retry_max > 0) goto retry;
+			debuglog("%s getwork %s\n", coind->symbol, err);
+		}
 		return NULL;
 	}
 	const char *header_hex = json_get_string(gwr, "data");
