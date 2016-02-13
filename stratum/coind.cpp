@@ -149,9 +149,8 @@ void coind_init(YAAMP_COIND *coind)
 
 	yaamp_create_mutex(&coind->mutex);
 
-	coind->rpc.curl = 0;
+	coind->rpc.curl = g_stratum_curl;
 	if(!strcmp(coind->symbol, "DCR")) {
-		coind->rpc.curl = 1;
 		coind->usegetwork = true;
 		sprintf(account, "default");
 	}
