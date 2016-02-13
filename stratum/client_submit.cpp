@@ -215,7 +215,10 @@ void client_do_submit(YAAMP_CLIENT *client, YAAMP_JOB *job, YAAMP_JOB_VALUES *su
 			// submit the regenerated block header
 			char hex[384];
 			hexlify(hex, submitvalues->header_bin, 180);
-			snprintf(block_hex, block_size, "%s8000000100000000000005a0", hex);
+			if (coind->usegetwork)
+				snprintf(block_hex, block_size, "%s8000000100000000000005a0", hex);
+			else
+				snprintf(block_hex, block_size, "%s", hex);
 		}
 
 		bool b = coind_submit(coind, block_hex);
@@ -238,7 +241,7 @@ void client_do_submit(YAAMP_CLIENT *client, YAAMP_JOB *job, YAAMP_JOB_VALUES *su
 
 			string_be(doublehash2, hash1);
 
-			if(!strcmp(coind->symbol, "DCR")) {
+			if(coind->usegetwork && !strcmp(coind->symbol, "DCR")) {
 				// no merkle stuff
 				strcpy(hash1, submitvalues->hash_hex);
 			}

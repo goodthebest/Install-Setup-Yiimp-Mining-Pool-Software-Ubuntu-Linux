@@ -152,6 +152,7 @@ void coind_init(YAAMP_COIND *coind)
 	coind->rpc.curl = 0;
 	if(!strcmp(coind->symbol, "DCR")) {
 		coind->rpc.curl = 1;
+		coind->usegetwork = true;
 		sprintf(account, "default");
 	}
 

@@ -61,8 +61,8 @@ public:
 	YAAMP_COIND_AUX aux;
 
 	int notreportingcounter;
+	bool usegetwork;
 	bool usememorypool;
-
 	bool hasmasternodes;
 
 	YAAMP_JOB *job;

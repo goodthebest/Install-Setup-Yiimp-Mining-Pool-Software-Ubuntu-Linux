@@ -240,6 +240,7 @@ void db_update_coinds(YAAMP_DB *db)
 
 			bool b = rpc_connect(&coind->rpc);
 			if (!b) {
+				debuglog("%s: connect failure\n", coind->symbol);
 				object_delete(coind);
 				continue;
 			}

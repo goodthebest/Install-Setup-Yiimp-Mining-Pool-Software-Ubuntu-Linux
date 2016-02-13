@@ -91,7 +91,7 @@ bool coind_submit(YAAMP_COIND *coind, const char *block)
 {
 	bool b;
 
-	if(!strcmp(coind->symbol,"DCR"))
+	if(coind->usegetwork) // DCR
 		b = coind_submitwork(coind, block);
 	else if(coind->hassubmitblock)
 		b = coind_submitblock(coind, block);

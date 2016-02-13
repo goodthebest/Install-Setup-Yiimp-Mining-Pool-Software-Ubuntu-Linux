@@ -331,7 +331,7 @@ void coind_create_job(YAAMP_COIND *coind, bool force)
 	YAAMP_JOB_TEMPLATE *templ;
 
 	// DCR gbt block header is not compatible with getwork submit, so...
-	if (!strcmp(coind->symbol, "DCR"))
+	if (coind->usegetwork && !strcmp(coind->symbol, "DCR"))
 		templ = coind_create_template_decred(coind);
 	else
 		templ = coind_create_template(coind);
