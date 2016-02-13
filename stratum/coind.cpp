@@ -208,6 +208,9 @@ void coind_terminate(YAAMP_COIND *coind)
 	debuglog("disconnecting from coind %s\n", coind->symbol);
 
 	rpc_close(&coind->rpc);
+#ifdef HAVE_CURL
+	if (coind->rpc.curl) rpc_curl_close(&coind->rpc);
+#endif
 
 	pthread_mutex_unlock(&coind->mutex);
 	pthread_mutex_destroy(&coind->mutex);

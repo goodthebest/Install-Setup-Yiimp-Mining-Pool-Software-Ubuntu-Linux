@@ -1,20 +1,18 @@
-
 #include "stratum.h"
+
+#ifdef HAVE_CURL
 #include <curl/curl.h>
 
-//#define RPC_DEBUGLOG_
-
-#ifdef WIN32
-#include <winsock2.h>
-#include <mstcpip.h>
-#else
+#ifndef WIN32
 #include <errno.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
+#else
+#include <Windows.h>
+#include <winsock2.h>
+#include <mstcpip.h>
 #endif
-
-static __thread CURL *curl = NULL;
 
 bool opt_timeout = CURL_RPC_TIMEOUT; // 30sec
 bool opt_debug = false;
@@ -37,10 +35,9 @@ struct upload_buffer {
 	size_t		pos;
 };
 
+// may be used to trap header values
 struct header_info {
-	char		*lp_path;
-	char		*reason;
-	char		*stratum_url;
+	char* value;
 };
 
 static void databuf_free(struct data_buffer *db)
@@ -53,8 +50,7 @@ static void databuf_free(struct data_buffer *db)
 	memset(db, 0, sizeof(*db));
 }
 
-static size_t all_data_cb(const void *ptr, size_t size, size_t nmemb,
-			  void *user_data)
+static size_t all_data_cb(const void *ptr, size_t size, size_t nmemb, void *user_data)
 {
 	struct data_buffer *db = (struct data_buffer *)user_data;
 	size_t len = size * nmemb;
@@ -77,8 +73,7 @@ static size_t all_data_cb(const void *ptr, size_t size, size_t nmemb,
 	return len;
 }
 
-static size_t upload_data_cb(void *ptr, size_t size, size_t nmemb,
-				 void *user_data)
+static size_t upload_data_cb(void *ptr, size_t size, size_t nmemb, void *user_data)
 {
 	struct upload_buffer *ub = (struct upload_buffer *)user_data;
 	unsigned int len = (unsigned int)(size * nmemb);
@@ -208,7 +203,8 @@ static json_value *curl_json_rpc(YAAMP_RPC *rpc, const char *url, const char *rp
 	struct curl_slist *headers = NULL;
 	struct header_info hi = { 0 };
 	char *httpdata;
-	json_value *val, *err_val, *res_val;
+	CURL *curl = rpc->CURL;
+	json_value *val;
 	int rc;
 
 	long timeout = opt_timeout;
@@ -240,6 +236,7 @@ static json_value *curl_json_rpc(YAAMP_RPC *rpc, const char *url, const char *rp
 #endif
 	curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, curl_err_str);
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
+	curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 5);
 	curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeout);
 	curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, resp_hdr_cb);
 	curl_easy_setopt(curl, CURLOPT_HEADERDATA, &hi);
@@ -252,6 +249,7 @@ static json_value *curl_json_rpc(YAAMP_RPC *rpc, const char *url, const char *rp
 	curl_easy_setopt(curl, CURLOPT_USERPWD, rpc->credential);
 	curl_easy_setopt(curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
 #else
+	// Encoded login/pass
 	sprintf(auth_hdr, "Authorization: Basic %s", rpc->credential);
 #endif
 
@@ -313,46 +311,8 @@ static json_value *curl_json_rpc(YAAMP_RPC *rpc, const char *url, const char *rp
 	}
 
 	if (opt_protocol) {
-		//char *s = json_dumps(val, JSON_INDENT(3));
 		debuglog("JSON protocol response:\n%s\n", httpdata);
-		//free(s);
 	}
-
-	/* JSON-RPC valid response returns a non-null 'result',
-	 * and a null 'error'. */
-	res_val = json_object_get(val, "result");
-	err_val = json_object_get(val, "error");
-
-	if (!res_val || json_is_null(res_val) ||
-		(err_val && !json_is_null(err_val))) {
-		char *s = NULL;
-
-		if (err_val) {
-			s = json_dumps(err_val, 0);
-			json_value *msg = json_object_get(err_val, "message");
-			json_value *err_code = json_object_get(err_val, "code");
-			if (curl_err && json_integer_value(err_code))
-				*curl_err = (int) json_integer_value(err_code);
-
-			if (json_is_string(msg)) {
-				free(s);
-				s = strdup(json_string_value(msg));
-			}
-			//json_decref(err_val);
-		}
-		else
-			s = strdup("(unknown reason)");
-
-		if (!curl_err || opt_debug)
-			debuglog("ERR: JSON-RPC call failed: %s", s);
-
-		free(s);
-
-		goto err_out;
-	}
-
-//	if (hi.reason)
-//		json_object_set_new(val, "reject-reason", json_string(hi.reason));
 
 	databuf_free(&all_data);
 	curl_slist_free_all(headers);
@@ -360,9 +320,6 @@ static json_value *curl_json_rpc(YAAMP_RPC *rpc, const char *url, const char *rp
 	return val;
 
 err_out:
-	free(hi.lp_path);
-	free(hi.reason);
-	free(hi.stratum_url);
 	databuf_free(&all_data);
 	curl_slist_free_all(headers);
 	curl_easy_reset(curl);
@@ -374,56 +331,58 @@ err_out:
 
 bool rpc_curl_connected(YAAMP_RPC *rpc)
 {
-	return (curl != NULL);
+	if (!rpc->CURL) return false;
+#if 0 // LIBCURL_VERSION_NUM >= 0x072d00 /* 7.45 */
+	curl_socket_t sock;
+	struct sockaddr_storage peer;
+	socklen_t peer_len = sizeof(peer);
+	CURLcode c = curl_easy_getinfo(rpc->CURL, CURLINFO_ACTIVESOCKET, &sock);
+	if (c == CURLE_OK) {
+		if (getpeername(sock, (struct sockaddr*)&peer, &peer_len) != -1) {
+			int port = 0;
+			if (peer.ss_family == AF_INET) {
+				struct sockaddr_in *s = (struct sockaddr_in*) &peer;
+				port = (int) ntohs(s->sin_port);
+			} else {
+				struct sockaddr_in6 *s = (struct sockaddr_in6*) &peer;
+				port = (int) ntohs(s->sin6_port);
+			}
+			//debuglog("%s port %d\n", __func__, port);
+			return (port > 0);
+		}
+	}
+#endif
+	return true;
 }
 
 void rpc_curl_close(YAAMP_RPC *rpc)
 {
-	if(!rpc_curl_connected(rpc)) return;
+	if(!rpc->CURL) return;
+//	debuglog("%s %d\n", __func__, (int) rpc->sock);
+
+	curl_easy_cleanup(rpc->CURL);
+	rpc->CURL = NULL;
 
 	//made by rpc_close
 	//pthread_mutex_destroy(&rpc->mutex);
-
-	curl_easy_cleanup(curl);
-	curl = NULL;
 	//rpc->sock = 0;
 }
 
 bool rpc_curl_connect(YAAMP_RPC *rpc)
 {
-	rpc_curl_close(rpc);
+	//rpc_curl_close(rpc);
+
+	if (!rpc->CURL) {
+//		debuglog("%s %d\n", __func__, (int) rpc->sock);
+		rpc->CURL = curl_easy_init();
+	}
 
 	//made by rpc_connect
+	//rpc->id = 0;
+	//rpc->bufpos = 0;
 	//yaamp_create_mutex(&rpc->mutex);
 
-	rpc->id = 0;
-	rpc->bufpos = 0;
-	curl = curl_easy_init();
-
 	return true;
-}
-
-///////////////////////////////////////////////////////////////////
-
-int rpc_curl_send(YAAMP_RPC *rpc, const char *format, ...)
-{
-	if(!rpc_curl_connected(rpc)) return -1;
-
-	char buffer[YAAMP_SMALLBUFSIZE] = { 0 };
-	va_list args;
-
-	va_start(args, format);
-	vsprintf(buffer, format, args);
-	va_end(args);
-
-	int bytes = strlen(buffer);
-	if(bytes + rpc->bufpos > YAAMP_SMALLBUFSIZE)
-		return -1;
-
-	memcpy(rpc->buffer + rpc->bufpos, buffer, bytes);
-	rpc->bufpos += bytes;
-
-	return bytes;
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -447,7 +406,7 @@ json_value *rpc_curl_call(YAAMP_RPC *rpc, char const *method, char const *params
 //	debuglog("%s: %s:%d %s\n", __func__, rpc->host, rpc->port, method);
 
 	int s1 = current_timestamp();
-	if (!curl) {
+	if (!rpc->CURL) {
 		rpc_curl_connect(rpc);
 	}
 
@@ -464,14 +423,14 @@ json_value *rpc_curl_call(YAAMP_RPC *rpc, char const *method, char const *params
 		sprintf(message, "{\"method\":\"%s\",\"id\":\"%d\"}", method, ++rpc->id);
 
 	json_value *json = rpc_curl_do_call(rpc, message);
-	rpc_curl_close(rpc);
-
 	free(message);
+	//rpc_curl_close(rpc);
+
 	if(!json) return NULL;
 
 	int s2 = current_timestamp();
 	if(s2-s1 > 2000)
-		debuglog("delay rpc_call %s:%d %s in %d ms\n", rpc->host, rpc->port, method, s2-s1);
+		debuglog("%s: delay %s:%d %s in %d ms\n", __func__, rpc->host, rpc->port, method, s2-s1);
 
 	if(json->type != json_object)
 	{
@@ -481,3 +440,5 @@ json_value *rpc_curl_call(YAAMP_RPC *rpc, char const *method, char const *params
 
 	return json;
 }
+
+#endif /* HAVE_CURL */
