@@ -30,9 +30,9 @@ void decred_hash(const char* input, char* output, uint32_t len)
 
 	sph_blake256_set_rounds(14);
 
-	uint32_t* in = (uint32_t*) input;
-	fprintf(stderr, "decred input len=%u n=%08x %08x %08x %08x\n",
-		len, in[35], in[36], in[37], in[38]);
+	//uint32_t* in = (uint32_t*) input;
+	//fprintf(stderr, "decred input len=%u n=%08x %08x %08x %08x\n",
+	//	len, in[35], in[36], in[37], in[38]);
 	if (len > 180) len  = 180;
 
 	//char hex[512];
