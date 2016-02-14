@@ -140,6 +140,8 @@ static bool job_assign_client(YAAMP_JOB *job, YAAMP_CLIENT *client, double maxha
 
 void job_assign_clients(YAAMP_JOB *job, double maxhash)
 {
+	if (!job) return;
+
 	job->speed = 0;
 	job->count = 0;
 

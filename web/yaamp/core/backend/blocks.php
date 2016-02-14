@@ -168,15 +168,15 @@ function BackendBlockFind2()
 		$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
 
 		$mostrecent = 0;
-		if($coin->lastblock == null) $coin->lastblock = '';
+		if(empty($coin->lastblock)) $coin->lastblock = '';
 		$list = $remote->listsinceblock($coin->lastblock);
 		if(!$list) continue;
 
 //		debuglog("find2 $coin->symbol");
 		foreach($list['transactions'] as $transaction)
 		{
-			if($transaction['time'] > time() - 5*60) continue;
 			if(!isset($transaction['blockhash'])) continue;
+			if($transaction['time'] > time() - 5*60) continue;
 
 			if($transaction['time'] > $mostrecent)
 			{
@@ -192,7 +192,8 @@ function BackendBlockFind2()
 			$db_block = getdbosql('db_blocks', "blockhash='{$transaction['blockhash']}' OR height={$blockext['height']}");
 			if($db_block) continue;
 
-//			debuglog("adding lost block $coin->name {$blockext['height']}");
+			if ($coin->symbol == 'DCR')
+				debuglog("{$coin->name} generated block {$blockext['height']} detected!");
 
 			$db_block = new db_blocks;
 			$db_block->blockhash = $transaction['blockhash'];
