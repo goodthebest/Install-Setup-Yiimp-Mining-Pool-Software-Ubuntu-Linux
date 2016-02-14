@@ -24,9 +24,6 @@ echo "cleared $reserved1, earnings $reserved2, reserved $reserved, balance $bala
 
 //////////////////////////////////////////////////////////////////////////////////////
 
-$account = '';
-if ($coin->symbol == 'DCR') $account = 'default';
-
 $list = getdbolist('db_markets', "coinid=$coin->id order by price desc");
 
 echo "<table class='dataGrid'>";
@@ -200,6 +197,9 @@ end;
 
 // last week
 $list_since = time()-(7*24*3600);
+
+$account = '';
+if ($coin->symbol == 'DCR') $account = '*';
 
 $txs = $remote->listtransactions($account, 2500);
 $txs_array = array(); $lastday = '';
