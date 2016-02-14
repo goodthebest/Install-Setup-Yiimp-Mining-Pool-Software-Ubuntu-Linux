@@ -16,7 +16,6 @@ function BackendPricesUpdate()
 	updateEmpoexMarkets();
 	updateCryptsyMarkets();
 	updateJubiMarkets();
-	updateBanxioMarkets();
 
 	updateOtherMarkets();
 
@@ -730,86 +729,6 @@ function updateCryptopiaMarkets()
 		}
 	}
 	cache()->set($exchange.'-deposit_address-check', time(), 12*3600);
-}
-
-function updateBanxioMarkets()
-{
-	$exchange = 'banx';
-	$data = banx_public_api_query('getmarketsummaries');
-	if(!$data || !is_array($data->result)) return;
-
-	$symbols = array();
-
-	$currencies = getdbolist('db_markets', "name='banx'");
-	foreach($currencies as $market)
-	{
-		$coin = getdbo('db_coins', $market->coinid);
-		if(!$coin || !$coin->installed) continue;
-
-		$pair = strtoupper($coin->symbol).'-BTC';
-		foreach ($data->result as $ticker) {
-			if ($ticker->marketname === $pair) {
-				$market->price = AverageIncrement($market->price, $ticker->bid);
-				$market->price2 = AverageIncrement($market->price2, $ticker->last);
-//				debuglog("banx: $pair {$ticker->bid} {$ticker->last} => {$market->price} {$market->price2}");
-				if (intval($ticker->dayvolume) > 1)
-					$market->save();
-				if (empty($coin->price2)) {
-					$coin->price = $market->price;
-					$coin->price2 = $market->price2;
-					$coin->save();
-				}
-				if ($coin->name == 'unknown' && !empty($ticker->currencylong)) {
-					$coin->name = $ticker->currencylong;
-					$coin->save();
-					debuglog("$exchange: update $symbol label {$coin->name}");
-				}
-				// store for deposit addresses
-				$symbols[$ticker->currencylong] = $coin->symbol;
-				$symbols[$ticker->partnerlong] = $coin->symbol;
-				break;
-			}
-		}
-	}
-
-	if(!empty(EXCH_BANX_USERNAME))
-	{
-		// deposit addresses
-		$last_checked = cache()->get($exchange.'-deposit_address-check');
-		if (!$last_checked) {
-			// no coin symbols in the results wtf ! only labels :/
-			$query = banx_api_user('account/getdepositaddresses');
-		}
-		if (!isset($query)) return;
-		if (!is_object($query)) return;
-		if (!$query->success || !is_array($query->result)) return;
-
-		foreach($query->result as $account)
-		{
-			if (!isset($account->currency) || !isset($account->address)) continue;
-			if (empty($account->currency) || empty($account->address)) continue;
-
-			$label = $account->currency;
-			if (!isset($symbols[$label])) continue;
-
-			$symbol = $symbols[$label];
-
-			if($symbol == 'BTC') continue;
-
-			$coin = getdbosql('db_coins', "symbol=:symbol", array(':symbol'=>$symbol));
-			if(!$coin) continue;
-
-			$market = getdbosql('db_markets', "coinid={$coin->id} and name='$exchange'");
-			if(!$market) continue;
-
-			if ($market->deposit_address != $account->address) {
-				$market->deposit_address = $account->address;
-				$market->save();
-				debuglog("$exchange: deposit address for $symbol updated");
-			}
-		}
-		cache()->set($exchange.'-deposit_address-check', time(), 12*3600);
-	}
 }
 
 function updateSafecexMarkets()

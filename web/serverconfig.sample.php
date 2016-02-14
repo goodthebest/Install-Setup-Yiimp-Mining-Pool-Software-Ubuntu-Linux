@@ -34,14 +34,13 @@ define('YAAMP_USE_NGINX', false);
 
 // Exchange public keys (private keys are in a separate config file)
 define('EXCH_CRYPTOPIA_KEY', '');
-define('EXCH_CRYPTSY_KEY', '');
+//define('EXCH_CRYPTSY_KEY', '');
 define('EXCH_POLONIEX_KEY', '');
 define('EXCH_BITTREX_KEY', '');
 define('EXCH_BLEUTRADE_KEY', '');
 define('EXCH_YOBIT_KEY', '');
 define('EXCH_CCEX_KEY', '');
 define('EXCH_SAFECEX_KEY', '');
-define('EXCH_BANX_USERNAME', '');
 
 // Automatic withdraw to Yaamp btc wallet if btc balance > 0.3
 define('EXCH_AUTO_WITHDRAW', 0.3);
