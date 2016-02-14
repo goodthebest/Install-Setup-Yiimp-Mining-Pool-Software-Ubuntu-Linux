@@ -27,7 +27,7 @@ class RentingController extends CommonController
 
 	public function actionLogin()
 	{
-		$deposit = isset($_POST['deposit_address'])? substr($_POST['deposit_address'], 0, 34): '';
+		$deposit = isset($_POST['deposit_address'])? substr($_POST['deposit_address'], 0, 35): '';
 		$password = isset($_POST['deposit_password'])? substr($_POST['deposit_password'], 0, 64): '';
 
 		$renter = getdbosql('db_renters', "address=:address", array(':address'=>$deposit));

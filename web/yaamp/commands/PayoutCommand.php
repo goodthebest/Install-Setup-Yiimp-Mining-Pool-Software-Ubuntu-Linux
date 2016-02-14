@@ -92,7 +92,9 @@ class PayoutCommand extends CConsoleCommand
 			return 0;
 
 		$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
-		$rawtxs = $remote->listtransactions('', 25000);
+		$account = '';
+		if ($coin->symbol == 'DCR') $account = 'default';
+		$rawtxs = $remote->listtransactions($account, 25000);
 
 		foreach ($ids as $uid => $user_addr)
 		{
