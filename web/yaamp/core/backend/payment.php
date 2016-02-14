@@ -155,6 +155,8 @@ function BackendCoinPayments($coin)
 
 	// default account
 	$account = '';
+	if ($coin->symbol == 'DCR') $account = 'default';
+
 
 	if (!$coin->txmessage)
 		$tx = $remote->sendmany($account, $addresses);

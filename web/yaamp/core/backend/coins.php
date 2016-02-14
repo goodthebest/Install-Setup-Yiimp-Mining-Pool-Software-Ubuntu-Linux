@@ -77,7 +77,9 @@ function BackendCoinsUpdate()
 
 		if(empty($coin->master_wallet))
 		{
-			$coin->master_wallet = $remote->getaccountaddress('');
+			$account = '';
+			if ($coin->symbol == 'DCR') $account = 'default';
+			$coin->master_wallet = $remote->getaccountaddress($account);
 		//	debuglog($coin->master_wallet);
 		}
 
