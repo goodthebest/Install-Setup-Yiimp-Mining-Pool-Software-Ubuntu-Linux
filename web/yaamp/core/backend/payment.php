@@ -21,7 +21,8 @@ function BackendCoinPayments($coin)
 		return;
 	}
 
-	$min = 0.001;
+	$txfee = floatval($coin->txfee);
+	$min = max(0.001, $txfee);
 
 // 	if(date("w", time()) == 0 && date("H", time()) > 12)		// sunday afternoon
 // 		$min = 0.0001;
@@ -86,7 +87,7 @@ function BackendCoinPayments($coin)
 	}
 
 	$coef = 1.0;
-	if($info['balance']-0.001 < $total_to_pay && $coin->symbol!='BTC')
+	if($info['balance']-$txfee < $total_to_pay && $coin->symbol!='BTC')
 	{
 		$msg = "$coin->symbol: insufficient funds for payment {$info['balance']} < $total_to_pay!";
 		debuglog($msg);
@@ -98,7 +99,7 @@ function BackendCoinPayments($coin)
 			$addresses[$key] = $val * $coef;
 		}
 		// still not possible, skip payment
-		if ($info['balance']-0.001 < $total_to_pay)
+		if ($info['balance']-$txfee < $total_to_pay)
 			return;
 	}
 
@@ -207,12 +208,11 @@ function BackendCoinPayments($coin)
 				$payout->time = time();
 				$payout->amount = $amount_failed;
 				$payout->fee = 0;
-				if ($payout->save())
+				if ($payout->save() && $amount_failed > $txfee) {
 					$payouts[$payout->id] = $user->id;
-
-				$mailmsg .= "{$amount_failed} {$coin->symbol} to {$user->username} - user id {$user->id}\n";
-
-				$addresses[$user->username] = $amount_failed;
+					$addresses[$user->username] = $amount_failed;
+					$mailmsg .= "{$amount_failed} {$coin->symbol} to {$user->username} - user id {$user->id}\n";
+				}
 			}
 		}
 	}
