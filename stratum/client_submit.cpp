@@ -46,7 +46,7 @@ void build_submit_values(YAAMP_JOB_VALUES *submitvalues, YAAMP_JOB_TEMPLATE *tem
 
 /////////////////////////////////////////////
 
-static void create_decred_header(YAAMP_JOB_TEMPLATE *templ, YAAMP_JOB_VALUES *out,
+static void create_decred_header(YAAMP_JOB_TEMPLATE *templ, YAAMP_JOB_VALUES *out, bool getwork,
 	const char *ntime, const char *nonce, const char *nonce2)
 {
 	struct __attribute__((__packed__)) {
@@ -67,51 +67,54 @@ static void create_decred_header(YAAMP_JOB_TEMPLATE *templ, YAAMP_JOB_VALUES *ou
 		uint32_t ntime;
 		uint32_t nonce;
 		unsigned char extra[36];
+		uint32_t hashtag[3];
 	} header;
 
 	memcpy(&header, templ->header, sizeof(header));
 
 	memset(header.extra, 0, 36);
 	sscanf(nonce, "%08x", &header.nonce);
-	binlify(header.extra, (const char*) nonce2);
+	binlify(header.extra, nonce2);
 
-	hexlify(out->header, (const unsigned char*) &header, 192);
-	memcpy(out->header_bin, &header, sizeof(header));
+	hexlify(out->header, (const unsigned char*) &header, 180);
+	memcpy(out->header_bin, &header, 180);
 }
 
-void build_submit_values_decred(YAAMP_JOB_VALUES *submitvalues, YAAMP_JOB_TEMPLATE *templ,
+void build_submit_values_decred(YAAMP_JOB_VALUES *submitvalues, YAAMP_JOB_TEMPLATE *templ, bool getwork,
 	const char *nonce1, const char *nonce2, const char *ntime, const char *nonce)
 {
-	sprintf(submitvalues->coinbase, "%s%s%s%s", templ->coinb1, nonce1, nonce2, templ->coinb2);
-	int coinbase_len = strlen(submitvalues->coinbase);
+	create_decred_header(templ, submitvalues, getwork, ntime, nonce, nonce2);
 
-	unsigned char coinbase_bin[1024];
-	memset(coinbase_bin, 0, 1024);
-	binlify(coinbase_bin, submitvalues->coinbase);
+	if (!getwork) {
+		// future stratum... to do, double check nonce1 & nonce2
+		sprintf(submitvalues->coinbase, "%s%s%s%s", templ->coinb1, nonce1, nonce2, templ->coinb2);
+		int coinbase_len = strlen(submitvalues->coinbase);
 
-	char doublehash[128];
-	memset(doublehash, 0, 128);
+		unsigned char coinbase_bin[1024];
+		memset(coinbase_bin, 0, 1024);
+		binlify(coinbase_bin, submitvalues->coinbase);
 
-	// some (old) wallet/algos need a simple SHA256 (blakecoin, whirlcoin, groestlcoin...)
-	YAAMP_HASH_FUNCTION merkle_hash = sha256_double_hash_hex;
-	if (g_current_algo->merkle_func)
-		merkle_hash = g_current_algo->merkle_func;
-	merkle_hash((char *)coinbase_bin, doublehash, coinbase_len/2);
+		char doublehash[128];
+		memset(doublehash, 0, 128);
 
-	string merkleroot = merkle_with_first(templ->txsteps, doublehash);
-	ser_string_be(merkleroot.c_str(), submitvalues->merkleroot_be, 8);
+		// some (old) wallet/algos need a simple SHA256 (blakecoin, whirlcoin, groestlcoin...)
+		YAAMP_HASH_FUNCTION merkle_hash = sha256_double_hash_hex;
+		if (g_current_algo->merkle_func)
+			merkle_hash = g_current_algo->merkle_func;
+		merkle_hash((char *)coinbase_bin, doublehash, coinbase_len/2);
+
+		string merkleroot = merkle_with_first(templ->txsteps, doublehash);
+		ser_string_be(merkleroot.c_str(), submitvalues->merkleroot_be, 8);
 
 #ifdef MERKLE_DEBUGLOG
-	printf("merkle root %s\n", merkleroot.c_str());
+		printf("merkle root %s\n", merkleroot.c_str());
 #endif
-	create_decred_header(templ, submitvalues, ntime, nonce, nonce2);
-
-	//ser_string_be(submitvalues->header, submitvalues->header_be, 20);
-	//binlify(submitvalues->header_bin, submitvalues->header_be);
+		ser_string_be(submitvalues->header, submitvalues->header_be, (180/4));
+		binlify(submitvalues->header_bin, submitvalues->header_be);
+	}
 
 //	printf("%s\n", submitvalues->header_be);
-	int header_len = strlen(submitvalues->header)/2;
-	g_current_algo->hash_function((char *)submitvalues->header_bin, (char *)submitvalues->hash_bin, header_len);
+	g_current_algo->hash_function((char *)submitvalues->header_bin, (char *)submitvalues->hash_bin, 180);
 
 	hexlify(submitvalues->hash_hex, submitvalues->hash_bin, 32);
 	string_be(submitvalues->hash_hex, submitvalues->hash_be);
@@ -375,7 +378,8 @@ bool client_submit(YAAMP_CLIENT *client, json_value *json_params)
 	memset(&submitvalues, 0, sizeof(submitvalues));
 
 	if(job->coind && !strcmp(job->coind->symbol,"DCR"))
-		build_submit_values_decred(&submitvalues, templ, client->extranonce1, extranonce2, ntime, nonce);
+		build_submit_values_decred(&submitvalues, templ, job->coind->usegetwork,
+			client->extranonce1, extranonce2, ntime, nonce);
 	else
 		build_submit_values(&submitvalues, templ, client->extranonce1, extranonce2, ntime, nonce);
 

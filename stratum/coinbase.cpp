@@ -14,10 +14,33 @@ static void encode_tx_value(char *encoded, json_int_t value)
 		TX_VALUE(value, 32), TX_VALUE(value, 40), TX_VALUE(value, 48), TX_VALUE(value, 56));
 }
 
+static void job_pack_devfees(YAAMP_COIND *coind, char *data, json_int_t amount, char *addr)
+{
+	char evalue[32];
+	encode_tx_value(evalue, amount);
+	sprintf(data+strlen(data), "%s", evalue);
+	// "asm": "OP_HASH160 f5916158e3e2c4551c1796708db8367207ed13bb OP_EQUAL",
+	// "hex": "a914f5916158e3e2c4551c1796708db8367207ed13bb87",
+	sprintf(data+strlen(data), "a914%s87", addr);
+}
+
+static void job_pack_vote(YAAMP_COIND *coind, char *data, char *blockhash)
+{
+	// OP_RETURN validSSGenReferenceOutPrefix
+	// 32 byte block header hash for the block + uint32 for the height of the block
+	char evalue[32];
+	char eheight[8];
+	char hash[65] = "000000000000000000000000000000000000000000000000df910622e44ef4b2";
+	uint32_t height = coind->height;
+	sprintf(eheight, "%02x%02x%02x%02x", TX_VALUE(height, 0), TX_VALUE(height, 8), TX_VALUE(height, 16), TX_VALUE(height, 24));
+	encode_tx_value(evalue, 0);
+	sprintf(data+strlen(data), "6a24%s%sdea1906f%s", eheight, blockhash ? blockhash : hash, evalue);
+}
+
 static void job_pack_tx(YAAMP_COIND *coind, char *data, json_int_t amount, char *key)
 {
 	int ol = strlen(data);
-	char evalue[64];
+	char evalue[32];
 	encode_tx_value(evalue, amount);
 
 	sprintf(data+strlen(data), "%s", evalue);
@@ -64,37 +87,40 @@ void coinbase_aux(YAAMP_JOB_TEMPLATE *templ, char *aux_script)
 
 void coinbase_create(YAAMP_COIND *coind, YAAMP_JOB_TEMPLATE *templ, json_value *json_result)
 {
-	char eheight[64];
+	char eheight[32], etime[32];
+	char entime[32] = { 0 };
+
 	ser_number(templ->height, eheight);
-
-	char etime[64];
 	ser_number(time(NULL), etime);
+	if(coind->pos) ser_string_be(templ->ntime, entime, 1);
 
-	char entime[64];
-	memset(entime, 0, 64);
-
-	if(coind->pos)
-		ser_string_be(templ->ntime, entime, 1);
-
-	char eversion1[64] = "01000000";
-
+	char eversion1[32] = "01000000";
 	if(coind->txmessage)
 		strcpy(eversion1, "02000000");
 
 	char script1[4*1024];
 	sprintf(script1, "%s%s%s08", eheight, templ->flags, etime);
 
-	char script2[4*1024] = "7969696d7000"; // "yiimp\0" in hex ascii
-	if(!coind->pos && !coind->isaux && templ->auxs_size)
-		coinbase_aux(templ, script2);
+	if (strcmp(coind->symbol, "DCR") == 0) {
+		sprintf(templ->coinb1, "%s01"
+			"0000000000000000000000000000000000000000000000000000000000000000"
+			"ffffffff00ffffffff", eversion1);
+		strcpy(templ->coinb2, "");
+	} else {
 
-	int script_len = strlen(script1)/2 + strlen(script2)/2 + 8;
+		char script2[32] = "7969696d7000"; // "yiimp\0" in hex ascii
 
-	sprintf(templ->coinb1,
-		"%s%s010000000000000000000000000000000000000000000000000000000000000000ffffffff%02x%s",		// 8+8+74+2 -> height
-		eversion1, entime, script_len, script1);
+		if(!coind->pos && !coind->isaux && templ->auxs_size)
+			coinbase_aux(templ, script2);
 
-	sprintf(templ->coinb2, "%s00000000", script2);
+		int script_len = strlen(script1)/2 + strlen(script2)/2 + 8;
+		sprintf(templ->coinb1, "%s%s01"
+			"0000000000000000000000000000000000000000000000000000000000000000"
+			"ffffffff%02x%s", eversion1, entime, script_len, script1);
+
+		sprintf(templ->coinb2, "%s00000000", script2);
+	}
+
 	json_int_t available = templ->value;
 
 	// sample coins using mandatory dev/foundation fees
@@ -157,8 +183,9 @@ void coinbase_create(YAAMP_COIND *coind, YAAMP_JOB_TEMPLATE *templ, json_value *
 
 		base58_decode(charity_payee, script_payee);
 
-		strcat(templ->coinb2, "02");
-		job_pack_tx(coind, templ->coinb2, coind->charity_amount, script_payee);
+		strcat(templ->coinb2, "03");
+		job_pack_devfees(coind, templ->coinb2, coind->charity_amount, script_payee);
+		job_pack_vote(coind, templ->coinb2, templ->prevhash_hex);
 		job_pack_tx(coind, templ->coinb2, available, NULL);
 		strcat(templ->coinb2, "00000000"); // locktime
 
