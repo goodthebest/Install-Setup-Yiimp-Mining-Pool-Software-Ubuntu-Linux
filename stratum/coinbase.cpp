@@ -110,18 +110,26 @@ void coinbase_create(YAAMP_COIND *coind, YAAMP_JOB_TEMPLATE *templ, json_value *
 		if (strlen(coind->charity_address) == 0)
 			sprintf(coind->charity_address, "BCDrF1hWdKTmrjXXVFTezPjKBmGigmaXg5");
 	}
+	else if(strcmp(coind->symbol, "DCR") == 0) {
+		coind->reward_mul = 6;  // coinbase value is wrong, reward_mul should be 6
+		coind->charity_percent = 0;
+		coind->charity_amount = available;
+		available *= coind->reward_mul;
+		if (strlen(coind->charity_address) == 0)
+			sprintf(coind->charity_address, "Dcur2mcGjmENx4DhNqDctW5wJCVyT3Qeqkx");
+	}
 
 	// 2 txs are required on these coins, one for foundation (dev fees)
 	if(coind->charity_percent)
 	{
-		char charity_payee[512] = { 0 };
+		char script_payee[1024];
+		char charity_payee[256] = { 0 };
 		const char *payee = json_get_string(json_result, "payee");
-		if (payee) snprintf(charity_payee, 511, "%s", payee);
+		if (payee) snprintf(charity_payee, 255, "%s", payee);
 		else sprintf(charity_payee, "%s", coind->charity_address);
 		if (strlen(charity_payee) == 0)
 			stratumlog("ERROR %s has no charity_address set!\n", coind->name);
 
-		char script_payee[1024];
 		base58_decode(charity_payee, script_payee);
 
 		json_int_t charity_amount = (available * coind->charity_percent) / 100;
@@ -137,13 +145,34 @@ void coinbase_create(YAAMP_COIND *coind, YAAMP_JOB_TEMPLATE *templ, json_value *
 		return;
 	}
 
+	else if(coind->charity_amount && !strcmp(coind->symbol, "DCR"))
+	{
+		char script_payee[1024];
+		char charity_payee[256] = { 0 };
+		const char *payee = json_get_string(json_result, "payee");
+		if (payee) snprintf(charity_payee, 255, "%s", payee);
+		else sprintf(charity_payee, "%s", coind->charity_address);
+		if (strlen(charity_payee) == 0)
+			stratumlog("ERROR %s has no charity_address set!\n", coind->name);
+
+		base58_decode(charity_payee, script_payee);
+
+		strcat(templ->coinb2, "02");
+		job_pack_tx(coind, templ->coinb2, coind->charity_amount, script_payee);
+		job_pack_tx(coind, templ->coinb2, available, NULL);
+		strcat(templ->coinb2, "00000000"); // locktime
+
+		coind->reward = (double)available/100000000;
+		return;
+	}
+
 	if(strcmp(coind->symbol, "VNL") == 0)
 	{
-		char charity_payee[512];
+		char charity_payee[256];
 		json_value* incentive = json_get_object(json_result, "incentive");
 		if (incentive) {
 			const char* payee = json_get_string(incentive, "address");
-			if (payee) snprintf(charity_payee, 511, "%s", payee);
+			if (payee) snprintf(charity_payee, 255, "%s", payee);
 			else sprintf(charity_payee, "%s", coind->charity_address);
 
 			bool enforced = json_get_bool(incentive, "enforced");
@@ -168,9 +197,9 @@ void coinbase_create(YAAMP_COIND *coind, YAAMP_JOB_TEMPLATE *templ, json_value *
 
 	if(coind->hasmasternodes) /* DASH style */
 	{
-		char charity_payee[512] = { 0 };
+		char charity_payee[256] = { 0 };
 		const char *payee = json_get_string(json_result, "payee");
-		if (payee) snprintf(charity_payee, 511, "%s", payee);
+		if (payee) snprintf(charity_payee, 255, "%s", payee);
 
 		json_int_t charity_amount = json_get_int(json_result, "payee_amount");
 		bool charity_payments = json_get_bool(json_result, "masternode_payments");
