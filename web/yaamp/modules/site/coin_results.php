@@ -215,7 +215,11 @@ if (!empty($txs)) {
 		if (intval($tx['time']) > $list_since)
 			$txs_array[] = $tx;
 	}
-	krsort($txs_array);
+
+	if ($coin->symbol == 'DCR')
+		ksort($txs_array); // reversed order
+	else
+		krsort($txs_array);
 }
 
 $rows = 0;
@@ -226,8 +230,14 @@ foreach($txs_array as $tx)
 		$block = $remote->getblock($tx['blockhash']);
 
 	$d = datetoa2($tx['time']);
-
 	$category = $tx['category'];
+
+	if ($coin->symbol == 'DCR') {
+		// ignore "spent" blocks...
+		if ($category == 'send' && arraySafeVal($tx,'generated'))
+			continue;
+	}
+
 	echo '<tr class="ssrow '.$category.'">';
 	echo '<td><b>'.$d.'</b></td>';
 
