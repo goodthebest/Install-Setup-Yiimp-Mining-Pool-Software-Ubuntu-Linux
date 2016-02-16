@@ -22,12 +22,12 @@ function BackendCoinPayments($coin)
 	}
 
 	$txfee = floatval($coin->txfee);
-	$min = max(0.001, $txfee);
+	$min_payout = max(floatval(YAAMP_PAYMENTS_MINI), $txfee);
 
-// 	if(date("w", time()) == 0 && date("H", time()) > 12)		// sunday afternoon
-// 		$min = 0.0001;
+	if(date("w", time()) == 0 && date("H", time()) > 18) // sunday evening, minimum reduced
+		$min_payout = max($min_payout/10, $txfee);
 
-	$users = getdbolist('db_accounts', "balance>$min and coinid=$coin->id");
+	$users = getdbolist('db_accounts', "balance>$min_payout and coinid={$coin->id}");
 
 	// todo: db field
 	if($coin->symbol == 'MUE' || $coin->symbol == 'BOD' || $coin->symbol == 'DIME' || $coin->symbol == 'BTCRY')
@@ -38,7 +38,7 @@ function BackendCoinPayments($coin)
 			if(!$user) continue;
 
 			$amount = $user->balance;
-			while($user->balance > $min && $amount > $min)
+			while($user->balance > $min_payout && $amount > $min_payout)
 			{
 				debuglog("$coin->symbol sendtoaddress $user->username $amount");
 				$tx = $remote->sendtoaddress($user->username, round($amount, 8));
@@ -119,7 +119,7 @@ function BackendCoinPayments($coin)
 			foreach($cold_wallet_table as $coldwallet=>$percent)
 			{
 				$coldamount = round($pie * $percent, 8);
-				if($coldamount < $min) break;
+				if($coldamount < $min_payout) break;
 
 				debuglog("paying cold wallet $coldwallet $coldamount");
 
@@ -208,7 +208,7 @@ function BackendCoinPayments($coin)
 				$payout->time = time();
 				$payout->amount = $amount_failed;
 				$payout->fee = 0;
-				if ($payout->save() && $amount_failed > $txfee) {
+				if ($payout->save() && $amount_failed > $min_payout) {
 					$payouts[$payout->id] = $user->id;
 					$addresses[$user->username] = $amount_failed;
 					$mailmsg .= "{$amount_failed} {$coin->symbol} to {$user->username} - user id {$user->id}\n";

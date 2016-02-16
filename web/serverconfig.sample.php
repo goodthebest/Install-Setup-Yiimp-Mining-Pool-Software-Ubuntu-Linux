@@ -19,6 +19,7 @@ define('YAAMP_FEES_MINING', 0.5);
 define('YAAMP_FEES_EXCHANGE', 2);
 define('YAAMP_FEES_RENTING', 2);
 define('YAAMP_PAYMENTS_FREQ', 3*60*60);
+define('YAAMP_PAYMENTS_MINI', 0.001);
 
 define('YAAMP_ALLOW_EXCHANGE', false);
 define('YIIMP_PUBLIC_EXPLORER', true);

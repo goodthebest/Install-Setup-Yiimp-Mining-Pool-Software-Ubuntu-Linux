@@ -11,6 +11,9 @@ JavascriptFile('/yaamp/ui/js/auto_refresh.js');
 
 $height = '240px';
 
+$min_payout = floatval(YAAMP_PAYMENTS_MINI);
+$min_sunday = $min_payout/10;
+
 ?>
 
 <div id='resume_update_button' style='color: #444; background-color: #ffd; border: 1px solid #eea;
@@ -33,7 +36,7 @@ $height = '240px';
 <li>This fork based on the Yaamp published source code will be soon another open source project.</li>
 <li>No registration is required, we do payouts in the currency you mine. Use your wallet address as the username.</li>
 <li>&nbsp;</li>
-<li>Payouts are made automatically every 2H for all balances above <b>0.001</b>, or <b>0.0001</b> on Sunday.</li>
+<li>Payouts are made automatically every 2H for all balances above <b><?= $min_payout ?></b>, or <b><?= $min_sunday ?></b> on Sunday.</li>
 <li>For some coins, there is an initial delay before the first payout, please wait at least 6 hours before asking for support.</li>
 <li>Blocks are distributed proportionally among valid submitted shares.</li>
 
