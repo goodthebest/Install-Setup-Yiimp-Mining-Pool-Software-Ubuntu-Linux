@@ -186,27 +186,36 @@ function BackendCoinPayments($coin)
 	else
 		$tx = $remote->sendmany($account, $addresses, 1, YAAMP_SITE_NAME);
 
+	$errmsg = NULL;
 	if(!$tx) {
 		debuglog("sendmany: unable to send $total_to_pay {$remote->error} ".json_encode($addresses));
-		return;
+		$errmsg = $remote->error;
 	}
 	else if(!is_string($tx)) {
 		debuglog("sendmany: result is not a string tx=".json_encode($tx));
-		return;
+		$errmsg = json_encode($tx);
 	}
 
 	// save processed payouts (tx)
 	foreach($payouts as $id => $uid) {
 		$payout = getdbo('db_payouts', $id);
 		if ($payout && $payout->id == $id) {
-			$payout->tx = $tx;
+			$payout->errmsg = $errmsg;
+			if (empty($errmsg)) {
+				$payout->tx = $tx;
+				$payout->completed = 1;
+			}
 			$payout->save();
 		} else {
 			debuglog("payout $id for $uid not found!");
 		}
 	}
 
-	debuglog("payment done");
+	if (!empty($errmsg)) {
+		return;
+	}
+
+	debuglog("{$coin->symbol} payment done");
 
 	sleep(2);
 
@@ -249,8 +258,19 @@ function BackendCoinPayments($coin)
 
 		if(empty($tx)) {
 			debuglog($remote->error);
-			send_email_alert('payouts', "{$coin->symbol} payout problems detected", $mailmsg);
+
+			foreach ($payouts as $id => $uid) {
+				$payout = getdbo('db_payouts', $id);
+				if ($payout && $payout->id == $id) {
+					$payout->errmsg = $remote->error;
+					$payout->save();
+				}
+			}
+
+			send_email_alert('payouts', "{$coin->symbol} payout problems detected\n {$remote->error}", $mailmsg);
+
 		} else {
+
 			foreach ($payouts as $id => $uid) {
 				$payout = getdbo('db_payouts', $id);
 				if ($payout && $payout->id == $id) {
