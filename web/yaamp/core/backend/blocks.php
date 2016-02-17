@@ -27,6 +27,10 @@ function BackendBlockNew($coin, $db_block)
 
 		$amount = $reward * $hash_power / $total_hash_power;
 		if(!$user->no_fees) $amount = take_yaamp_fee($amount, $coin->algo);
+		if(!empty($user->donation)) {
+			$amount = take_yaamp_fee($amount, $coin->algo, $user->donation);
+			if ($amount <= 0) continue;
+		}
 
 		$earning = new db_earnings;
 		$earning->userid = $user->id;

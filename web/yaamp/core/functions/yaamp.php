@@ -225,9 +225,11 @@ function yaamp_fee($algo)
 	return $fee;
 }
 
-function take_yaamp_fee($v, $algo)
+function take_yaamp_fee($v, $algo, $percent=-1)
 {
-	return $v - ($v * yaamp_fee($algo) / 100);
+	if ($percent == -1) $percent = yaamp_fee($algo);
+
+	return $v - ($v * $percent / 100.0);
 }
 
 function yaamp_hashrate_constant($algo=null)

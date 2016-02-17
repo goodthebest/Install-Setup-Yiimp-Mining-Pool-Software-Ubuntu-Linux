@@ -132,9 +132,9 @@ echo "<td valign=top><b>";
 if($refcoin->symbol == 'BTC')
 	echo "$refcoin->name";
 else
-	echo "<a href='/site/block?id=$refcoin->id'>$refcoin->name</a>";
+	echo "<a href='/site/block?id={$refcoin->id}'>$refcoin->name</a>";
 
-echo "<br><span style='font-size: .8em;'>(total pending)</span></b></td>";
+echo '<br/><span style="font-size: .8em;"">(total pending)</span></b></td>';
 
 echo "<td valign=top align=right style='font-size: .8em;'>$unconfirmed</td>";
 echo "<td valign=top align=right style='font-size: .8em;'>$confirmed</td>";
@@ -143,7 +143,15 @@ echo "<td valign=top align=right style='font-size: .8em;'>$total_unsold $refcoin
 
 echo "</tr>";
 
-echo "<tr><td style='font-size: .7em;'>&nbsp;</td></tr>";
+// ////////////////////////////////////////////////////////////////////////////
+
+$fees_notice = '';
+if ($user->donation > 0) {
+	$fees_notice = 'Currently donating '.$user->donation.' % of the rewards.';
+} else if ($user->no_fees == 1) {
+	$fees_notice = 'Currently mining without pool fees.';
+}
+echo '<tr><td colspan="6" style="text-align:right; font-size: .8em;"><b>'.$fees_notice.'</b></td></tr>';
 
 // ////////////////////////////////////////////////////////////////////////////
 

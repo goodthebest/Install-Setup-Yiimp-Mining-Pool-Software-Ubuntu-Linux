@@ -112,6 +112,10 @@ function BackendRentingPayout()
 
 			$earning->amount = $amount * $hash_power / $total_hash_power;
 			if(!$user->no_fees) $earning->amount = take_yaamp_fee($earning->amount, $algo);
+			if(!empty($user->donation)) {
+				$earning->amount = take_yaamp_fee($earning->amount, $algo, $user->donation);
+				if ($earning->amount <= 0) continue;
+			}
 
 			$earning->save();
 

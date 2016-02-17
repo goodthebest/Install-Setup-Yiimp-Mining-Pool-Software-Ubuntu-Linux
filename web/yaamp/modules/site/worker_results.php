@@ -21,6 +21,7 @@ echo "<th>Bad</th>";
 echo "<th>%</th>";
 echo "<th>Found</th>";
 echo "<th></th>";
+echo "<th></th>";
 echo "</tr>";
 echo "</thead><tbody>";
 
@@ -52,7 +53,8 @@ foreach($workers as $worker)
 			$coinimg = CHtml::image($coin->image, $coin->symbol, array('width'=>'16'));
 			$coinlink = CHtml::link($coin->name, '/site/coin?id='.$coin->id);
 		}
-		$name = $user->login;
+		$name = empty($name) ? $user->login : $name;
+		$gift = $user->donation;
 	}
 
 	$dns = !empty($worker->dns)? $worker->dns: $worker->ip;
@@ -97,6 +99,7 @@ foreach($workers as $worker)
 
 	echo '<td>'.$worker_blocs.' / '.$user_blocs.'</td>';
 	echo '<td>'.$name.'</td>';
+	echo '<td>'.($gift ? "$gift&nbsp;%" : '').'</td>';
 	echo '</tr>';
 }
 

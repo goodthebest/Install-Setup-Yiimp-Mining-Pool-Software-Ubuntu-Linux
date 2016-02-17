@@ -24,12 +24,20 @@ void db_add_user(YAAMP_DB *db, YAAMP_CLIENT *client)
 	if(!p) p = strstr(client->password, "s=");
 	if(p) strncpy(symbol, p+2, 15);
 	p = strchr(symbol, ',');
-	if(p) *p = 0;
+	if(p) *p = '\0';
+
+	int gift = -1;
+#ifdef ALLOW_CUSTOM_DONATIONS
+	// donation percent
+	p = strstr(client->password, "g=");
+	if(p) gift = atoi(p+2);
+	if(gift > 100) gift = 100;
+#endif
 
 	db_check_user_input(client->username);
 
-//	debuglog("user %s %s\n", client->username, symbol);
-	db_query(db, "SELECT id, is_locked, logtraffic, coinid FROM accounts WHERE username='%s'", client->username);
+	// debuglog("user %s %s gives %d %\n", client->username, symbol, gift);
+	db_query(db, "SELECT id, is_locked, logtraffic, coinid, donation FROM accounts WHERE username='%s'", client->username);
 
 	MYSQL_RES *result = mysql_store_result(&db->mysql);
 	if(!result) return;
@@ -42,23 +50,28 @@ void db_add_user(YAAMP_DB *db, YAAMP_CLIENT *client)
 
 		client->logtraffic = row[2] && atoi(row[2]);
 		client->coinid = row[3] ? atoi(row[3]) : 0;
+		if (gift == -1) gift = row[4] ? atoi(row[4]) : 0; // keep current
 	}
 
 	mysql_free_result(result);
 
 	db_check_user_input(symbol);
 
+	if (gift < 0) gift = 0;
+	client->donation = gift;
+
 	if(client->userid == -1)
 		return;
 
 	else if(client->userid == 0)
 	{
-		db_query(db, "INSERT INTO accounts (username, coinsymbol, balance) values ('%s', '%s', 0)", client->username, symbol);
+		db_query(db, "INSERT INTO accounts (username, coinsymbol, balance, donation) values ('%s', '%s', 0, %d)",
+			client->username, symbol, gift);
 		client->userid = (int)mysql_insert_id(&db->mysql);
 	}
 
 	else
-		db_query(db, "UPDATE accounts SET coinsymbol='%s' WHERE id=%d", symbol, client->userid);
+		db_query(db, "UPDATE accounts SET coinsymbol='%s', donation=%d WHERE id=%d", symbol, gift, client->userid);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////

@@ -90,6 +90,8 @@ public:
 
 	YAAMP_CLIENT_ALGO algos_subscribed[YAAMP_MAXALGOS];
 	int job_history[YAAMP_JOB_MAXHISTORY];
+
+	int donation;
 };
 
 inline void client_delete(YAAMP_OBJECT *object)
