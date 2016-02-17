@@ -68,10 +68,31 @@ class PayoutCommand extends CConsoleCommand
 			return 0;
 		}
 
+		// failed payouts, generally related to bad wallet 'accounts' balances (VNL)
+		$dbPayouts = new db_payouts;
+		$min_payout = max($coin->txfee, floatval(YAAMP_PAYMENTS_MINI));
+		$failed_payouts = $dbPayouts->with('account')->findAll(array(
+			'condition'=>"tx IS NULL AND amount > $min_payout AND account.coinid = ".$coin->id,
+			'order'=>'time DESC',
+		));
+
+		$condOr = '';
+		if (!empty($failed_payouts)) {
+			$ids = array();
+			$sum = 0.;
+			foreach ($failed_payouts as $payout) {
+				$uid = (int) $payout['account_id'];
+				$ids[$uid] = floatval($payout['amount']) + arraySafeVal($ids, $uid, 0.);
+				$sum += floatval($payout['amount']);
+			}
+			echo "failed payouts detected for ".count($ids)." account(s), $sum {$coin->symbol}\n";
+			$condOr = "OR A.id IN (".implode(',', array_keys($ids)).')';
+		}
+
 		// Get users using the coin...
 		$users = dbolist("SELECT DISTINCT A.id AS userid, A.username AS username ".
 			"FROM accounts A LEFT JOIN coins C ON C.id = A.coinid ".
-			"WHERE A.coinid={$coin->id} AND A.balance > 0.0"
+			"WHERE A.coinid={$coin->id} AND (A.balance > 0.0 $condOr)"
 		);
 		$ids = array();
 		foreach ($users as $uids) {
