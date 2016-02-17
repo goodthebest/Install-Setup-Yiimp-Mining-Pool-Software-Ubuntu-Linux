@@ -250,7 +250,7 @@ bool client_authorize(YAAMP_CLIENT *client, json_value *json_params)
 
 bool client_update_block(YAAMP_CLIENT *client, json_value *json_params)
 {
-	// password, id, block
+	// password, id, block hash
 	if(json_params->u.array.length < 3)
 	{
 		clientlog(client, "update block, bad params");

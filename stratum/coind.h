@@ -64,6 +64,7 @@ public:
 	bool usegetwork;
 	bool usememorypool;
 	bool hasmasternodes;
+	bool noblocknotifiy;
 
 	YAAMP_JOB *job;
 //	YAAMP_JOB_TEMPLATE *templ;

@@ -253,6 +253,12 @@ void client_do_submit(YAAMP_CLIENT *client, YAAMP_JOB *job, YAAMP_JOB_VALUES *su
 				target_to_diff(coin_target), target_to_diff(hash_int),
 				hash1, submitvalues->hash_be);
 
+			if(coind->noblocknotifiy) {
+				// DCR go wallet doesnt handle blocknotify= config (yet)
+				// required to store the user id and the user diff
+				block_confirm(coind->id, hash1);
+			}
+
 #ifdef HASH_DEBUGLOG_
 			debuglog("--------------------------------------------------------------\n");
 			debuglog("hash1 %s\n", hash1);

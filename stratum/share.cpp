@@ -212,6 +212,7 @@ void block_add(int userid, int coinid, int height, double difficulty, double dif
 	g_list_block.AddTail(block);
 }
 
+// called from blocknotify tool
 void block_confirm(int coinid, const char *hash)
 {
 	if(strlen(hash) > 65) return;
