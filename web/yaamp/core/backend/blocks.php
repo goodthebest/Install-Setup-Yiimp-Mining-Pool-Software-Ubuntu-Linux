@@ -70,6 +70,10 @@ function BackendBlockFind1()
 		$coin = getdbo('db_coins', $db_block->coin_id);
 		if(!$coin->enable) continue;
 
+		// noblocknofify: add a small delay before declaring it orphan
+		if($coin->symbol == 'DCR' && (time() - $db_block->time) < 60)
+			continue;
+
 		$db_block->category = 'orphan';
 		$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
 
