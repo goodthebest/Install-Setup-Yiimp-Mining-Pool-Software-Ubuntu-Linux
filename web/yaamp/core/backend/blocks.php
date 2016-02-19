@@ -71,7 +71,7 @@ function BackendBlockFind1()
 		if(!$coin->enable) continue;
 
 		// noblocknofify: add a small delay before declaring it orphan
-		if($coin->symbol == 'DCR' && (time() - $db_block->time) < 60)
+		if($coin->symbol == 'DCR' && (time() - $db_block->time) < 240)
 			continue;
 
 		$db_block->category = 'orphan';
@@ -82,6 +82,7 @@ function BackendBlockFind1()
 		{
 			$db_block->amount = 0;
 			$db_block->save();
+			debuglog("{$coin->symbol} orphan {$db_block->height} after ".(time() - $db_block->time)." seconds");
 			continue;
 		}
 

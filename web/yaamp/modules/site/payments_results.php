@@ -2,53 +2,110 @@
 
 $list = getdbolist('db_accounts', "coinid!=6 and (balance or last_login>UNIX_TIMESTAMP()-60*60) order by last_login desc limit 50");
 
-echo "<br><table class='dataGrid'>";
-echo "<thead>";
-echo "<tr>";
-echo "<th width=20></th>";
-echo "<th>Coin</th>";
-echo "<th>Address</th>";
-echo "<th>Last</th>";
-echo "<th align=right>Pool</th>";
-echo "<th align=right>User</th>";
-echo "</tr>";
-echo "</thead><tbody>";
+JavascriptFile("/yaamp/ui/js/jquery.metadata.js");
+JavascriptFile("/yaamp/ui/js/jquery.tablesorter.widgets.js");
+
+echo <<<end
+<div align="right" style="margin-top: -14px; margin-bottom: 6px;">
+<input class="search" type="search" data-column="all" style="width: 140px;" placeholder="Search..." />
+</div>
+<style type="text/css">
+tr.ssrow.filtered { display: none; }
+.currency { width: 120px; max-width: 180px; text-align: right; }
+.red { color: darkred; }
+</style>
+end;
+
+showTableSorter('maintable', "{
+	tableClass: 'dataGrid',
+	headers: {
+		0:{sorter:'metadata'},
+		1:{sorter:'text'},
+		2:{sorter:'text'},
+		3:{sorter:'text'},
+		4:{sorter:'currency'},
+		5:{sorter:'currency'},
+		6:{sorter:'currency'},
+		7:{sorter:'currency'},
+		8:{sorter:false}
+	},
+	widgets: ['zebra','filter','Storage','saveSort'],
+	widgetOptions: {
+		saveSort: true,
+		filter_saveFilters: true,
+		filter_external: '.search',
+		filter_columnFilters: false,
+		filter_childRows : true,
+		filter_ignoreCase: true
+	}
+}");
+
+echo <<<end
+<thead>
+<tr>
+<th width="20"></th>
+<th>Coin</th>
+<th>Address</th>
+<th>Last block</th>
+<th class="currency">Pool</th>
+<th class="currency">Balance</th>
+<th class="currency">Immature</th>
+<th class="currency">Failed</th>
+<th></th>
+</tr>
+</thead><tbody>
+end;
+
+$data = dbolist("SELECT coinid, userid, SUM(amount) AS immature FROM earnings WHERE status=0 GROUP BY coinid, userid");
+$immature = array();
+if (!empty($data)) foreach ($data as $row) {
+	$immkey = $row['coinid']."-".$row['userid'];
+	$immature[$immkey] = $row['immature'];
+}
+
+$data = dbolist("SELECT account_id, SUM(amount) AS failed FROM payouts WHERE tx IS NULL AND completed=0 GROUP BY account_id");
+$failed = array();
+if (!empty($data)) foreach ($data as $row) {
+	$uid = $row['account_id'];
+	$failed[$uid] = $row['failed'];
+}
 
 foreach($list as $user)
 {
 	$coin = getdbo('db_coins', $user->coinid);
-	$balance = bitcoinvaluetoa($user->balance);
 	$d = datetoa2($user->last_login);
 
-	echo "<tr class='ssrow'>";
+	echo '<tr class="ssrow">';
 
 	if($coin) {
-		$coinbalance = bitcoinvaluetoa($coin->balance);
-		echo "<td><img width=16 src='$coin->image'></td>";
-		echo "<td><b><a href='/site/coin?id=$coin->id'>$coin->name</a></b>&nbsp;($coin->symbol_show)</td>";
+		$coinbalance = $coin->balance ? bitcoinvaluetoa($coin->balance) : '-';
+		echo '<td><img width="16" src="'.$coin->image.'"></td>';
+		echo '<td><b><a href="/site/coin?id='.$coin->id.'">'.$coin->name.'</a></b>&nbsp;('.$coin->symbol_show.')</td>';
 	} else {
-		$coinbalance = '';
-		echo "<td></td>";
-		echo "<td></td>";
+		$coinbalance = '-';
+		echo '<td></td>';
+		echo '<td></td>';
 	}
 
-	echo "<td><a href='/?address=$user->username'><b>$user->username</b></a></td>";
-	echo "<td>$d</td>";
+	echo '<td><a href="/?address='.$user->username.'"><b>'.$user->username.'</b></a></td>';
+	echo '<td>'.$d.'</td>';
 
-	echo "<td align=right>$coinbalance</td>";
-	echo "<td align=right>$balance</td>";
+	echo '<td class="currency">'.$coinbalance.'</td>';
+
+	$balance = $user->balance ? bitcoinvaluetoa($user->balance) : '-';
+	echo '<td class="currency">'.$balance.'</td>';
+
+	$immbalance = arraySafeVal($immature, "{$coin->id}-{$user->id}", 0);
+	$immbalance = $immbalance ? bitcoinvaluetoa($immbalance) : '-';
+	echo '<td class="currency">'.$immbalance.'</td>';
+
+	$failbalance = arraySafeVal($failed, $user->id, 0);
+	$failbalance = $failbalance ? bitcoinvaluetoa($failbalance) : '-';
+	echo '<td class="currency red">'.$failbalance.'</td>';
+
+	echo '<td class="action"></td>';
+
 	echo "</tr>";
 }
 
 echo "</tbody></table>";
-
-
-
-
-
-
-
-
-
-
-
