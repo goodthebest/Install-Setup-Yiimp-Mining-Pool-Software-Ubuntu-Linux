@@ -85,10 +85,12 @@ foreach($list as $user)
 		$coinbalance = $coin->balance ? bitcoinvaluetoa($coin->balance) : '-';
 		echo '<td><img width="16" src="'.$coin->image.'"></td>';
 		echo '<td><b><a href="/site/coin?id='.$coin->id.'">'.$coin->name.'</a></b>&nbsp;('.$coin->symbol_show.')</td>';
+		$immkey = "{$coin->id}-{$user->id}";
 	} else {
 		$coinbalance = '-';
 		echo '<td></td>';
 		echo '<td></td>';
+		$immkey = "0-{$user->id}";
 	}
 
 	echo '<td><a href="/?address='.$user->username.'"><b>'.$user->username.'</b></a></td>';
@@ -99,7 +101,7 @@ foreach($list as $user)
 	$balance = $user->balance ? bitcoinvaluetoa($user->balance) : '-';
 	echo '<td class="currency">'.$balance.'</td>';
 
-	$immbalance = arraySafeVal($immature, "{$coin->id}-{$user->id}", 0);
+	$immbalance = arraySafeVal($immature, $immkey, 0);
 	$immbalance = $immbalance ? bitcoinvaluetoa($immbalance) : '-';
 	echo '<td class="currency">'.$immbalance.'</td>';
 
