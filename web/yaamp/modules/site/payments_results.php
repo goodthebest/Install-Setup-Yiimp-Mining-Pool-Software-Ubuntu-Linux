@@ -1,6 +1,10 @@
 <?php
 
-$list = getdbolist('db_accounts', "coinid!=6 and (balance or last_login>UNIX_TIMESTAMP()-60*60) order by last_login desc limit 50");
+// PS: account last_login is not related to user logins... its the last backend payment loop, todo: rename it..
+
+$list = getdbolist('db_accounts', "coinid!=6 AND (".
+	"balance > 0 OR last_login > (UNIX_TIMESTAMP()-60*60) OR id IN (SELECT DISTINCT account_id FROM payouts WHERE tx IS NULL)".
+	") ORDER BY last_login DESC limit 50");
 
 JavascriptFile("/yaamp/ui/js/jquery.metadata.js");
 JavascriptFile("/yaamp/ui/js/jquery.tablesorter.widgets.js");
