@@ -28,8 +28,8 @@ function updateRawcoins()
 		dborun("update markets set deleted=true where name='poloniex'");
 	foreach($tickers as $symbol=>$ticker)
 	{
-		if($ticker['disabled']) continue;
-		if($ticker['delisted']) continue;
+		if(arraySafeVal($ticker,'disabled')) continue;
+		if(arraySafeVal($ticker,'delisted')) continue;
 		updateRawCoin('poloniex', $symbol);
 	}
 

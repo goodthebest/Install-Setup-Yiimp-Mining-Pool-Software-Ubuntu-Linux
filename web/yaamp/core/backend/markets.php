@@ -505,7 +505,8 @@ function updatePoloniexMarkets()
 		$market->save();
 
 		if(empty($market->deposit_address) && $coin->installed && !empty(EXCH_POLONIEX_KEY)) {
-			$poloniex->generate_address($coin->symbol);
+			if ($coin->symbol != 'EXE')
+				$poloniex->generate_address($coin->symbol);
 		}
 
 //		debuglog("$exchange: update $coin->symbol: $market->price $market->price2");
