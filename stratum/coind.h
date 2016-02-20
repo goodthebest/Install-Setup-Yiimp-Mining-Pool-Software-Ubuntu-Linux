@@ -96,7 +96,7 @@ void coind_init(YAAMP_COIND *coind);
 void coind_terminate(YAAMP_COIND *coind);
 //void coind_getauxblock(YAAMP_COIND *coind);
 
-void coind_create_job(YAAMP_COIND *coind, bool force=false);
+bool coind_create_job(YAAMP_COIND *coind, bool force=false);
 
 bool coind_validate_user_address(YAAMP_COIND *coind, char* const address);
 

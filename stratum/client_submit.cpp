@@ -2,7 +2,7 @@
 #include "stratum.h"
 
 //#define MERKLE_DEBUGLOG
-#define HASH_DEBUGLOG_
+//#define HASH_DEBUGLOG_
 //#define DONTSUBMIT
 
 void build_submit_values(YAAMP_JOB_VALUES *submitvalues, YAAMP_JOB_TEMPLATE *templ,

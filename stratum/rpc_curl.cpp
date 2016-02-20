@@ -20,6 +20,9 @@ bool opt_protocol = false;
 bool opt_proxy = false;
 long opt_proxy_type = 0; //CURLPROXY_SOCKS5;
 
+static __thread char curl_last_err[1024] = { 0 };
+const int last_err_len = 1023;
+
 #define USER_AGENT "stratum/yiimp"
 #define JSON_INDENT(x) 0
 #define json_object_get(j,k) json_get_object(j,k)
@@ -281,13 +284,13 @@ static json_value *curl_json_rpc(YAAMP_RPC *rpc, const char *url, const char *rp
 		*curl_err = rc;
 	if (rc) {
 		if (rc != CURLE_OPERATION_TIMEDOUT) {
-			debuglog("ERR: HTTP request failed: %s", curl_err_str);
+			snprintf(curl_last_err, last_err_len, "HTTP request failed: %s", curl_err_str);
 			goto err_out;
 		}
 	}
 
 	if (!all_data.buf || !all_data.len) {
-		debuglog("ERR: Empty data received in json_rpc_call.");
+		strcpy(curl_last_err, "rpc warning: no data received");
 		goto err_out;
 	}
 
@@ -297,16 +300,17 @@ static json_value *curl_json_rpc(YAAMP_RPC *rpc, const char *url, const char *rp
 		long errcode = 0;
 		CURLcode c = curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &errcode);
 		if (c == CURLE_OK && errcode == 401) {
-			debuglog("ERR: You are not authorized, check your login and password.");
+			debuglog("ERR: You are not authorized, check your login and password.\n");
 			goto err_out;
 		}
 	}
 
 	val = json_parse(httpdata, strlen(httpdata));
 	if (!val) {
-		debuglog("ERR: JSON decode failed!");
+		snprintf(curl_last_err, last_err_len, "JSON decode failed!");
+		debuglog("ERR: JSON decode failed!\n");
 		if (opt_protocol)
-			debuglog("%s", httpdata);
+			debuglog("%s\n", httpdata);
 		goto err_out;
 	}
 
@@ -362,10 +366,6 @@ void rpc_curl_close(YAAMP_RPC *rpc)
 
 	curl_easy_cleanup(rpc->CURL);
 	rpc->CURL = NULL;
-
-	//made by rpc_close
-	//pthread_mutex_destroy(&rpc->mutex);
-	//rpc->sock = 0;
 }
 
 bool rpc_curl_connect(YAAMP_RPC *rpc)
@@ -377,12 +377,12 @@ bool rpc_curl_connect(YAAMP_RPC *rpc)
 		rpc->CURL = curl_easy_init();
 	}
 
-	//made by rpc_connect
-	//rpc->id = 0;
-	//rpc->bufpos = 0;
-	//yaamp_create_mutex(&rpc->mutex);
-
 	return true;
+}
+
+void rpc_curl_get_lasterr(char* buffer, int buflen)
+{
+	snprintf(buffer, buflen, "%s", curl_last_err);
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -394,6 +394,8 @@ static json_value *rpc_curl_do_call(YAAMP_RPC *rpc, char const *data)
 	char url[1024];
 	int curl_err = 0;
 	sprintf(url, "http%s://%s:%d", rpc->ssl?"s":"", rpc->host, rpc->port);
+	strcpy(curl_last_err, "");
+
 	json_value *res = curl_json_rpc(rpc, url, data, &curl_err);
 
 	CommonUnlock(&rpc->mutex);

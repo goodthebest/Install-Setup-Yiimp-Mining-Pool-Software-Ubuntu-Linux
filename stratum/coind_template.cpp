@@ -143,16 +143,25 @@ static int decred_parse_header(YAAMP_JOB_TEMPLATE *templ, const char *header_hex
 // decred getwork over stratum
 static YAAMP_JOB_TEMPLATE *decred_create_worktemplate(YAAMP_COIND *coind)
 {
-	int retry_max = 3;
+	char rpc_error[1024] = { 0 };
+	#define GETWORK_RETRY_MAX 3
+	int retry_cnt = GETWORK_RETRY_MAX;
 retry:
 	json_value *gw = rpc_call(&coind->rpc, "getwork", "[]");
 	if(!gw || json_is_null(gw)) {
-		coind_error(coind, "getwork");
+		usleep(500*YAAMP_MS); // too much connections ? no data received
+		if (--retry_cnt > 0) {
+			if (coind->rpc.curl)
+				rpc_curl_get_lasterr(rpc_error, 1023);
+			debuglog("%s getwork retry %d\n", coind->symbol, GETWORK_RETRY_MAX-retry_cnt);
+			goto retry;
+		}
+		debuglog("%s error getwork %s\n", coind->symbol, rpc_error);
 		return NULL;
 	}
 	json_value *gwr = json_get_object(gw, "result");
 	if(!gwr) {
-		coind_error(coind, "getwork json result");
+		debuglog("%s no getwork json result!\n", coind->symbol);
 		return NULL;
 	}
 	else if (json_is_null(gwr)) {
@@ -161,14 +170,17 @@ retry:
 		const char *err = json_get_string(jr, "message");
 		if (err && !strcmp(err, "internal error")) {
 			usleep(500*YAAMP_MS); // not enough voters (testnet)
-			if (--retry_max > 0) goto retry;
-			debuglog("%s getwork %s\n", coind->symbol, err);
+			if (--retry_cnt > 0) {
+				goto retry;
+			}
+			debuglog("%s getwork failed after %d tries: %s\n",
+				coind->symbol, GETWORK_RETRY_MAX, err);
 		}
 		return NULL;
 	}
 	const char *header_hex = json_get_string(gwr, "data");
 	if (!header_hex || !strlen(header_hex)) {
-		coind_error(coind, "getwork data");
+		debuglog("%s no getwork data!\n", coind->symbol);
 		return NULL;
 	}
 
@@ -358,12 +370,12 @@ YAAMP_JOB_TEMPLATE *coind_create_template(YAAMP_COIND *coind)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void coind_create_job(YAAMP_COIND *coind, bool force)
+bool coind_create_job(YAAMP_COIND *coind, bool force)
 {
 //	debuglog("create job %s\n", coind->symbol);
 
 	bool b = rpc_connected(&coind->rpc);
-	if(!b) return;
+	if(!b) return false;
 
 	CommonLock(&coind->mutex);
 
@@ -380,7 +392,7 @@ void coind_create_job(YAAMP_COIND *coind, bool force)
 	{
 		CommonUnlock(&coind->mutex);
 //		debuglog("%s: create job template failed!\n", coind->symbol);
-		return;
+		return false;
 	}
 
 	YAAMP_JOB *job_last = coind->job;
@@ -398,7 +410,7 @@ void coind_create_job(YAAMP_COIND *coind, bool force)
 		delete templ;
 
 		CommonUnlock(&coind->mutex);
-		return;
+		return true;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////
@@ -449,6 +461,8 @@ void coind_create_job(YAAMP_COIND *coind, bool force)
 	CommonUnlock(&coind->mutex);
 
 //	debuglog("coind_create_job %s %d new job %x\n", coind->name, coind->height, coind->job->id);
+
+	return true;
 }
 
 
