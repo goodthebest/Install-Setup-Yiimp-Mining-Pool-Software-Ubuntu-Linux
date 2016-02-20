@@ -202,6 +202,15 @@ $account = '';
 if ($coin->symbol == 'DCR') $account = '*';
 
 $txs = $remote->listtransactions($account, 2500);
+
+if (empty($txs)) {
+	if (!empty($remote->error)) {
+		echo "<b>RPC Error: {$remote->error}</b><p/>";
+	}
+	// retry...
+	$txs = $remote->listtransactions($account, 200);
+}
+
 $txs_array = array(); $lastday = '';
 
 if (!empty($txs)) {
