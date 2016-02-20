@@ -14,8 +14,9 @@ echo "<th>Address</th>";
 echo "<th>Pass</th>";
 echo "<th>Client</th>";
 echo "<th>Version</th>";
-echo "<th>Diff</th>";
 echo "<th>Hashrate</th>";
+echo "<th>Diff</th>";
+echo "<th>Shares</th>";
 echo "<th>Bad</th>";
 echo "<th>%</th>";
 echo "<th></th>";
@@ -41,7 +42,7 @@ foreach($workers as $worker)
 
 	$name = $worker->worker;
 	$user = $coin = NULL;
-	$coinimg = ''; $coinlink = ''; $coinsym = '';
+	$coinimg = ''; $coinlink = ''; $coinsym = ''; $shares= '';
 	if ($worker->userid) {
 		$user = getdbo('db_accounts', $worker->userid);
 		if ($user) {
@@ -64,8 +65,14 @@ foreach($workers as $worker)
 	echo "<td>$worker->password</td>";
 	echo "<td title='$worker->ip'>$dns</td>";
 	echo "<td>$worker->version</td>";
-	echo "<td>$worker->difficulty</td>";
 	echo "<td>$user_rate</td>";
+	echo "<td>$worker->difficulty</td>";
+
+	$shares = dboscalar("SELECT COUNT(id) as shares FROM shares WHERE workerid=:worker AND algo=:algo", array(
+		':worker'=> $worker->id,
+		':algo'=> $algo
+	));
+	echo "<td>$shares</td>";
 
 	echo "<td>". ($user_bad ? Itoa2($user_bad).'h/s' : '-');
 	if ($user_bad) {
