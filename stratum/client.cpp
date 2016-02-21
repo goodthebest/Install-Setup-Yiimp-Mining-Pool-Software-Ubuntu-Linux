@@ -115,8 +115,8 @@ bool client_subscribe(YAAMP_CLIENT *client, json_value *json_params)
 	debuglog("new client with nonce %s\n", client->extranonce1);
 #endif
 
-	client_send_result(client, "[[[\"mining.set_difficulty\",\"%s\"],[\"mining.notify\",\"%s\"]],\"%s\",%d]",
-		client->notify_id, client->notify_id, client->extranonce1, client->extranonce2size);
+	client_send_result(client, "[[[\"mining.set_difficulty\",\"%.3g\"],[\"mining.notify\",\"%s\"]],\"%s\",%d]",
+		client->difficulty_actual, client->notify_id, client->extranonce1, client->extranonce2size);
 
 	return true;
 }
