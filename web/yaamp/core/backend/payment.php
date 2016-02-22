@@ -24,8 +24,10 @@ function BackendCoinPayments($coin)
 	$txfee = floatval($coin->txfee);
 	$min_payout = max(floatval(YAAMP_PAYMENTS_MINI), $txfee);
 
-	if(date("w", time()) == 0 && date("H", time()) > 18) // sunday evening, minimum reduced
+	if(date("w", time()) == 0 && date("H", time()) > 18) { // sunday evening, minimum reduced
 		$min_payout = max($min_payout/10, $txfee);
+		if($coin->symbol == 'DCR') $min_payout = 0.025;
+	}
 
 	$users = getdbolist('db_accounts', "balance>$min_payout and coinid={$coin->id}");
 
