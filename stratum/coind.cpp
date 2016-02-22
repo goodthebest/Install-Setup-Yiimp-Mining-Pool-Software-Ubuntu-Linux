@@ -152,7 +152,7 @@ void coind_init(YAAMP_COIND *coind)
 	coind->rpc.curl = g_stratum_curl;
 	if(!strcmp(coind->symbol, "DCR")) {
 		coind->usegetwork = true;
-		coind->noblocknotifiy = true;
+		//coind->noblocknotifiy = true;
 		sprintf(account, "default");
 	}
 

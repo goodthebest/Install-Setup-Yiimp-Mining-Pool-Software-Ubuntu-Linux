@@ -104,7 +104,7 @@ void client_block_ip(YAAMP_CLIENT *client, const char *reason)
 {
 	char buffer[1024];
 
-	sprintf(buffer, "iptables -A INPUT -s %s -j DROP", client->sock->ip);
+	sprintf(buffer, "iptables -A INPUT -s %s -p tcp --dport %d -j REJECT", client->sock->ip, g_tcp_port);
 	int s = system(buffer);
 
 	stratumlog("%s %s blocked (%s)\n", client->sock->ip, client->username, reason);

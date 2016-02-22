@@ -17,7 +17,7 @@ import (
 
 	"github.com/decred/dcrd/chaincfg/chainhash"
 	"github.com/decred/dcrrpcclient"
-	"github.com/decred/dcrutil"
+//	"github.com/decred/dcrutil"
 )
 
 const (
@@ -27,6 +27,8 @@ const (
 
 	walletUser = "yiimprpc"
 	walletPass = "myDecredPassword"
+
+	debug = false
 )
 
 func main() {
@@ -38,18 +40,26 @@ func main() {
 		OnBlockConnected: func(hash *chainhash.Hash, height int32, time time.Time, vb uint16) {
 
 			// Find the process path.
-			cmd := exec.Command(processName, stratumDest, coinId, hash.String())
-			if err := cmd.Run(); err != nil {
-				log.Fatalln(err)
+			str := hash.String()
+			args := []string{ stratumDest, coinId, str }
+			out, err := exec.Command(processName, args...).Output()
+			if err != nil {
+				log.Printf("err %s", err)
+			} else if debug {
+				log.Printf("out %s", out)
 			}
 
-			log.Printf("Block connected: %v (%d)", hash, height)
+			if (debug) {
+				log.Printf("Block connected: %s %d", hash, height)
+			}
 		},
 	}
 
 	// Connect to local dcrd RPC server using websockets.
-	dcrdHomeDir := dcrutil.AppDataDir("dcrd", false)
-	certs, err := ioutil.ReadFile(filepath.Join(dcrdHomeDir, "rpc.cert"))
+	// dcrwHomeDir := dcrutil.AppDataDir("dcrwallet", false)
+	// folder := dcrwHomeDir
+	folder := ""
+	certs, err := ioutil.ReadFile(filepath.Join(folder, "rpc.cert"))
 	if err != nil {
 		certs = nil
 		log.Printf("%s, trying without TLS...", err)

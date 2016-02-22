@@ -207,7 +207,7 @@ bool client_authorize(YAAMP_CLIENT *client, json_value *json_params)
 		if(client->userid == -1)
 		{
 			CommonUnlock(&g_db_mutex);
-		//	client_block_ip(client, "account locked");
+			client_block_ip(client, "account locked");
 			clientlog(client, "account locked");
 
 			return false;
@@ -274,6 +274,10 @@ bool client_update_block(YAAMP_CLIENT *client, json_value *json_params)
 
 	coind->newblock = true;
 	coind->notreportingcounter = 0;
+
+	if (!strcmp("DCR", coind->symbol)) {
+		usleep(500*YAAMP_MS);
+	}
 
 	block_confirm(coind->id, hash);
 
