@@ -294,7 +294,7 @@ void client_submit_error(YAAMP_CLIENT *client, YAAMP_JOB *job, int id, const cha
 	else
 	{
 		client_send_error(client, id, message);
-		share_add(client, job, false, extranonce2, ntime, nonce, id);
+		share_add(client, job, false, extranonce2, ntime, nonce, 0, id);
 
 		client->submit_bad++;
 #ifdef HASH_DEBUGLOG_
@@ -333,8 +333,7 @@ bool client_submit(YAAMP_CLIENT *client, json_value *json_params)
 		strncpy(vote, json_params->u.array.values[5]->u.string.ptr, 7);
 
 #ifdef HASH_DEBUGLOG_
-	debuglog("submit %s (uid %d) %d, %s, t=%s, n=%s, vote=%s\n", client->sock->ip, client->userid,
-		jobid, extranonce2, ntime, nonce, vote);
+	debuglog("submit %s (uid %d) %d, %s, %s, %s\n", client->sock->ip, client->userid, jobid, extranonce2, ntime, nonce);
 #endif
 
 	string_lower(extranonce2);
@@ -468,8 +467,16 @@ bool client_submit(YAAMP_CLIENT *client, json_value *json_params)
 	client_record_difficulty(client);
 	client->submit_bad = 0;
 
-	share_add(client, job, true, extranonce2, ntime, nonce, 0);
+	double share_diff = diff_to_target(hash_int);
 
+#ifndef HASH_DEBUGLOG_
+	// only log a few...
+	if (share_diff > (client->difficulty_actual * 16))
+		debuglog("submit %s (uid %d) %d, %s, %s, %s, %.3f/%.3f\n", client->sock->ip, client->userid,
+			jobid, extranonce2, ntime, nonce, share_diff, client->difficulty_actual);
+#endif
+
+	share_add(client, job, true, extranonce2, ntime, nonce, share_diff, 0);
 	object_unlock(job);
 
 	return true;

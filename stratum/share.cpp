@@ -35,7 +35,7 @@ static YAAMP_WORKER *share_find_worker(YAAMP_CLIENT *client, YAAMP_JOB *job, boo
 	return NULL;
 }
 
-static void share_add_worker(YAAMP_CLIENT *client, YAAMP_JOB *job, bool valid, int error_number)
+static void share_add_worker(YAAMP_CLIENT *client, YAAMP_JOB *job, bool valid, char *ntime, double share_diff, int error_number)
 {
 //	check_job(job);
 	g_list_worker.Enter();
@@ -52,6 +52,8 @@ static void share_add_worker(YAAMP_CLIENT *client, YAAMP_JOB *job, bool valid, i
 		worker->remoteid = job? (job->remote? job->remote->id: 0): 0;
 		worker->valid = valid;
 		worker->error_number = error_number;
+		sscanf(ntime, "%x", &worker->ntime);
+		worker->share_diff = share_diff;
 
 		if(g_stratum_reconnect)
 			worker->extranonce1 = !client->reconnecting && (client->reconnectable || client->extranonce_subscribe);
@@ -73,10 +75,10 @@ static void share_add_worker(YAAMP_CLIENT *client, YAAMP_JOB *job, bool valid, i
 
 /////////////////////////////////////////////////////////////////////////
 
-void share_add(YAAMP_CLIENT *client, YAAMP_JOB *job, bool valid, char *extranonce2, char *ntime, char *nonce, int error_number)
+void share_add(YAAMP_CLIENT *client, YAAMP_JOB *job, bool valid, char *extranonce2, char *ntime, char *nonce, double share_diff, int error_number)
 {
 //	check_job(job);
-	share_add_worker(client, job, valid, error_number);
+	share_add_worker(client, job, valid, ntime, share_diff, error_number);
 
 	YAAMP_SHARE *share = new YAAMP_SHARE;
 	memset(share, 0, sizeof(YAAMP_SHARE));
@@ -117,7 +119,7 @@ void share_write(YAAMP_DB *db)
 	int count = 0;
 	int now = time(NULL);
 
-	char buffer[1024*1024] = "insert into shares (userid, workerid, coinid, jobid, pid, valid, extranonce1, difficulty, time, algo, error) values ";
+	char buffer[1024*1024] = "insert into shares (userid, workerid, coinid, jobid, pid, valid, extranonce1, difficulty, share_diff, time, algo, error) values ";
 	g_list_worker.Enter();
 
 	for(CLI li = g_list_worker.first; li; li = li->next)
@@ -126,15 +128,20 @@ void share_write(YAAMP_DB *db)
 		if(worker->deleted) continue;
 
 		if(count) strcat(buffer, ",");
-		sprintf(buffer+strlen(buffer), "(%d, %d, %d, %d, %d, %d, %d, %f, %d, '%s', %d)",
+		sprintf(buffer+strlen(buffer), "(%d, %d, %d, %d, %d, %d, %d, %f, %f, %d, '%s', %d)",
 			worker->userid, worker->workerid, worker->coinid, worker->remoteid, pid,
-			worker->valid, worker->extranonce1, worker->difficulty, now, g_stratum_algo, worker->error_number);
+			worker->valid, worker->extranonce1, worker->difficulty, worker->share_diff, now, g_stratum_algo, worker->error_number);
+
+		// todo: link max_ttf ?
+		if((now - worker->ntime) > 15*60 || worker->ntime > now) {
+			debuglog("ntime warning: value %d (%08x) offset %d secs from uid %d\n", worker->ntime, worker->ntime, (now - worker->ntime), worker->userid);
+		}
 
 		if(++count >= 1000)
 		{
 			db_query(db, buffer);
 
-			strcpy(buffer, "insert into shares (userid, workerid, coinid, jobid, pid, valid, extranonce1, difficulty, time, algo, error) values ");
+			strcpy(buffer, "insert into shares (userid, workerid, coinid, jobid, pid, valid, extranonce1, difficulty, share_diff, time, algo, error) values ");
 			count = 0;
 		}
 
