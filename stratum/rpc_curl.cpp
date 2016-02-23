@@ -199,7 +199,7 @@ static int sockopt_keepalive_cb(void *userdata, curl_socket_t fd,
 
 static json_value *curl_json_rpc(YAAMP_RPC *rpc, const char *url, const char *rpc_req, int *curl_err)
 {
-	char len_hdr[64], auth_hdr[64];
+	char len_hdr[64] = { 0 }, auth_hdr[512] = { 0 };
 	char curl_err_str[CURL_ERROR_SIZE] = { 0 };
 	struct data_buffer all_data = { 0 };
 	struct upload_buffer upload_data;
@@ -248,13 +248,8 @@ static json_value *curl_json_rpc(YAAMP_RPC *rpc, const char *url, const char *rp
 		curl_easy_setopt(curl, CURLOPT_PROXYTYPE, opt_proxy_type);
 	}
 
-#if 0
-	curl_easy_setopt(curl, CURLOPT_USERPWD, rpc->credential);
-	curl_easy_setopt(curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-#else
 	// Encoded login/pass
-	sprintf(auth_hdr, "Authorization: Basic %s", rpc->credential);
-#endif
+	snprintf(auth_hdr, sizeof(auth_hdr), "Authorization: Basic %s", rpc->credential);
 
 #if LIBCURL_VERSION_NUM >= 0x070f06
 	if (keepalive)

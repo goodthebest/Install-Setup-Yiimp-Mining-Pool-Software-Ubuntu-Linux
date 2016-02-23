@@ -266,15 +266,16 @@ bool client_update_block(YAAMP_CLIENT *client, json_value *json_params)
 	YAAMP_COIND *coind = (YAAMP_COIND *)object_find(&g_list_coind, json_params->u.array.values[1]->u.integer, true);
 	if(!coind) return false;
 
+	const char* hash = json_params->u.array.values[2]->u.string.ptr;
+
 #ifdef CLIENT_DEBUGLOG_
-	debuglog("new block for %s ", coind->name);
-	debuglog("%s\n", json_params->u.array.values[2]->u.string.ptr);
+	debuglog("notify: new %s block %s\n", coind->symbol, hash);
 #endif
 
 	coind->newblock = true;
 	coind->notreportingcounter = 0;
 
-	block_confirm(coind->id, json_params->u.array.values[2]->u.string.ptr);
+	block_confirm(coind->id, hash);
 
 	coind_create_job(coind);
 	object_unlock(coind);

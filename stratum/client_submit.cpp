@@ -227,7 +227,9 @@ void client_do_submit(YAAMP_CLIENT *client, YAAMP_JOB *job, YAAMP_JOB_VALUES *su
 		bool b = coind_submit(coind, block_hex);
 		if(b)
 		{
-			debuglog("*** ACCEPTED %s %d\n", coind->name, templ->height);
+			debuglog("*** ACCEPTED %s %d (diff %g) by %s (id: %d)\n", coind->name, templ->height,
+				target_to_diff(hash_int), client->sock->ip, client->userid);
+
 			job->block_found = true;
 
 			char doublehash2[128];
