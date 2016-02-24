@@ -23,6 +23,7 @@ function yaamp_get_algos()
 		'c11',
 		'x11',
 		'x13',
+		'x14',
 		'x15',
 		'groestl', // dmd-gr -m 256 (deprecated)
 		'dmd-gr',
