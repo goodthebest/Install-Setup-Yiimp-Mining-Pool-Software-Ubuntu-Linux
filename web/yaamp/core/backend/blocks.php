@@ -85,6 +85,11 @@ function BackendBlockFind1()
 			debuglog("{$coin->symbol} orphan {$db_block->height} after ".(time() - $db_block->time)." seconds");
 			continue;
 		}
+		else if ($coin->rpcencoding == 'POS' && arraySafeVal($block,'nonce') == 0) {
+			$db_block->category = 'stake';
+			$db_block->save();
+			continue;
+		}
 
 		$tx = $remote->gettransaction($block['tx'][0]);
 		if(!$tx || !isset($tx['details']) || !isset($tx['details'][0]))
@@ -93,6 +98,7 @@ function BackendBlockFind1()
 			$db_block->save();
 			continue;
 		}
+
 
 		$db_block->txhash = $block['tx'][0];
 		$db_block->category = 'immature';						//$tx['details'][0]['category'];
@@ -114,7 +120,7 @@ function BackendBlocksUpdate()
 //	debuglog(__METHOD__);
 	$t1 = microtime(true);
 
-	$list = getdbolist('db_blocks', "category='immature' order by time");
+	$list = getdbolist('db_blocks', "category IN ('immature','stake') order by time");
 	foreach($list as $block)
 	{
 		$coin = getdbo('db_coins', $block->coin_id);
@@ -128,6 +134,12 @@ function BackendBlocksUpdate()
 		if(empty($block->txhash))
 		{
 			$blockext = $remote->getblock($block->blockhash);
+
+			if ($coin->rpcencoding == 'POS' && arraySafeVal($blockext,'nonce') == 0) {
+				$block->category = 'stake';
+				$block->save();
+			}
+
 			if(!$blockext || !isset($blockext['tx'][0])) continue;
 
 			$block->txhash = $blockext['tx'][0];
@@ -138,23 +150,37 @@ function BackendBlocksUpdate()
 
 		$block->confirmations = $tx['confirmations'];
 
+		$category = $block->category;
 		if($block->confirmations == -1) {
-			$block->category = 'orphan';
+			$category = 'orphan';
 			$block->amount = 0;
 		}
 
 		else if(isset($tx['details']) && isset($tx['details'][0]))
-			$block->category = $tx['details'][0]['category'];
+			$category = $tx['details'][0]['category'];
 
 		else if(isset($tx['category']))
-			$block->category = $tx['category'];
+			$category = $tx['category'];
 
+		// PoS blocks
+		if ($block->category == 'stake') {
+			if ($category == 'generate') {
+				$block->category = 'generated';
+			} else if ($category == 'orphan') {
+				$block->category = 'orphan';
+			}
+			$block->save();
+			continue;
+		}
+
+		// PoW blocks
+		$block->category = $category;
 		$block->save();
 
-		if($block->category == 'generate')
+		if($category == 'generate')
 			dborun("update earnings set status=1, mature_time=UNIX_TIMESTAMP() where blockid=$block->id");
 
-		else if($block->category != 'immature')
+		else if($category != 'immature')
 			dborun("delete from earnings where blockid=$block->id");
 	}
 

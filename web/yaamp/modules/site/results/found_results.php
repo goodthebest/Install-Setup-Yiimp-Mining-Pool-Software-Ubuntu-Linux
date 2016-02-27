@@ -21,7 +21,8 @@ if($algo == 'all')
 else {
 //	$db_blocks = getdbolist('db_blocks', "algo=:algo ORDER BY time DESC LIMIT :count", array(':algo'=>$algo, ':count'=>$count));
 	$criteria = new CDbCriteria();
-	$criteria->condition = 'blocks.algo=:algo AND IFNULL(coin.visible,1)=1'; // ifnull for rental
+	$criteria->condition = "blocks.algo=:algo AND IFNULL(coin.visible,1)=1"; // ifnull for rental
+	$criteria->condition .= " AND blocks.category NOT IN ('stake','generated')";
 	$criteria->params = array(':algo'=>$algo);
 	$criteria->limit = $count;
 	$criteria->order = 'blocks.time DESC';

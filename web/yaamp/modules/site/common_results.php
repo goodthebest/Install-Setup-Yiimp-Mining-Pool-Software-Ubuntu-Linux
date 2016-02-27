@@ -527,16 +527,22 @@ foreach($db_blocks as $db_block)
 	echo '<td align="right" style="font-size: .8em">';
 
 	if($db_block->category == 'orphan')
-		echo '<span style="padding: 2px; color: white; background-color: #d9534f;">Orphan</span>';
+		echo '<span class="block orphan" style="padding: 2px; color: white; background-color: #d9534f;">Orphan</span>';
 
 	else if($db_block->category == 'immature')
-		echo '<span style="padding: 2px; color: white; background-color: #f0ad4e">Immature ('.$db_block->confirmations.')</span>';
+		echo '<span class="block immature" style="padding: 2px; color: white; background-color: #f0ad4e">Immature ('.$db_block->confirmations.')</span>';
+
+	else if($db_block->category == 'stake')
+		echo '<span class="block stake" style="padding: 2px; color: white; background-color: #a0a0a0">Stake ('.$db_block->confirmations.')</span>';
+
+	else if($db_block->category == 'generated')
+		echo '<span class="block staked" style="padding: 2px; color: white; background-color: #a0a0a0">Confirmed</span>';
 
 	else if($db_block->category == 'generate')
-		echo '<span style="padding: 2px; color: white; background-color: #5cb85c">Confirmed</span>';
+		echo '<span class="block generate" style="padding: 2px; color: white; background-color: #5cb85c">Confirmed</span>';
 
 	else if($db_block->category == 'new')
-		echo '<span style="padding: 2px; color: white; background-color: #ad4ef0">New</span>';
+		echo '<span class="block new" style="padding: 2px; color: white; background-color: #ad4ef0">New</span>';
 
 	echo '</td>';
 	echo '</tr>';

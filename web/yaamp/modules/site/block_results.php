@@ -56,6 +56,9 @@ foreach($db_blocks as $db_block)
 	$coin = getdbo('db_coins', $db_block->coin_id);
 	if(!$coin) continue;
 
+	if($db_block->category == 'stake' && !$this->admin) continue;
+	if($db_block->category == 'generated' && !$this->admin) continue; // mature stake income
+
 //	$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
 
 // 	$blockext = $remote->getblock($db_block->blockhash);
@@ -96,10 +99,16 @@ foreach($db_blocks as $db_block)
 		echo "Orphan";
 
 	else if($db_block->category == 'immature')
-		echo "Immature ($db_block->confirmations)";
+		echo "Immature ({$db_block->confirmations})";
 
 	else if($db_block->category == 'generate')
 		echo 'Confirmed';
+
+	else if($db_block->category == 'stake')
+		echo "Stake ({$db_block->confirmations})";
+
+	else if($db_block->category == 'generated')
+		echo 'Stake';
 
 	echo "</td>";
 

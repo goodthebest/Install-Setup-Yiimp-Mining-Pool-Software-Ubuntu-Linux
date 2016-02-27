@@ -130,7 +130,7 @@ if($coin->enable)
 else
 	echo "<td>[&nbsp;&nbsp;&nbsp;&nbsp;]</td>";
 
-echo '<td><b><a href="/site/coin?id='.$coin->id.'">'.$coin->name.'</a></b></td>';
+echo '<td><b><a href="/site/block?id='.$coin->id.'">'.$coin->name.'</a></b></td>';
 echo '<td width="60"><b>'.$coin->symbol.'</b></td>';
 echo '<td>'.$coin->algo.'</td>';
 
