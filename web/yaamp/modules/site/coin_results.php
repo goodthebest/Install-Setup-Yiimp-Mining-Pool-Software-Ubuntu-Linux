@@ -11,7 +11,6 @@ $reserved1 = dboscalar("select sum(balance) from accounts where coinid=$coin->id
 $reserved2 = dboscalar("select sum(amount*price) from earnings
 	where status!=2 and userid in (select id from accounts where coinid=$coin->id)");
 
-$reserved = bitcoinvaluetoa(($reserved1 + $reserved2) * 2);
 $reserved1 = altcoinvaluetoa($reserved1);
 $reserved2 = bitcoinvaluetoa($reserved2);
 $balance = altcoinvaluetoa($coin->balance);
@@ -19,8 +18,10 @@ $balance = altcoinvaluetoa($coin->balance);
 $owed = dboscalar("select sum(amount) from earnings where status!=2 and coinid=$coin->id");
 $owed_btc = $owed? bitcoinvaluetoa($owed*$coin->price): '';
 $owed = $owed? altcoinvaluetoa($owed): '';
+$symbol = $coin->symbol;
+if (!empty($coin->officialsymbol)) $symbol = $coin->officialsymbol;
 
-echo "cleared $reserved1, earnings $reserved2, reserved $reserved, balance $balance, owed $owed, owned btc $owed_btc<br><br>";
+echo "Earnings $reserved2 BTC, balance (db) $balance $symbol, owed $owed $symbol ($owed_btc BTC), $reserved1 $symbol cleared<br/><br/>";
 
 //////////////////////////////////////////////////////////////////////////////////////
 

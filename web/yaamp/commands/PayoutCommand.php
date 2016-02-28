@@ -109,7 +109,7 @@ class PayoutCommand extends CConsoleCommand
 			'order'=>'time DESC',
 		));
 
-		if (empty($payouts))
+		if (empty($payouts) || empty($ids))
 			return 0;
 
 		$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
