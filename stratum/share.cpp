@@ -220,13 +220,14 @@ void block_add(int userid, int coinid, int height, double difficulty, double dif
 void block_confirm(int coinid, const char *hash)
 {
 	if(strlen(hash) > 65) return;
+
 	for(CLI li = g_list_block.first; li; li = li->next)
 	{
 		YAAMP_BLOCK *block = (YAAMP_BLOCK *)li->data;
 		if(block->coinid == coinid)
 		{
 			if(strcmp(block->hash1, hash) && strcmp(block->hash2, hash)) continue;
-			debuglog("*** CONFIRMED %d\n", block->height);
+			debuglog("*** CONFIRMED %d : %s\n", block->height, block->hash2);
 
 			strncpy(block->hash, hash, 65);
 			block->confirmed = true;
