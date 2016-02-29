@@ -19,8 +19,9 @@ $owed = dboscalar("select sum(amount) from earnings where status!=2 and coinid=$
 $owed_btc = $owed? bitcoinvaluetoa($owed*$coin->price): '';
 $owed = $owed? altcoinvaluetoa($owed): '';
 $symbol = $coin->symbol;
-if (!empty($coin->officialsymbol)) $symbol = $coin->officialsymbol;
+if (!empty($coin->symbol2)) $symbol = $coin->symbol2;
 
+echo "<br/>";
 echo "Earnings $reserved2 BTC, balance (db) $balance $symbol, owed $owed $symbol ($owed_btc BTC), $reserved1 $symbol cleared<br/><br/>";
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -82,7 +83,7 @@ foreach($list as $market)
 		echo ' '.$market->deposit_address;
 	}
 	echo ' <a href="/market/update?id='.$market->id.'">edit</a>';
-	echo ' <a style="color:darkred" href="/market/delete?id='.$market->id.'">delete</a>';
+	echo ' <a style="color:darkred" title="Remove this market" href="/market/delete?id='.$market->id.'">x</a>';
 	echo '</td>';
 
 	echo "<td>$market->message</td>";
@@ -176,6 +177,9 @@ echo '<br>';
 
 //////////////////////////////////////////////////////////////////////////////////////
 
+$maxrows = arraySafeVal($_GET,'rows', 15);
+$maxrows = min($maxrows, 2500);
+
 echo <<<end
 <style type="text/css">
 tr.ssrow.orphan { color: darkred; }
@@ -226,29 +230,47 @@ if (!empty($txs)) {
 			$txs_array[] = $tx;
 	}
 
-	if ($coin->symbol == 'DCR')
-		ksort($txs_array); // reversed order
-	else
-		krsort($txs_array);
+	krsort($txs_array);
+}
+
+// filter useless decred spent transactions
+if ($coin->symbol == 'DCR') {
+	$prev_tx = array(); $lastday = '';
+	foreach($txs_array as $key => $tx)
+	{
+		$prev_txid = arraySafeVal($prev_tx,"txid");
+		$category = $tx['category'];
+		if ($category == 'send' && arraySafeVal($tx,'generated')) {
+			$txs_array[$key]['category'] = 'spent';
+		}
+		else if ($category == 'send' && $prev_txid === arraySafeVal($tx,"txid")) {
+			// if txid is the same as the last income... it's not a real "send"
+			if ($prev_tx['amount'] == 0 - $tx['amount'])
+				$txs_array[$key]['category'] = 'spent';
+		}
+		else if ($category == 'receive') {
+			$prev_tx = $tx;
+		}
+		// for truncated day sums
+		if ($lastday == '' && count($txs) == 2500)
+			$lastday = strftime('%F', $tx['time']);
+	}
+	ksort($txs_array); // reversed order
 }
 
 $rows = 0;
 foreach($txs_array as $tx)
 {
+	$category = $tx['category'];
+	if ($category == 'spent') continue;
+
 	$block = null;
 	if(isset($tx['blockhash']))
 		$block = $remote->getblock($tx['blockhash']);
 
-	$d = datetoa2($tx['time']);
-	$category = $tx['category'];
-
-	if ($coin->symbol == 'DCR') {
-		// ignore "spent" blocks...
-		if ($category == 'send' && arraySafeVal($tx,'generated'))
-			continue;
-	}
-
 	echo '<tr class="ssrow '.$category.'">';
+
+	$d = datetoa2($tx['time']);
 	echo '<td><b>'.$d.'</b></td>';
 
 	echo '<td>'.$category.'</td>';
@@ -268,27 +290,28 @@ foreach($txs_array as $tx)
 	if(isset($tx['address']))
 	{
 		$address = $tx['address'];
-		echo $address.'<br>';
+		$exists = dboscalar("SELECT count(*) AS nb FROM accounts WHERE username=:address", array(':address'=>$address));
+		if ($exists)
+			echo CHtml::link($address, '/?address='.$address);
+		else
+			echo $address.'<br>';
 	}
 	echo '</td>';
 
 	echo '<td>';
-	if(!empty($block)) foreach($block['tx'] as $i => $txid) {
+	if(!empty($block)) {
+
+		$txid = arraySafeVal($tx, 'txid');
 		$label = substr($txid, 0, 7);
 		echo CHtml::link($label, '/explorer?id='.$coin->id.'&txid='.$txid, array('target'=>'_blank'));
-		if (count($block['tx']) > 5) {
-			echo '&nbsp;('.count($block['tx']).')';
-			break;
-		} else {
-			echo '&nbsp;';
-		}
+		echo '&nbsp;('.count($block['tx']).')';
 	}
 	echo '</td>';
 
 	echo '</tr>';
 
 	$rows++;
-	if ($rows > 15) break;
+	if ($rows > $maxrows) break;
 }
 
 echo '</tbody></table>';
@@ -314,7 +337,10 @@ foreach($txs_array as $tx)
 	$day = strftime('%F', $tx['time']); // YYYY-MM-DD
 	if ($day == $lastday) break; // do not show truncated days
 
-	$key = $day.' '.$tx['category'];
+	$category = $tx['category'];
+	if ($category == 'spent') continue;
+
+	$key = $day.' '.$category;
 	$sums[$key] = arraySafeVal($sums, $key) + $tx['amount'];
 }
 

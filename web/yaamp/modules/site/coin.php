@@ -1,6 +1,7 @@
 <?php
 
 $id = getiparam('id');
+$maxrows = arraySafeVal($_REQUEST,'rows',15);
 $coin = getdbo('db_coins', $id);
 if (!$coin) {
 	$this->goback();
@@ -41,7 +42,14 @@ if(!empty($coin->link_github))
 
 echo "<a href='http://google.com/search?q=$coin->name%20$coin->symbol%20bitcointalk' target=_blank>google</a> ";
 
-echo "<br><div id='main_results'></div>";
+echo '<br><div id="main_results"></div>';
+
+echo '<br><div id="main_actions" style="margin-top: 8px;">';
+
+// todo: use router createUrl
+$url = '/site/coin?id='.$coin->id.'&rows='.($maxrows*2);
+$moreurl = CHtml::link('Click here to show more transactions...', $url);
+echo "{$moreurl}<br/>";
 
 /* 
 echo "<br><a href='/site/makeconfigfile?id=$coin->id'><b>MAKE CONFIG & START</b></a>";
@@ -76,6 +84,8 @@ echo <<<END
 <br><br><br><br><br><br><br><br><br><br>
 <br><br><br><br><br><br><br><br><br><br>
 
+</div>
+
 <script>
 
 function uninstall_coin()
@@ -91,7 +101,7 @@ var main_timeout;
 
 function main_refresh()
 {
-	var url = "/site/coin_results?id={$id}";
+	var url = "/site/coin_results?id={$id}&rows={$maxrows}";
 
 	clearTimeout(main_timeout);
 	$.get(url, '', main_ready).error(main_error);
