@@ -17,6 +17,7 @@ echo <<<end
 tr.ssrow.filtered { display: none; }
 .currency { width: 120px; max-width: 180px; text-align: right; }
 .red { color: darkred; }
+.actions { width: 120px; text-align: center; }
 </style>
 end;
 
@@ -55,7 +56,7 @@ echo <<<end
 <th class="currency">Balance</th>
 <th class="currency">Immature</th>
 <th class="currency">Failed</th>
-<th></th>
+<th class="actions">Actions</th>
 </tr>
 </thead><tbody>
 end;
@@ -109,7 +110,10 @@ foreach($list as $user)
 	$failbalance = $failbalance ? bitcoinvaluetoa($failbalance) : '-';
 	echo '<td class="currency red">'.$failbalance.'</td>';
 
-	echo '<td class="action"></td>';
+	echo '<td class="actions">';
+	if ($failbalance != '-')
+		echo '<a href="/site/cancelUserPayment?id='.$user->id.'">[add to balance]</a>';
+	echo '</td>';
 
 	echo "</tr>";
 }

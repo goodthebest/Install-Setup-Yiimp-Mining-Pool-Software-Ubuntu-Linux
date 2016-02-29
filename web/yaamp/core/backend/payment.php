@@ -9,6 +9,26 @@ function BackendPayments()
 	dborun("update accounts set balance=0 where coinid=0");
 }
 
+function BackendUserCancelFailedPayment($userid)
+{
+	$user = getdbo('db_accounts', intval($userid));
+	if(!$user) return false;
+
+	$amount_failed = 0.0;
+	$failed = getdbolist('db_payouts', "account_id=:uid AND IFNULL(tx,'') = ''", array(':uid'=>$user->id));
+	if (!empty($failed)) {
+		foreach ($failed as $payout) {
+			$amount_failed += floatval($payout->amount);
+			$payout->delete();
+		}
+		$user->balance += $amount_failed;
+		$user->save();
+		return $amount_failed;
+	}
+
+	return 0.0;
+}
+
 function BackendCoinPayments($coin)
 {
 //	debuglog("BackendCoinPayments $coin->symbol");

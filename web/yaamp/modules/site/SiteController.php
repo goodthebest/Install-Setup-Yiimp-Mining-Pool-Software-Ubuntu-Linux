@@ -308,6 +308,18 @@ class SiteController extends CommonController
 		$this->renderPartial('payments_results');
 	}
 
+	public function actionCancelUserPayment()
+	{
+		if(!$this->admin) return;
+		$user = getdbo('db_accounts', getiparam('id'));
+		if (!$user) {
+			$this->goback();
+			return;
+		}
+		BackendUserCancelFailedPayment($user->id);
+		$this->render('payments');
+	}
+
 	/////////////////////////////////////////////////
 
 	public function actionUser()
