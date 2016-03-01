@@ -7,6 +7,7 @@ function BackendUsersUpdate()
 	$list = getdbolist('db_accounts', "coinid IS NULL OR IFNULL(coinsymbol,'') != ''");
 	foreach($list as $user)
 	{
+		$old_usercoinid = $user->coinid;
 	//	debuglog("testing user $user->username, $user->coinsymbol");
 		if(!empty($user->coinsymbol))
 		{
@@ -24,8 +25,9 @@ function BackendUsersUpdate()
 				$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
 
 				$b = $remote->validateaddress($user->username);
-				if($b && isset($b['isvalid']) && $b['isvalid'])
+				if(arraySafeVal($b,'isvalid'))
 				{
+					$old_balance = $user->balance;
 					if($user->balance > 0)
 					{
 						$coinref = getdbo('db_coins', $user->coinid);
@@ -36,13 +38,13 @@ function BackendUsersUpdate()
 								continue;
 						}
 
-						$user->balance = $user->balance*$coinref->price/$coin->price;
+						$user->balance = $user->balance * $coinref->price / $coin->price;
 					}
 
 					$user->coinid = $coin->id;
 					$user->save();
 
-					debuglog("$user->username set to $coin->symbol, balance $user->balance");
+					debuglog("{$user->username} converted to {$user->balance} {$coin->symbol} (old: $old_balance)");
 					continue;
 				}
 			}
@@ -50,23 +52,25 @@ function BackendUsersUpdate()
 
 		$user->coinid = 0;
 
-		$coins = getdbolist('db_coins', "enable ORDER BY difficulty DESC");
+		$order = YAAMP_ALLOW_EXCHANGE ? "difficulty" : "id";
+		$coins = getdbolist('db_coins', "enable ORDER BY $order DESC");
 		foreach($coins as $coin)
 		{
 			$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
 
 			$b = $remote->validateaddress($user->username);
-			if(!$b || !isset($b['isvalid']) || !$b['isvalid']) continue;
+			if(!arraySafeVal($b,'isvalid')) continue;
 
-			$user->balance = 0;
+			if ($old_usercoinid && $old_usercoinid != $coin->id) {
+				debuglog("{$user->username} set to {$coin->symbol}, balance {$user->balance} reset to 0");
+				$user->balance = 0;
+			}
 			$user->coinid = $coin->id;
-
-			debuglog("$user->username set to $coin->symbol, balance $user->balance");
 			break;
 		}
 
 		if (empty($user->coinid)) {
-			debuglog("$user->username is an unknown address!");
+			debuglog("{$user->username} is an unknown address!");
 		}
 
 		$user->save();

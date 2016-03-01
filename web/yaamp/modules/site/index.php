@@ -56,15 +56,15 @@ $min_sunday = $min_payout/10;
 
 <li>
 <p class="main-left-box" style='padding: 3px; font-size: .8em; background-color: #ffffee; font-family: monospace;'>
-	-o stratum+tcp://<?= YAAMP_SITE_URL ?>:PORT -u WALLET_ADDRESS -p xx</p>
+	-o stratum+tcp://<?= YAAMP_SITE_URL ?>:&lt;PORT&gt; -u &lt;WALLET_ADDRESS&gt; [-p &lt;OPTIONS&gt;]</p>
 </li>
 
 <?php if (YAAMP_ALLOW_EXCHANGE): ?>
-<li>WALLET_ADDRESS can be of any currency we mine or a BTC address.</li>
+<li>&lt;WALLET_ADDRESS&gt; can be one of any currency we mine or a BTC address.</li>
 <?php else: ?>
-<li>WALLET_ADDRESS should be the currency you mine. DO NOT USE any BTC address here, <b>the auto exchange is disabled</b>!</li>
+<li>&lt;WALLET_ADDRESS&gt; should be valid for the currency you mine. <b>DO NOT USE a BTC address here, the auto exchange is disabled</b>!</li>
 <?php endif; ?>
-<li>Use -p "c=SYMBOL" if yiimp does not recognize the currency correctly.</li>
+<li>As optional password, you can use <b>-p c=&lt;SYMBOL&gt;</b> if yiimp does not set the currency correctly on the Wallet page.</li>
 <li>See the "Pool Status" area on the right for PORT numbers. Algorithms without associated coins are disabled.</li>
 
 <br>
