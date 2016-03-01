@@ -22,7 +22,9 @@ $symbol = $coin->symbol;
 if (!empty($coin->symbol2)) $symbol = $coin->symbol2;
 
 echo "<br/>";
-echo "Earnings $reserved2 BTC, balance (db) $balance $symbol, owed $owed $symbol ($owed_btc BTC), $reserved1 $symbol cleared<br/><br/>";
+echo "Earnings $reserved2 BTC, balance (db) $balance $symbol";
+if ($owed) echo ", owed $owed $symbol ($owed_btc BTC)";
+echo ", $reserved1 $symbol cleared<br/><br/>";
 
 //////////////////////////////////////////////////////////////////////////////////////
 
@@ -149,7 +151,7 @@ $txfee = isset($info['paytxfee'])? $info['paytxfee']: '';
 $connections = isset($info['connections'])? $info['connections']: '';
 $blocks = isset($info['blocks'])? $info['blocks']: '';
 
-echo '<td>'.$coin->difficulty.'</td>';
+echo '<td>'.round_difficulty($coin->difficulty).'</td>';
 if(!empty($errors))
 	echo "<td style='color: red;' title='$errors'>$blocks</td>";
 else
@@ -177,6 +179,9 @@ echo '<br>';
 
 //////////////////////////////////////////////////////////////////////////////////////
 
+// last week
+$list_since = arraySafeVal($_GET,'since',time()-(7*24*3600));
+
 $maxrows = arraySafeVal($_GET,'rows', 15);
 $maxrows = min($maxrows, 2500);
 
@@ -199,9 +204,6 @@ tr.ssrow.orphan { color: darkred; }
 </tr>
 </thead><tbody>
 end;
-
-// last week
-$list_since = time()-(7*24*3600);
 
 $account = '';
 if ($coin->symbol == 'DCR') $account = '*';
@@ -277,7 +279,7 @@ foreach($txs_array as $tx)
 	echo '<td>'.$tx['amount'].'</td>';
 
 	if($block) {
-		echo '<td>'.$block['height'].'</td><td>'.$block['difficulty'].'</td>';
+		echo '<td>'.$block['height'].'</td><td>'.round_difficulty($block['difficulty']).'</td>';
 	} else
 		echo '<td></td><td></td>';
 
@@ -311,7 +313,7 @@ foreach($txs_array as $tx)
 	echo '</tr>';
 
 	$rows++;
-	if ($rows > $maxrows) break;
+	if ($rows >= $maxrows) break;
 }
 
 echo '</tbody></table>';

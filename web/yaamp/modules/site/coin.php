@@ -2,6 +2,7 @@
 
 $id = getiparam('id');
 $maxrows = arraySafeVal($_REQUEST,'rows',15);
+$since = arraySafeVal($_REQUEST,'since',time()-(7*24*3600));
 $coin = getdbo('db_coins', $id);
 if (!$coin) {
 	$this->goback();
@@ -47,7 +48,7 @@ echo '<br><div id="main_results"></div>';
 echo '<br><div id="main_actions" style="margin-top: 8px;">';
 
 // todo: use router createUrl
-$url = '/site/coin?id='.$coin->id.'&rows='.($maxrows*2);
+$url = '/site/coin?id='.$coin->id.'&since='.(time()-31*24*3600).'&rows='.($maxrows*2);
 $moreurl = CHtml::link('Click here to show more transactions...', $url);
 echo "{$moreurl}<br/>";
 
@@ -82,7 +83,6 @@ echo <<<END
 <br><br><br><br><br><br><br><br><br><br>
 <br><br><br><br><br><br><br><br><br><br>
 <br><br><br><br><br><br><br><br><br><br>
-<br><br><br><br><br><br><br><br><br><br>
 
 </div>
 
@@ -101,7 +101,7 @@ var main_timeout;
 
 function main_refresh()
 {
-	var url = "/site/coin_results?id={$id}&rows={$maxrows}";
+	var url = "/site/coin_results?id={$id}&rows={$maxrows}&since={$since}";
 
 	clearTimeout(main_timeout);
 	$.get(url, '', main_ready).error(main_error);
@@ -111,6 +111,10 @@ function main_ready(data)
 {
 	$('#main_results').html(data);
 	main_timeout = setTimeout(main_refresh, main_delay);
+	var sumHeight = 0 + $('#sums').height();
+	if ($('#main_actions').height() < sumHeight) {
+		$('#main_actions').height(sumHeight);
+	}
 }
 
 function main_error()
