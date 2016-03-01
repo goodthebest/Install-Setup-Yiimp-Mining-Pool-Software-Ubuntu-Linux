@@ -43,7 +43,8 @@ td.orphan { color: darkred; }
 <th>Amount</th>
 <th>Status</th>
 <th>Difficulty</th>
-<th>Found Diff</th>
+<th>Share Diff</th>
+<th>Finder</th>
 <th>Blockhash</th>
 </tr>
 </thead><tbody>
@@ -112,9 +113,18 @@ foreach($db_blocks as $db_block)
 
 	echo "</td>";
 
-	echo "<td>$db_block->difficulty</td>";
-	echo "<td>$db_block->difficulty_user</td>";
+	echo '<td>'.round_difficulty($db_block->difficulty).'</td>';
+	$diff_user = $db_block->difficulty_user;
+	if (!$diff_user && substr($db_block->blockhash,0,4) == '0000')
+		$diff_user = hash_to_difficulty($coin, $db_block->blockhash);
+	echo '<td>'.round_difficulty($diff_user).'</td>';
 
+	$finder = '';
+	if (!empty($db_block->userid)) {
+		$user = getdbo('db_accounts', $db_block->userid);
+		$finder = $user ? substr($user->username, 0, 7).'...' : '';
+	}
+	echo '<td>'.$finder.'</td>';
 	echo '<td style="font-size: .8em; font-family: monospace;">';
 	if (YIIMP_PUBLIC_EXPLORER)
 		echo '<a href="/explorer?id='.$coin->id.'&hash='.$db_block->blockhash.'">'.$db_block->blockhash.'</a>';

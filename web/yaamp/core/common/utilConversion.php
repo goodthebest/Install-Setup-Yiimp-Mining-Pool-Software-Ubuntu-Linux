@@ -1,11 +1,18 @@
 <?php
 
+function round_difficulty($diff)
+{
+	// only keep 8/9 significant numbers
+	$sigdigits = 8;
+	return round($diff, ceil(0 - log10($diff)) + $sigdigits);
+}
+
 function target_to_diff($target)
 {
 	if(!$target) return 0;
 
-	$d = 0x0000ffff00000000/$target;
-	return $d;
+	$d = (double) 0x0000ffff00000000/$target;
+	return round_difficulty($d);
 }
 
 function decode_compact($input)
@@ -29,6 +36,22 @@ function decode_compact($input)
 
 	$v = 0x0000ffff00000000/$d;
 	return $v;
+}
+
+function hash_to_difficulty($coin, $hash)
+{
+	$target = (double) 0.;
+	$bin = pack('H*', $hash);
+	// direct 'P' (uint64) type requires PHP 5.6.3
+	$bytes = unpack('C*', $bin);
+	// 00000000660556fdc8eabd080369...;
+	// zeros on the left, and we ignore the 2 first bytes (0000)
+	$oft = 2 + 1; // $bytes keys start at offset 1
+	for ($i=0; $i<8; $i++) {
+		$target += $bytes[$oft+$i] << ((7-$i)*8);
+	}
+
+	return target_to_diff($target);
 }
 
 function htoi($s)
@@ -65,6 +88,8 @@ function htoi($s)
 
 	return $val;
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////
 
 function GetMonthString($n)
 {
@@ -201,6 +226,8 @@ function sectoa2($i)
 
 	return $res;
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////
 
 function Itoa($i)
 {

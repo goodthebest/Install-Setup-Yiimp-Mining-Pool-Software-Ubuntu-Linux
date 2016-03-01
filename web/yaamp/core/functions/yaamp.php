@@ -461,7 +461,6 @@ function yaamp_renter_account($renter)
 		return "renter-dev-$renter->id";
 }
 
-
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 function getAdminSideBarLinks()

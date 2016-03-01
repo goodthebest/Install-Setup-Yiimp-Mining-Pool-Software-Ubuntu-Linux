@@ -234,6 +234,9 @@ function BackendBlockFind2()
 			$db_block->amount = $transaction['amount'];
 			$db_block->algo = $coin->algo;
 
+			if (arraySafeVal($transaction,'nonce',0) != 0)
+				$db_block->difficulty_user = hash_to_difficulty($coin, $transaction['blockhash']);
+
 			// masternode earnings...
 			if ($transaction['amount'] == 0 && $transaction['generated']) {
 				$db_block->algo = 'MN';
