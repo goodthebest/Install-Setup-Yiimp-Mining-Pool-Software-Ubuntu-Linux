@@ -1,8 +1,14 @@
 <?php
 echo getAdminSideBarLinks();
+
+$coin_id = getiparam('id');
+if ($coin_id) {
+	$coin = getdbo('db_coins', $coin_id);
+	$this->pageTitle = 'Payments - '.$coin->symbol;
+}
 ?>
 
-<div id='main_results'></div>
+<div id="main_results"></div>
 
 <br><br><br><br><br><br><br><br><br><br>
 <br><br><br><br><br><br><br><br><br><br>
@@ -32,7 +38,7 @@ function main_error()
 
 function main_refresh()
 {
-	var url = "/site/payments_results";
+	var url = '/site/payments_results?id=<?= $coin_id ?>';
 
 	clearTimeout(main_timeout);
 	$.get(url, '', main_ready).error(main_error);

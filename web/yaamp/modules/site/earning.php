@@ -1,5 +1,11 @@
 <?php
 echo getAdminSideBarLinks();
+
+$coin_id = getiparam('id');
+if ($coin_id) {
+	$coin = getdbo('db_coins', $coin_id);
+	$this->pageTitle = 'Earnings - '.$coin->symbol;
+}
 ?>
 
 <div id='main_results'></div>
@@ -32,7 +38,7 @@ function main_error()
 
 function main_refresh()
 {
-	var url = "/site/earning_results";
+	var url = '/site/earning_results?id=<?= $coin_id ?>';
 
 	clearTimeout(main_timeout);
 	$.get(url, '', main_ready).error(main_error);

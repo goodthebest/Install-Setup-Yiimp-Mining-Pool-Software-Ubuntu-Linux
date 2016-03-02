@@ -9,8 +9,16 @@ echo <<<end
 </div>
 <style type="text/css">
 tr.ssrow.filtered { display: none; }
+table.totals { margin-top: 8px; margin-right: 16px; }
+table.totals th { text-align: left; width: 100px; }
+table.totals td { text-align: right; }
+table.totals tr.red td { color: darkred; }
 </style>
 end;
+
+$coin_id = getiparam('id');
+
+$saveSort = $coin_id ? 'false' : 'true';
 
 showTableSorter('maintable', "{
 	tableClass: 'dataGrid',
@@ -19,15 +27,16 @@ showTableSorter('maintable', "{
 		1:{sorter:'text'},
 		2:{sorter:'text'},
 		3:{sorter:'currency'},
-		4:{sorter:'numeric'},
-		5:{sorter:'metadata'},
+		4:{sorter:'currency'},
+		5:{sorter:'numeric'},
 		6:{sorter:'metadata'},
-		7:{sorter:false}
+		7:{sorter:'metadata'},
+		8:{sorter:false}
 	},
 	widgets: ['zebra','filter','Storage','saveSort'],
 	widgetOptions: {
-		saveSort: true,
-		filter_saveFilters: true,
+		saveSort: {$saveSort},
+		filter_saveFilters: {$saveSort},
 		filter_external: '.search',
 		filter_columnFilters: false,
 		filter_childRows : true,
@@ -35,22 +44,28 @@ showTableSorter('maintable', "{
 	}
 }");
 
-echo "<thead>";
-echo "<tr>";
-echo "<th width=20></th>";
-echo "<th>Coin</th>";
-echo "<th>Wallet</th>";
-//echo "<th>Status</th>";
-//echo "<th>Amount</th>";
-echo "<th>Quantity</th>";
-echo "<th>Block</th>";
-echo "<th>Status</th>";
-echo "<th>Sent</th>";
-echo "<th></th>";
-echo "</tr>";
-echo "</thead><tbody>";
+echo <<<end
+<thead>
+<tr>
+<th width="20"></th>
+<th>Coin</th>
+<th>Address</th>
+<th class="currency">Quantity</th>
+<th class="currency">BTC</th>
+<th>Block</th>
+<th>Status</th>
+<th>Sent</th>
+<th></th>
+</tr>
+</thead><tbody>
+end;
 
-$earnings = getdbolist('db_earnings', "status!=2 ORDER BY create_time DESC LIMIT 500");
+$coin_id = getiparam('id');
+$sqlFilter = $coin_id ? "AND coinid={$coin_id}": '';
+
+$earnings = getdbolist('db_earnings', "status!=2 $sqlFilter ORDER BY create_time DESC LIMIT 1000");
+
+$total = 0.; $total_btc = 0.; $totalimmat = 0.; $totalfees = 0.; $totalstake = 0.;
 
 foreach($earnings as $earning)
 {
@@ -76,6 +91,7 @@ foreach($earnings as $earning)
 	echo "<td><b>$coinlink</b>&nbsp;($coin->symbol_show)</td>";
 	echo '<td><b><a href="/?address='.$user->username.'">'.$user->username.'</a></b></td>';
 	echo '<td>'.bitcoinvaluetoa($earning->amount).'</td>';
+	echo '<td>'.bitcoinvaluetoa($earning->amount * $earning->price).'</td>';
 	echo "<td>$block->height</td>";
 	echo "<td>$block->category ($block->confirmations)</td>";
 	echo '<td data="'.$earning->create_time.'">'."$t1 $t2</td>";
@@ -94,8 +110,39 @@ foreach($earnings as $earning)
 // 		$earning->mature_time = time()-100*60;
 // 		$earning->save();
 // 	}
+
+	if($block->category == 'immature') {
+		$total += (double) $earning->amount;
+		$total_btc += (double) $earning->amount * $earning->price;
+		$totalimmat += (double) $earning->amount;
+	}
+	if($block->category == 'generate') {
+		$total += (double) $earning->amount; // "Exchange" state
+		$total_btc += (double) $earning->amount * $earning->price;
+	}
+	else if($block->category == 'stake' || $block->category == 'generated') {
+		$totalstake += (double) $earning->amount;
+	}
 }
 
 echo "</tbody></table>";
 
+if ($coin_id) {
+	$coin = getdbo('db_coins', $coin_id);
+	if (!$coin) exit;
+	$symbol = $coin->symbol;
+	$feepct = yaamp_fee($coin->algo);
+	$totalfees = ($total / ((100 - $feepct) / 100.)) - $total;
 
+	echo '<div class="totals" align="right">';
+	echo '<table class="totals">';
+	echo '<tr><th>Immature</th><td>'.bitcoinvaluetoa($totalimmat)." $symbol</td></tr>";
+	echo '<tr><th>Total</th><td>'.bitcoinvaluetoa($total)." $symbol</td></tr>";
+	//echo '<tr><th>Total BTC</th><td>'.bitcoinvaluetoa($total_btc)." BTC</td></tr>";
+	echo '<tr><th>Pool Fees '.round($feepct,1).'%</th><td>'.bitcoinvaluetoa($totalfees)." $symbol</td></tr>";
+	if ($coin->rpcencoding == 'POS')
+		echo '<tr><th>Stake</th><td>'.bitcoinvaluetoa($totalstake)." $symbol</td></tr>";
+	echo '<tr><th>Available</th><td>'.bitcoinvaluetoa($coin->balance)." $symbol</td></tr>";
+	echo '</tr></table>';
+	echo '</div>';
+}

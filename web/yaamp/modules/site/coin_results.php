@@ -7,24 +7,29 @@ $PoS = ($coin->algo == 'PoS'); // or if 'stake' key is present in 'getinfo' meth
 
 $remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
 
-$reserved1 = dboscalar("select sum(balance) from accounts where coinid=$coin->id");
-$reserved2 = dboscalar("select sum(amount*price) from earnings
-	where status!=2 and userid in (select id from accounts where coinid=$coin->id)");
-
+$reserved1 = dboscalar("SELECT SUM(balance) FROM accounts WHERE coinid={$coin->id}");
 $reserved1 = altcoinvaluetoa($reserved1);
-$reserved2 = bitcoinvaluetoa($reserved2);
 $balance = altcoinvaluetoa($coin->balance);
 
-$owed = dboscalar("select sum(amount) from earnings where status!=2 and coinid=$coin->id");
-$owed_btc = $owed? bitcoinvaluetoa($owed*$coin->price): '';
-$owed = $owed? altcoinvaluetoa($owed): '';
+$owed = dboscalar("SELECT SUM(E.amount) AS owed FROM earnings E ".
+	"LEFT JOIN blocks B ON E.blockid = B.id ".
+	"WHERE E.status!=2 AND E.coinid={$coin->id} "//."AND B.category NOT IN ('stake','generated')"
+);
+$owed_btc = bitcoinvaluetoa($owed*$coin->price);
+$owed = altcoinvaluetoa($owed);
+
 $symbol = $coin->symbol;
 if (!empty($coin->symbol2)) $symbol = $coin->symbol2;
 
 echo "<br/>";
-echo "Earnings $reserved2 BTC, balance (db) $balance $symbol";
-if ($owed) echo ", owed $owed $symbol ($owed_btc BTC)";
-echo ", $reserved1 $symbol cleared<br/><br/>";
+if (YAAMP_ALLOW_EXCHANGE) {
+	$reserved2 = bitcoinvaluetoa(dboscalar("SELECT SUM(amount*price) FROM earnings
+		WHERE status!=2 AND userid IN (SELECT id FROM accounts WHERE coinid={$coin->id})"));
+	echo "Earnings $reserved2 BTC, ";
+}
+echo "Balance (db) $balance $symbol";
+echo ", Owed ".CHtml::link($owed, "/site/earning?id=".$coin->id)." $symbol ($owed_btc BTC)";
+echo ", ".CHtml::link($reserved1, "/site/payments?id=".$coin->id)." $symbol cleared<br/><br/>";
 
 //////////////////////////////////////////////////////////////////////////////////////
 

@@ -2,10 +2,6 @@
 
 // PS: account last_login is not related to user logins... its the last backend payment loop, todo: rename it..
 
-$list = getdbolist('db_accounts', "coinid!=6 AND (".
-	"balance > 0 OR last_login > (UNIX_TIMESTAMP()-60*60) OR id IN (SELECT DISTINCT account_id FROM payouts WHERE tx IS NULL)".
-	") ORDER BY last_login DESC limit 50");
-
 JavascriptFile("/yaamp/ui/js/jquery.metadata.js");
 JavascriptFile("/yaamp/ui/js/jquery.tablesorter.widgets.js");
 
@@ -18,8 +14,16 @@ tr.ssrow.filtered { display: none; }
 .currency { width: 120px; max-width: 180px; text-align: right; }
 .red { color: darkred; }
 .actions { width: 120px; text-align: center; }
+table.totals { margin-top: 8px; margin-right: 16px; }
+table.totals th { text-align: left; width: 100px; }
+table.totals td { text-align: right; }
+table.totals tr.red td { color: darkred; }
 </style>
 end;
+
+$coin_id = getiparam('id');
+
+$saveSort = $coin_id ? 'false' : 'true';
 
 showTableSorter('maintable', "{
 	tableClass: 'dataGrid',
@@ -36,8 +40,8 @@ showTableSorter('maintable', "{
 	},
 	widgets: ['zebra','filter','Storage','saveSort'],
 	widgetOptions: {
-		saveSort: true,
-		filter_saveFilters: true,
+		saveSort: {$saveSort},
+		filter_saveFilters: {$saveSort},
 		filter_external: '.search',
 		filter_columnFilters: false,
 		filter_childRows : true,
@@ -61,7 +65,9 @@ echo <<<end
 </thead><tbody>
 end;
 
-$data = dbolist("SELECT coinid, userid, SUM(amount) AS immature FROM earnings WHERE status=0 GROUP BY coinid, userid");
+$sqlFilter = $coin_id ? "AND coinid={$coin_id}" : "";
+
+$data = dbolist("SELECT coinid, userid, SUM(amount) AS immature FROM earnings WHERE status=0 $sqlFilter GROUP BY coinid, userid");
 $immature = array();
 if (!empty($data)) foreach ($data as $row) {
 	$immkey = $row['coinid']."-".$row['userid'];
@@ -75,6 +81,11 @@ if (!empty($data)) foreach ($data as $row) {
 	$failed[$uid] = $row['failed'];
 }
 
+$list = getdbolist('db_accounts', "coinid!=6 $sqlFilter AND (".
+	"balance > 0 OR last_login > (UNIX_TIMESTAMP()-60*60) OR id IN (SELECT DISTINCT account_id FROM payouts WHERE tx IS NULL)".
+	") ORDER BY last_login DESC limit 50");
+
+$total = 0.; $totalimmat = 0.; $totalfailed = 0.;
 foreach($list as $user)
 {
 	$coin = getdbo('db_coins', $user->coinid);
@@ -100,13 +111,16 @@ foreach($list as $user)
 	echo '<td class="currency">'.$coinbalance.'</td>';
 
 	$balance = $user->balance ? bitcoinvaluetoa($user->balance) : '-';
+	$total += (double) $user->balance;
 	echo '<td class="currency">'.$balance.'</td>';
 
 	$immbalance = arraySafeVal($immature, $immkey, 0);
+	$totalimmat += (double) $immbalance;
 	$immbalance = $immbalance ? bitcoinvaluetoa($immbalance) : '-';
 	echo '<td class="currency">'.$immbalance.'</td>';
 
 	$failbalance = arraySafeVal($failed, $user->id, 0);
+	$totalfailed += (double) $failbalance;
 	$failbalance = $failbalance ? bitcoinvaluetoa($failbalance) : '-';
 	echo '<td class="currency red">'.$failbalance.'</td>';
 
@@ -119,3 +133,16 @@ foreach($list as $user)
 }
 
 echo "</tbody></table>";
+
+if ($coin_id) {
+	$coin = getdbo('db_coins', $coin_id);
+	$symbol = $coin->symbol;
+	echo '<div class="totals" align="right">';
+	echo '<table class="totals">';
+	echo '<tr><th>Balances</th><td>'.bitcoinvaluetoa($total)." $symbol</td></tr>";
+	echo '<tr><th>Immature</th><td>'.bitcoinvaluetoa($totalimmat)." $symbol</td></tr>";
+	if ($totalfailed)
+		echo '<tr class="red"><th>Failed</th><td>'.bitcoinvaluetoa($totalfailed)." $symbol</td></tr>";
+	echo '</tr></table>';
+	echo '</div>';
+}
