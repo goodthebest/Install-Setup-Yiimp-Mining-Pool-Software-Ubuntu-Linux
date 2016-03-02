@@ -5,6 +5,7 @@ function BackendBlockNew($coin, $db_block)
 //	debuglog("NEW BLOCK $coin->name $db_block->height");
 	$reward = $db_block->amount;
 	if(!$reward || $db_block->algo == 'PoS' || $db_block->algo == 'MN') return;
+	if($db_block->category == 'stake' || $db_block->category == 'generated') return;
 
 	$sqlCond = "valid = 1";
 	if(!YAAMP_ALLOW_EXCHANGE) // only one coin mined
@@ -236,8 +237,11 @@ function BackendBlockFind2()
 			$db_block->amount = $transaction['amount'];
 			$db_block->algo = $coin->algo;
 
-			if (arraySafeVal($transaction,'nonce',0) != 0)
+			if (arraySafeVal($transaction,'nonce',0) != 0) {
 				$db_block->difficulty_user = hash_to_difficulty($coin, $transaction['blockhash']);
+			} else if ($coin->rpcencoding == 'POS') {
+				$db_block->category = 'stake';
+			}
 
 			// masternode earnings...
 			if ($transaction['amount'] == 0 && $transaction['generated']) {
