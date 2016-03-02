@@ -12,7 +12,7 @@ foreach($algos as $a) {
 }
 
 echo <<<end
-<div align="right" style="margin-top: -14px; margin-bottom: -8px; margin-right: -4px;">
+<div align="right" style="margin-top: -14px; margin-bottom: -6px; margin-right: 140px;">
 Select Algo: <select id="algo_select">$algo_opts</select>&nbsp;
 </div>
 end;

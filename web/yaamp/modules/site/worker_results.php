@@ -5,25 +5,66 @@ if (isset($_GET['algo']))
 
 $algo = user()->getState('yaamp-algo');
 
-echo "<br><table class='dataGrid'>";
-echo "<thead>";
-echo "<tr>";
-echo "<th width=20></th>";
-echo "<th>Coin</th>";
-echo "<th>Address</th>";
-echo "<th>Pass</th>";
-echo "<th>Client</th>";
-echo "<th>Version</th>";
-echo "<th>Hashrate</th>";
-echo "<th>Diff</th>";
-echo "<th>Shares</th>";
-echo "<th>Bad</th>";
-echo "<th>%</th>";
-echo "<th>Found</th>";
-echo "<th></th>";
-echo "<th></th>";
-echo "</tr>";
-echo "</thead><tbody>";
+JavascriptFile("/yaamp/ui/js/jquery.metadata.js");
+JavascriptFile("/yaamp/ui/js/jquery.tablesorter.widgets.js");
+
+echo <<<end
+<div align="right" style="margin-top: -20px; margin-bottom: 6px;">
+<input class="search" type="search" data-column="all" style="width: 140px;" placeholder="Search..." />
+</div>
+<style type="text/css">
+tr.ssrow.filtered { display: none; }
+</style>
+end;
+
+showTableSorter('maintable', "{
+	tableClass: 'dataGrid',
+	headers: {
+		0:{sorter:'metadata'},
+		1:{sorter:'text'},
+		2:{sorter:'text'},
+		3:{sorter:'text'},
+		4:{sorter:'text'},
+		5:{sorter:'text'},
+		6:{sorter:'metadata'},
+		7:{sorter:'numeric'},
+		8:{sorter:'numeric'},
+		9:{sorter:'numeric'},
+		10:{sorter:'numeric'},
+		11:{sorter:'numeric'},
+		12:{sorter:'text'}
+	},
+	widgets: ['zebra','filter','Storage','saveSort'],
+	widgetOptions: {
+		saveSort: true,
+		filter_saveFilters: false,
+		filter_external: '.search',
+		filter_columnFilters: false,
+		filter_childRows : true,
+		filter_ignoreCase: true
+	}
+}");
+
+echo <<<end
+<thead>
+<tr>
+<th width="20"></th>
+<th>Coin</th>
+<th>Address</th>
+<th>Pass</th>
+<th>Client</th>
+<th>Version</th>
+<th>Hashrate</th>
+<th>Diff</th>
+<th>Shares</th>
+<th>Bad</th>
+<th>%</th>
+<th>Found</th>
+<th></th>
+<th></th>
+</tr>
+</thead><tbody>
+end;
 
 $workers = getdbolist('db_workers', "algo=:algo order by name", array(':algo'=>$algo));
 
