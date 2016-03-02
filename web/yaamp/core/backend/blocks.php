@@ -220,7 +220,9 @@ function BackendBlockFind2()
 
 			$blockext = $remote->getblock($transaction['blockhash']);
 
-			$db_block = getdbosql('db_blocks', "blockhash='{$transaction['blockhash']}' OR height={$blockext['height']}");
+			$db_block = getdbosql('db_blocks', "coin_id=:id AND (blockhash=:hash OR height=:height)",
+				array(':id'=>$coin->id, ':hash'=>$transaction['blockhash'], ':height'=>$blockext['height'])
+			);
 			if($db_block) continue;
 
 			if ($coin->symbol == 'DCR')
