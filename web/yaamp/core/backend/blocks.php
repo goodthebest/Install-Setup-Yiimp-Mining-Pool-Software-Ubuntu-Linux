@@ -71,15 +71,17 @@ function BackendBlockFind1()
 		$coin = getdbo('db_coins', $db_block->coin_id);
 		if(!$coin->enable) continue;
 
-		// noblocknofify: add a small delay before declaring it orphan
-		if($coin->symbol == 'DCR' && (time() - $db_block->time) < 240)
-			continue;
-
 		$db_block->category = 'orphan';
 		$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
 
 		$block = $remote->getblock($db_block->blockhash);
-		if(!$block || !isset($block['tx']) || !isset($block['tx'][0]))
+		if($coin->symbol == 'DCR' && (time() - $db_block->time) < 300) {
+			// DCR generated blocks need some time to be accepted by the network
+			if (!$block) continue;
+			$tx = $remote->gettransaction($block['tx'][0]);
+			if (!$tx || !isset($tx['details'])) continue;
+		}
+		else if(!$block || !isset($block['tx']) || !isset($block['tx'][0]))
 		{
 			$db_block->amount = 0;
 			$db_block->save();

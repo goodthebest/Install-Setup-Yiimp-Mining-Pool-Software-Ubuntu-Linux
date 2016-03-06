@@ -6,13 +6,25 @@ bool coind_submitwork(YAAMP_COIND *coind, const char *block)
 	int paramlen = strlen(block);
 
 	char *params = (char *)malloc(paramlen+1024);
-	if(!params) return false;
+	if(!params) {
+		debuglog("%s: OOM!\n", __func__);
+		return false;
+	}
 
 	sprintf(params, "[\"%s\"]", block);
 	json_value *json = rpc_call(&coind->rpc, "getwork", params);
+	if(!json) {
+		debuglog("%s: retry\n", __func__);
+		usleep(500*YAAMP_MS);
+		json = rpc_call(&coind->rpc, "getwork", params);
+	}
 	free(params);
 
-	if(!json) return false;
+	if(!json) {
+		debuglog("%s: error, no answer\n", __func__);
+		return false;
+	}
+
 	json_value *json_res = json_get_object(json, "result");
 
 	bool b = json_res && json_res->type == json_boolean && json_res->u.boolean;

@@ -317,7 +317,7 @@ class SiteController extends CommonController
 			return;
 		}
 		BackendUserCancelFailedPayment($user->id);
-		$this->render('payments');
+		$this->redirect('payments');
 	}
 
 	/////////////////////////////////////////////////

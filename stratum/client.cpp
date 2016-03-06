@@ -276,7 +276,7 @@ bool client_update_block(YAAMP_CLIENT *client, json_value *json_params)
 	coind->notreportingcounter = 0;
 
 	if (!strcmp("DCR", coind->symbol)) {
-		usleep(500*YAAMP_MS);
+		usleep(300*YAAMP_MS);
 	}
 
 	block_confirm(coind->id, hash);
