@@ -16,7 +16,7 @@ function doYobitTrading($quick=false)
 
 	foreach($balances['return']['funds'] as $symbol => $amount)
 	{
-		if($amount<=0) continue;
+		//if($amount<=0) continue;
 		if($symbol == 'btc')
 		{
 			$savebalance->balance = $amount;

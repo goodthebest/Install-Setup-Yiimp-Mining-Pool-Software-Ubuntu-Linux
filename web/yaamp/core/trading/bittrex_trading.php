@@ -37,7 +37,7 @@ function doBittrexTrading($quick=false)
 		if($coin->dontsell) continue;
 
 		// ignore buy orders
-		if(strpos($order->OrderType, 'SELL') == false) continue;
+		if(strpos($order->OrderType, 'SELL') === false) continue;
 
 		$ticker = bittrex_api_query('public/getticker', "&market=$order->Exchange");
 		if(!$ticker || !$ticker->success || !$ticker->result) continue;

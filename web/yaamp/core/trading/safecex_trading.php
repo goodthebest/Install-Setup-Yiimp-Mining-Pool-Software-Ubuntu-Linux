@@ -1,29 +1,11 @@
 <?php
 
+// note: sleep(1) are added to limit the api calls frequency (interval required of 1 second for safecex)
+
 function doSafecexTrading($quick=false)
 {
 	$flushall = rand(0, 4) == 0;
 	if($quick) $flushall = false;
-
-/*
-	// to use when other coin balances will be required.
-	$balances = safecex_api_user('getbalances');
-
-	if(empty($balances)) return;
-
-	$savebalance = getdbosql('db_balances', "name='safecex'");
-	if (is_object($savebalance)) {
-		$savebalance->balance = 0;
-
-		if (is_array($balances)) foreach($balances as $balance)
-		{
-			if($balance->symbol == 'BTC') {
-				$savebalance->balance = $balance->balance;
-				$savebalance->save();
-			}
-		}
-	}
-*/
 
 	// getbalance {"symbol":"BTC","balance":0.00118537,"pending":0,"orders":0.00029321,"total":0.00147858}
 
@@ -38,9 +20,214 @@ function doSafecexTrading($quick=false)
 				$db_balance->save();
 			}
 		}
+		sleep(1);
 	}
 
 	if (!YAAMP_ALLOW_EXCHANGE) return;
 
-	// implement trade here...
+	$min_btc_trade = 0.00010000; // minimum allowed by the exchange
+	$sell_ask_pct = 1.05;        // sell on ask price + 5%
+	$cancel_ask_pct = 1.20;      // cancel order if our price is more than ask price + 20%
+
+	// to use when other coin balances will be required.
+	$balances = safecex_api_user('getbalances');
+	if(empty($balances)) return;
+	sleep(1);
+
+	$orders = safecex_api_user('getopenorders');
+	sleep(1);
+
+	if(!empty($orders))
+	foreach($orders as $order)
+	{
+		// order: {"id":"1569917","market":"XXX\/BTC","type":"sell","time":"1457380288","price":"0.0000075","amount":"43.61658","remain":"43.61658"}
+		$pairs = explode("/", $order->market);
+		$symbol = $pairs[0];
+		if ($pairs[1] != 'BTC') continue;
+
+		$coin = getdbosql('db_coins', "symbol=:symbol OR symbol2=:symbol", array(':symbol'=>$symbol));
+		if(!$coin || is_array($coin)) continue;
+		if($coin->dontsell) continue;
+
+		// ignore buy orders
+		if($order->type != 'sell') continue;
+
+		$ticker = safecex_api_query('getmarket', "?market={$order->market}");
+		// {"name":"Coin","market":"XXX\/BTC","open":"0","last":"0.00000596","low":null,"high":null,"bid":"0.00000518","ask":"0.00000583","volume":null,"volumebtc":"0"}
+		if(empty($ticker)) continue;
+		sleep(1);
+
+		$ask = bitcoinvaluetoa($ticker->ask);
+		$sellprice = bitcoinvaluetoa($order->price);
+
+		// flush orders over the 20% range of the current (lowest) ask
+		if($sellprice > $ask*$cancel_ask_pct || $flushall)
+		{
+			debuglog("safecex: cancel order {$order->market} at $sellprice, ask price is now $ask");
+			safecex_api_user('cancelorder', "&id={$order->id}");
+
+			$db_order = getdbosql('db_orders', "uuid=:uuid", array(':uuid'=>$order->id));
+			if($db_order) $db_order->delete();
+
+			sleep(1);
+		}
+
+		// store existing orders in the db
+		else
+		{
+			$db_order = getdbosql('db_orders', "uuid=:uuid", array(':uuid'=>$order->id));
+			if($db_order) continue;
+
+			debuglog("safecex: store new order of {$order->amount} {$coin->symbol} at $sellprice BTC");
+
+			$db_order = new db_orders;
+			$db_order->market = 'safecex';
+			$db_order->coinid = $coin->id;
+			$db_order->amount = $order->amount;
+			$db_order->price = $sellprice;
+			$db_order->ask = $ticker->ask;
+			$db_order->bid = $ticker->bid;
+			$db_order->uuid = $order->id;
+			$db_order->created = $order->time;
+			$db_order->save();
+		}
+	}
+
+	// flush obsolete orders
+	$list = getdbolist('db_orders', "market='safecex'");
+	if (!empty($list) && !empty($orders))
+	foreach($list as $db_order)
+	{
+		$coin = getdbo('db_coins', $db_order->coinid);
+		if(!$coin) continue;
+
+		$found = false;
+		foreach($orders as $order) {
+			if($order->type != 'sell') continue;
+			if($order->id == $db_order->uuid) {
+				debuglog("safecex: order waiting, {$order->amount} {$coin->symbol}");
+				$found = true;
+				break;
+			}
+		}
+
+		if(!$found) {
+			debuglog("safecex: delete db order {$db_order->amount} {$coin->symbol}");
+			$db_order->delete();
+		}
+	}
+
+	// add orders
+
+	foreach($balances as $balance)
+	{
+		if($balance->symbol == 'BTC') continue;
+		$amount = floatval($balance->balance);
+		if(!$amount) continue;
+
+		$coin = getdbosql('db_coins', "symbol=:symbol OR symbol2=:symbol", array(':symbol'=>$balance->symbol));
+		if(!$coin || is_array($coin) || $coin->dontsell) continue;
+		$symbol = $coin->symbol;
+		if (!empty($coin->symbol2)) $symbol = $coin->symbol2;
+
+		$market = getdbosql('db_markets', "coinid={$coin->id} AND name='safecex'");
+		if($market)
+		{
+			$market->lasttraded = time();
+			$market->save();
+		}
+
+		if($amount*$coin->price < $min_btc_trade) continue;
+		$pair = "{$balance->symbol}/BTC";
+
+		$data = safecex_api_query('getorderbook', "?market=$pair");
+		if(empty($data)) continue;
+		// {"bids":[{"price":"0.00000517","amount":"20"},{"price":"0.00000457","amount":"1528.13069274"},..],"asks":[{...}]
+		sleep(1);
+
+		if($coin->sellonbid)
+		for($i = 0; $i < 5 && $amount >= 0; $i++)
+		{
+			if(!isset($data->bids[$i])) break;
+
+			$nextbuy = $data->bids[$i];
+			if($amount*1.1 < $nextbuy->amount) break;
+
+			$sellprice = bitcoinvaluetoa($nextbuy->price);
+			$sellamount = min($amount, $nextbuy->amount);
+
+			if($sellamount*$sellprice < $min_btc_trade) continue;
+
+			debuglog("safecex: selling $sellamount $symbol at $sellprice");
+			$res = safecex_api_user('selllimit', "&market={$pair}&price={$sellprice}&amount={$sellamount}");
+			if(!$res || $res->status != 'ok')
+			{
+				debuglog("selllimit bid: ".json_encode($res));
+				break;
+			}
+
+			$amount -= $sellamount;
+			sleep(1);
+		}
+
+		if($amount <= 0) continue;
+
+		$ticker = safecex_api_query('getmarket', "?market=$pair");
+		if(empty($ticker)) continue;
+		sleep(1);
+
+		if($coin->sellonbid)
+			$sellprice = bitcoinvaluetoa($ticker->bid);
+		else
+			$sellprice = bitcoinvaluetoa($ticker->ask * $sell_ask_pct); // lowest ask price +5%
+		if($amount*$sellprice < $min_btc_trade) continue;
+
+		debuglog("safecex: selling $amount $symbol at $sellprice");
+		$res = safecex_api_user('selllimit', "&market={$pair}&price={$sellprice}&amount={$amount}");
+		if(!$res || $res->status != 'ok')
+		{
+			debuglog("selllimit: ".json_encode($res));
+			continue;
+		}
+
+		$db_order = new db_orders;
+		$db_order->market = 'safecex';
+		$db_order->coinid = $coin->id;
+		$db_order->amount = $amount;
+		$db_order->price = $sellprice;
+		$db_order->ask = $ticker->ask;
+		$db_order->bid = $ticker->bid;
+		$db_order->uuid = $res->id;
+		$db_order->created = time();
+		$db_order->save();
+
+		sleep(1);
+	}
+
+/* withdraw API doesn't exist
+	if(floatval(EXCH_AUTO_WITHDRAW) > 0 && $db_balance->balance >= (EXCH_AUTO_WITHDRAW + 0.0002))
+	{
+		$btcaddr = YAAMP_BTCADDRESS;
+		$amount = $db_balance->balance + 0.0002;
+		debuglog("safecex: withdraw $amount to $btcaddr");
+
+		$res = safecex_api_user('withdraw', "&currency=BTC&amount={$amount}&address={$btcaddr}");
+		debuglog("safecex: withdraw: ".json_encode($res));
+
+		sleep(1);
+
+		if($res && $res->success)
+		{
+			$withdraw = new db_withdraws;
+			$withdraw->market = 'safecex';
+			$withdraw->address = $btcaddr;
+			$withdraw->amount = $amount;
+			$withdraw->time = time();
+			$withdraw->uuid = $res->id;
+			$withdraw->save();
+
+		//	$db_balance->balance = 0;
+		}
+	}
+*/
 }
