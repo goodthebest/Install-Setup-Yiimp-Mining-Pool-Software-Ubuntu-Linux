@@ -36,6 +36,7 @@ function doCryptopiaTrading($quick=false)
 	foreach ($balances->Data as $balance)
 	{
 		if ($balance->Total == 0) continue;
+		if ($balance->Symbol == 'BTC') continue;
 
 		$coin = getdbosql('db_coins', "symbol=:symbol OR symbol2=:symbol", array(':symbol'=>$balance->Symbol));
 		if(!$coin) continue;
@@ -46,6 +47,9 @@ function doCryptopiaTrading($quick=false)
 		if(!$market) continue;
 		$market->balance = $balance->HeldForTrades;
 		$market->message = $balance->StatusMessage;
+
+		$market2 = getdbosql('db_markets', "coinid={$coin->id} AND (name='bittrex' OR name='poloniex')");
+		if($market2) continue;
 
 		$orders = NULL;
 		if ($balance->HeldForTrades > 0) {

@@ -26,22 +26,25 @@ function doBittrexTrading($quick=false)
 	$sell_ask_pct = 1.05;        // sell on ask price + 5%
 	$cancel_ask_pct = 1.20;      // cancel order if our price is more than ask price + 20%
 
+	sleep(1);
 	$orders = bittrex_api_query('market/getopenorders');
 	if(!$orders || !$orders->success) return;
 
 	foreach($orders->result as $order)
 	{
-		$symbol = substr($order->Exchange, 4);
-		$pair = $order->Exchange;
-
-		$coin = getdbosql('db_coins', "symbol=:symbol", array(':symbol'=>$symbol));
-		if(!$coin) continue;
-		if($coin->dontsell) continue;
-
 		// ignore buy orders
-		if(strpos($order->OrderType, 'SELL') === false) continue;
+		if(stripos($order->OrderType, 'SELL') === false) continue;
 
-		$ticker = bittrex_api_query('public/getticker', "&market=$order->Exchange");
+		$pair = $order->Exchange;
+		$pairs = explode("-", $pair);
+		if ($pairs[0] != 'BTC') continue;
+		$symbol = $pairs[1];
+
+		$coin = getdbosql('db_coins', "symbol=:symbol OR symbol2=:symbol", array(':symbol'=>$symbol));
+		if(!$coin || is_array($coin) || $coin->dontsell) continue;
+
+		sleep(1);
+		$ticker = bittrex_api_query('public/getticker', "&market=$pair");
 		if(!$ticker || !$ticker->success || !$ticker->result) continue;
 
 		$ask = bitcoinvaluetoa($ticker->result->Ask);
@@ -51,17 +54,16 @@ function doBittrexTrading($quick=false)
 		if($sellprice > $ask*$cancel_ask_pct || $flushall)
 		{
 			debuglog("bittrex: cancel order $order->Exchange $sellprice -> $ask");
+			sleep(1);
 			bittrex_api_query('market/cancel', "&uuid={$order->OrderUuid}");
 
 			$db_order = getdbosql('db_orders', "market=:market AND uuid=:uuid", array(
 				':market'=>'bittrex', ':uuid'=>$order->OrderUuid
 			));
 			if($db_order) $db_order->delete();
-
-			sleep(1);
 		}
 
-		// add existing orders (shouldnt happen after init)
+		// import existing orders
 		else
 		{
 			$db_order = getdbosql('db_orders', "market=:market AND uuid=:uuid", array(
@@ -79,7 +81,7 @@ function doBittrexTrading($quick=false)
 			$db_order->ask = $ticker->result->Ask;
 			$db_order->bid = $ticker->result->Bid;
 			$db_order->uuid = $order->OrderUuid;
-			$db_order->created = time();
+			$db_order->created = time(); // Opened "2016-03-05T19:32:08.63"
 			$db_order->save();
 		}
 	}
@@ -93,7 +95,7 @@ function doBittrexTrading($quick=false)
 
 		$found = false;
 		foreach($orders->result as $order) {
-			if(strpos($order->OrderType, 'SELL') == false) continue;
+			if(stripos($order->OrderType, 'SELL') === false) continue;
 
 			if($order->OrderUuid == $db_order->uuid) {
 				$found = true;
@@ -107,15 +109,7 @@ function doBittrexTrading($quick=false)
 		}
 	}
 
-// 	if($flushall)
-// 	{
-// 		debuglog("bittrex flushall");
-// 		return;
-// 	}
-
-	sleep(2);
-
-	// add orders
+	// create orders
 
 	foreach($balances->result as $balance)
 	{
@@ -123,8 +117,6 @@ function doBittrexTrading($quick=false)
 
 		$amount = floatval($balance->Available);
 		if(!$amount) continue;
-
-	//	debuglog($balance->Currency);
 
 		$coin = getdbosql('db_coins', "symbol=:symbol", array(':symbol'=>$balance->Currency));
 		if(!$coin || $coin->dontsell) continue;
@@ -139,6 +131,7 @@ function doBittrexTrading($quick=false)
 		if($amount*$coin->price < $min_btc_trade) continue;
 		$pair = "BTC-$balance->Currency";
 
+		sleep(1);
 		$data = bittrex_api_query('public/getorderbook', "&market=$pair&type=buy&depth=10");
 		if(!$data || !$data->success) continue;
 
@@ -156,6 +149,7 @@ function doBittrexTrading($quick=false)
 			if($sellamount*$sellprice < $min_btc_trade) continue;
 
 			debuglog("bittrex selling market $pair, $sellamount, $sellprice");
+			sleep(1);
 			$res = bittrex_api_query('market/selllimit', "&market=$pair&quantity=$sellamount&rate=$sellprice");
 
 			if(!$res->success) {
@@ -168,6 +162,7 @@ function doBittrexTrading($quick=false)
 
 		if($amount <= 0) continue;
 
+		sleep(1);
 		$ticker = bittrex_api_query('public/getticker', "&market=$pair");
 		if(!$ticker || !$ticker->success || !$ticker->result) continue;
 
@@ -179,6 +174,7 @@ function doBittrexTrading($quick=false)
 
 		debuglog("bittrex selling $pair, $amount, $sellprice");
 
+		sleep(1);
 		$res = bittrex_api_query('market/selllimit', "&market=$pair&quantity=$amount&rate=$sellprice");
 		if(!$res || !$res->success) {
 			debuglog("bittrex err: ".json_encode($res));
@@ -195,8 +191,6 @@ function doBittrexTrading($quick=false)
 		$db_order->uuid = $res->result->uuid;
 		$db_order->created = time();
 		$db_order->save();
-
-		sleep(1);
 	}
 
 	if(floatval(EXCH_AUTO_WITHDRAW) > 0 && $savebalance->balance >= (EXCH_AUTO_WITHDRAW + 0.0002))
@@ -220,7 +214,8 @@ function doBittrexTrading($quick=false)
 			$withdraw->uuid = $res->result->uuid;
 			$withdraw->save();
 
-		//	$savebalance->balance = 0;
+			$savebalance->balance = 0;
+			$savebalance->save();
 		}
 	}
 

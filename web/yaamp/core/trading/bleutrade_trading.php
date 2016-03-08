@@ -48,26 +48,26 @@ function doBleutradeTrading($quick=false)
 		// flush orders not on the ask
 		if($sellprice > $ask*$cancel_ask_pct || $flushall)
 		{
- //			debuglog("bleutrade cancel order $order->Exchange $sellprice -> $ask");
+ //			debuglog("bleutrade: cancel order $order->Exchange $sellprice -> $ask");
 			bleutrade_api_query('market/cancel', "&orderid={$order->OrderId}");
 
-			$db_order = getdbosql('db_orders', "uuid=:uuid", array(':uuid'=>$order->OrderId));
+			$db_order = getdbosql('db_orders', "market=:market AND uuid=:uuid", array(
+				':market'=>'bleutrade', ':uuid'=>$order->OrderId
+			));
 			if($db_order) $db_order->delete();
 
 			sleep(1);
 		}
 
-		// add existing orders (shouldnt happen after init)
+		// save existing orders
 		else
 		{
-			$db_order = getdbosql('db_orders', "uuid=:uuid", array(':uuid'=>$order->OrderId));
+			$db_order = getdbosql('db_orders', "market=:market AND uuid=:uuid", array(
+				':market'=>'bleutrade', ':uuid'=>$order->OrderId
+			));
 			if($db_order) continue;
 
-			debuglog("bleutrade adding order $coin->symbol");
-
-		//	$ticker = bleutrade_api_query('public/getticker', "&market=$pair");
-		//	$sellprice = bitcoinvaluetoa($ticker->result->Ask);
-
+			// debuglog("bleutrade: adding order $coin->symbol");
 			$db_order = new db_orders;
 			$db_order->market = 'bleutrade';
 			$db_order->coinid = $coin->id;
@@ -109,7 +109,7 @@ function doBleutradeTrading($quick=false)
 // 		return;
 // 	}
 
-	sleep(2);
+	sleep(1);
 
 	// add orders
 
@@ -122,6 +122,9 @@ function doBleutradeTrading($quick=false)
 
 		$coin = getdbosql('db_coins', "symbol=:symbol", array(':symbol'=>$balance->Currency));
 		if(!$coin || $coin->dontsell) continue;
+
+		$market2 = getdbosql('db_markets', "coinid={$coin->id} AND (name='bittrex' OR name='poloniex')");
+		if($market2) continue;
 
 		$market = getdbosql('db_markets', "coinid=$coin->id and name='bleutrade'");
 		if($market)
@@ -153,16 +156,19 @@ function doBleutradeTrading($quick=false)
 			$sellprice = bitcoinvaluetoa($nextbuy->Rate);
 
 //			debuglog("bleutrade selling market $pair, $nextbuy->Quantity, $sellprice");
+			sleep(1);
 			$res = bleutrade_api_query('market/selllimit', "&market=$pair&quantity=$nextbuy->Quantity&rate=$sellprice");
-
 			if(!$res->success) {
 				debuglog("bleutrade err: ".json_encode($res));
 				break;
 			}
 
-			$amount -= $nextbuy->Quantity;
+			$amount -= $sellamount;
 		}
 
+		if($amount <= 0) continue;
+
+		sleep(1);
 		$ticker = bleutrade_api_query('public/getticker', "&market=$pair");
 		if(!$ticker || !$ticker->success || !isset($ticker->result[0])) continue;
 
@@ -172,8 +178,9 @@ function doBleutradeTrading($quick=false)
 			$sellprice = bitcoinvaluetoa($ticker->result[0]->Ask * $sell_ask_pct);
 		if($amount*$sellprice < $min_btc_trade) continue;
 
-		debuglog("bleutrade selling $pair, $amount, $sellprice");
+		debuglog("bleutrade: selling $pair, $amount at $sellprice");
 
+		sleep(1);
 		$res = bleutrade_api_query('market/selllimit', "&market=$pair&quantity=$amount&rate=$sellprice");
 		if(!$res || !$res->success || !isset($res->result)) {
 			debuglog("bleutrade err: ".json_encode($res));
@@ -196,13 +203,12 @@ function doBleutradeTrading($quick=false)
 
 	if(floatval(EXCH_AUTO_WITHDRAW) > 0 && $savebalance->balance >= (EXCH_AUTO_WITHDRAW + 0.0002))
 	{
-		$btcaddr = YAAMP_BTCADDRESS; //'14LS7Uda6EZGXLtRrFEZ2kWmarrxobkyu9';
+		$btcaddr = YAAMP_BTCADDRESS;
 
-		$amount = $savebalance->balance;	// - 0.0002;
-		debuglog("bleutrade withdraw $amount to $btcaddr");
+		$amount = $savebalance->balance - 0.0002;
+		debuglog("bleutrade: withdraw $amount BTC to $btcaddr");
 
 		sleep(1);
-
 		$res = bleutrade_api_query('account/withdraw', "&currency=BTC&quantity=$amount&address=$btcaddr");
 		debuglog($res);
 
@@ -215,7 +221,8 @@ function doBleutradeTrading($quick=false)
 			$withdraw->time = time();
 			$withdraw->save();
 
-		//	$savebalance->balance = 0;
+			$savebalance->balance = 0;
+			$savebalance->save();
 		}
 	}
 

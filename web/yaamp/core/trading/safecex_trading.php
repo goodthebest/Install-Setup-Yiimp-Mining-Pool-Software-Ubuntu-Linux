@@ -17,7 +17,6 @@ function doSafecexTrading($quick=false)
 				$db_balance->save();
 			}
 		}
-		sleep(1);
 	}
 
 	if (!YAAMP_ALLOW_EXCHANGE) return;
@@ -30,12 +29,12 @@ function doSafecexTrading($quick=false)
 	$cancel_ask_pct = 1.20;      // cancel order if our price is more than ask price + 20%
 
 	// to use when other coin balances will be required.
+	sleep(1);
 	$balances = safecex_api_user('getbalances');
 	if(empty($balances)) return;
-	sleep(1);
 
-	$orders = safecex_api_user('getopenorders');
 	sleep(1);
+	$orders = safecex_api_user('getopenorders');
 
 	if(!empty($orders))
 	foreach($orders as $order)
@@ -52,10 +51,10 @@ function doSafecexTrading($quick=false)
 		// ignore buy orders
 		if($order->type != 'sell') continue;
 
+		sleep(1);
 		$ticker = safecex_api_query('getmarket', "?market={$order->market}");
 		// {"name":"Coin","market":"XXX\/BTC","open":"0","last":"0.00000596","low":null,"high":null,"bid":"0.00000518","ask":"0.00000583","volume":null,"volumebtc":"0"}
 		if(empty($ticker)) continue;
-		sleep(1);
 
 		$ask = bitcoinvaluetoa($ticker->ask);
 		$sellprice = bitcoinvaluetoa($order->price);
@@ -64,6 +63,7 @@ function doSafecexTrading($quick=false)
 		if($sellprice > $ask*$cancel_ask_pct || $flushall)
 		{
 			debuglog("safecex: cancel order {$order->market} at $sellprice, ask price is now $ask");
+			sleep(1);
 			safecex_api_user('cancelorder', "&id={$order->id}");
 
 			$db_order = getdbosql('db_orders', "market=:market AND uuid=:uuid", array(
@@ -71,7 +71,6 @@ function doSafecexTrading($quick=false)
 			));
 			if($db_order) $db_order->delete();
 
-			sleep(1);
 		}
 
 		// store existing orders in the db
@@ -142,13 +141,16 @@ function doSafecexTrading($quick=false)
 			$market->save();
 		}
 
+		$market2 = getdbosql('db_markets', "coinid={$coin->id} AND (name='bittrex' OR name='poloniex')");
+		if($market2) continue;
+
 		if($amount*$coin->price < $min_btc_trade) continue;
 		$pair = "{$balance->symbol}/BTC";
 
+		sleep(1);
 		$data = safecex_api_query('getorderbook', "?market=$pair");
 		if(empty($data)) continue;
 		// {"bids":[{"price":"0.00000517","amount":"20"},{"price":"0.00000457","amount":"1528.13069274"},..],"asks":[{...}]
-		sleep(1);
 
 		if($coin->sellonbid)
 		for($i = 0; $i < 5 && $amount >= 0; $i++)
@@ -164,6 +166,7 @@ function doSafecexTrading($quick=false)
 			if($sellamount*$sellprice < $min_btc_trade) continue;
 
 			debuglog("safecex: selling $sellamount $symbol at $sellprice");
+			sleep(1);
 			$res = safecex_api_user('selllimit', "&market={$pair}&price={$sellprice}&amount={$sellamount}");
 			if(!$res || $res->status != 'ok')
 			{
@@ -172,14 +175,13 @@ function doSafecexTrading($quick=false)
 			}
 
 			$amount -= $sellamount;
-			sleep(1);
 		}
 
 		if($amount <= 0) continue;
 
+		sleep(1);
 		$ticker = safecex_api_query('getmarket', "?market=$pair");
 		if(empty($ticker)) continue;
-		sleep(1);
 
 		if($coin->sellonbid)
 			$sellprice = bitcoinvaluetoa($ticker->bid);
@@ -188,6 +190,7 @@ function doSafecexTrading($quick=false)
 		if($amount*$sellprice < $min_btc_trade) continue;
 
 		debuglog("safecex: selling $amount $symbol at $sellprice");
+		sleep(1);
 		$res = safecex_api_user('selllimit', "&market={$pair}&price={$sellprice}&amount={$amount}");
 		if(!$res || $res->status != 'ok')
 		{
@@ -205,33 +208,30 @@ function doSafecexTrading($quick=false)
 		$db_order->uuid = $res->id;
 		$db_order->created = time();
 		$db_order->save();
-
-		sleep(1);
 	}
 
 /* withdraw API doesn't exist
 	if(floatval(EXCH_AUTO_WITHDRAW) > 0 && $db_balance->balance >= (EXCH_AUTO_WITHDRAW + 0.0002))
 	{
 		$btcaddr = YAAMP_BTCADDRESS;
-		$amount = $db_balance->balance + 0.0002;
+		$amount = $db_balance->balance;
 		debuglog("safecex: withdraw $amount to $btcaddr");
 
+		sleep(1);
 		$res = safecex_api_user('withdraw', "&currency=BTC&amount={$amount}&address={$btcaddr}");
 		debuglog("safecex: withdraw: ".json_encode($res));
-
-		sleep(1);
 
 		if($res && $res->success)
 		{
 			$withdraw = new db_withdraws;
 			$withdraw->market = 'safecex';
 			$withdraw->address = $btcaddr;
-			$withdraw->amount = $amount;
+			$withdraw->amount = $amount + 0.0002;
 			$withdraw->time = time();
 			$withdraw->uuid = $res->id;
 			$withdraw->save();
 
-		//	$db_balance->balance = 0;
+			$db_balance->balance = 0;
 		}
 	}
 */

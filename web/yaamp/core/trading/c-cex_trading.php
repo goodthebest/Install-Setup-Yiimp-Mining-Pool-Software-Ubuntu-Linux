@@ -2,12 +2,7 @@
 
 function doCCexTrading($quick=false)
 {
-	$flushall = rand(0, 4) == 0;
-	if($quick) $flushall = false;
-
 //	debuglog("-------------- doCCexTrading() $flushall");
-
-//	debuglog("c-cex getbalance");
 
 	$ccex = new CcexAPI;
 
@@ -29,48 +24,55 @@ function doCCexTrading($quick=false)
 
 	if (!YAAMP_ALLOW_EXCHANGE) return;
 
+	$flushall = rand(0, 4) == 0;
+	if($quick) $flushall = false;
+
+	$min_btc_trade = 0.00005000; // minimum allowed by the exchange
+	$sell_ask_pct = 1.05;        // sell on ask price + 5%
+	$cancel_ask_pct = 1.20;      // cancel order if our price is more than ask price + 20%
+
 	// upgrade orders
-	$coins = getdbolist('db_coins', "enable and id in (select distinct coinid from markets where name='c-cex')");
+	$coins = getdbolist('db_coins', "enable=1 AND IFNULL(dontsell,0)=0 AND id IN (SELECT DISTINCT coinid FROM markets WHERE name='c-cex')");
 	foreach($coins as $coin)
 	{
 		if($coin->dontsell) continue;
+		if($coin->symbol == 'BTC') continue;
 
-		$market2 = getdbosql('db_markets', "coinid=$coin->id and (name='bittrex' or name='cryptsy')");
+		$market2 = getdbosql('db_markets', "coinid={$coin->id} AND (name='bittrex' OR name='poloniex')");
 		if($market2) continue;
 
 		$pair = strtolower($coin->symbol).'-btc';
 
-//		debuglog("c-cex list order for $pair");
-		sleep(5);
-
+		sleep(1);
 		$orders = $ccex->getOrders($pair, 1);
 		if(!$orders || isset($orders['error'])) continue;
 
-		foreach($orders['return'] as $uuid=>$order)
+		foreach($orders['return'] as $uuid => $order)
 		{
+			sleep(1);
 			$ticker = $ccex->getTickerInfo($pair);
 			if(!$ticker) continue;
 
-			if($order['price'] > $ticker['sell']+0.00000005 || $flushall)
+			if($order['price'] > $cancel_ask_pct*$ticker['sell'] || $flushall)
 			{
-//				debuglog("c-cex cancel order for $pair $uuid");
-				sleep(5);
-
+				// debuglog("c-cex: cancel order for $pair $uuid");
+				sleep(1);
 				$ccex->cancelOrder($uuid);
 
-				$db_order = getdbosql('db_orders', "uuid=:uuid", array(':uuid'=>$uuid));
+				$db_order = getdbosql('db_orders', "market=:market AND uuid=:uuid", array(
+					':market'=>'c-cex', ':uuid'=>$uuid
+				));
 				if($db_order) $db_order->delete();
-
-				sleep(1);
 			}
 
 			else
 			{
-				$db_order = getdbosql('db_orders', "uuid=:uuid", array(':uuid'=>$uuid));
+				$db_order = getdbosql('db_orders', "market=:market AND uuid=:uuid", array(
+					':market'=>'c-cex', ':uuid'=>$uuid
+				));
 				if($db_order) continue;
 
-				debuglog("c-cex adding order $coin->symbol");
-
+				// debuglog("c-cex: import order $coin->symbol");
 				$db_order = new db_orders;
 				$db_order->market = 'c-cex';
 				$db_order->coinid = $coin->id;
@@ -117,6 +119,9 @@ function doCCexTrading($quick=false)
 		$coin = getdbosql('db_coins', "symbol=:symbol", array(':symbol'=>$symbol));
 		if(!$coin || $coin->dontsell) continue;
 
+		$market2 = getdbosql('db_markets', "coinid={$coin->id} AND (name='bittrex' OR name='poloniex')");
+		if($market2) continue;
+
 		$market = getdbosql('db_markets', "coinid=$coin->id and name='c-cex'");
 		if($market)
 		{
@@ -124,7 +129,7 @@ function doCCexTrading($quick=false)
 			$market->save();
 		}
 
-		if($amount*$coin->price < 0.00001000) continue;
+		if($amount*$coin->price < $min_btc_trade) continue;
 		$pair = "$symbol-btc";
 
 		////////////////////////
@@ -133,8 +138,7 @@ function doCCexTrading($quick=false)
 		$maxamount = 0;
 
 //		debuglog("c-cex list order for $pair all");
-		sleep(5);
-
+		sleep(1);
 		$orders = $ccex->getOrders($pair, 0);
 
 		if(!empty($orders) && !empty($orders['return']))
@@ -149,13 +153,13 @@ function doCCexTrading($quick=false)
 		}
 
 	//	debuglog("maxbuy for $pair $maxamount $maxprice");
-		if($amount >= $maxamount && $maxamount*$maxprice > 0.00001000)
+		if($amount >= $maxamount && $maxamount*$maxprice > $min_btc_trade)
 		{
 			$sellprice = bitcoinvaluetoa($maxprice);
 
 			debuglog("c-cex selling market $pair, $maxamount, $sellprice");
-			sleep(5);
 
+			sleep(1);
 			$res = $ccex->makeOrder('sell', $pair, $maxamount, $sellprice);
 			if(!$res || !isset($res['return']))
 				debuglog($res);
@@ -165,16 +169,14 @@ function doCCexTrading($quick=false)
 			sleep(1);
 		}
 
-		///
-
+		sleep(1);
 		$ticker = $ccex->getTickerInfo($pair);
 		if(!$ticker) continue;
 
 		$sellprice = bitcoinvaluetoa($ticker['sell']);
 
 //		debuglog("c-cex selling $pair, $amount, $sellprice");
-		sleep(5);
-
+		sleep(1);
 		$res = $ccex->makeOrder('sell', $pair, $amount, $sellprice);
 		if(!$res || !isset($res['return'])) continue;
 

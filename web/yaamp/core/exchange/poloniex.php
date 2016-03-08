@@ -86,6 +86,14 @@ class poloniex {
 			);
 		}
 
+		public function get_complete_balances() {
+			return $this->query(
+				array(
+					'command' => 'returnCompleteBalances'
+				)
+			);
+		}
+
 		public function get_available_balances() {
 			return $this->query(
 				array(

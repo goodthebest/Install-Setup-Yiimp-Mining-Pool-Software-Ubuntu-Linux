@@ -4,19 +4,18 @@ function doPoloniexTrading()
 {
 //	debuglog('-------------- doPoloniexTrading()');
 
-	$flushall = rand(0, 4) == 0;
 	$poloniex = new poloniex;
 
 	// add orders
 	$savebalance = getdbosql('db_balances', "name='poloniex'");
-	$balances = $poloniex->get_balances();
+	$balances = $poloniex->get_complete_balances();
 
 	if (is_array($balances))
 	foreach($balances as $symbol => $balance)
 	{
 		if($symbol == 'BTC')
 		{
-			$savebalance->balance = $balance;
+			$savebalance->balance = $balance['available'];
 			$savebalance->save();
 			break;
 		}
@@ -24,21 +23,28 @@ function doPoloniexTrading()
 
 	if (!YAAMP_ALLOW_EXCHANGE) return;
 
+	$flushall = rand(0, 8) == 0;
+
+	$min_btc_trade = 0.00010000; // minimum allowed by the exchange
+	$sell_ask_pct = 1.05;        // sell on ask price + 5%
+	$cancel_ask_pct = 1.20;      // cancel order if our price is more than ask price + 20%
+
+	sleep(1);
 	$tickers = $poloniex->get_ticker();
 	if(!$tickers) return;
 
-	// upgrade orders
-	$coins = getdbolist('db_coins', "enable and id in (select distinct coinid from markets where name='poloniex')");
+	// update orders
+	$coins = getdbolist('db_coins', "enable=1 AND dontsell=0 AND id IN (SELECT DISTINCT coinid FROM markets WHERE name='poloniex')");
 	foreach($coins as $coin)
 	{
-		if($coin->dontsell) continue;
 		$pair = "BTC_$coin->symbol";
 		if(!isset($tickers[$pair])) continue;
 
+		sleep(1);
 		$orders = $poloniex->get_open_orders($pair);
 		if(!$orders || !isset($orders[0]))
 		{
-			dborun("delete from orders where coinid=$coin->id and market='poloniex'");
+			dborun("DELETE FROM orders WHERE coinid={$coin->id} AND market='poloniex'");
 			continue;
 		}
 
@@ -50,24 +56,26 @@ function doPoloniexTrading()
 				continue;
 			}
 
-			if($order['rate'] > $tickers[$pair]['lowestAsk']+0.00000005 || $flushall)
+			if($order['rate'] > $tickers[$pair]['lowestAsk']*$cancel_ask_pct || $flushall)
 			{
-//				debuglog("poloniex cancel order for $pair {$order['orderNumber']}");
+//				debuglog("poloniex: cancel order for $pair {$order['orderNumber']}");
+				sleep(1);
 				$poloniex->cancel_order($pair, $order['orderNumber']);
 
-				$db_order = getdbosql('db_orders', "uuid=:uuid", array(':uuid'=>$order['orderNumber']));
+				$db_order = getdbosql('db_orders', "market=:market AND uuid=:uuid", array(
+					':market'=>'poloniex', ':uuid'=>$order['orderNumber']
+				));
 				if($db_order) $db_order->delete();
-
-				sleep(1);
 			}
 
 			else
 			{
-				$db_order = getdbosql('db_orders', "uuid=:uuid", array(':uuid'=>$order['orderNumber']));
+				$db_order = getdbosql('db_orders', "market=:market AND uuid=:uuid", array(
+					':market'=>'poloniex', ':uuid'=>$order['orderNumber']
+				));
 				if($db_order) continue;
 
-				debuglog("poloniex adding order $coin->symbol");
-
+				// debuglog("poloniex: save order $coin->symbol");
 				$db_order = new db_orders;
 				$db_order->market = 'poloniex';
 				$db_order->coinid = $coin->id;
@@ -81,20 +89,18 @@ function doPoloniexTrading()
 			}
 		}
 
-		$list = getdbolist('db_orders', "coinid=$coin->id and market='poloniex'");
+		$list = getdbolist('db_orders', "coinid={$coin->id} AND market='poloniex'");
 		foreach($list as $db_order)
 		{
 			$found = false;
 			foreach($orders as $order)
 			{
-				if(!isset($order['orderNumber']))
-				{
-					debuglog($order);
+				if(!isset($order['orderNumber'])) {
+					debuglog("poloniex no order id: ".json_encode($order));
 					continue;
 				}
 
-				if($order['orderNumber'] == $db_order->uuid)
-				{
+				if($order['orderNumber'] == $db_order->uuid) {
 					$found = true;
 					break;
 				}
@@ -102,7 +108,7 @@ function doPoloniexTrading()
 
 			if(!$found)
 			{
-				debuglog("poloniex deleting order $coin->name $db_order->amount");
+				debuglog("poloniex: deleting order {$coin->symbol} $db_order->amount");
 				$db_order->delete();
 			}
 		}
@@ -112,27 +118,32 @@ function doPoloniexTrading()
 
 	foreach($balances as $symbol=>$balance)
 	{
-		if(!$balance) continue;
+		if(!$balance || !$balance['available']) continue;
 		if($symbol == 'BTC') continue;
 
 		$coin = getdbosql('db_coins', "symbol=:symbol", array(':symbol'=>$symbol));
 		if(!$coin || $coin->dontsell) continue;
 
-		$market = getdbosql('db_markets', "coinid=$coin->id and name='poloniex'");
-		if($market)
-		{
+		$market = getdbosql('db_markets', "coinid={$coin->id} AND name='poloniex'");
+		if($market) {
 			$market->lasttraded = time();
+			$market->balance = $balance['onOrders'];
 			$market->save();
 		}
 
 		$pair = "BTC_$symbol";
 		if(!isset($tickers[$pair])) continue;
 
-		$sellprice = $tickers[$pair]['highestBid'];
-		if($balance * $sellprice < 0.0001) continue;
+		if($coin->sellonbid)
+			$sellprice = bitcoinvaluetoa($tickers[$pair]['highestBid']);
+		else
+			$sellprice = bitcoinvaluetoa($tickers[$pair]['lowestAsk'] * $sell_ask_pct);
+
+		if($balance['available'] * $sellprice < $min_btc_trade) continue;
 
 //		debuglog("poloniex selling $pair, $sellprice, $balance");
-		$res = $poloniex->sell($pair, $sellprice, $balance);
+		sleep(1);
+		$res = $poloniex->sell($pair, $sellprice, $balance['available']);
 
 		if(!isset($res['orderNumber']))
 		{
@@ -148,7 +159,7 @@ function doPoloniexTrading()
 		$db_order = new db_orders;
 		$db_order->market = 'poloniex';
 		$db_order->coinid = $coin->id;
-		$db_order->amount = $balance;
+		$db_order->amount = $balance['available'];
 		$db_order->price = $sellprice;
 		$db_order->ask = $tickers[$pair]['lowestAsk'];
 		$db_order->bid = $tickers[$pair]['highestBid'];
@@ -161,11 +172,10 @@ function doPoloniexTrading()
 	{
 		$btcaddr = YAAMP_BTCADDRESS;
 
-		$amount = $savebalance->balance;	// - 0.0002;
-		debuglog("poloniex withdraw $amount to $btcaddr");
+		$amount = $savebalance->balance - 0.0002;
+		debuglog("poloniex: withdraw $amount BTC to $btcaddr");
 
 		sleep(1);
-
 		$res = $poloniex->withdraw('BTC', $amount, $btcaddr);
 		debuglog($res);
 
@@ -177,6 +187,9 @@ function doPoloniexTrading()
 			$withdraw->amount = $amount;
 			$withdraw->time = time();
 			$withdraw->save();
+
+			$savebalance->balance = $savebalance->balance - $amount - 0.0002;
+			$savebalance->save();
 		}
 	}
 
