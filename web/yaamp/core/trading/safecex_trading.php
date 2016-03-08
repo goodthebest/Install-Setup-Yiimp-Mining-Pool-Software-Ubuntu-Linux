@@ -198,7 +198,7 @@ function doSafecexTrading($quick=false)
 			continue;
 		}
 
-		if (isset($res->id)) {
+		if (property_exists($res,'id')) {
 			$db_order = new db_orders;
 			$db_order->market = 'safecex';
 			$db_order->coinid = $coin->id;
