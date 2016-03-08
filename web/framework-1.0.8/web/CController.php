@@ -493,13 +493,9 @@ class CController extends CBaseController
 	 */
 	public function getViewPath()
 	{
-	//	if(($module=$this->getModule())===null)
-	//		$module=Yii::app();
-	//	return $module->getViewPath().'/'.$this->getId();
-
-		$app = Yii::app();
-		$path = preg_replace('|/([^/]*)$|', '', $app->classFile);
-		return $path;
+		if(($module=$this->getModule())===null)
+			$module=Yii::app();
+		return $module->getViewPath().'/'.$this->getId();
 	}
 
 	/**
@@ -600,12 +596,7 @@ class CController extends CBaseController
 		else if(strpos($viewName,'.'))
 			$viewFile=Yii::getPathOfAlias($viewName).'.php';
 		else
-		{
-		//	error_log("viewpath $viewPath, viewname $viewName");
 			$viewFile=$viewPath.DIRECTORY_SEPARATOR.$viewName.'.php';
-		}
-
-	//	error_log("viewfile {$viewFile}");
 		return is_file($viewFile) ? Yii::app()->findLocalizedFile($viewFile) : false;
 	}
 
@@ -647,7 +638,6 @@ class CController extends CBaseController
 	public function render($view,$data=null,$return=false)
 	{
 		$output=$this->renderPartial($view,$data,true);
-
 		if(($layoutFile=$this->getLayoutFile($this->layout))!==false)
 			$output=$this->renderFile($layoutFile,array('content'=>$output),true);
 

@@ -60,9 +60,8 @@ ul.yiiPager .hidden a
 /**
  * Hide first and last buttons by default.
  */
-/*ul.yiiPager .first,
+ul.yiiPager .first,
 ul.yiiPager .last
 {
 	display:none;
-}*/
-	
+}

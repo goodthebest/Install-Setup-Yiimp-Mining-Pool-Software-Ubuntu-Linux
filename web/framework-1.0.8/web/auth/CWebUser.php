@@ -291,7 +291,6 @@ class CWebUser extends CApplicationComponent implements IWebUser
 				$route=isset($url[0]) ? $url[0] : $app->defaultController;
 				$url=$app->createUrl($route,array_splice($url,1));
 			}
-
 			$request->redirect($url);
 		}
 		else
@@ -407,7 +406,6 @@ class CWebUser extends CApplicationComponent implements IWebUser
 	 */
 	public function setState($key,$value,$defaultValue=null)
 	{
-	//	debuglog("setstate($key, $value)");
 		$key=$this->getStateKeyPrefix().$key;
 		if($value===$defaultValue)
 			unset($_SESSION[$key]);

@@ -59,7 +59,6 @@ class CVarDumper
 	 */
 	public static function dumpAsString($var,$depth=10,$highlight=false)
 	{
-		//
 		self::$_output='';
 		self::$_objects=array();
 		self::$_depth=$depth;

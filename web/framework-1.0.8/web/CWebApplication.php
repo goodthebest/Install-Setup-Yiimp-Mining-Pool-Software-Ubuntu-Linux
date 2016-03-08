@@ -42,8 +42,6 @@
  */
 class CWebApplication extends CApplication
 {
-	public $classFile;
-
 	/**
 	 * @return string the ID of the default controller. Defaults to 'site'.
 	 */
@@ -339,9 +337,9 @@ class CWebApplication extends CApplication
 		{
 			header('HTTP/1.1 404 Not found');
 			exit;
-		}
 		//	throw new CHttpException(404,Yii::t('yii','Unable to resolve the request "{route}".',
 		//		array('{route}'=>$route===''?$this->defaultController:$route)));
+		}
 	}
 
 	/**
@@ -401,12 +399,12 @@ class CWebApplication extends CApplication
 				$controllerID.='/';
 
 			$className=ucfirst($id).'Controller';
-		//	$this->classFile=$basePath.DIRECTORY_SEPARATOR.$id.DIRECTORY_SEPARATOR.$className.'.php';
-			$this->classFile = GetSSModulePath($className);
-			if(is_file($this->classFile))
+			//$classFile=$basePath.DIRECTORY_SEPARATOR.$className.'.php';
+			$classFile = GetSSModulePath($className);
+			if(is_file($classFile))
 			{
 				if(!class_exists($className,false))
-					require($this->classFile);
+					require($classFile);
 
 				if(class_exists($className,false) && is_subclass_of($className,'CController'))
 				{

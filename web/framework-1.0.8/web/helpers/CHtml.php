@@ -991,10 +991,6 @@ EOD;
 		$htmlOptions['type']=$type;
 		$htmlOptions['value']=$value;
 		$htmlOptions['name']=$name;
-
-// 		if($type != 'checkbox')
-// 			$htmlOptions['class']=$htmlOptions['class'].' tweetnews-input';
-
 		if(!isset($htmlOptions['id']))
 			$htmlOptions['id']=self::getIdByName($name);
 		else if($htmlOptions['id']===false)

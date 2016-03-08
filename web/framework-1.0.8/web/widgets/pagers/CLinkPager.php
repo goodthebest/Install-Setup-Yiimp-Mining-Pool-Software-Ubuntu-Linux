@@ -29,7 +29,7 @@ class CLinkPager extends CBasePager
 	/**
 	 * @var integer maximum number of page buttons that can be displayed. Defaults to 10.
 	 */
-	public $maxButtonCount=12;
+	public $maxButtonCount=10;
 	/**
 	 * @var string the text label for the next page button. Defaults to 'Next &gt;'.
 	 */
