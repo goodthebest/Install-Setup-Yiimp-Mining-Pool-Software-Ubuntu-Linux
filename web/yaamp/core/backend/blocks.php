@@ -75,11 +75,14 @@ function BackendBlockFind1()
 		$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
 
 		$block = $remote->getblock($db_block->blockhash);
-		if($coin->symbol == 'DCR' && (time() - $db_block->time) < 300) {
-			// DCR generated blocks need some time to be accepted by the network
+		$block_age = time() - $db_block->time;
+		if($coin->symbol == 'DCR' && $block_age < 1500) {
+			// DCR generated blocks need some time to be accepted by the network (gettransaction)
 			if (!$block) continue;
-			$tx = $remote->gettransaction($block['tx'][0]);
+			$txid = $block['tx'][0];
+			$tx = $remote->gettransaction($txid);
 			if (!$tx || !isset($tx['details'])) continue;
+			debuglog("{$coin->symbol} {$db_block->height} confirmed after ".$block_age." seconds");
 		}
 		else if(!$block || !isset($block['tx']) || !isset($block['tx'][0]))
 		{
@@ -127,8 +130,7 @@ function BackendBlocksUpdate()
 	foreach($list as $block)
 	{
 		$coin = getdbo('db_coins', $block->coin_id);
-		if(!$coin || !$coin->enable)
-		{
+		if(!$block->coin_id || !$coin) {
 			$block->delete();
 			continue;
 		}

@@ -15,11 +15,13 @@ function BackendDoBackup()
 
 function BackendQuickClean()
 {
-	$delay = time() - 24*60*60;
 	$coins = getdbolist('db_coins', "installed");
 
 	foreach($coins as $coin)
 	{
+		$delay = time() - 24*60*60;
+		if ($coin->symbol=='DCR') $delay = time() - 7*24*60*60;
+
 		$id = dboscalar("select id from blocks where coin_id=$coin->id and time<$delay and
 			id not in (select blockid from earnings where coinid=$coin->id)
 			order by id desc limit 200, 1");
