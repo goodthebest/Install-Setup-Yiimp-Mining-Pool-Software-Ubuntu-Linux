@@ -2,12 +2,6 @@
 
 function doBleutradeTrading($quick=false)
 {
-	$flushall = rand(0, 4) == 0;
-	if($quick) $flushall = false;
-
-//	debuglog("-------------- dobleutradeTrading() flushall $flushall");
-
-//	debuglog($balances);
 	$balances = bleutrade_api_query('account/getbalances');
 	if(!$balances || !isset($balances->result) || !$balances->success) return;
 
@@ -24,6 +18,13 @@ function doBleutradeTrading($quick=false)
 	}
 
 	if (!YAAMP_ALLOW_EXCHANGE) return;
+
+	$flushall = rand(0, 8) == 0;
+	if($quick) $flushall = false;
+
+	$min_btc_trade = 0.00050000; // minimum allowed by the exchange
+	$sell_ask_pct = 1.05;        // sell on ask price + 5%
+	$cancel_ask_pct = 1.20;      // cancel order if our price is more than ask price + 20%
 
 	$orders = bleutrade_api_query('market/getopenorders');
 	if(!$orders) return;
@@ -45,10 +46,10 @@ function doBleutradeTrading($quick=false)
 		$sellprice = bitcoinvaluetoa($order->Price);
 
 		// flush orders not on the ask
-		if($ask+0.00000005 < $sellprice || $flushall)
+		if($sellprice > $ask*$cancel_ask_pct || $flushall)
 		{
  //			debuglog("bleutrade cancel order $order->Exchange $sellprice -> $ask");
-			bleutrade_api_query('market/cancel', "&orderid=$order->OrderId");
+			bleutrade_api_query('market/cancel', "&orderid={$order->OrderId}");
 
 			$db_order = getdbosql('db_orders', "uuid=:uuid", array(':uuid'=>$order->OrderId));
 			if($db_order) $db_order->delete();
@@ -129,29 +130,33 @@ function doBleutradeTrading($quick=false)
 			$market->save();
 		}
 
-		if($amount*$coin->price < 0.00001000) continue;
+		if($amount*$coin->price < $min_btc_trade) continue;
 		$pair = "{$balance->Currency}_BTC";
 
 		$data = bleutrade_api_query('public/getorderbook', "&market=$pair&type=BUY&depth=10");
 		if(!$data) continue;
 	//	if(!isset($data->result[0])) continue;
 
-		for($i = 0; $i < 5; $i++)
+		if($coin->sellonbid)
+		for($i = 0; $i < 5 && $amount >= 0; $i++)
 		{
 			if(!isset($data->result->buy[$i])) break;
 
 			$nextbuy = $data->result->buy[$i];
-			if($amount < $nextbuy->Quantity || $nextbuy->Quantity*$nextbuy->Rate < 0.00001000)
-				break;
+			if($amount*1.1 < $nextbuy->Quantity) break;
+
+			$sellprice = bitcoinvaluetoa($nextbuy->Rate);
+			$sellamount = min($amount, $nextbuy->Quantity);
+
+			if($sellamount*$sellprice < $min_btc_trade) continue;
 
 			$sellprice = bitcoinvaluetoa($nextbuy->Rate);
 
 //			debuglog("bleutrade selling market $pair, $nextbuy->Quantity, $sellprice");
 			$res = bleutrade_api_query('market/selllimit', "&market=$pair&quantity=$nextbuy->Quantity&rate=$sellprice");
 
-			if(!$res->success)
-			{
-				debuglog($res);
+			if(!$res->success) {
+				debuglog("bleutrade err: ".json_encode($res));
 				break;
 			}
 
@@ -164,15 +169,14 @@ function doBleutradeTrading($quick=false)
 		if($coin->sellonbid)
 			$sellprice = bitcoinvaluetoa($ticker->result[0]->Bid);
 		else
-			$sellprice = bitcoinvaluetoa($ticker->result[0]->Ask);
-		if($amount*$sellprice < 0.00050000) continue;
+			$sellprice = bitcoinvaluetoa($ticker->result[0]->Ask * $sell_ask_pct);
+		if($amount*$sellprice < $min_btc_trade) continue;
 
 		debuglog("bleutrade selling $pair, $amount, $sellprice");
 
 		$res = bleutrade_api_query('market/selllimit', "&market=$pair&quantity=$amount&rate=$sellprice");
-		if(!$res || !$res->success || !isset($res->result))
-		{
-			debuglog($res);
+		if(!$res || !$res->success || !isset($res->result)) {
+			debuglog("bleutrade err: ".json_encode($res));
 			continue;
 		}
 

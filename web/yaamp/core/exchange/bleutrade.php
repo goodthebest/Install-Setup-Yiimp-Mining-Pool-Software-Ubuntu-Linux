@@ -27,6 +27,8 @@ function bleutrade_api_query($method, $params='')
 	//curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
 	curl_setopt($ch, CURLOPT_SSLVERSION, 1 /*CURL_SSLVERSION_TLSv1*/);
 	curl_setopt($ch, CURLOPT_SSL_SESSIONID_CACHE, 0);
+	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+	curl_setopt($ch, CURLOPT_TIMEOUT, 20);
 	curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/4.0 (compatible; Bleutrade API PHP client; '.php_uname('s').'; PHP/'.phpversion().')');
 	curl_setopt($ch, CURLOPT_ENCODING , '');
 

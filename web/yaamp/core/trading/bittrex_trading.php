@@ -2,11 +2,6 @@
 
 function doBittrexTrading($quick=false)
 {
-	$flushall = rand(0, 4) == 0;
-	if($quick) $flushall = false;
-
-//	debuglog("-------------- doBittrexTrading() flushall $flushall");
-
 	$balances = bittrex_api_query('account/getbalances');
 	if(!$balances || !isset($balances->result) || !$balances->success) return;
 
@@ -23,6 +18,13 @@ function doBittrexTrading($quick=false)
 	}
 
 	if (!YAAMP_ALLOW_EXCHANGE) return;
+
+	$flushall = rand(0, 8) == 0;
+	if($quick) $flushall = false;
+
+	$min_btc_trade = 0.00050000; // minimum allowed by the exchange
+	$sell_ask_pct = 1.05;        // sell on ask price + 5%
+	$cancel_ask_pct = 1.20;      // cancel order if our price is more than ask price + 20%
 
 	$orders = bittrex_api_query('market/getopenorders');
 	if(!$orders || !$orders->success) return;
@@ -46,12 +48,14 @@ function doBittrexTrading($quick=false)
 		$sellprice = bitcoinvaluetoa($order->Limit);
 
 		// flush orders not on the ask
-		if($ask+0.00000005 < $sellprice || $flushall)
+		if($sellprice > $ask*$cancel_ask_pct || $flushall)
 		{
-			debuglog("bittrex cancel order $order->Exchange $sellprice -> $ask");
-			bittrex_api_query('market/cancel', "&uuid=$order->OrderUuid");
+			debuglog("bittrex: cancel order $order->Exchange $sellprice -> $ask");
+			bittrex_api_query('market/cancel', "&uuid={$order->OrderUuid}");
 
-			$db_order = getdbosql('db_orders', "uuid=:uuid", array(':uuid'=>$order->OrderUuid));
+			$db_order = getdbosql('db_orders', "market=:market AND uuid=:uuid", array(
+				':market'=>'bittrex', ':uuid'=>$order->OrderUuid
+			));
 			if($db_order) $db_order->delete();
 
 			sleep(1);
@@ -60,13 +64,12 @@ function doBittrexTrading($quick=false)
 		// add existing orders (shouldnt happen after init)
 		else
 		{
-			$db_order = getdbosql('db_orders', "uuid=:uuid", array(':uuid'=>$order->OrderUuid));
+			$db_order = getdbosql('db_orders', "market=:market AND uuid=:uuid", array(
+				':market'=>'bittrex', ':uuid'=>$order->OrderUuid
+			));
 			if($db_order) continue;
 
-			debuglog("adding order $coin->symbol");
-
-		//	$ticker = bittrex_api_query('public/getticker', "&market=$pair");
-		//	$sellprice = bitcoinvaluetoa($ticker->result->Ask);
+			debuglog("bittrex: store new order of {$order->Quantity} {$coin->symbol} at $sellprice BTC");
 
 			$db_order = new db_orders;
 			$db_order->market = 'bittrex';
@@ -133,12 +136,13 @@ function doBittrexTrading($quick=false)
 			$market->save();
 		}
 
-		if($amount*$coin->price < 0.00050000) continue;
+		if($amount*$coin->price < $min_btc_trade) continue;
 		$pair = "BTC-$balance->Currency";
 
 		$data = bittrex_api_query('public/getorderbook', "&market=$pair&type=buy&depth=10");
 		if(!$data || !$data->success) continue;
 
+		if($coin->sellonbid)
 		for($i = 0; $i < 5 && $amount >= 0; $i++)
 		{
 			if(!isset($data->result->buy[$i])) break;
@@ -149,14 +153,13 @@ function doBittrexTrading($quick=false)
 			$sellprice = bitcoinvaluetoa($nextbuy->Rate);
 			$sellamount = min($amount, $nextbuy->Quantity);
 
-			if($sellamount*$sellprice < 0.00050000) continue;
+			if($sellamount*$sellprice < $min_btc_trade) continue;
 
 			debuglog("bittrex selling market $pair, $sellamount, $sellprice");
 			$res = bittrex_api_query('market/selllimit', "&market=$pair&quantity=$sellamount&rate=$sellprice");
 
-			if(!$res->success)
-			{
-				debuglog($res);
+			if(!$res->success) {
+				debuglog("bittrex err: ".json_encode($res));
 				break;
 			}
 
@@ -171,15 +174,14 @@ function doBittrexTrading($quick=false)
 		if($coin->sellonbid)
 			$sellprice = bitcoinvaluetoa($ticker->result->Bid);
 		else
-			$sellprice = bitcoinvaluetoa($ticker->result->Ask);
-		if($amount*$sellprice < 0.00050000) continue;
+			$sellprice = bitcoinvaluetoa($ticker->result->Ask * $sell_ask_pct);
+		if($amount*$sellprice < $min_btc_trade) continue;
 
 		debuglog("bittrex selling $pair, $amount, $sellprice");
 
 		$res = bittrex_api_query('market/selllimit', "&market=$pair&quantity=$amount&rate=$sellprice");
-		if(!$res || !$res->success)
-		{
-			debuglog($res);
+		if(!$res || !$res->success) {
+			debuglog("bittrex err: ".json_encode($res));
 			continue;
 		}
 

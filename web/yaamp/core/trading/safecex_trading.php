@@ -4,9 +4,6 @@
 
 function doSafecexTrading($quick=false)
 {
-	$flushall = rand(0, 4) == 0;
-	if($quick) $flushall = false;
-
 	// getbalance {"symbol":"BTC","balance":0.00118537,"pending":0,"orders":0.00029321,"total":0.00147858}
 
 	$db_balance = getdbosql('db_balances', "name='safecex'");
@@ -24,6 +21,9 @@ function doSafecexTrading($quick=false)
 	}
 
 	if (!YAAMP_ALLOW_EXCHANGE) return;
+
+	$flushall = rand(0, 8) == 0;
+	if($quick) $flushall = false;
 
 	$min_btc_trade = 0.00010000; // minimum allowed by the exchange
 	$sell_ask_pct = 1.05;        // sell on ask price + 5%
@@ -66,7 +66,9 @@ function doSafecexTrading($quick=false)
 			debuglog("safecex: cancel order {$order->market} at $sellprice, ask price is now $ask");
 			safecex_api_user('cancelorder', "&id={$order->id}");
 
-			$db_order = getdbosql('db_orders', "uuid=:uuid", array(':uuid'=>$order->id));
+			$db_order = getdbosql('db_orders', "market=:market AND uuid=:uuid", array(
+				':market'=>'safecex', ':uuid'=>$order->id
+			));
 			if($db_order) $db_order->delete();
 
 			sleep(1);
@@ -75,7 +77,9 @@ function doSafecexTrading($quick=false)
 		// store existing orders in the db
 		else
 		{
-			$db_order = getdbosql('db_orders', "uuid=:uuid", array(':uuid'=>$order->id));
+			$db_order = getdbosql('db_orders', "market=:market AND uuid=:uuid", array(
+				':market'=>'safecex', ':uuid'=>$order->id
+			));
 			if($db_order) continue;
 
 			debuglog("safecex: store new order of {$order->amount} {$coin->symbol} at $sellprice BTC");
@@ -105,7 +109,7 @@ function doSafecexTrading($quick=false)
 		foreach($orders as $order) {
 			if($order->type != 'sell') continue;
 			if($order->id == $db_order->uuid) {
-				debuglog("safecex: order waiting, {$order->amount} {$coin->symbol}");
+				// debuglog("safecex: order waiting, {$order->amount} {$coin->symbol}");
 				$found = true;
 				break;
 			}
@@ -134,6 +138,7 @@ function doSafecexTrading($quick=false)
 		if($market)
 		{
 			$market->lasttraded = time();
+			$market->balance = bitcoinvaluetoa($balance->orders);
 			$market->save();
 		}
 
