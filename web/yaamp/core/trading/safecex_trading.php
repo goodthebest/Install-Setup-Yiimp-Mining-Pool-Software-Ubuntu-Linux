@@ -198,16 +198,18 @@ function doSafecexTrading($quick=false)
 			continue;
 		}
 
-		$db_order = new db_orders;
-		$db_order->market = 'safecex';
-		$db_order->coinid = $coin->id;
-		$db_order->amount = $amount;
-		$db_order->price = $sellprice;
-		$db_order->ask = $ticker->ask;
-		$db_order->bid = $ticker->bid;
-		$db_order->uuid = $res->id;
-		$db_order->created = time();
-		$db_order->save();
+		if (isset($res->id)) {
+			$db_order = new db_orders;
+			$db_order->market = 'safecex';
+			$db_order->coinid = $coin->id;
+			$db_order->amount = $amount;
+			$db_order->price = $sellprice;
+			$db_order->ask = $ticker->ask;
+			$db_order->bid = $ticker->bid;
+			$db_order->uuid = $res->id;
+			$db_order->created = time();
+			$db_order->save();
+		}
 	}
 
 /* withdraw API doesn't exist
