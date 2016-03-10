@@ -154,6 +154,7 @@ function getAlgoPort($algo)
 		'blake'		=> 5733,
 		'decred'	=> 5744,
 		'vanilla'	=> 5755,
+		'blake2s'	=> 5766,
 		'penta'		=> 5833,
 		'luffa'		=> 5933,
 		'm7m'		=> 6033,
