@@ -9,6 +9,7 @@ function yaamp_get_algos()
 		'scryptn',
 		'argon2',
 		'blake',
+		'blake2s',
 		'decred',
 		'keccak',
 		'luffa',

@@ -169,7 +169,7 @@ function versionToAlgo($coin, $version)
 		0=>'sha256', 1=>'scrypt', 2=>'groestl', 3=>'x11', 4=>'blake'
 	);
 	$algos['UIS'] = array(
-		0=>'blake256', 1=>'skein', 2=>'qubit', 3=>'yescrypt', 4=>'x11'
+		0=>'lyra2v2', 1=>'skein', 2=>'qubit', 3=>'yescrypt', 4=>'x11'
 	);
 
 	$symbol = $coin->symbol;
