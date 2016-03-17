@@ -479,3 +479,36 @@ $links = <<<end
 end;
 	return $links;
 }
+
+// shared by wallet "tabs"
+function getAdminWalletLinks($coin, $info=NULL, $src='wallet')
+{
+	$html = CHtml::link("<b>COIN PROPERTIES</b>", '/site/update?id='.$coin->id);
+	if($info) {
+		$html .= ' || '.CHtml::link("<b>EXPLORER</b>", '/explorer?id='.$coin->id);
+		if ($src == 'wallet')
+			$html .= ' || '.CHtml::link("<b>PEERS</b>", '/site/peers?id='.$coin->id);
+		else
+			$html .= ' || '.CHtml::link("<b>WALLET</b>", '/site/coin?id='.$coin->id);
+	}
+
+	if(!$info && $coin->enable)
+		$html .= '<br/>'.CHtml::link("<b>STOP COIND</b>", '/site/stopcoin?id='.$coin->id);
+
+	if($coin->auto_ready)
+		$html .= '<br/>'.CHtml::link("<b>UNSET AUTO</b>", '/site/unsetauto?id='.$coin->id);
+	else
+		$html .= '<br/>'.CHtml::link("<b>SET AUTO</b>", '/site/setauto?id='.$coin->id);
+
+	$html .= '<br/>';
+
+	if(!empty($coin->link_bitcointalk))
+		$html .= CHtml::link('forum', $coin->link_bitcointalk, array('target'=>'_blank')).' ';
+
+	if(!empty($coin->link_github))
+		$html .= CHtml::link('git', $coin->link_github, array('target'=>'_blank')).' ';
+
+	$html .= CHtml::link('google', 'http://google.com/search?q='.urlencode($coin->name.' '.$coin->symbol.' bitcointalk'), array('target'=>'_blank'));
+
+	return $html;
+}

@@ -78,6 +78,17 @@ class SiteController extends CommonController
 		$this->render('coin_form', array('update'=>true, 'coin'=>$coin));
 	}
 
+	public function actionPeers()
+	{
+		if(!$this->admin) return;
+		$coin = getdbo('db_coins', getiparam('id'));
+		if (!$coin) {
+			$this->goback();
+		}
+
+		$this->render('coin_peers', array('coin'=>$coin));
+	}
+
 	/////////////////////////////////////////////////
 
 	public function actionIndex()

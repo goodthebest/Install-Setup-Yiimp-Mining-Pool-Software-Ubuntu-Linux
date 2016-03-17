@@ -1,8 +1,6 @@
 <?php
 
 $id = getiparam('id');
-$maxrows = arraySafeVal($_REQUEST,'rows',15);
-$since = arraySafeVal($_REQUEST,'since',time()-(7*24*3600));
 $coin = getdbo('db_coins', $id);
 if (!$coin) {
 	$this->goback();
@@ -10,10 +8,11 @@ if (!$coin) {
 
 $this->pageTitle = 'Wallet - '.$coin->symbol;
 
+$maxrows = arraySafeVal($_REQUEST,'rows',15);
+$since = arraySafeVal($_REQUEST,'since',time()-(7*24*3600));
+
 if (!empty($coin->algo) && $coin->algo != 'PoS')
 	user()->setState('yaamp-algo', $coin->algo);
-
-echo getAdminSideBarLinks()."<br>";
 
 $remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
 $info = $remote->getinfo();
@@ -21,29 +20,8 @@ $info = $remote->getinfo();
 $sellamount = $coin->balance;
 //if ($info) $sellamount = floatval($sellamount) - arraySafeVal($info, "paytxfee") * 3;
 
-echo "<br><a href='/site/update?id=$coin->id'><b>COIN PROPERTIES</b></a>";
-echo " || <a href='/coin/update?id=$coin->id'><b>EXTRA</b></a>";
-
-if($info)
-	echo " || <a href='/explorer?id=$coin->id'><b>EXPLORER</b></a>";
-
-if(!$info && $coin->enable)
-	echo "<br><a href='/site/stopcoin?id=$coin->id'><b>STOP COIND</b></a>";
-
-if($coin->auto_ready)
-	echo "<br><a href='/site/unsetauto?id=$coin->id'><b>UNSET AUTO</b></a>";
-else
-	echo "<br><a href='/site/setauto?id=$coin->id'><b>SET AUTO</b></a>";
-
-echo "<br>";
-
-if(!empty($coin->link_bitcointalk))
-	echo "<a href='$coin->link_bitcointalk' target=_blank>forum</a> ";
-
-if(!empty($coin->link_github))
-	echo "<a href='$coin->link_github' target=_blank>git</a> ";
-
-echo "<a href='http://google.com/search?q=$coin->name%20$coin->symbol%20bitcointalk' target=_blank>google</a> ";
+echo getAdminSideBarLinks().'<br/><br/>';
+echo getAdminWalletLinks($coin, $info, 'wallet');
 
 echo '<br><div id="main_results"></div>';
 
