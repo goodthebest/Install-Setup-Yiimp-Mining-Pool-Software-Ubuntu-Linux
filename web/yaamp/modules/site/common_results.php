@@ -306,7 +306,7 @@ echo '<th>Quantity</th>';
 echo '<th>Ask</th>';
 echo '<th>Bid</th>';
 echo '<th>Value</th>';
-//echo '<th></th>';
+echo '<th></th>';
 echo '</tr>';
 echo '</thead><tbody>';
 
@@ -320,9 +320,8 @@ foreach($orders as $order)
 
 	$marketurl = getMarketUrl($coin, $order->market);
 
-//	echo '<tr class="ssrow">';
 	$algo_color = getAlgoColors($coin->algo);
-	echo '<tr style="background-color: '.$algo_color.';">';
+	echo '<tr class="ssrow" style="background-color: '.$algo_color.';">';
 
 	$created = datetoa2($order->created). ' ago';
 	$price = $order->price? bitcoinvaluetoa($order->price): '';
@@ -346,15 +345,17 @@ foreach($orders as $order)
 	echo '<td style="font-size: .8em">'."$bid ({$bidpercent}%)".'</td>';
 	echo $bidvalue>0.01? '<td style="font-size: .8em;"><b>'.$bidvalue.'</b></td>': '<td style="font-size: .8em;">'.$bidvalue.'</td>';
 
-// 	echo '<td>';
-// 	echo '<a href="/site/cancelorder?id='.$order->id.'">[cancel]</a> ';
-// 	echo '<a href="/site/sellorder?id='.$order->id.'">[sell]</a>';
-// 	echo '</td>';
+	echo '<td>';
+	echo '<a href="/site/clearorder?id='.$order->id.'">clear</a> ';
+//	echo '<a href="/site/cancelorder?id='.$order->id.'">cancel</a> ';
+//	echo '<a href="/site/sellorder?id='.$order->id.'">sell</a>';
+	echo '</td>';
 	echo '</tr>';
 }
 
 $bidpercent = $totalvalue>0? round(($totalvalue-$totalbid)/$totalvalue*100, 1): '';
 
+if ($totalvalue) {
 echo '<tr>';
 echo '<td></td>';
 echo '<td>Total</td>';
@@ -363,6 +364,7 @@ echo '<td style="font-size: .8em;"><b>'.$totalvalue.'</b></td>';
 echo '<td style="font-size: .8em;"><b>'."$totalbid ({$bidpercent}%)</b></td>";
 echo '<td></td>';
 echo '</tr>';
+}
 
 echo '</tbody></table><br>';
 

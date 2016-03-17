@@ -657,6 +657,16 @@ class SiteController extends CommonController
 		$this->redirect('/site/common');
 	}
 
+	// called from the dashboard page
+	public function actionClearorder()
+	{
+		if(!$this->admin) return;
+		$order = getdbo('db_orders', getiparam('id'));
+		if ($order->id)
+			$order->delete();
+		$this->goback();
+	}
+
 	////////////////////////////////////////////////////////////////////////////////////////
 
 	public function actionAlgo()

@@ -154,6 +154,9 @@ function versionToAlgo($coin, $version)
 	$algos['DGB'] = array(
 		0=>'scrypt', 1=>'sha256', 2=>'groestl', 3=>'skein', 4=>'qubit'
 	);
+	$algos['AUR'] = array(
+		0=>'sha256', 1=>'scrypt', 2=>'groestl', 3=>'skein', 4=>'qubit'
+	);
 	$algos['DGC'] = array(
 		0=>'scrypt', 1=>'sha256', 2=>'x11'
 	);
