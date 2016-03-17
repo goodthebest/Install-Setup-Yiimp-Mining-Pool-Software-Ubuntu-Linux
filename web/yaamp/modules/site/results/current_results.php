@@ -94,7 +94,9 @@ foreach($algos as $item)
 	$avgprice = $avgprice? mbitcoinvaluetoa(take_yaamp_fee($avgprice, $algo)): '-';
 
 	$total1 = controller()->memcache->get_database_scalar("current_total-$algo",
-		"select sum(amount*price) from blocks where category!='orphan' and time>$t and algo=:algo", array(':algo'=>$algo));
+		"SELECT SUM(amount*price) AS total FROM blocks WHERE time>$t AND algo=:algo AND NOT category IN ('orphan','stake','generated')",
+		array(':algo'=>$algo)
+	);
 
 	$hashrate1 = controller()->memcache->get_database_scalar("current_hashrate1-$algo",
 		"select avg(hashrate) from hashrate where time>$t and algo=:algo", array(':algo'=>$algo));

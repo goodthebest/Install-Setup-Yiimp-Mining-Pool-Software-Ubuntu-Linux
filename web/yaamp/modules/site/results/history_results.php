@@ -25,7 +25,7 @@ td.symb {
 <tr>
 <th></th>
 <th>Name</th>
-<th class="symb">Sym.</th>
+<th class="symb">Symbol</th>
 <th align=right>Last Hour</th>
 <th align=right>Last 24 Hours</th>
 <th align=right>Last 7 Days</th>
@@ -48,7 +48,7 @@ $main_ids = array();
 
 $algo = user()->getState('yaamp-algo');
 $list = dbolist("SELECT coin_id FROM blocks WHERE coin_id IN (select id from coins where algo=:algo and enable=1 and visible=1)
-	AND time>$t4 AND category!='orphan' GROUP BY coin_id ORDER BY coin_id DESC",
+	AND time>$t4 AND NOT category IN ('orphan','stake','generated') GROUP BY coin_id ORDER BY coin_id DESC",
 	array(':algo'=>$algo)
 );
 
@@ -62,19 +62,19 @@ foreach($list as $item)
 	if($coin->symbol == 'BTC') continue;
 
 	$res1 = controller()->memcache->get_database_row("history_item1-$id-$algo",
-		"SELECT COUNT(*) as a, SUM(amount*price) as b FROM blocks WHERE coin_id=$id AND category!='orphan' AND time>$t1 AND algo=:algo", 
+		"SELECT COUNT(id) as a, SUM(amount*price) as b FROM blocks WHERE coin_id=$id AND NOT category IN ('orphan','stake','generated') AND time>$t1 AND algo=:algo",
 		array(':algo'=>$algo));
 
 	$res2 = controller()->memcache->get_database_row("history_item2-$id-$algo",
-		"SELECT COUNT(*) as a, SUM(amount*price) as b FROM blocks WHERE coin_id=$id AND category!='orphan' AND time>$t2 AND algo=:algo", 
+		"SELECT COUNT(id) as a, SUM(amount*price) as b FROM blocks WHERE coin_id=$id AND NOT category IN ('orphan','stake','generated') AND time>$t2 AND algo=:algo",
 		array(':algo'=>$algo));
 
 	$res3 = controller()->memcache->get_database_row("history_item3-$id-$algo",
-		"SELECT COUNT(*) as a, SUM(amount*price) as b FROM blocks WHERE coin_id=$id AND category!='orphan' AND time>$t3 AND algo=:algo", 
+		"SELECT COUNT(id) as a, SUM(amount*price) as b FROM blocks WHERE coin_id=$id AND NOT category IN ('orphan','stake','generated') AND time>$t3 AND algo=:algo",
 		array(':algo'=>$algo));
 
 	$res4 = controller()->memcache->get_database_row("history_item4-$id-$algo",
-		"SELECT COUNT(*) as a, SUM(amount*price) as b FROM blocks WHERE coin_id=$id AND category!='orphan' AND time>$t4 AND algo=:algo", 
+		"SELECT COUNT(id) as a, SUM(amount*price) as b FROM blocks WHERE coin_id=$id AND NOT category IN ('orphan','stake','generated') AND time>$t4 AND algo=:algo",
 		array(':algo'=>$algo));
 
 	$total1 += $res1['b'];
