@@ -30,14 +30,7 @@ foreach($list as $coin)
 	if($coin->symbol == 'BTC') continue;
 	if(!empty($coin->symbol2)) continue;
 
-	$coin->version = substr($coin->version, 0, 20);
-	if (is_numeric($coin->version)) {
-		$version = sprintf("%08d", 0 + $coin->version);
-		$coin->version = intval(substr($version, 0, 2)).'.'.intval(substr($version, 2, 2)).
-			'.'.intval(substr($version, 4, 2)).'.'.intval(substr($version, 6));
-	} else {
-		$coin->version = ltrim($coin->version, 'v');
-	}
+	$coin->version = formatWalletVersion($coin);
 
 	//if (!$coin->network_hash)
 		$coin->network_hash = controller()->memcache->get("yiimp-nethashrate-{$coin->symbol}");

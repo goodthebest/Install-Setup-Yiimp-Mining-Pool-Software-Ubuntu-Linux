@@ -2,6 +2,8 @@
 
 if (!$coin) $this->goback();
 
+$this->pageTitle = 'Peers - '.$coin->symbol;
+
 $remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
 $info = $remote->getinfo();
 
@@ -13,7 +15,11 @@ echo getAdminWalletLinks($coin, $info, 'peers').'<br/><br/>';
 JavascriptFile("/yaamp/ui/js/jquery.metadata.js");
 JavascriptFile("/yaamp/ui/js/jquery.tablesorter.widgets.js");
 
-$list = $remote->getpeerinfo();
+echo <<<end
+<style type="text/css">
+td.red { color: darkred; }
+</style>
+end;
 
 showTableSorter('maintable', "{
 	tableClass: 'dataGrid',
@@ -50,7 +56,11 @@ end;
 
 $addnode = array();
 $version = '';
+$localheight = arraySafeVal($info, 'blocks');
 
+$list = $remote->getpeerinfo();
+
+if(!empty($list))
 foreach($list as $peer)
 {
 	echo '<tr class="ssrow">';
@@ -59,12 +69,14 @@ foreach($list as $peer)
 	echo '<td>'.$node.'</td>';
 	$addnode[] = ($coin->symbol=='DCR' ? 'addpeer=' : 'addnode=') . $node;
 
-	$version = max($version, arraySafeVal($peer,'version').' '.arraySafeVal($peer,'subver'));
-	echo '<td>'.arraySafeVal($peer,'version').' '.arraySafeVal($peer,'subver').'</td>';
+	$peerver = trim(arraySafeVal($peer,'subver'),'/');
+	$version = max($version, $peerver);
+	echo '<td>'.$peerver.'</td>';
 
 	$height = arraySafeVal($peer,'currentheight');
+	$class = abs($height - $localheight) > 5 ? 'red' : '';
 	if (!$height) $height = arraySafeVal($peer,'synced_blocks');
-	echo '<td>'.$height.'</td>';
+	echo '<td class="'.$class.'">'.$height.'</td>';
 
 	echo '<td>'.arraySafeVal($peer,'pingtime','').'</td>';
 	echo '<td>'.arraySafeVal($peer,'services','').'</td>';
@@ -88,7 +100,9 @@ foreach($list as $peer)
 
 echo '</tbody></table><br>';
 
-echo '<b>Last version: </b>'.$version;
+echo '<b>Local version: </b>'.formatWalletVersion($coin).' ';
+echo '<b>Latest : </b>'.$version;
+
 echo '<pre>';
 echo implode("\n",$addnode);
 echo '</pre>';

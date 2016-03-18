@@ -153,7 +153,7 @@ if(!$info)
 $errors = isset($info['errors'])? $info['errors']: '';
 $balance = isset($info['balance'])? $info['balance']: '';
 $txfee = isset($info['paytxfee'])? $info['paytxfee']: '';
-$connections = isset($info['connections'])? $info['connections']: '';
+$connections = isset($info['connections'])? CHtml::link($info['connections'],'/site/peers?id='.$coin->id): '';
 $blocks = isset($info['blocks'])? $info['blocks']: '';
 
 echo '<td>'.round_difficulty($coin->difficulty).'</td>';

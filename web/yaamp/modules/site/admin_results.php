@@ -97,10 +97,11 @@ foreach($coins as $coin)
 	}
 
 	echo "</b></td>";
-	$version = substr($coin->version, 0, 25);
+	$version = formatWalletVersion($coin);
+	if (!empty($coin->symbol2)) $version .= " ({$coin->symbol2})";
 
 	echo "<td><b><a href='/site/coin?id=$coin->id'>$coin->name ($coin->symbol)</a></b>
-		<br><span style='font-size: .8em'>$version ($coin->symbol2)</span></td>";
+		<br><span style='font-size: .8em'>$version</span></td>";
 
 	echo "<td>$coin->rpchost:$coin->rpcport";
 	if($coin->connections) echo " ($coin->connections)";

@@ -337,5 +337,17 @@ function formatText($text)
 	return $text;
 }
 
-
-
+function formatWalletVersion($coin)
+{
+	$version = substr($coin->version, 0, 20);
+	if (is_numeric($version)) {
+		$decver = sprintf("%08d", 0 + $version);
+		$version = intval(substr($decver, 0, 2)).'.'.intval(substr($decver, 2, 2)).
+			'.'.intval(substr($decver, 4, 2));
+		if (intval(substr($decver, 6)))
+			$version .= '.'.intval(substr($decver, 6));
+	} else {
+		$version = ltrim($version, 'v');
+	}
+	return $version;
+}
