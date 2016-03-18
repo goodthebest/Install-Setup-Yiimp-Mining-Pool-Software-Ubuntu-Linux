@@ -259,11 +259,13 @@ if ($coin->symbol == 'DCR') {
 		else if ($category == 'send' && $tx['amount'] == -0) {
 			// vote accepted (listed twice ? in listtransactions)
 			if ($tx['vout'] > 0)
-				$txs_array[$key]['category'] = 'spent';
-			else if (arraySafeVal($tx,"confirmations") > 256)
-				$txs_array[$key]['category'] = 'generated';
+				$category = 'spent';
+			else if (arraySafeVal($tx,"confirmations") >= 256)
+				$category = 'receive';
 			else
-				$txs_array[$key]['category'] = 'stake';
+				$category = 'stake';
+
+			$txs_array[$key]['category'] = $category;
 
 			if ($tx['vout'] == 0) {
 				// won ticket value

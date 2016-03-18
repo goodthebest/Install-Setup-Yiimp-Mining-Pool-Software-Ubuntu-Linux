@@ -101,6 +101,7 @@ class SiteController extends CommonController
 			if ($coin->symbol == 'DCR') {
 				$res = $remote->node('disconnect', $node);
 				if (!$res) $res = $remote->node('remove', $node);
+				$remote->error = false; // ignore
 			} else {
 				$res = $remote->addnode($node, 'remove');
 			}
