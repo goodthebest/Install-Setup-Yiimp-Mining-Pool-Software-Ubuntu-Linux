@@ -78,6 +78,8 @@ class SiteController extends CommonController
 		$this->render('coin_form', array('update'=>true, 'coin'=>$coin));
 	}
 
+	/////////////////////////////////////////////////
+
 	public function actionPeers()
 	{
 		if(!$this->admin) return;
@@ -87,6 +89,50 @@ class SiteController extends CommonController
 		}
 
 		$this->render('coin_peers', array('coin'=>$coin));
+	}
+
+	public function actionPeerRemove()
+	{
+		if(!$this->admin) return;
+		$coin = getdbo('db_coins', getiparam('id'));
+		$node = getparam('node');
+		if ($coin && $node) {
+			$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
+			if ($coin->symbol == 'DCR') {
+				$res = $remote->node('disconnect', $node);
+				if (!$res) $res = $remote->node('remove', $node);
+			} else {
+				$res = $remote->addnode($node, 'remove');
+			}
+			if (!$res && $remote->error) {
+				user()->setFlash('error', "$node ".$remote->error);
+			}
+		}
+		$this->goback();
+	}
+
+	public function actionPeerAdd()
+	{
+		if(!$this->admin) return;
+		$coin = getdbo('db_coins', getiparam('id'));
+		$node = arraySafeVal($_POST, 'node');
+		if ($coin && $node) {
+			$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
+			if ($coin->symbol == 'DCR') {
+				$remote->addnode($node, 'add');
+				usleep(500*1000);
+				$remote->node('connect', $node);
+				sleep(1);
+			} else {
+				$res = $remote->addnode($node, 'add');
+				if (!$res) {
+					user()->setFlash('error', "$node ".$remote->error);
+				} else {
+					sleep(1);
+				}
+			}
+		}
+		$this->goback();
 	}
 
 	/////////////////////////////////////////////////
@@ -548,14 +594,16 @@ class SiteController extends CommonController
 	{
 		if(!$this->admin) return;
 		$coin = getdbo('db_coins', getiparam('id'));
-		$amount = getparam('amount');
-
-		$res = $this->doSellBalance($coin, $amount);
-
-		if(!$res)
-			$this->redirect('/site/admin');
-		else
-			$this->redirect('/site/exchange');
+		if ($coin) {
+			$amount = getparam('amount');
+			$res = $this->doSellBalance($coin, $amount);
+			if(!$res)
+				$this->redirect('/site/admin');
+			else
+				$this->redirect('/site/exchange');
+			return;
+		}
+		$this->goback();
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////

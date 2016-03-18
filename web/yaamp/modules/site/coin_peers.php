@@ -18,7 +18,17 @@ JavascriptFile("/yaamp/ui/js/jquery.tablesorter.widgets.js");
 echo <<<end
 <style type="text/css">
 td.red { color: darkred; }
+table.dataGrid a.red { color: darkred; }
+div.form { text-align: right; height: 30px; width: 350px; float: right; margin-top: -48px; margin-bottom: 16px; margin-right: -8px; }
+.main-submit-button { cursor: pointer; }
 </style>
+
+<div class="form">
+<form action="/site/peerAdd?id={$coin->id}" method="post" style="padding: 8px;">
+<input type="text" name="node" class="main-text-input" placeholder="addr[:port]" autocomplete="off" style="width: 150px; margin-right: 4px;">
+<input type="submit" value="Add node" class="main-submit-button" >
+</form>
+</div>
 end;
 
 showTableSorter('maintable', "{
@@ -31,7 +41,8 @@ showTableSorter('maintable', "{
 		4:{sorter:'text'},
 		5:{sorter:'metadata'},
 		6:{sorter:'metadata'},
-		7:{sorter:'numeric'}
+		7:{sorter:'numeric'},
+		7:{sorter:false}
 	},
 	widgets: ['zebra','Storage','saveSort'],
 	widgetOptions: {
@@ -50,6 +61,7 @@ echo <<<end
 <th>Since</th>
 <th>Last</th>
 <th>Rx / Tx (kB)</th>
+<th width="30"></th>
 </tr>
 </thead><tbody>
 end;
@@ -95,6 +107,12 @@ foreach($list as $peer)
 		echo '<td>'."$bytesrecv / $bytessent".'</td>';
 	else
 		echo '<td></td>';
+
+	echo '<td>';
+	$options = array('class'=>'red', 'title'=>'Disconnect from node');
+	echo CHtml::link('remove','/site/peerRemove?id='.$coin->id.'&node='.$node, $options);
+	echo '</td>';
+
 	echo '</tr>';
 }
 
