@@ -62,10 +62,12 @@ function BackendBlockNew($coin, $db_block)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-function BackendBlockFind1()
+function BackendBlockFind1($coinid = NULL)
 {
+	$sqlFilter = $coinid ? " AND coin_id=".intval($coinid) : '';
+
 //	debuglog(__METHOD__);
-	$list = getdbolist('db_blocks', "category='new' ORDER BY time");
+	$list = getdbolist('db_blocks', "category='new' $sqlFilter ORDER BY time");
 	foreach($list as $db_block)
 	{
 		$coin = getdbo('db_coins', $db_block->coin_id);
@@ -121,12 +123,14 @@ function BackendBlockFind1()
 
 /////////////////////////////////////////////////////////////////////////////////
 
-function BackendBlocksUpdate()
+function BackendBlocksUpdate($coinid = NULL)
 {
 //	debuglog(__METHOD__);
 	$t1 = microtime(true);
 
-	$list = getdbolist('db_blocks', "category IN ('immature','stake') order by time");
+	$sqlFilter = $coinid ? " AND coin_id=".intval($coinid) : '';
+
+	$list = getdbolist('db_blocks', "category IN ('immature','stake') $sqlFilter ORDER BY time");
 	foreach($list as $block)
 	{
 		$coin = getdbo('db_coins', $block->coin_id);
@@ -195,9 +199,11 @@ function BackendBlocksUpdate()
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-function BackendBlockFind2()
+function BackendBlockFind2($coinid = NULL)
 {
-	$coins = getdbolist('db_coins', "enable");
+	$sqlFilter = $coinid ? "id=".intval($coinid) : 'enable=1';
+
+	$coins = getdbolist('db_coins', $sqlFilter);
 	foreach($coins as $coin)
 	{
 		if($coin->symbol == 'BTC') continue;

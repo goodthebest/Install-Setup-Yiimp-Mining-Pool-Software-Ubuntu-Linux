@@ -56,7 +56,7 @@ else
 echo "<br><a href='/site/clearearnings?id=$coin->id'><b>CLEAR EARNINGS</b></a>";
 echo "<br><a href='/site/deleteearnings?id=$coin->id'><b>DELETE EARNINGS</b></a>";
 echo "<br><a href='/site/payuserscoin?id=$coin->id'><b>DO PAYMENTS</b></a>";
-//echo "<br><a href='/site/checkblocks?id=$coin->id'><b>CHECK FOR NEW BLOCKS</b></a>";
+echo '<br><a href="/site/checkblocks?id='.$coin->id.'"><b>UPDATE BLOCKS</b></a>';
 
 echo <<<END
 

@@ -19,7 +19,7 @@ class SiteController extends CommonController
 		if ($valid)
 			debuglog("admin connect from $client_ip");
 		else
-	                debuglog("admin connect failure from $client_ip");
+			debuglog("admin connect failure from $client_ip");
 
 		user()->setState('yaamp_admin', $valid);
 
@@ -289,20 +289,26 @@ class SiteController extends CommonController
 		$this->renderPartial('earning_results');
 	}
 
+	// called from the wallet
 	public function actionClearearnings()
 	{
 		if(!$this->admin) return;
-		$coin = getdbo('db_coins', getiparam('id')); // todo...
-
-		BackendClearEarnings();
-		$this->render('earning');
+		$coin = getdbo('db_coins', getiparam('id'));
+		if ($coin) {
+			BackendClearEarnings($coin->id);
+		}
+		$this->goback();
 	}
 
+	// called from the earnings page
 	public function actionClearearning()
 	{
 		if(!$this->admin) return;
-		$earning = getdbo('db_earnings', getiparam('id')); // todo...
-		$this->render('earning');
+		$earning = getdbo('db_earnings', getiparam('id'));
+		if ($earning && $earning->status == 0) {
+			$earning->delete();
+		}
+		$this->goback();
 	}
 
 	/////////////////////////////////////////////////
@@ -323,12 +329,10 @@ class SiteController extends CommonController
 	{
 		if(!$this->admin) return;
 		$user = getdbo('db_accounts', getiparam('id'));
-		if (!$user) {
-			$this->goback();
-			return;
+		if ($user) {
+			BackendUserCancelFailedPayment($user->id);
 		}
-		BackendUserCancelFailedPayment($user->id);
-		$this->redirect('payments');
+		$this->goback();
 	}
 
 	/////////////////////////////////////////////////
@@ -566,7 +570,7 @@ class SiteController extends CommonController
 		$user->is_locked = true;
 		$user->save();
 
-		$this->redirect('/site/monsters');
+		$this->goback();
 	}
 
 	public function actionUnblockuser()
@@ -579,51 +583,55 @@ class SiteController extends CommonController
 		$user->is_locked = false;
 		$user->save();
 
-		$this->redirect('/site/monsters');
+		$this->goback();
 	}
 
+	// called from the wallet
 	public function actionPayuserscoin()
 	{
 		if(!$this->admin) return;
-
 		$coin = getdbo('db_coins', getiparam('id'));
-		if(!$coin)
-		{
-			debuglog("coin not found");
-			return;
+		if($coin) {
+			BackendCoinPayments($coin);
 		}
+		$this->goback();
+	}
 
-		BackendCoinPayments($coin);
+	// called from the wallet
+	public function actionCheckblocks()
+	{
+		if(!$this->admin) return;
+		$coin = getdbo('db_coins', getiparam('id'));
+		if($coin) {
+			BackendBlockFind1($coin->id);
+			BackendBlocksUpdate($coin->id);
+			BackendBlockFind2($coin->id);
+		}
 		$this->goback();
 	}
 
 	////
 
+	// called from the wallet
 	public function actionDeleteEarnings()
 	{
 		if(!$this->admin) return;
-
 		$coin = getdbo('db_coins', getiparam('id'));
-		if(!$coin)
-		{
-			debuglog("coin not found");
-			return;
+		if($coin) {
+			dborun("DELETE FROM earnings WHERE coinid={$coin->id}");
 		}
-
-//		$list = getdbolist('db_earnings', "coinid=$coin->id and not cleared");
-//		foreach($list as $earning) $earning->delete();
-
-		dborun("delete from earnings where coinid=$coin->id");
-		$this->redirect("/site/admin");
+		$this->goback();
 	}
 
+	// called from the earnings page
 	public function actionDeleteEarning()
 	{
 		if(!$this->admin) return;
 		$earning = getdbo('db_earnings', getiparam('id'));
-		$earning->delete();
-
-		$this->redirect('/site/earning');
+		if($earning) {
+			$earning->delete();
+		}
+		$this->goback();
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
@@ -633,39 +641,35 @@ class SiteController extends CommonController
 		if(!$this->admin) return;
 
 		$exchange = getdbo('db_exchange', getiparam('id'));
-		$unspent = $exchange->quantity;
+		if ($exchange) {
 
-		$exchange->status = 'deleted';
-		$exchange->price = 0;
-		$exchange->receive_time = time();
-		$exchange->save();
+			$exchange->status = 'deleted';
+			$exchange->price = 0;
+			$exchange->receive_time = time();
+			$exchange->save();
 
-// 		$earnings = getdbolist('db_earnings', "coinid=$exchange->coinid and not cleared order by create_time");
-// 		foreach($earnings as $earning)
-// 		{
-// 			$unspent -= $earning->amount;
-// 			$earning->delete();
-
-// 			if($unspent <= 0) break;
-// 		}
-
-		$this->redirect('/site/exchange');
+			/*
+			$unspent = $exchange->quantity;
+			$earnings = getdbolist('db_earnings', "coinid=$exchange->coinid and not cleared order by create_time");
+			foreach($earnings as $earning) {
+				$unspent -= $earning->amount;
+				$earning->delete();
+				if($unspent <= 0) break;
+			}
+			*/
+		}
+		$this->goback();
 	}
 
 	public function actionClearMarket()
 	{
 		if(!$this->admin) return;
-
-		$id = getiparam('id');
-		$market = getdbo('db_markets', $id);
-
-		if($market)
-		{
+		$market = getdbo('db_markets', getiparam('id'));
+		if($market) {
 			$market->lastsent = null;
 			$market->save();
 		}
-
-		$this->redirect('/site/common');
+		$this->goback();
 	}
 
 	// called from the dashboard page
@@ -673,8 +677,9 @@ class SiteController extends CommonController
 	{
 		if(!$this->admin) return;
 		$order = getdbo('db_orders', getiparam('id'));
-		if ($order->id)
+		if ($order) {
 			$order->delete();
+		}
 		$this->goback();
 	}
 
@@ -816,14 +821,14 @@ class SiteController extends CommonController
 		if ($balance)
 			debuglog("runexchange done ($balance->name)");
 		else
-			debuglog("runexchange faiked (no id!)");
+			debuglog("runexchange failed (no id!)");
 
 		$this->redirect("/site/common");
 	}
 
 	public function actionEval()
 	{
-		if(!$this->admin) return;
+//		if(!$this->admin) return;
 
 //		$param = getparam('param');
 //		if($param) eval($param);

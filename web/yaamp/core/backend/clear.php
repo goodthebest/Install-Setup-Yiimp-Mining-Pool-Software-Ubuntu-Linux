@@ -1,6 +1,6 @@
 <?php
 
-function BackendClearEarnings()
+function BackendClearEarnings($coinid = NULL)
 {
 //	debuglog(__FUNCTION__);
 
@@ -10,7 +10,9 @@ function BackendClearEarnings()
 		$delay = time() - (YAAMP_PAYMENTS_FREQ / 2);
 	$total_cleared = 0;
 
-	$list = getdbolist('db_earnings', "status=1 and mature_time<$delay");
+	$sqlFilter = $coinid ? " AND coinid=".intval($coinid) : '';
+
+	$list = getdbolist('db_earnings', "status=1 AND mature_time<$delay $sqlFilter");
 	foreach($list as $earning)
 	{
 		$user = getdbo('db_accounts', $earning->userid);
