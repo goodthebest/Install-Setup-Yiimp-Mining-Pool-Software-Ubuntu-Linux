@@ -242,6 +242,7 @@ if (!empty($txs)) {
 
 // filter useless decred spent transactions
 if ($coin->symbol == 'DCR') {
+
 	$prev_tx = array(); $lastday = '';
 	foreach($txs_array as $key => $tx)
 	{
@@ -254,6 +255,23 @@ if ($coin->symbol == 'DCR') {
 			// if txid is the same as the last income... it's not a real "send"
 			if ($prev_tx['amount'] == 0 - $tx['amount'])
 				$txs_array[$key]['category'] = 'spent';
+		}
+		else if ($category == 'send' && $tx['amount'] == -0) {
+			// vote accepted (listed twice ? in listtransactions)
+			if ($tx['vout'] > 0)
+				$txs_array[$key]['category'] = 'spent';
+			else if (arraySafeVal($tx,"confirmations") > 256)
+				$txs_array[$key]['category'] = 'generated';
+			else
+				$txs_array[$key]['category'] = 'stake';
+
+			if ($tx['vout'] == 0) {
+				// won ticket value
+				$t = $remote->getrawtransaction($tx['txid'], 1);
+				if ($t && isset($t['vin'][0])) {
+					$txs_array[$key]['amount'] = $t['vin'][0]['amountin'] * 0.00000001;
+				}
+			}
 		}
 		else if ($category == 'receive') {
 			$prev_tx = $tx;
