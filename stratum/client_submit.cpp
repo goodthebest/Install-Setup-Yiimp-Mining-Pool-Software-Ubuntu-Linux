@@ -47,7 +47,7 @@ void build_submit_values(YAAMP_JOB_VALUES *submitvalues, YAAMP_JOB_TEMPLATE *tem
 /////////////////////////////////////////////
 
 static void create_decred_header(YAAMP_JOB_TEMPLATE *templ, YAAMP_JOB_VALUES *out,
-	const char *ntime, const char *nonce, const char *nonce2, bool usegetwork)
+	const char *ntime, const char *nonce, const char *nonce2, const char *vote, bool usegetwork)
 {
 	struct __attribute__((__packed__)) {
 		uint32_t version;
@@ -74,6 +74,7 @@ static void create_decred_header(YAAMP_JOB_TEMPLATE *templ, YAAMP_JOB_VALUES *ou
 
 	memset(header.extra, 0, 36);
 	sscanf(nonce, "%08x", &header.nonce);
+	if (strcmp(vote, "")) sscanf(vote, "%04hx", &header.votebits);
 	binlify(header.extra, nonce2);
 
 	hexlify(out->header, (const unsigned char*) &header, 180);
@@ -81,7 +82,7 @@ static void create_decred_header(YAAMP_JOB_TEMPLATE *templ, YAAMP_JOB_VALUES *ou
 }
 
 static void build_submit_values_decred(YAAMP_JOB_VALUES *submitvalues, YAAMP_JOB_TEMPLATE *templ,
-	const char *nonce1, const char *nonce2, const char *ntime, const char *nonce, bool usegetwork)
+	const char *nonce1, const char *nonce2, const char *ntime, const char *nonce, const char *vote, bool usegetwork)
 {
 	if (!usegetwork) {
 		// not used yet
@@ -106,7 +107,7 @@ static void build_submit_values_decred(YAAMP_JOB_VALUES *submitvalues, YAAMP_JOB
 		printf("merkle root %s\n", merkleroot.c_str());
 #endif
 	}
-	create_decred_header(templ, submitvalues, ntime, nonce, nonce2, usegetwork);
+	create_decred_header(templ, submitvalues, ntime, nonce, nonce2, vote, usegetwork);
 
 	int header_len = strlen(submitvalues->header)/2;
 	g_current_algo->hash_function((char *)submitvalues->header_bin, (char *)submitvalues->hash_bin, header_len);
@@ -117,7 +118,8 @@ static void build_submit_values_decred(YAAMP_JOB_VALUES *submitvalues, YAAMP_JOB
 
 /////////////////////////////////////////////////////////////////////////////////
 
-void client_do_submit(YAAMP_CLIENT *client, YAAMP_JOB *job, YAAMP_JOB_VALUES *submitvalues, char *extranonce2, char *ntime, char *nonce)
+static void client_do_submit(YAAMP_CLIENT *client, YAAMP_JOB *job, YAAMP_JOB_VALUES *submitvalues,
+	char *extranonce2, char *ntime, char *nonce, char *vote)
 {
 	YAAMP_COIND *coind = job->coind;
 	YAAMP_JOB_TEMPLATE *templ = job->templ;
@@ -316,23 +318,29 @@ bool client_submit(YAAMP_CLIENT *client, json_value *json_params)
 	char extranonce2[32];
 	char ntime[32];
 	char nonce[32];
+	char vote[8];
 
 	memset(extranonce2, 0, 32);
 	memset(ntime, 0, 32);
 	memset(nonce, 0, 32);
+	memset(vote, 0, 8);
 
 	int jobid = htoi(json_params->u.array.values[1]->u.string.ptr);
 	strncpy(extranonce2, json_params->u.array.values[2]->u.string.ptr, 31);
 	strncpy(ntime, json_params->u.array.values[3]->u.string.ptr, 31);
 	strncpy(nonce, json_params->u.array.values[4]->u.string.ptr, 31);
+	if (json_params->u.array.length == 6)
+		strncpy(vote, json_params->u.array.values[5]->u.string.ptr, 7);
 
 #ifdef HASH_DEBUGLOG_
-	debuglog("submit %s %d, %s, %s, %s\n", client->sock->ip, jobid, extranonce2, ntime, nonce);
+	debuglog("submit %s (uid %d) %d, %s, t=%s, n=%s, vote=%s\n", client->sock->ip, client->userid,
+		jobid, extranonce2, ntime, nonce, vote);
 #endif
 
 	string_lower(extranonce2);
 	string_lower(ntime);
 	string_lower(nonce);
+	string_lower(vote);
 
 	YAAMP_JOB *job = (YAAMP_JOB *)object_find(&g_list_job, jobid, true);
 	if(!job)
@@ -404,13 +412,22 @@ bool client_submit(YAAMP_CLIENT *client, json_value *json_params)
 		}
 	}
 
+	if(decred_header && strcmp(vote,"")) {
+		uint32_t nvote = 0;
+		sscanf(vote, "%04x", &nvote);
+		if ((nvote & 1) == 0) {
+			client_submit_error(client, job, 28, "Invalid vote", extranonce2, ntime, nonce);
+			return true;
+		}
+	}
+
 	///////////////////////////////////////////////////////////////////////////////////////////
 
 	YAAMP_JOB_VALUES submitvalues;
 	memset(&submitvalues, 0, sizeof(submitvalues));
 
 	if(decred_header)
-		build_submit_values_decred(&submitvalues, templ, client->extranonce1, extranonce2, ntime, nonce, true);
+		build_submit_values_decred(&submitvalues, templ, client->extranonce1, extranonce2, ntime, nonce, vote, true);
 	else
 		build_submit_values(&submitvalues, templ, client->extranonce1, extranonce2, ntime, nonce);
 
@@ -443,7 +460,7 @@ bool client_submit(YAAMP_CLIENT *client, json_value *json_params)
 	}
 
 	if(job->coind)
-		client_do_submit(client, job, &submitvalues, extranonce2, ntime, nonce);
+		client_do_submit(client, job, &submitvalues, extranonce2, ntime, nonce, vote);
 	else
 		remote_submit(client, job, &submitvalues, extranonce2, ntime, nonce);
 
