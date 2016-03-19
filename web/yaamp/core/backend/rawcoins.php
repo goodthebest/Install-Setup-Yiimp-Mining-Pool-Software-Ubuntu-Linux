@@ -123,8 +123,23 @@ function updateRawcoins()
 		}
 	}
 
-	// exchange closed on 28th feb 2016
-	dborun("UPDATE markets SET deleted=true WHERE name='banx'");
+	$list = banx_simple_api_query('marketsv2');
+	if(is_array($list))
+	{
+		dborun("UPDATE markets SET deleted=true WHERE name='banx'");
+		foreach($list as $item) {
+			$e = explode('/', $item->market);
+			$base = strtoupper($e[1]);
+			if ($base != 'BTC')
+				continue;
+			$symbol = strtoupper($e[0]);
+			if ($symbol == 'ATP')
+				continue;
+			$name = explode('/',$item->marketname);
+			updateRawCoin('banx', $symbol, $name[0]);
+			//debuglog("banx: $symbol {$name[0]}");
+		}
+	}
 
 	$list = empoex_api_query('marketinfo');
 	if(is_array($list))

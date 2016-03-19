@@ -51,6 +51,7 @@ class CoindbCommand extends CConsoleCommand
 			$nbUpdated += $this->grabCcexIcons();
 			$nbUpdated += $this->grabCryptopiaIcons();
 			$nbUpdated += $this->grabAlcurexIcons();
+			$nbUpdated += $this->grabBanxIcons();
 
 			echo "total updated: $nbUpdated\n";
 			return 0;
@@ -355,6 +356,42 @@ class CoindbCommand extends CConsoleCommand
 		}
 		if ($nbUpdated)
 			echo "$nbUpdated icons downloaded from alcurex\n";
+		return $nbUpdated;
+	}
+
+	/**
+	 * Icon grabber - Banx
+	 */
+	public function grabBanxIcons()
+	{
+		$url = 'https://cdn.banx.io/images/currencyicons/';
+		$nbUpdated = 0;
+		$sql = "SELECT DISTINCT coins.id FROM coins INNER JOIN markets M ON M.coinid = coins.id ".
+			"WHERE M.name='banx' AND IFNULL(coins.image,'') = ''";
+		$coins = dbolist($sql);
+		if (empty($coins))
+			return 0;
+		echo "banx: try to download new icons...\n";
+		foreach ($coins as $coin) {
+			$coin = getdbo('db_coins', $coin["id"]);
+			$symbol = $coin->symbol;
+			if (!empty($coin->symbol2)) $symbol = $coin->symbol2;
+			$local = $this->basePath."/images/coin-{$symbol}.png";
+			try {
+				$data = @ file_get_contents($url.strtoupper($symbol).'-64.png');
+			} catch (Exception $e) {
+				continue;
+			}
+			if (strlen($data) < 2048) continue;
+			echo $symbol." icon found\n";
+			file_put_contents($local, $data);
+			if (filesize($local) > 0) {
+				$coin->image = "/images/coin-{$symbol}.png";
+				$nbUpdated += $coin->save();
+			}
+		}
+		if ($nbUpdated)
+			echo "$nbUpdated icons downloaded from banx\n";
 		return $nbUpdated;
 	}
 

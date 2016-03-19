@@ -4,6 +4,7 @@ function strip_data($data)
 {
 	$out = strip_tags($data);
 	$out = preg_replace("#[\t ]+#", " ", $out);
+	$out = preg_replace("# [\r\n]+#", "\n", $out);
 	$out = preg_replace("#[\r\n]+#", "\n", $out);
 	return $out;
 }
