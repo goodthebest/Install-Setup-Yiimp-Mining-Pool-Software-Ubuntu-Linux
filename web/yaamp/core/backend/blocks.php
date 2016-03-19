@@ -230,6 +230,7 @@ function BackendBlockFind2($coinid = NULL)
 			if($transaction['category'] != 'generate' && $transaction['category'] != 'immature') continue;
 
 			$blockext = $remote->getblock($transaction['blockhash']);
+			if(!$blockext) continue;
 
 			$db_block = getdbosql('db_blocks', "coin_id=:id AND (blockhash=:hash OR height=:height)",
 				array(':id'=>$coin->id, ':hash'=>$transaction['blockhash'], ':height'=>$blockext['height'])
@@ -247,7 +248,7 @@ function BackendBlockFind2($coinid = NULL)
 			$db_block->amount = $transaction['amount'];
 			$db_block->algo = $coin->algo;
 
-			if (arraySafeVal($transaction,'nonce',0) != 0) {
+			if (arraySafeVal($blockext,'nonce',0) != 0) {
 				$db_block->difficulty_user = hash_to_difficulty($coin, $transaction['blockhash']);
 			} else if ($coin->rpcencoding == 'POS') {
 				$db_block->category = 'stake';
