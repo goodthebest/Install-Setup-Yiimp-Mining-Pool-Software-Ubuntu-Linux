@@ -4,6 +4,8 @@ if (!$coin) return;
 
 $this->pageTitle = $coin->name." block explorer";
 
+$txid = getparam('txid');
+
 echo <<<ENDJS
 <script type="text/javascript">
 function toggleRaw(el) {
@@ -13,6 +15,7 @@ $(function() {
 	$('#favicon').remove();
 	$('head').append('<link href="{$coin->image}" id="favicon" rel="shortcut icon">');
 	$('span.txid').bind('click', function(el) { toggleRaw(el.target); });
+	$('span.txid:contains("{$txid}")').css('color','darkred');
 });
 </script>
 ENDJS;
@@ -39,36 +42,39 @@ $txcount = count($block['tx']);
 $version = dechex($block['version']);
 $nonce = dechex($block['nonce']);
 
-echo "<table class='dataGrid1'>";
-echo "<tr><td width=100></td><td></td></tr>";
+echo '<table class="dataGrid1">';
+echo '<tr><td width=100></td><td></td></tr>';
 
-echo "<tr><td>Coin:</td><td><b><a href='/explorer?id=$coin->id'>$coin->name</a></b></td></tr>";
-echo "<tr><td>Blockhash:</td><td><span style='font-family: monospace;'>$hash</span></td></tr>";
+echo '<tr><td>Coin:</td><td><b><a href="/explorer?id='.$coin->id.'">'.$coin->name.'</a></b></td></tr>';
+echo '<tr><td>Blockhash:</td><td><span class="txid" style="font-family: monospace;">'.$hash.'</span></td></tr>';
 
-echo "<tr><td>Confirmations:</td><td>$confirms</td></tr>";
-echo "<tr><td>Size:</td><td>{$block['size']} bytes</td></tr>";
-echo "<tr><td>Height:</td><td>{$block['height']}</td></tr>";
-echo "<tr><td>Time:</td><td>$d</td></tr>";
-echo "<tr><td>Difficulty:</td><td>{$block['difficulty']}</td></tr>";
+echo '</tr><tr class="raw" style="display:none;"><td colspan="2"><pre class="json">';
+echo json_encode($block, 128);
+echo '</pre></td>';
 
-echo "<tr><td>Version:</td><td><span style='font-family: monospace;'>$version</span></td></tr>";
-echo "<tr><td>Merkle Root:</td><td><span style='font-family: monospace;'>{$block['merkleroot']}</span></td></tr>";
-
-echo "<tr><td>Nonce:</td><td><span style='font-family: monospace;'>$nonce</span></td></tr>";
-echo "<tr><td>Bits:</td><td><span style='font-family: monospace;'>{$block['bits']}</span></td></tr>";
+echo '<tr><td>Confirmations:</td><td>'.$confirms.'</td></tr>';
+echo '<tr><td>Height:</td><td>'.$block['height'].'</td></tr>';
+echo '<tr><td>Time:</td><td>'.$d.'</td></tr>';
+echo '<tr><td>Difficulty:</td><td>'.$block['difficulty'].'</td></tr>';
+echo '<tr><td>Bits:</td><td><span style="font-family: monospace;">'.$block['bits'].'</span></td></tr>';
+echo '<tr><td>Nonce:</td><td><span style="font-family: monospace;">'.$nonce.'</span></td></tr>';
+echo '<tr><td>Version:</td><td><span style="font-family: monospace;">'.$version.'</span></td></tr>';
+echo '<tr><td>Size:</td><td>'.$block['size'].' bytes</td></tr>';
 
 if(isset($block['flags']))
-	echo "<tr><td>Flags:</td><td><span style='font-family: monospace;'>{$block['flags']}</span></td></tr>";
+	echo '<tr><td>Flags:</td><td><span style="font-family: monospace;">'.$block['flags'].'</span></td></tr>';
 
 if(isset($block['previousblockhash']))
-	echo "<tr><td>Previous Hash:</td><td><span style='font-family: monospace;'>
-		<a href='/explorer?id=$coin->id&hash={$block['previousblockhash']}'>{$block['previousblockhash']}</a></span></td></tr>";
+	echo '<tr><td>Previous Hash:</td><td><span style="font-family: monospace;">
+		<a href="/explorer?id='.$coin->id.'&hash='.$block['previousblockhash'].'">'.$block['previousblockhash'].'</a></span></td></tr>';
 
 if(isset($block['nextblockhash']))
-	echo "<tr><td>Next Hash:</td><td><span style='font-family: monospace;'>
-		<a href='/explorer?id=$coin->id&hash={$block['nextblockhash']}'>{$block['nextblockhash']}</a></span></td></tr>";
+	echo '<tr><td>Next Hash:</td><td><span style="font-family: monospace;">
+		<a href="/explorer?id='.$coin->id.'&hash='.$block['nextblockhash'].'">'.$block['nextblockhash'].'</a></span></td></tr>';
 
-echo "<tr><td>Transactions:</td><td>$txcount</td></tr>";
+echo '<tr><td>Merkle Root:</td><td><span style="font-family: monospace;">'.$block['merkleroot'].'</span></td></tr>';
+
+echo '<tr><td>Transactions:</td><td>'.$txcount.'</td></tr>';
 
 echo "</table><br>";
 
@@ -77,11 +83,11 @@ echo "</table><br>";
 echo <<<end
 <style type="text/css">
 span.txid { font-family: monospace; cursor: pointer; }
-tr.raw td { overflow-x: scroll; max-width: 1880px;}
+tr.raw td { overflow-x: scroll; max-width: 1880px; }
 pre.json { font-size: 10px; }
 </style>
 
-<table class="dataGrid2">
+<table class="dataGrid">
 <thead>
 <tr>
 <th>Transaction Hash</th>
@@ -128,19 +134,17 @@ foreach($block['tx'] as $txhash)
 	}
 	echo "</td>";
 
-//	if (user()->getState('yaamp_admin')) {
-		echo '</tr><tr class="raw" style="display:none;"><td colspan="4"><pre class="json">';
-		unset($tx['hex']);
-		echo json_encode($tx, 128);
-		echo '</pre></td>';
-//	}
+	echo '</tr><tr class="raw" style="display:none;"><td colspan="4"><pre class="json">';
+	unset($tx['hex']);
+	echo json_encode($tx, 128);
+	echo '</pre></td>';
 
 	echo "</tr>";
 }
 
 if ($coin->symbol == 'DCR') {
 
-	echo '<tr><th colspan="4">';
+	echo '<tr><th class="section" colspan="4">';
 	echo '<b>Stake</b>';
 	echo '</th></tr>';
 
@@ -158,8 +162,10 @@ if ($coin->symbol == 'DCR') {
 		echo "<td>$valuetx</td>";
 
 		echo "<td>";
-		foreach($stx['vin'] as $vin) {
-			if(arraySafeVal($vin,'blockheight') > 0) {
+		if(isset($stx['vout'][0]['scriptPubKey']) && arraySafeVal($stx['vout'][0]['scriptPubKey'],'type') == 'stakesubmission')
+			echo "Ticket";
+		else foreach($stx['vin'] as $vin) {
+			if (arraySafeVal($vin,'blockheight') > 0) {
 				echo '<a href="/explorer?id='.$coin->id.'&height='.$vin['blockheight'].'">'.$vin['blockheight'].'</a>';
 				echo '<br/>';
 			}
@@ -181,22 +187,16 @@ if ($coin->symbol == 'DCR') {
 		}
 		echo "</td>";
 
-//		if (user()->getState('yaamp_admin')) {
-			echo '</tr><tr class="raw" style="display:none;"><td colspan="4"><pre class="json">';
-			unset($stx['hex']);
-			echo json_encode($stx, 128);
-			echo '</pre></td>';
-//		}
+		echo '</tr><tr class="raw" style="display:none;"><td colspan="4"><pre class="json">';
+		unset($stx['hex']);
+		echo json_encode($stx, 128);
+		echo '</pre></td>';
 
 		echo '</tr>';
 	}
 }
 
 echo '</table>';
-
-if (user()->getState('yaamp_admin')) {
-	echo '<pre class="json">'.json_encode($block, 128).'</pre>';
-}
 
 echo <<<end
 <form action="/explorer" method="get" style="padding: 10px;">
