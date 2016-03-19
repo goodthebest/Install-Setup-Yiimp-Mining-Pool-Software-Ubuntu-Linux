@@ -1,6 +1,14 @@
 <?php
 
-// same as bittrex
+function strip_data($data)
+{
+	$out = strip_tags($data);
+	$out = preg_replace("#[\t ]+#", " ", $out);
+	$out = preg_replace("#[\r\n]+#", "\n", $out);
+	return $out;
+}
+
+// close to bittrex api
 
 function bleutrade_api_query($method, $params='')
 {
@@ -37,7 +45,7 @@ function bleutrade_api_query($method, $params='')
 
 	if(!is_object($obj)) {
 		$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-		debuglog("bleutrade: $method failed ($status) ".strip_tags($data).' '.curl_error($ch));
+		debuglog("bleutrade: $method failed ($status) ".strip_data($data).' '.curl_error($ch));
 	}
 
 	curl_close($ch);
