@@ -95,6 +95,77 @@ class ApiController extends CommonController
 		echo "{".implode(', ', $stats)."}";
 	}
 
+	public function actionCurrencies()
+	{
+		$memcache = controller()->memcache->memcache;
+
+		$json = memcache_get($memcache, "api_currencies");
+		if (empty($json)) {
+
+			if(!LimitRequest('api-status', 10)) return;
+
+			$data = array();
+			$coins = getdbolist('db_coins', "enable AND visible AND auto_ready AND IFNULL(algo,'PoS')!='PoS' ORDER BY symbol");
+			foreach ($coins as $coin)
+			{
+				$symbol = $coin->symbol;
+
+				$last = dborow("SELECT height, time FROM blocks ".
+					"WHERE coin_id=:id AND category IN ('immature','generate') ORDER BY height DESC LIMIT 1",
+					array(':id'=>$coin->id)
+				);
+				$lastblock = (int) arraySafeVal($last,'height');
+				$timesincelast = $timelast = (int) arraySafeVal($last,'time');
+				if ($timelast > 0) $timesincelast = time() - $timelast;
+
+				$workers = (int) dboscalar("SELECT count(W.userid) AS workers FROM workers W ".
+					"INNER JOIN accounts A ON A.id = W.userid ".
+					"WHERE W.algo=:algo AND A.coinid IN (:id, 6)", // 6: btc id
+					array(':algo'=>$coin->algo, ':id'=>$coin->id)
+				);
+
+				$since = $timelast ? $timelast : time() - 60*60;
+				$shares = dborow("SELECT count(id) AS shares, SUM(difficulty) AS coin_hr FROM shares WHERE time>$since AND algo=:algo AND coinid IN (0,:id)",
+					array(':id'=>$coin->id,':algo'=>$coin->algo)
+				);
+
+				// Coin hashrate, we only store the hashrate per algo in the db,
+				// we need to compute the % of the coin compared to others with the same algo
+				if ($workers > 0) {
+
+					$algohr = (double) dboscalar("SELECT SUM(difficulty) AS algo_hr FROM shares WHERE time>$since AND algo=:algo",array(':algo'=>$coin->algo));
+					$factor = ($algohr > 0 && !empty($shares)) ? (double) $shares['coin_hr'] / $algohr : 1.;
+					$algo_hashrate = controller()->memcache->get_database_scalar("api_status_hashrate-{$coin->algo}",
+						"SELECT hashrate FROM hashrate WHERE algo=:algo ORDER BY time DESC LIMIT 1", array(':algo'=>$coin->algo)
+					);
+
+				} else {
+					$factor = $algo_hashrate = 0;
+				}
+
+				$data[$symbol] = array(
+					'algo' => $coin->algo,
+					'port' => getAlgoPort($coin->algo),
+					'name' => $coin->name,
+					'height' => (int) $coin->block_height,
+					'workers' => $workers,
+					'shares' =>  (int) arraySafeVal($shares,'shares'),
+					'hashrate' => round($factor * $algo_hashrate),
+					//'percent' => round($factor * 100, 1),
+					'lastblock' => $lastblock,
+					'timesincelast' => $timesincelast,
+				);
+
+				if (!empty($coin->symbol2))
+					$data[$symbol]['symbol'] = $coin->symbol2;
+			}
+			$json = json_encode($data);
+			memcache_set($memcache, "api_currencies", $json, MEMCACHE_COMPRESSED, 15);
+		}
+
+		echo str_replace("},","},\n", $json);
+	}
+
 	public function actionWallet()
 	{
 		if(!LimitRequest('api-wallet', 10)) return;
