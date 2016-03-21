@@ -10,10 +10,28 @@ function doBittrexTrading($quick=false)
 
 	foreach($balances->result as $balance)
 	{
-		if($balance->Currency == 'BTC') {
+		if ($balance->Currency == 'BTC') {
 			$savebalance->balance = $balance->Available;
 			$savebalance->save();
-			break;
+			continue;
+		}
+
+		if (!YAAMP_ALLOW_EXCHANGE) {
+			// store available balance in market table
+			$coins = getdbolist('db_coins', "symbol=:sym OR symbol2=:sym", array(':sym'=>$balance->Currency));
+			if (empty($coins)) continue;
+			foreach ($coins as $coin) {
+				$market = getdbosql('db_markets', "coinid=:coinid AND name='bittrex'", array(':coinid'=>$coin->id));
+				if (!$market) continue;
+				if ($market->balance != $balance->Available) {
+					$market->balance = $balance->Available;
+					if (!empty($balance->CryptoAddress) && $market->deposit_address != $balance->CryptoAddress) {
+						debuglog("bittrex: {$coin->symbol} deposit address updated");
+						$market->deposit_address = $balance->CryptoAddress;
+					}
+					$market->save();
+				}
+			}
 		}
 	}
 

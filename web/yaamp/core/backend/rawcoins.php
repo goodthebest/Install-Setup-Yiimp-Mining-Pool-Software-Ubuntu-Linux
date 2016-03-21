@@ -141,6 +141,8 @@ function updateRawcoins()
 		}
 	}
 
+	dborun("UPDATE markets SET deleted=true WHERE name='empoex'");
+/*
 	$list = empoex_api_query('marketinfo');
 	if(is_array($list))
 	{
@@ -154,7 +156,7 @@ function updateRawcoins()
 			updateRawCoin('empoex', $symbol);
 		}
 	}
-
+*/
 	//////////////////////////////////////////////////////////
 
 	dborun("delete from markets where deleted");

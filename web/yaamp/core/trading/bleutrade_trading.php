@@ -10,10 +10,30 @@ function doBleutradeTrading($quick=false)
 
 	foreach($balances->result as $balance)
 	{
-		if($balance->Currency == 'BTC') {
+		if ($balance->Currency == 'BTC') {
 			$savebalance->balance = $balance->Available;
 			$savebalance->save();
-			break;
+			continue;
+		}
+		if (!YAAMP_ALLOW_EXCHANGE) {
+			// store available balance in market table
+			$coins = getdbolist('db_coins', "symbol=:symbol OR symbol2=:symbol",
+				array(':symbol'=>$balance->Currency)
+			);
+			if (empty($coins)) continue;
+			foreach ($coins as $coin) {
+				$market = getdbosql('db_markets', "coinid=:coinid AND name='bleutrade'", array(':coinid'=>$coin->id));
+				if (!$market) continue;
+				if ($market->balance != $balance->Available) {
+					$market->balance = $balance->Available;
+					if (!empty($balance->CryptoAddress) && $market->deposit_address != $balance->CryptoAddress) {
+						debuglog("bleutrade: {$coin->symbol} deposit address updated");
+						$market->deposit_address = $balance->CryptoAddress;
+					}
+					$market->message = ($balance->isActive == "true") ? "" : "Disabled";
+					$market->save();
+				}
+			}
 		}
 	}
 

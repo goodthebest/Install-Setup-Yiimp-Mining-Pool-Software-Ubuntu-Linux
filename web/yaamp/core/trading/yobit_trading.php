@@ -13,12 +13,25 @@ function doYobitTrading($quick=false)
 
 	foreach($balances['return']['funds'] as $symbol => $amount)
 	{
-		//if($amount<=0) continue;
-		if($symbol == 'btc')
-		{
+		if ($symbol == 'btc') {
 			$savebalance->balance = $amount;
 			$savebalance->save();
-			break;
+			continue;
+		}
+		if (!YAAMP_ALLOW_EXCHANGE) {
+			// store available balance in market table
+			$coins = getdbolist('db_coins', "symbol=:symbol OR symbol2=:symbol",
+				array(':symbol'=>strtoupper($symbol))
+			);
+			if (empty($coins)) continue;
+			foreach ($coins as $coin) {
+				$market = getdbosql('db_markets', "coinid=:coinid AND name='yobit'", array(':coinid'=>$coin->id));
+				if (!$market) continue;
+				if ($market->balance != $amount) {
+					$market->balance = $amount;
+					$market->save();
+				}
+			}
 		}
 	}
 

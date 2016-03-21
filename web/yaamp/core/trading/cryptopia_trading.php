@@ -5,17 +5,32 @@ function doCryptopiaTrading($quick=false)
 	$savebalance = getdbosql('db_balances', "name='cryptopia'");
 	if(!$savebalance) return;
 
-	$filter = array("Currency"=>"BTC");
-	$query = cryptopia_api_user('GetBalance', $filter);
+	$query = cryptopia_api_user('GetBalance');
 
 	if (is_object($query) && is_array($query->Data))
 	foreach($query->Data as $balance)
 	{
-		if($balance->Symbol == 'BTC')
-		{
+		if ($balance->Symbol == 'BTC') {
 			$savebalance->balance = $balance->Available;
 			$savebalance->save();
-			break;
+			continue;
+		}
+
+		if (!YAAMP_ALLOW_EXCHANGE) {
+			// store available balance in market table
+			$coins = getdbolist('db_coins', "symbol=:symbol OR symbol2=:symbol",
+				array(':symbol'=>$balance->Symbol)
+			);
+			if (empty($coins)) continue;
+			foreach ($coins as $coin) {
+				$market = getdbosql('db_markets', "coinid=:coinid AND name='cryptopia'", array(':coinid'=>$coin->id));
+				if (!$market) continue;
+				if ($market->balance != $balance->Available) {
+					$market->balance = $balance->Available;
+					$market->message = $balance->StatusMessage;
+					$market->save();
+				}
+			}
 		}
 	}
 
@@ -28,17 +43,13 @@ function doCryptopiaTrading($quick=false)
 	$sell_ask_pct = 1.05;        // sell on ask price + 5%
 	$cancel_ask_pct = 1.20;      // cancel order if our price is more than ask price + 20%
 
-	sleep(1);
-	$balances = cryptopia_api_user('GetBalance');
-	if(!is_object($balances) || !is_array($balances->Data) || !$balances->Success) return;
-
 	// auto trade
 	foreach ($balances->Data as $balance)
 	{
 		if ($balance->Total == 0) continue;
 		if ($balance->Symbol == 'BTC') continue;
 
-		$coin = getdbosql('db_coins', "symbol=:symbol OR symbol2=:symbol", array(':symbol'=>$balance->Symbol));
+		$coin = getdbosql('db_coins', "symbol=:symbol AND dontsell=0", array(':symbol'=>$balance->Symbol));
 		if(!$coin) continue;
 		$symbol = $coin->symbol;
 		if (!empty($coin->symbol2)) $symbol = $coin->symbol2;

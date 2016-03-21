@@ -33,22 +33,22 @@ echo ", ".CHtml::link($reserved1, "/site/payments?id=".$coin->id)." $symbol clea
 
 //////////////////////////////////////////////////////////////////////////////////////
 
-$list = getdbolist('db_markets', "coinid=$coin->id order by price desc");
+echo <<<end
+<table class="dataGrid">
+<thead><tr>
+<th width="100">Name</th>
+<th width="100">Price</th>
+<th width="100">Price2</th>
+<th width="500">Deposit</th>
+<th width="100">Balance</th>
+<th width="100">Sent</th>
+<th width="100">Traded</th>
+<th width="40">Late</th>
+<th align="center" width="500">Message</th>
+</tr></thead><tbody>
+end;
 
-echo "<table class='dataGrid'>";
-echo "<thead class=''>";
-
-echo "<tr>";
-echo "<th>Name</th>";
-echo "<th>Price</th>";
-echo "<th>Price2</th>";
-echo "<th>Sent</th>";
-echo "<th>Traded</th>";
-echo "<th>Late</th>";
-echo "<th>Deposit</th>";
-echo "<th>Message</th>";
-echo "</tr>";
-echo "</thead><tbody>";
+$list = getdbolist('db_markets', "coinid={$coin->id} ORDER BY price DESC");
 
 $bestmarket = getBestMarket($coin);
 foreach($list as $market)
@@ -66,16 +66,8 @@ foreach($list as $market)
 
 	echo "<td><b><a href='$marketurl' target=_blank>$market->name</a></b></td>";
 
-	echo "<td>$price</td>";
-	echo "<td>$price2</td>";
-
-	$sent = datetoa2($market->lastsent);
-	$traded = datetoa2($market->lasttraded);
-	$late = $market->lastsent > $market->lasttraded ? 'late': '';
-
-	echo '<td>'.(empty($sent)   ? "" : "$sent ago").'</td>';
-	echo '<td>'.(empty($traded) ? "" : "$traded ago").'</td>';
-	echo '<td>'.$late.'</td>';
+	echo '<td>'.$price.'</td>';
+	echo '<td>'.$price2.'</td>';
 
 	echo '<td>';
 	if (!empty($market->deposit_address)) {
@@ -92,6 +84,17 @@ foreach($list as $market)
 	echo ' <a href="/market/update?id='.$market->id.'">edit</a>';
 	echo ' <a style="color:darkred" title="Remove this market" href="/market/delete?id='.$market->id.'">x</a>';
 	echo '</td>';
+
+	$balance = $market->balance > 0 ? bitcoinvaluetoa($market->balance) : '';
+	echo '<td>'.$balance.'</td>';
+
+	$sent = datetoa2($market->lastsent);
+	$traded = datetoa2($market->lasttraded);
+	$late = $market->lastsent > $market->lasttraded ? 'late': '';
+
+	echo '<td>'.(empty($sent)   ? "" : "$sent ago").'</td>';
+	echo '<td>'.(empty($traded) ? "" : "$traded ago").'</td>';
+	echo '<td>'.$late.'</td>';
 
 	echo "<td>$market->message</td>";
 	echo "</tr>";

@@ -15,10 +15,26 @@ function doBanxTrading($quick=false)
 
 	foreach($balances->result as $balance)
 	{
-		if($balance->currency == 'BTC') {
+		if ($balance->currency == 'BTC') {
 			$savebalance->balance = $balance->available;
 			$savebalance->save();
-			break;
+			continue;
+		}
+
+		if (!YAAMP_ALLOW_EXCHANGE) {
+			// store available balance in market table
+			$coins = getdbolist('db_coins', "symbol=:symbol OR symbol2=:symbol",
+				array(':symbol'=>$balance->currency)
+			);
+			if (empty($coins)) continue;
+			foreach ($coins as $coin) {
+				$market = getdbosql('db_markets', "coinid=:coinid AND name='banx'", array(':coinid'=>$coin->id));
+				if (!$market) continue;
+				if ($market->balance != $balance->available) {
+					$market->balance = $balance->available;
+					$market->save();
+				}
+			}
 		}
 	}
 

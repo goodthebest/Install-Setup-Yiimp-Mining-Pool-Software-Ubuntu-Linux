@@ -863,8 +863,8 @@ class SiteController extends CommonController
 				break;
 
 			case 'empoex':
-				doEmpoexTrading(true);
-				updateEmpoexMarkets();
+				//doEmpoexTrading(true);
+				//updateEmpoexMarkets();
 				break;
 
 			case 'safecex':

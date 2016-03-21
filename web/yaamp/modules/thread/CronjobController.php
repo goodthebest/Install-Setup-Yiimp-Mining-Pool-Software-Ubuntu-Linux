@@ -139,7 +139,7 @@ class CronjobController extends CommonController
 				doCCexTrading();
 				//doAlcurexTrading();
 				doBleutradeTrading();
-				doEmpoexTrading();
+				//doEmpoexTrading();
 
 				break;
 

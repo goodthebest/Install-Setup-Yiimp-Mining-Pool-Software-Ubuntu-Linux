@@ -6,6 +6,7 @@ function strip_data($data)
 	$out = preg_replace("#[\t ]+#", " ", $out);
 	$out = preg_replace("# [\r\n]+#", "\n", $out);
 	$out = preg_replace("#[\r\n]+#", "\n", $out);
+	if (strpos($out, 'CloudFlare') !== false) $out = 'CloudFlare error';
 	return $out;
 }
 

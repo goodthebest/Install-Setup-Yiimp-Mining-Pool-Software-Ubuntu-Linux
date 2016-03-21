@@ -13,14 +13,14 @@ function BackendPricesUpdate()
 	updateSafecexMarkets();
 	updateAlcurexMarkets();
 	updateBterMarkets();
-	updateEmpoexMarkets();
+	//updateEmpoexMarkets();
 	updateCryptsyMarkets();
 	updateJubiMarkets();
 	updateBanxioMarkets();
 
 	updateOtherMarkets();
 
-	$list2 = getdbolist('db_coins', "installed and symbol2 is not null");
+	$list2 = getdbolist('db_coins', "installed AND IFNULL(symbol2,'') != ''");
 	foreach($list2 as $coin2)
 	{
 		$coin = getdbosql('db_coins', "symbol='$coin2->symbol2'");

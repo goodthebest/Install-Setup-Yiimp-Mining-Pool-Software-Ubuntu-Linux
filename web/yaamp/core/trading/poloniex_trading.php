@@ -13,11 +13,26 @@ function doPoloniexTrading()
 	if (is_array($balances))
 	foreach($balances as $symbol => $balance)
 	{
-		if($symbol == 'BTC')
-		{
+		if ($symbol == 'BTC') {
 			$savebalance->balance = $balance['available'];
 			$savebalance->save();
-			break;
+			continue;
+		}
+
+		if (!YAAMP_ALLOW_EXCHANGE) {
+			// store available balance in market table
+			$coins = getdbolist('db_coins', "symbol=:symbol OR symbol2=:symbol",
+				array(':symbol'=>$symbol)
+			);
+			if (empty($coins)) continue;
+			foreach ($coins as $coin) {
+				$market = getdbosql('db_markets', "coinid=:coinid AND name='poloniex'", array(':coinid'=>$coin->id));
+				if (!$market) continue;
+				if ($market->balance != $balance['available']) {
+					$market->balance = $balance['available'];
+					$market->save();
+				}
+			}
 		}
 	}
 
