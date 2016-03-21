@@ -192,6 +192,28 @@ function doCCexTrading($quick=false)
 		$db_order->save();
 	}
 
+	if(floatval(EXCH_AUTO_WITHDRAW) > 0 && $savebalance->balance >= (EXCH_AUTO_WITHDRAW + 0.0002))
+	{
+		$btcaddr = YAAMP_BTCADDRESS;
+		$amount = $savebalance->balance - 0.0002;
+		debuglog("[ccex] - withdraw $amount to $btcaddr");
+		sleep(1);
+		$res = $ccex->withdraw('BTC', $amount, $btcaddr);
+		debuglog("[ccex] - withdraw: ".json_encode($res));
+		if(isset($res['return']))
+		{
+			$withdraw = new db_withdraws;
+			$withdraw->market = 'c-cex';
+			$withdraw->address = $btcaddr;
+			$withdraw->amount = $amount;
+			$withdraw->time = time();
+			$withdraw->uuid = $res['return'];
+			$withdraw->save();
+
+			$savebalance->balance = 0;
+			$savebalance->save();
+		}
+	}
 //	debuglog('-------------- doCCexTrading() done');
 }
 

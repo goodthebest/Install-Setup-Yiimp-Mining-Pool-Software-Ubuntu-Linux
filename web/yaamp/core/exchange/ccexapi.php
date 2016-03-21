@@ -94,12 +94,38 @@ class CcexAPI
         return $this->jsonQuery($this->api_url."r.html?key={$this->api_key}&a=makeorder&pair={$pair}&q={$quantity}&t={$type}&r={$price}");
     }
 
-    public function cancelOrder($order){
+    public function cancelOrder($order) {
         return $this->jsonQuery($this->api_url."r.html?key={$this->api_key}&a=cancelorder&id={$order}");
     }
 
-    public function getBalance(){
+    public function getBalance() {
         return $this->jsonQuery($this->api_url."r.html?key={$this->api_key}&a=getbalance");
+    }
+
+    // If not exists - will generate new
+    public function getDepositAddress($symbol) {
+        $coin = strtolower($symbol);
+        return $this->jsonQuery($this->api_url."r.html?key={$this->api_key}&a=getaddress&coin={$coin}");
+    }
+
+    public function checkDeposit($symbol, $txid) {
+        $coin = strtolower($symbol);
+        return $this->jsonQuery($this->api_url."r.html?key={$this->api_key}&a=checkdeposit&coin={$coin}&tid={$txid}");
+    }
+
+    public function withdraw($symbol, $amount, $address) {
+        $coin = strtolower($symbol);
+        return $this->jsonQuery($this->api_url."r.html?key={$this->api_key}&a=withdraw&coin={$coin}&amount={$amount}&address={$address}");
+    }
+
+    public function getDepositHistory($symbol, $limit=100) {
+        $coin = strtolower($symbol);
+        return $this->jsonQuery($this->api_url."r.html?key={$this->api_key}&a=deposithistory&coin={$coin}&limit={$limit}");
+    }
+
+    public function getWithdrawalHistory($symbol, $limit=100) {
+        $coin = strtolower($symbol);
+        return $this->jsonQuery($this->api_url."r.html?key={$this->api_key}&a=withdrawalhistory&coin={$coin}&limit={$limit}");
     }
 
 }
