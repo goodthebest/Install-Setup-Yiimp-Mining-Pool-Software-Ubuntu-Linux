@@ -609,15 +609,30 @@ class SiteController extends CommonController
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
+	public function actionBanUser()
+	{
+		if(!$this->admin) return;
+
+		$user = getdbo('db_accounts', getiparam('id'));
+		if($user) {
+			$user->is_locked = true;
+			$user->balance = 0;
+			$user->save();
+		}
+
+		$this->goback();
+	}
+
 	public function actionBlockuser()
 	{
 		if(!$this->admin) return;
 
 		$wallet = getparam('wallet');
 		$user = getuserparam($wallet);
-
-		$user->is_locked = true;
-		$user->save();
+		if($user) {
+			$user->is_locked = true;
+			$user->save();
+		}
 
 		$this->goback();
 	}
@@ -628,12 +643,28 @@ class SiteController extends CommonController
 
 		$wallet = getparam('wallet');
 		$user = getuserparam($wallet);
-
-		$user->is_locked = false;
-		$user->save();
+		if($user) {
+			$user->is_locked = false;
+			$user->save();
+		}
 
 		$this->goback();
 	}
+
+	public function actionLoguser()
+	{
+		if(!$this->admin) return;
+
+		$user = getdbo('db_accounts', getiparam('id'));
+		if($user) {
+			$user->logtraffic = getiparam('en');
+			$user->save();
+		}
+
+		$this->goback();
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////
 
 	// called from the wallet
 	public function actionPayuserscoin()
@@ -784,21 +815,6 @@ class SiteController extends CommonController
 		}
 
 		$this->redirect("/site/admin");
-	}
-
-	public function actionBanUser()
-	{
-		if(!$this->admin) return;
-
-		$user = getdbo('db_accounts', getiparam('id'));
-		if($user)
-		{
-			$user->is_locked = true;;
-			$user->balance = 0;
-			$user->save();
-		}
-
-		$this->goback();
 	}
 
 	public function actionOptimize()

@@ -74,8 +74,8 @@ foreach($workers as $worker)
 	));
 	echo "<td>$shares</td>";
 
-	echo "<td>". ($user_bad ? Itoa2($user_bad).'h/s' : '-');
-	if ($user_bad) {
+	echo "<td>";
+	if ($user_bad > 0) {
 		if ($pct_bad > 50)
 			echo "<b> {$pct_bad}%</b>";
 		else

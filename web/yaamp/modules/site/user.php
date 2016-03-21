@@ -1,23 +1,28 @@
 <?php
 
+JavascriptFile("/yaamp/ui/js/jquery.metadata.js");
+JavascriptFile("/yaamp/ui/js/jquery.tablesorter.widgets.js");
+
 echo getAdminSideBarLinks();
 
 $symbol = getparam('symbol');
 $coins = "<option value='all'>-all-</option>";
 
-$list = getdbolist('db_coins', "enable AND id IN (select distinct coinid from accounts where balance>0.0001)");
+$list = getdbolist('db_coins', "enable AND (".
+	"id IN (SELECT DISTINCT coinid FROM accounts WHERE balance>0.0001) ".
+	"OR id IN (SELECT DISTINCT coinid from earnings) ) ORDER BY symbol");
 foreach($list as $coin)
 {
 	if($coin->symbol == $symbol)
-		$coins .= "<option value='$coin->symbol' selected>$coin->symbol</option>";
+		$coins .= '<option value="'.$coin->symbol.'" selected>'.$coin->symbol.'</option>';
 	else
-		$coins .= "<option value='$coin->symbol'>$coin->symbol</option>";
+		$coins .= '<option value="'.$coin->symbol.'">'.$coin->symbol.'</option>';
 }
 
 
 echo <<<end
 
-<div align="right" style="margin-top: -14px; margin-bottom: 6px;">
+<div align="right" style="margin-top: -14px; margin-bottom: -6px; margin-right: 140px;">
 Select coin: <select id='coin_select'>$coins</select>&nbsp;
 </div>
 
@@ -67,5 +72,3 @@ function main_refresh()
 </script>
 
 end;
-
-echo "Note: this table show users with a non-zero balance.";
