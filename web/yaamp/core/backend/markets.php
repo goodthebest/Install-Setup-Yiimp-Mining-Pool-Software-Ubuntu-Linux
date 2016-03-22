@@ -7,6 +7,7 @@ function BackendPricesUpdate()
 	updateBittrexMarkets();
 	updatePoloniexMarkets();
 	updateBleutradeMarkets();
+	updateKrakenMarkets();
 	updateCCexMarkets();
 	updateCryptopiaMarkets();
 	updateYobitMarkets();
@@ -200,6 +201,54 @@ function updateBleutradeMarkets()
 //		debuglog("$exchange: update $coin->symbol: $market->price $market->price2");
 	}
 
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+function updateKrakenMarkets($force = false)
+{
+	$exchange = 'kraken';
+	$result = kraken_api_query('AssetPairs');
+	if(!is_array($result)) return;
+
+	foreach($result as $pair => $data)
+	{
+		$pairs = explode('-', $pair);
+		$base = reset($pairs); $symbol = end($pairs);
+		if($symbol == 'BTC' || $base != 'BTC') continue;
+		if(in_array($symbol, array('GBP','CAD','EUR','USD','JPY'))) continue;
+		if(strpos($symbol,'.d') !== false) continue;
+
+		$coin = getdbosql('db_coins', "symbol='{$symbol}'");
+		if(!$coin || !$coin->installed) continue;
+
+		debuglog("kraken: $symbol/$base ".json_encode($data));
+		$fees = reset($currency['fees']);
+		$feepct = end($fees);
+		$market = getdbosql('db_markets', "coinid={$coin->id} and name='{$exchange}'");
+		if(!$market) {
+			$market = new db_markets;
+			$market->coinid = $coin->id;
+			$market->name = $exchange;
+		}
+
+		$market->txfee = $feepct;
+
+		sleep(1);
+		$ticker = kraken_api_query('Ticker', $symbol);
+		if(!is_array($ticker) || !isset($ticker[$pair])) continue;
+
+		$ticker = arraySafeVal($ticker,$pair);
+		if(!is_array($ticker) || !isset($ticker['b'])) continue;
+
+		debuglog("kraken: $symbol/$base ticker ".json_encode($ticker));
+
+		$price2 = ($ticker['b'][0] + $ticker['a'][0]) / 2;
+		$market->price2 = AverageIncrement($market->price2, $price2);
+		$market->price = AverageIncrement($market->price, $ticker['b'][0]);
+
+		$market->save();
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////

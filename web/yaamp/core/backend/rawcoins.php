@@ -112,6 +112,21 @@ function updateRawcoins()
 		}
 	}
 
+	$list = kraken_api_query('AssetPairs');
+	if(is_array($list))
+	{
+		dborun("UPDATE markets SET deleted=true WHERE name='kraken'");
+		foreach($list as $pair => $item) {
+			$pairs = explode('-', $pair);
+			$base = reset($pairs); $symbol = end($pairs);
+			if($symbol == 'BTC' || $base != 'BTC') continue;
+			if(in_array($symbol, array('GBP','CAD','EUR','USD','JPY'))) continue;
+			if(strpos($symbol,'.d') !== false) continue;
+			$symbol = strtoupper($symbol);
+			updateRawCoin('kraken', $symbol);
+		}
+	}
+
 	$list = alcurex_api_query('market','?info=on');
 	if(is_object($list) && isset($list->MARKETS))
 	{
@@ -164,7 +179,9 @@ function updateRawcoins()
 	$list = getdbolist('db_coins', "not enable and not installed and id not in (select distinct coinid from markets)");
 	foreach($list as $coin)
 	{
-		debuglog("$coin->symbol is not longer active");
+		if ($coin->visible)
+			debuglog("{$coin->symbol} is no longer active");
+	// todo: proper cleanup in all tables (like "yiimp deletecoin <id>")
 	//	if ($coin->symbol != 'BTC')
 	//		$coin->delete();
 	}

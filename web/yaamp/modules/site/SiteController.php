@@ -882,6 +882,11 @@ class SiteController extends CommonController
 				updateBleutradeMarkets();
 				break;
 
+			case 'kraken':
+				doKrakenTrading(true);
+				updateKrakenMarkets();
+				break;
+
 			case 'poloniex':
 				doPoloniexTrading(true);
 				updatePoloniexMarkets();

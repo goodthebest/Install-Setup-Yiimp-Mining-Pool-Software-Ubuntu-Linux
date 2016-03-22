@@ -73,6 +73,10 @@ class ExchangeCommand extends CConsoleCommand
 			$balance = cryptopia_api_user('GetBalance',array("Currency"=>"BTC"));
 			echo("cryptopia btc: ".json_encode($balance->Data)."\n");
 		}
+		if (!empty(EXCH_KRAKEN_KEY)) {
+			$balance = kraken_api_user('Balance');
+			echo("kraken btc: ".json_encode($balance)."\n");
+		}
 		if (!empty(EXCH_CRYPTSY_KEY)) {
 			$info = cryptsy_api_query('getinfo');
 			if (!arraySafeVal($info,'success',0) || !is_array($info['return'])) echo "error\n";
