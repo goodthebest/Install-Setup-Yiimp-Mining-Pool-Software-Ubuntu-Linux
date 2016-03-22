@@ -5,10 +5,10 @@ function doCryptopiaTrading($quick=false)
 	$savebalance = getdbosql('db_balances', "name='cryptopia'");
 	if(!$savebalance) return;
 
-	$query = cryptopia_api_user('GetBalance');
+	$balances = cryptopia_api_user('GetBalance');
 
-	if (is_object($query) && is_array($query->Data))
-	foreach($query->Data as $balance)
+	if (is_object($balances) && is_array($balances->Data))
+	foreach($balances->Data as $balance)
 	{
 		if ($balance->Symbol == 'BTC') {
 			$savebalance->balance = $balance->Available;

@@ -169,6 +169,7 @@ function updateBleutradeMarkets()
 		$market->save();
 		$pair = "{$coin->symbol}_BTC";
 
+		sleep(1);
 		$ticker = bleutrade_api_query('public/getticker', "&market=$pair");
 		if(!$ticker || !$ticker->success || !$ticker->result) continue;
 
@@ -181,6 +182,7 @@ function updateBleutradeMarkets()
 			$last_checked = cache()->get($exchange.'-deposit_address-check-'.$coin->symbol);
 			if(empty($market->deposit_address) && !$last_checked)
 			{
+				sleep(1);
 				$address = bleutrade_api_query('account/getdepositaddress', "&currency={$coin->symbol}");
 				if(is_object($address) && is_object($address->result)) {
 					$addr = $address->result->Address;
@@ -449,6 +451,7 @@ function updateCCexMarkets()
 
 		$market->save();
 
+		sleep(1);
 		$ticker = $ccex->getTickerInfo($item);
 		if(!$ticker) continue;
 
@@ -463,6 +466,25 @@ function updateCCexMarkets()
 			$coin->price = $market->price;
 			$coin->price2 = $market->price2;
 			$coin->save();
+		}
+
+		if(!empty(EXCH_CCEX_SECRET))
+		{
+			$last_checked = cache()->get($exchange.'-deposit_address-check-'.$coin->symbol);
+			if(empty($market->deposit_address) && !$last_checked)
+			{
+				sleep(1);
+				$address = $ccex->getDepositAddress($coin->symbol);
+				if(!empty($address)) {
+					$addr = arraySafeVal($address,'return');
+					if (!empty($addr) && $addr != $market->deposit_address) {
+						$market->deposit_address = $addr;
+						debuglog("$exchange: deposit address for {$coin->symbol} updated");
+						$market->save();
+					}
+				}
+			}
+			cache()->set($exchange.'-deposit_address-check-'.$coin->symbol, time(), 24*3600);
 		}
 
 //		debuglog("$exchange: update $coin->symbol: $market->price $market->price2");
