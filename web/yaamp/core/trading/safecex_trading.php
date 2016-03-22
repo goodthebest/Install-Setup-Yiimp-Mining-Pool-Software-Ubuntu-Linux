@@ -4,17 +4,37 @@
 
 function doSafecexTrading($quick=false)
 {
-	// getbalance {"symbol":"BTC","balance":0.00118537,"pending":0,"orders":0.00029321,"total":0.00147858}
+	// {"symbol":"BTC","balance":0.01056525,"pending":0,"orders":0,"total":0.01056525,"deposit":"15pQYjcBJxo3RQfJe6C5pYxHcxAjzVyTfv","withdraw":"1E1..."}
+	$balances = safecex_api_user('getbalances');
+	if(empty($balances)) return;
 
-	$db_balance = getdbosql('db_balances', "name='safecex'");
-	if (is_object($db_balance) && $db_balance->name=='safecex') {
-		$balance = safecex_api_user('getbalance','&symbol=BTC');
-		if (is_object($balance)) {
-			$db_balance->balance = 0;
-			if ($balance->symbol == 'BTC') {
+	foreach($balances as $balance)
+	{
+		if ($balance->symbol == 'BTC') {
+			$db_balance = getdbosql('db_balances', "name='safecex'");
+			if ($db_balance) {
 				$db_balance->balance = $balance->balance;
-				//$db_balance->onsell = $balance->orders;
 				$db_balance->save();
+			}
+			continue;
+		}
+		if (!YAAMP_ALLOW_EXCHANGE) {
+			// store available balance in market table
+			$coins = getdbolist('db_coins', "symbol=:symbol OR symbol2=:symbol",
+				array(':symbol'=>$balance->symbol)
+			);
+			if (empty($coins)) continue;
+			foreach ($coins as $coin) {
+				$market = getdbosql('db_markets', "coinid=:coinid AND name='safecex'", array(':coinid'=>$coin->id));
+				if (!$market) continue;
+				if ($market->balance != $balance->balance) {
+					$market->balance = $balance->balance;
+					if (!empty($balance->deposit) && $market->deposit_address != $balance->deposit) {
+						debuglog("safecex: {$coin->symbol} deposit address updated");
+						$market->deposit_address = $balance->deposit;
+					}
+					$market->save();
+				}
 			}
 		}
 	}
@@ -27,11 +47,6 @@ function doSafecexTrading($quick=false)
 	$min_btc_trade = 0.00010000; // minimum allowed by the exchange
 	$sell_ask_pct = 1.05;        // sell on ask price + 5%
 	$cancel_ask_pct = 1.20;      // cancel order if our price is more than ask price + 20%
-
-	// to use when other coin balances will be required.
-	sleep(1);
-	$balances = safecex_api_user('getbalances');
-	if(empty($balances)) return;
 
 	sleep(1);
 	$orders = safecex_api_user('getopenorders');
@@ -213,6 +228,7 @@ function doSafecexTrading($quick=false)
 	}
 
 /* withdraw API doesn't exist
+	$db_balance = getdbosql('db_balances', "name='safecex'");
 	if(floatval(EXCH_AUTO_WITHDRAW) > 0 && $db_balance->balance >= (EXCH_AUTO_WITHDRAW + 0.0002))
 	{
 		$btcaddr = YAAMP_BTCADDRESS;
