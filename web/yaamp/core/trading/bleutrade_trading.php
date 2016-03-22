@@ -30,7 +30,8 @@ function doBleutradeTrading($quick=false)
 						debuglog("bleutrade: {$coin->symbol} deposit address updated");
 						$market->deposit_address = $balance->CryptoAddress;
 					}
-					$market->message = ($balance->isActive == "true") ? "" : "Disabled";
+					if (property_exists($balance,'IsActive'))
+						$market->message = ($balance->IsActive == "true") ? "" : "Disabled";
 					$market->save();
 				}
 			}
@@ -46,6 +47,7 @@ function doBleutradeTrading($quick=false)
 	$sell_ask_pct = 1.05;        // sell on ask price + 5%
 	$cancel_ask_pct = 1.20;      // cancel order if our price is more than ask price + 20%
 
+	sleep(1);
 	$orders = bleutrade_api_query('market/getopenorders');
 	if(!$orders) return;
 
@@ -59,6 +61,7 @@ function doBleutradeTrading($quick=false)
 		if(!$coin) continue;
 		if($coin->dontsell) continue;
 
+		sleep(1);
 		$ticker = bleutrade_api_query('public/getticker', "&market=$pair");
 		if(!$ticker || !$ticker->success || !isset($ticker->result[0])) continue;
 
@@ -69,14 +72,13 @@ function doBleutradeTrading($quick=false)
 		if($sellprice > $ask*$cancel_ask_pct || $flushall)
 		{
  //			debuglog("bleutrade: cancel order $order->Exchange $sellprice -> $ask");
+			sleep(1);
 			bleutrade_api_query('market/cancel', "&orderid={$order->OrderId}");
 
 			$db_order = getdbosql('db_orders', "market=:market AND uuid=:uuid", array(
 				':market'=>'bleutrade', ':uuid'=>$order->OrderId
 			));
 			if($db_order) $db_order->delete();
-
-			sleep(1);
 		}
 
 		// save existing orders
@@ -129,8 +131,6 @@ function doBleutradeTrading($quick=false)
 // 		return;
 // 	}
 
-	sleep(1);
-
 	// add orders
 
 	foreach($balances->result as $balance)
@@ -156,6 +156,7 @@ function doBleutradeTrading($quick=false)
 		if($amount*$coin->price < $min_btc_trade) continue;
 		$pair = "{$balance->Currency}_BTC";
 
+		sleep(1);
 		$data = bleutrade_api_query('public/getorderbook', "&market=$pair&type=BUY&depth=10");
 		if(!$data) continue;
 	//	if(!isset($data->result[0])) continue;
@@ -217,8 +218,6 @@ function doBleutradeTrading($quick=false)
 		$db_order->uuid = $res->result->orderid;
 		$db_order->created = time();
 		$db_order->save();
-
-		sleep(1);
 	}
 
 	if(floatval(EXCH_AUTO_WITHDRAW) > 0 && $savebalance->balance >= (EXCH_AUTO_WITHDRAW + 0.0002))
@@ -230,7 +229,7 @@ function doBleutradeTrading($quick=false)
 
 		sleep(1);
 		$res = bleutrade_api_query('account/withdraw', "&currency=BTC&quantity=$amount&address=$btcaddr");
-		debuglog($res);
+		debuglog("bleutrade: withdraw ".json_encode($res));
 
 		if($res && $res->success)
 		{
