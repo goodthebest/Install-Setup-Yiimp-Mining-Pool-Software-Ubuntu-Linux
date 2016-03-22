@@ -40,6 +40,8 @@ class CoindbCommand extends CConsoleCommand
 
 			$nbUpdated  = $this->updateCoinsLabels();
 			$nbUpdated += $this->updateCryptopiaLabels();
+			$nbUpdated += $this->updateYiimpLabels("yiimp.ccminer.org");
+			$nbUpdated += $this->updateYiimpLabels("zpool.ca");
 			$nbUpdated += $this->updateFromJson();
 
 			echo "total updated: $nbUpdated\n";
@@ -166,6 +168,45 @@ class CoindbCommand extends CConsoleCommand
 			}
 			if ($nbUpdated)
 				echo "$nbUpdated coin labels updated from cryptopia\n";
+		}
+		return $nbUpdated;
+	}
+
+	public function updateYiimpLabels($pool)
+	{
+		$modelsPath = $this->basePath.'/yaamp/models';
+		require_once($modelsPath.'/db_coinsModel.php');
+
+		$coins = new db_coins;
+		$nbUpdated = 0; $nbAlgos = 0;
+
+		$dataset = $coins->findAll(array(
+			'condition'=>"name=:u OR algo=''",
+			'params'=>array(':u'=>'unknown')
+		));
+
+		if (!empty($dataset))
+		{
+			$url = "http://{$pool}/api/currencies";
+			$json = json_decode(file_get_contents($url), true);
+
+			if (!empty($json))
+			foreach ($dataset as $coin) {
+				if (!isset($json[$coin->symbol])) continue;
+				$cc = $json[$coin->symbol];
+				if ($coin->name == 'unknown') {
+					echo "{$coin->symbol}: {$cc['name']}\n";
+					$coin->name = $cc['name'];
+					$nbUpdated += $coin->save();
+				}
+				if (empty($coin->algo)) {
+					$coin->algo = strtolower($cc['algo']);
+					echo "{$coin->symbol}: algo set to {$cc['algo']}\n";
+					$nbAlgos += $coin->save();
+				}
+			}
+			if ($nbUpdated)
+				echo "$nbUpdated labels and $nbAlgos algos updated from $pool\n";
 		}
 		return $nbUpdated;
 	}
