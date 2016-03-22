@@ -19,7 +19,7 @@ function doYobitTrading($quick=false)
 			continue;
 		}
 		if (!YAAMP_ALLOW_EXCHANGE) {
-			// store available balance in market table
+			// store balance in market table (= available + onorders on yobit)
 			$coins = getdbolist('db_coins', "symbol=:symbol OR symbol2=:symbol",
 				array(':symbol'=>strtoupper($symbol))
 			);

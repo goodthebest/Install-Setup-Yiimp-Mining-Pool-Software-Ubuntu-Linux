@@ -478,8 +478,13 @@ function updateCCexMarkets()
 				if(!empty($address)) {
 					$addr = arraySafeVal($address,'return');
 					if (!empty($addr) && $addr != $market->deposit_address) {
-						$market->deposit_address = $addr;
-						debuglog("$exchange: deposit address for {$coin->symbol} updated");
+						if (strpos($addr, 'Error') !== false)
+							$market->message = $addr;
+						else {
+							$market->deposit_address = $addr;
+							$market->message = null;
+							debuglog("$exchange: deposit address for {$coin->symbol} updated");
+						}
 						$market->save();
 					}
 				}
