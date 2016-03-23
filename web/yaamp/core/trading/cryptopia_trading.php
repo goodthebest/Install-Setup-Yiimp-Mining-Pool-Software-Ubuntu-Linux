@@ -28,6 +28,11 @@ function doCryptopiaTrading($quick=false)
 				if ($market->balance != $balance->Available) {
 					$market->balance = $balance->Available;
 					$market->message = $balance->StatusMessage;
+					if (property_exists($balance, 'Address'))
+					if (!empty($balance->Address) && $market->deposit_address != $balance->Address) {
+						debuglog("cryptopia: {$coin->symbol} deposit address updated");
+						$market->deposit_address = $balance->Address;
+					}
 					$market->save();
 				}
 			}
