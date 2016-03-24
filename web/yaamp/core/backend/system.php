@@ -42,6 +42,7 @@ function BackendCleanDatabase()
 	dborun("delete from hashstats where time<$delay");
 	dborun("delete from payouts where time<$delay");
 	dborun("delete from rentertxs where time<$delay");
+	dborun("DELETE FROM shares WHERE time<$delay");
 
 	$delay = time() - 2*24*60*60;
 	dborun("delete from stats where time<$delay");
@@ -50,6 +51,7 @@ function BackendCleanDatabase()
 	dborun("delete from hashrenter where time<$delay");
 	dborun("delete from balanceuser where time<$delay");
 	dborun("delete from exchange where send_time<$delay");
+	dborun("DELETE FROM shares WHERE time<$delay AND coinid NOT IN (select id from coins)");
 
 	$delay = time() - 12*60*60;
 	dborun("delete from earnings where status=2 and mature_time<$delay");
