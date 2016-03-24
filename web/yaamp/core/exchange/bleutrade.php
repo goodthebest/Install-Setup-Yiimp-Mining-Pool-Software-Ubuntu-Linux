@@ -1,15 +1,5 @@
 <?php
 
-function strip_data($data)
-{
-	$out = strip_tags($data);
-	$out = preg_replace("#[\t ]+#", " ", $out);
-	$out = preg_replace("# [\r\n]+#", "\n", $out);
-	$out = preg_replace("#[\r\n]+#", "\n", $out);
-	if (strpos($out, 'CloudFlare') !== false) $out = 'CloudFlare error';
-	return $out;
-}
-
 // close to bittrex api
 
 function bleutrade_api_query($method, $params='')

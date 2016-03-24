@@ -78,7 +78,7 @@ function BackendBlockFind1($coinid = NULL)
 
 		$block = $remote->getblock($db_block->blockhash);
 		$block_age = time() - $db_block->time;
-		if($coin->symbol == 'DCR' && $block_age < 1500) {
+		if($coin->symbol == 'DCR' && $block_age < 2000) {
 			// DCR generated blocks need some time to be accepted by the network (gettransaction)
 			if (!$block) continue;
 			$txid = $block['tx'][0];
