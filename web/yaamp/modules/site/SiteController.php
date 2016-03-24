@@ -842,6 +842,11 @@ class SiteController extends CommonController
 				updateBanxMarkets();
 				break;
 
+			case 'bter':
+				doBterTrading(true);
+				updateBterMarkets();
+				break;
+
 			case 'cryptopia':
 				doCryptopiaTrading(true);
 				updateCryptopiaMarkets();

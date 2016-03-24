@@ -63,6 +63,11 @@ class ExchangeCommand extends CConsoleCommand
 			$balance = bleutrade_api_query('account/getbalances','&currencies=BTC');
 			echo("bleutrade btc: ".json_encode($balance->result)."\n");
 		}
+		if (!empty(EXCH_BTER_KEY)) {
+			$info = bter_api_user('getfunds');
+			if (!$info || arraySafeVal($info,'result') != 'true' || !isset($info['available_funds'])) echo "error\n";
+			echo("bter available: ".json_encode($info['available_funds'])."\n");
+		}
 		if (!empty(EXCH_CCEX_KEY)) {
 			$ccex = new CcexAPI;
 			$balances = $ccex->getBalance();
