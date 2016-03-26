@@ -80,8 +80,8 @@ if(count($workers))
 
 		$user_rate1 = $user_rate1? Itoa2($user_rate1).'h/s': '';
 
-		$version = substr($worker->version, 0, 16);
-		$password = substr($worker->password, 0, 16);
+		$version = substr($worker->version, 0, 20);
+		$password = substr($worker->password, 0, 20);
 
 		$subscribe = Booltoa($worker->subscribe);
 
