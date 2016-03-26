@@ -16,35 +16,43 @@ function doBittrexCancelOrder($OrderID=false)
 
 function doBittrexTrading($quick=false)
 {
+	$exchange = 'bittrex';
+	$updatebalances = !YAAMP_ALLOW_EXCHANGE;
+
 	$balances = bittrex_api_query('account/getbalances');
 	if(!$balances || !isset($balances->result) || !$balances->success) return;
 
-	$savebalance = getdbosql('db_balances', "name='bittrex'");
-	$savebalance->balance = 0;
+	$savebalance = getdbosql('db_balances', "name='$exchange'");
+	if (is_object($savebalance)) {
+		$savebalance->balance = 0;
+		$savebalance->save();
+	}
 
 	foreach($balances->result as $balance)
 	{
 		if ($balance->Currency == 'BTC') {
-			$savebalance->balance = $balance->Available;
-			$savebalance->save();
+			if (is_object($savebalance)) {
+				$savebalance->balance = $balance->Available;
+				$savebalance->save();
+			}
 			continue;
 		}
 
-		if (!YAAMP_ALLOW_EXCHANGE) {
+		if ($updatebalances) {
 			// store available balance in market table
 			$coins = getdbolist('db_coins', "symbol=:sym OR symbol2=:sym", array(':sym'=>$balance->Currency));
 			if (empty($coins)) continue;
 			foreach ($coins as $coin) {
-				$market = getdbosql('db_markets', "coinid=:coinid AND name='bittrex'", array(':coinid'=>$coin->id));
+				$market = getdbosql('db_markets', "coinid=:coinid AND name='$exchange'", array(':coinid'=>$coin->id));
 				if (!$market) continue;
-				if ($market->balance != $balance->Available) {
-					$market->balance = $balance->Available;
-					if (!empty($balance->CryptoAddress) && $market->deposit_address != $balance->CryptoAddress) {
-						debuglog("bittrex: {$coin->symbol} deposit address updated");
-						$market->deposit_address = $balance->CryptoAddress;
-					}
-					$market->save();
+				$market->balance = $balance->Available;
+				$market->ontrade = $balance->Balance - $balance->Available;
+				if (!empty($balance->CryptoAddress) && $market->deposit_address != $balance->CryptoAddress) {
+					debuglog("$exchange: {$coin->symbol} deposit address updated");
+					$market->deposit_address = $balance->CryptoAddress;
 				}
+				$market->balancetime = time();
+				$market->save();
 			}
 		}
 	}

@@ -20,31 +20,52 @@ function getCryptsyTicker($marketid)
 
 function doCryptsyTrading($quick=false)
 {
-	$flushall = rand(0, 4) == 0;
-	if($quick) $flushall = false;
+	$exchange = 'cryptsy';
+	$updatebalances = !YAAMP_ALLOW_EXCHANGE;
 
-//	debuglog("-------------- doCryptsyTrading() $flushall");
-
-	// add orders
-	$savebalance = getdbosql('db_balances', "name='cryptsy'");
-	$savebalance->balance = 0;
+	$savebalance = getdbosql('db_balances', "name='$exchange'");
+	if (is_object($savebalance)) {
+		$savebalance->balance = 0;
+		$savebalance->save();
+	}
 
 	$balances = cryptsy_api_query('getinfo');
 	if(!$balances) return;
 	if(!isset($balances['return'])) {
-		debuglog("cryptsy balance: ".arraySafeVal($balances,'error'));
+		debuglog("$exchange balance: ".arraySafeVal($balances,'error'));
 		return;
 	}
+
 	foreach($balances['return']['balances_available'] as $symbol=>$balance)
 	{
 		if($symbol == 'BTC') {
-			$savebalance->balance = floatval($balance);
-			$savebalance->save();
-			break;
+			if (is_object($savebalance)) {
+				$savebalance->balance = floatval($balance);
+				$savebalance->save();
+			}
+			continue;
+		}
+
+		if ($updatebalances) {
+			// store available balance in market table
+			$coins = getdbolist('db_coins', "symbol=:symbol OR symbol2=:symbol",
+				array(':symbol'=>$symbol)
+			);
+			if (empty($coins)) continue;
+			foreach ($coins as $coin) {
+				$market = getdbosql('db_markets', "coinid=:coinid AND name='{$exchange}'", array(':coinid'=>$coin->id));
+				if (!$market) continue;
+				$market->balance = $available;
+				$market->balancetime = time();
+				$market->save();
+			}
 		}
 	}
 
 	if (!YAAMP_ALLOW_EXCHANGE) return;
+
+	$flushall = rand(0, 8) == 0;
+	if($quick) $flushall = false;
 
 	$orders = cryptsy_api_query('allmyorders');
 	if(empty($orders)) return;
@@ -53,6 +74,7 @@ function doCryptsyTrading($quick=false)
 		return;
 	}
 
+	// add orders
 	foreach($orders['return'] as $order)
 	{
 		if(!isset($order['marketid'])) continue;
@@ -212,6 +234,7 @@ function doCryptsyTrading($quick=false)
 		$db_order->save();
 	}
 
+	if(is_object($savebalance))
 	if(floatval(EXCH_AUTO_WITHDRAW) > 0 && $savebalance->balance >= (EXCH_AUTO_WITHDRAW + 0.0002))
 	{
 		$btcaddr = YAAMP_BTCADDRESS; //'14LS7Uda6EZGXLtRrFEZ2kWmarrxobkyu9';

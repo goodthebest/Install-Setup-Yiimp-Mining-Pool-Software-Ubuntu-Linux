@@ -20,37 +20,41 @@ function doSafecexCancelOrder($OrderID=false)
 
 function doSafecexTrading($quick=false)
 {
+	$exchange = 'safecex';
+	$updatebalances = !YAAMP_ALLOW_EXCHANGE;
+
 	// {"symbol":"BTC","balance":0.01056525,"pending":0,"orders":0,"total":0.01056525,"deposit":"15pQYjcBJxo3RQfJe6C5pYxHcxAjzVyTfv","withdraw":"1E1..."}
 	$balances = safecex_api_user('getbalances');
 	if(empty($balances)) return;
 
+	$savebalance = getdbosql('db_balances', "name='$exchange'");
+
 	foreach($balances as $balance)
 	{
 		if ($balance->symbol == 'BTC') {
-			$db_balance = getdbosql('db_balances', "name='safecex'");
-			if ($db_balance) {
-				$db_balance->balance = $balance->balance;
-				$db_balance->save();
+			if (is_object($savebalance)) {
+				$savebalance->balance = $balance->balance;
+				$savebalance->save();
 			}
 			continue;
 		}
-		if (!YAAMP_ALLOW_EXCHANGE) {
+		if ($updatebalances) {
 			// store available balance in market table
 			$coins = getdbolist('db_coins', "symbol=:symbol OR symbol2=:symbol",
 				array(':symbol'=>$balance->symbol)
 			);
 			if (empty($coins)) continue;
 			foreach ($coins as $coin) {
-				$market = getdbosql('db_markets', "coinid=:coinid AND name='safecex'", array(':coinid'=>$coin->id));
+				$market = getdbosql('db_markets', "coinid=:coinid AND name='$exchange'", array(':coinid'=>$coin->id));
 				if (!$market) continue;
-				if ($market->balance != $balance->balance) {
-					$market->balance = $balance->balance;
-					if (!empty($balance->deposit) && $market->deposit_address != $balance->deposit) {
-						debuglog("safecex: {$coin->symbol} deposit address updated");
-						$market->deposit_address = $balance->deposit;
-					}
-					$market->save();
+				$market->balance = $balance->balance;
+				$market->ontrade = $balance->orders;
+				if (!empty($balance->deposit) && $market->deposit_address != $balance->deposit) {
+					debuglog("$exchange: {$coin->symbol} deposit address updated");
+					$market->deposit_address = $balance->deposit;
 				}
+				$market->balancetime = time();
+				$market->save();
 			}
 		}
 	}
@@ -96,27 +100,20 @@ function doSafecexTrading($quick=false)
 			debuglog("safecex: cancel order {$order->market} at $sellprice, ask price is now $ask");
 			sleep(1);
 			doSafecexCancelOrder($order->id);
-			//safecex_api_user('cancelorder', "&id={$order->id}");
-
-			//$db_order = getdbosql('db_orders', "market=:market AND uuid=:uuid", array(
-			//	':market'=>'safecex', ':uuid'=>$order->id
-			//));
-			//if($db_order) $db_order->delete();
-
 		}
 
 		// store existing orders in the db
 		else
 		{
 			$db_order = getdbosql('db_orders', "market=:market AND uuid=:uuid", array(
-				':market'=>'safecex', ':uuid'=>$order->id
+				':market'=>$exchange, ':uuid'=>$order->id
 			));
 			if($db_order) continue;
 
 			debuglog("safecex: store new order of {$order->amount} {$coin->symbol} at $sellprice BTC");
 
 			$db_order = new db_orders;
-			$db_order->market = 'safecex';
+			$db_order->market = $exchange;
 			$db_order->coinid = $coin->id;
 			$db_order->amount = $order->amount;
 			$db_order->price = $sellprice;
@@ -129,7 +126,7 @@ function doSafecexTrading($quick=false)
 	}
 
 	// flush obsolete orders
-	$list = getdbolist('db_orders', "market='safecex'");
+	$list = getdbolist('db_orders', "market='$exchange'");
 	if (!empty($list) && !empty($orders))
 	foreach($list as $db_order)
 	{
@@ -140,14 +137,14 @@ function doSafecexTrading($quick=false)
 		foreach($orders as $order) {
 			if($order->type != 'sell') continue;
 			if($order->id == $db_order->uuid) {
-				// debuglog("safecex: order waiting, {$order->amount} {$coin->symbol}");
+				// debuglog("$exchange: order waiting, {$order->amount} {$coin->symbol}");
 				$found = true;
 				break;
 			}
 		}
 
 		if(!$found) {
-			debuglog("safecex: delete db order {$db_order->amount} {$coin->symbol}");
+			debuglog("$exchange: delete db order {$db_order->amount} {$coin->symbol}");
 			$db_order->delete();
 		}
 	}
@@ -165,7 +162,7 @@ function doSafecexTrading($quick=false)
 		$symbol = $coin->symbol;
 		if (!empty($coin->symbol2)) $symbol = $coin->symbol2;
 
-		$market = getdbosql('db_markets', "coinid={$coin->id} AND name='safecex'");
+		$market = getdbosql('db_markets', "coinid={$coin->id} AND name='$exchange'");
 		if($market)
 		{
 			$market->lasttraded = time();
@@ -197,7 +194,7 @@ function doSafecexTrading($quick=false)
 
 			if($sellamount*$sellprice < $min_btc_trade) continue;
 
-			debuglog("safecex: selling $sellamount $symbol at $sellprice");
+			debuglog("$exchange: selling $sellamount $symbol at $sellprice");
 			sleep(1);
 			$res = safecex_api_user('selllimit', "&market={$pair}&price={$sellprice}&amount={$sellamount}");
 			if(!$res || $res->status != 'ok')
@@ -221,7 +218,7 @@ function doSafecexTrading($quick=false)
 			$sellprice = bitcoinvaluetoa($ticker->ask * $sell_ask_pct); // lowest ask price +5%
 		if($amount*$sellprice < $min_btc_trade) continue;
 
-		debuglog("safecex: selling $amount $symbol at $sellprice");
+		debuglog("$exchange: selling $amount $symbol at $sellprice");
 		sleep(1);
 		$res = safecex_api_user('selllimit', "&market={$pair}&price={$sellprice}&amount={$amount}");
 		if(!$res || $res->status != 'ok')
@@ -232,7 +229,7 @@ function doSafecexTrading($quick=false)
 
 		if (property_exists($res,'id')) {
 			$db_order = new db_orders;
-			$db_order->market = 'safecex';
+			$db_order->market = $exchange;
 			$db_order->coinid = $coin->id;
 			$db_order->amount = $amount;
 			$db_order->price = $sellprice;
@@ -245,21 +242,21 @@ function doSafecexTrading($quick=false)
 	}
 
 /* withdraw API doesn't exist
-	$db_balance = getdbosql('db_balances', "name='safecex'");
+	$db_balance = getdbosql('db_balances', "name='$exchange'");
 	if(floatval(EXCH_AUTO_WITHDRAW) > 0 && $db_balance->balance >= (EXCH_AUTO_WITHDRAW + 0.0002))
 	{
 		$btcaddr = YAAMP_BTCADDRESS;
 		$amount = $db_balance->balance;
-		debuglog("safecex: withdraw $amount to $btcaddr");
+		debuglog("$exchange: withdraw $amount to $btcaddr");
 
 		sleep(1);
 		$res = safecex_api_user('withdraw', "&currency=BTC&amount={$amount}&address={$btcaddr}");
-		debuglog("safecex: withdraw: ".json_encode($res));
+		debuglog("$exchange: withdraw: ".json_encode($res));
 
 		if($res && $res->success)
 		{
 			$withdraw = new db_withdraws;
-			$withdraw->market = 'safecex';
+			$withdraw->market = $exchange;
 			$withdraw->address = $btcaddr;
 			$withdraw->amount = $amount + 0.0002;
 			$withdraw->time = time();

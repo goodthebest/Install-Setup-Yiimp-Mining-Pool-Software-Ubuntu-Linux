@@ -36,10 +36,13 @@ function doBanxTrading($quick=false)
 				$market = getdbosql('db_markets', "coinid=:coinid AND name='{$exchange}'", array(':coinid'=>$coin->id));
 				if (!$market) continue;
 				$market->balance = $balance->available;
-				if (!empty($balance->cryptoaddress) && $market->deposit_address != $balance->cryptoaddress) {
+				$market->ontrade = $balance->balance - $balance->available;
+				$deposit_address = objSafeVal($balance,'cryptoaddress');
+				if (!empty($deposit_address) && $market->deposit_address != $balance->cryptoaddress) {
 					debuglog("{$exchange}: {$coin->symbol} deposit address updated");
 					$market->deposit_address = $balance->cryptoaddress;
 				}
+				$market->balancetime = time();
 				$market->save();
 			}
 		}

@@ -36,6 +36,7 @@ function BackendPricesUpdate()
 			$market2->price = $market->price;
 			$market2->price2 = $market->price2;
 			$market2->deposit_address = $market->deposit_address;
+			$market2->pricetime = $market->pricetime;
 
 			$market2->save();
 		}
@@ -159,11 +160,11 @@ function updateBleutradeMarkets()
 		}
 
 		$market->txfee = $currency->TxFee;
-		if(!$currency->IsActive)
+		if(!$currency->IsActive && !$market->disabled)
 		{
 			$market->price = 0;
+			$market->disabled = 1;
 			$market->save();
-
 			continue;
 		}
 
@@ -174,9 +175,14 @@ function updateBleutradeMarkets()
 		$ticker = bleutrade_api_query('public/getticker', "&market=$pair");
 		if(!$ticker || !$ticker->success || !$ticker->result) continue;
 
+		if ($market->price == 0 && $market->disabled) {
+			$market->disabled = 0;
+		}
+
 		$price2 = ($ticker->result[0]->Bid+$ticker->result[0]->Ask)/2;
 		$market->price2 = AverageIncrement($market->price2, $price2);
 		$market->price = AverageIncrement($market->price, $ticker->result[0]->Bid);
+		$market->pricetime = time();
 
 		if(!empty(EXCH_BLEUTRADE_KEY))
 		{
@@ -246,6 +252,7 @@ function updateKrakenMarkets($force = false)
 		$price2 = ($ticker['b'][0] + $ticker['a'][0]) / 2;
 		$market->price2 = AverageIncrement($market->price2, $price2);
 		$market->price = AverageIncrement($market->price, $ticker['b'][0]);
+		$market->pricetime = time();
 
 		$market->save();
 	}
@@ -307,6 +314,7 @@ function updateBittrexMarkets($force = false)
 		$price2 = ($ticker->result->Bid+$ticker->result->Ask)/2;
 		$market->price2 = AverageIncrement($market->price2, $price2);
 		$market->price = AverageIncrement($market->price, $ticker->result->Bid);
+		$market->pricetime = time();
 
 		$market->save();
 
@@ -426,6 +434,7 @@ function updateCryptsyMarkets()
 
 		$market->price2 = AverageIncrement($market->price2, $price2);
 		$market->price = AverageIncrement($market->price, $ticker->return->$symbol->buyorders[0]->price);
+		$market->pricetime = time();
 
 		$market->save();
 
@@ -508,6 +517,7 @@ function updateCCexMarkets()
 
 		$market->price2 = AverageIncrement($market->price2, $price2);
 		$market->price = AverageIncrement($market->price, $ticker['buy']);
+		$market->pricetime = time();
 
 		$market->save();
 
@@ -578,6 +588,7 @@ function updatePoloniexMarkets()
 		$price2 = ($ticker['highestBid']+$ticker['lowestAsk'])/2;
 		$market->price2 = AverageIncrement($market->price2, $price2);
 		$market->price = AverageIncrement($market->price, $ticker['highestBid']);
+		$market->pricetime = time();
 
 		$market->save();
 
@@ -671,6 +682,7 @@ function updateYobitMarkets()
 		$price2 = ($ticker->$pair->buy + $ticker->$pair->sell) / 2;
 		$market->price2 = AverageIncrement($market->price2, $price2);
 		$market->price = AverageIncrement($market->price, $ticker->$pair->buy);
+		$market->pricetime = time();
 
 		$market->save();
 	}
@@ -702,6 +714,7 @@ function updateJubiMarkets()
 		$price2 = ($ticker->buy+$ticker->sell)/2;
 		$market->price2 = AverageIncrement($market->price2, $price2);
 		$market->price = AverageIncrement($market->price, $ticker->buy*0.95);
+		$market->pricetime = time();
 
 //		debuglog("jubi update $coin->symbol: $market->price $market->price2");
 
@@ -729,12 +742,14 @@ function updateAlcurexMarkets()
 				if (is_object($last) && !empty($last->$lpair)) {
 					$last = $last->$lpair;
 					$market->price = AverageIncrement($market->price, $last->price);
+					$market->pricetime = time();
 					$market->save();
 				}
 				$last = alcurex_api_query('market', "?pair=$lpair&last=sell");
 				if (is_object($last) && !empty($last->$lpair)) {
 					$last = $last->$lpair;
 					$market->price2 = AverageIncrement($market->price2, $last->price);
+					$market->pricetime = time();
 					$market->save();
 				}
 				if (empty($coin->price)) {
@@ -769,6 +784,7 @@ function updateCryptopiaMarkets()
 				$market->price2 = AverageIncrement($market->price2, $price2);
 				$market->price = AverageIncrement($market->price, $ticker->BidPrice*0.98);
 				$market->marketid = $ticker->TradePairId;
+				$market->pricetime = time();
 				$market->save();
 				if (empty($coin->price)) {
 					$coin->price = $market->price;
@@ -829,6 +845,7 @@ function updateBanxioMarkets()
 			if ($ticker->marketname === $pair) {
 				$market->price = AverageIncrement($market->price, $ticker->bid);
 				$market->price2 = AverageIncrement($market->price2, $ticker->last);
+				$market->pricetime = time();
 //				debuglog("banx: $pair {$ticker->bid} {$ticker->last} => {$market->price} {$market->price2}");
 				if (intval($ticker->dayvolume) > 1)
 					$market->save();
@@ -911,6 +928,7 @@ function updateSafecexMarkets()
 				$price2 = ($ticker->bid + $ticker->ask)/2;
 				$market->price2 = AverageIncrement($market->price2, $price2);
 				$market->price = AverageIncrement($market->price, $ticker->bid*0.98);
+				$market->pricetime = time();
 				$market->save();
 
 				if (empty($coin->price)) {
@@ -991,6 +1009,12 @@ function updateBterMarkets()
 	{
 		$coin = getdbo('db_coins', $market->coinid);
 		if(!$coin || !$coin->installed) continue;
+		if($coin->symbol == 'SFR') {
+			// black hole: no deposits since months
+			$market->deleted = 1;
+			$market->save();
+			continue;
+		}
 
 		$lowsymbol = strtolower($coin->symbol);
 		$dbpair = $lowsymbol.'_btc';
@@ -999,7 +1023,8 @@ function updateBterMarkets()
 
 			$market->price = AverageIncrement($market->price, $ticker['buy']);
 			$market->price2 = AverageIncrement($market->price2, $ticker['avg']);
-			$market->deleted = (floatval($ticker['vol_btc']) < 0.01);
+			$market->pricetime = time();
+			$market->disabled = (floatval($ticker['vol_btc']) < 0.01);
 			$market->save();
 
 			if (empty($coin->price2)) {
@@ -1030,6 +1055,7 @@ function updateEmpoexMarkets()
 
 			$market->price = AverageIncrement($market->price, $ticker->bid);
 			$market->price2 = AverageIncrement($market->price2, $ticker->ask);
+			$market->pricetime = time();
 
 			if (floatval($ticker->base_volume_24hr) > 0.01)
 				$market->save();
@@ -1063,7 +1089,7 @@ function updateOtherMarkets()
 				$coin->price2 = $ticker->price;
 				$coin->price  = AverageIncrement((float)$coin->price, (float)$coin->price2);
 				if ($coin->save()) {
-					debuglog("update price of $symbol ".bitcoinvaluetoa($coin->price));
+					debuglog("cryptonator: $symbol price set to ".bitcoinvaluetoa($coin->price));
 				}
 			}
 		}

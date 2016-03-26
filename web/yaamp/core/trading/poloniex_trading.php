@@ -20,36 +20,39 @@ function doPoloniexCancelOrder($OrderID=false, $pair=false, $poloniex=false)
 
 function doPoloniexTrading()
 {
-//	debuglog('-------------- doPoloniexTrading()');
+	$exchange = 'poloniex';
+	$updatebalances = !YAAMP_ALLOW_EXCHANGE;
 
 	$poloniex = new poloniex;
 
 	// add orders
-	$savebalance = getdbosql('db_balances', "name='poloniex'");
+	$savebalance = getdbosql('db_balances', "name='$exchange'");
 	$balances = $poloniex->get_complete_balances();
 
 	if (is_array($balances))
 	foreach($balances as $symbol => $balance)
 	{
 		if ($symbol == 'BTC') {
-			$savebalance->balance = $balance['available'];
-			$savebalance->save();
+			if (is_object($savebalance)) {
+				$savebalance->balance = $balance['available'];
+				$savebalance->save();
+			}
 			continue;
 		}
 
-		if (!YAAMP_ALLOW_EXCHANGE) {
+		if ($updatebalances) {
 			// store available balance in market table
 			$coins = getdbolist('db_coins', "symbol=:symbol OR symbol2=:symbol",
 				array(':symbol'=>$symbol)
 			);
 			if (empty($coins)) continue;
 			foreach ($coins as $coin) {
-				$market = getdbosql('db_markets', "coinid=:coinid AND name='poloniex'", array(':coinid'=>$coin->id));
+				$market = getdbosql('db_markets', "coinid=:coinid AND name='$exchange'", array(':coinid'=>$coin->id));
 				if (!$market) continue;
-				if ($market->balance != $balance['available']) {
-					$market->balance = $balance['available'];
-					$market->save();
-				}
+				$market->balance = $balance['available'];
+				$market->ontrade = arraySafeVal($balance,'onOrders',0);
+				$market->balancetime = time();
+				$market->save();
 			}
 		}
 	}
@@ -202,6 +205,7 @@ function doPoloniexTrading()
 		$db_order->save();
 	}
 
+	if(is_object($savebalance))
 	if(floatval(EXCH_AUTO_WITHDRAW) > 0 && $savebalance->balance >= (EXCH_AUTO_WITHDRAW + 0.0002))
 	{
 		$btcaddr = YAAMP_BTCADDRESS;

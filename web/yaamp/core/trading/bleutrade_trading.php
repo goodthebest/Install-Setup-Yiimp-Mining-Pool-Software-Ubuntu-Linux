@@ -16,38 +16,46 @@ function doBleutradeCancelOrder($OrderID=false)
 
 function doBleutradeTrading($quick=false)
 {
+	$exchange = 'bleutrade';
+	$updatebalances = !YAAMP_ALLOW_EXCHANGE;
+
 	$balances = bleutrade_api_query('account/getbalances');
 	if(!$balances || !isset($balances->result) || !$balances->success) return;
 
-	$savebalance = getdbosql('db_balances', "name='bleutrade'");
-	$savebalance->balance = 0;
+	$savebalance = getdbosql('db_balances', "name='$exchange'");
+	if (is_object($savebalance)) {
+		$savebalance->balance = 0;
+		$savebalance->save();
+	}
 
 	foreach($balances->result as $balance)
 	{
 		if ($balance->Currency == 'BTC') {
-			$savebalance->balance = $balance->Available;
-			$savebalance->save();
+			if (is_object($savebalance)) {
+				$savebalance->balance = $balance->Available;
+				$savebalance->save();
+			}
 			continue;
 		}
-		if (!YAAMP_ALLOW_EXCHANGE) {
+		if ($updatebalances) {
 			// store available balance in market table
 			$coins = getdbolist('db_coins', "symbol=:symbol OR symbol2=:symbol",
 				array(':symbol'=>$balance->Currency)
 			);
 			if (empty($coins)) continue;
 			foreach ($coins as $coin) {
-				$market = getdbosql('db_markets', "coinid=:coinid AND name='bleutrade'", array(':coinid'=>$coin->id));
+				$market = getdbosql('db_markets', "coinid=:coinid AND name='$exchange'", array(':coinid'=>$coin->id));
 				if (!$market) continue;
-				if ($market->balance != $balance->Available) {
-					$market->balance = $balance->Available;
-					if (!empty($balance->CryptoAddress) && $market->deposit_address != $balance->CryptoAddress) {
-						debuglog("bleutrade: {$coin->symbol} deposit address updated");
-						$market->deposit_address = $balance->CryptoAddress;
-					}
-					if (property_exists($balance,'IsActive'))
-						$market->message = ($balance->IsActive == "true") ? "" : "Disabled";
-					$market->save();
+				$market->balance = $balance->Available;
+				$market->ontrade = $balance->Balance - $balance->Available;
+				if (!empty($balance->CryptoAddress) && $market->deposit_address != $balance->CryptoAddress) {
+					debuglog("$exchange: {$coin->symbol} deposit address updated");
+					$market->deposit_address = $balance->CryptoAddress;
 				}
+				if (property_exists($balance,'IsActive'))
+					$market->message = ($balance->IsActive == "true") ? "" : "Disabled";
+				$market->balancetime = time();
+				$market->save();
 			}
 		}
 	}

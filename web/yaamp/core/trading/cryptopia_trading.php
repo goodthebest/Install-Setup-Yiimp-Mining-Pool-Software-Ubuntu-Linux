@@ -16,39 +16,48 @@ function doCryptopiaCancelOrder($OrderID=false)
 
 function doCryptopiaTrading($quick=false)
 {
-	$savebalance = getdbosql('db_balances', "name='cryptopia'");
-	if(!$savebalance) return;
+	$exchange = 'cryptopia';
+	$updatebalances = !YAAMP_ALLOW_EXCHANGE;
 
 	$balances = cryptopia_api_user('GetBalance');
+	if (!is_object($balances)) return;
 
-	if (is_object($balances) && is_array($balances->Data))
+	$savebalance = getdbosql('db_balances', "name='$exchange'");
+	if (is_object($savebalance)) {
+		$savebalance->balance = 0;
+		$savebalance->save();
+	}
+
+	if (is_array($balances->Data))
 	foreach($balances->Data as $balance)
 	{
 		if ($balance->Symbol == 'BTC') {
-			$savebalance->balance = $balance->Available;
-			$savebalance->save();
+			if (is_object($savebalance)) {
+				$savebalance->balance = $balance->Available;
+				$savebalance->save();
+			}
 			continue;
 		}
 
-		if (!YAAMP_ALLOW_EXCHANGE) {
+		if ($updatebalances) {
 			// store available balance in market table
 			$coins = getdbolist('db_coins', "symbol=:symbol OR symbol2=:symbol",
 				array(':symbol'=>$balance->Symbol)
 			);
 			if (empty($coins)) continue;
 			foreach ($coins as $coin) {
-				$market = getdbosql('db_markets', "coinid=:coinid AND name='cryptopia'", array(':coinid'=>$coin->id));
+				$market = getdbosql('db_markets', "coinid=:coinid AND name='$exchange'", array(':coinid'=>$coin->id));
 				if (!$market) continue;
-				if ($market->balance != $balance->Available) {
-					$market->balance = $balance->Available;
-					$market->message = $balance->StatusMessage;
-					if (property_exists($balance, 'Address'))
+				$market->balance = $balance->Available;
+				$market->ontrade = $balance->HeldForTrades;
+				$market->message = $balance->StatusMessage;
+				if (property_exists($balance, 'Address'))
 					if (!empty($balance->Address) && $market->deposit_address != $balance->Address) {
-						debuglog("cryptopia: {$coin->symbol} deposit address updated");
+						debuglog("$exchange: {$coin->symbol} deposit address updated");
 						$market->deposit_address = $balance->Address;
 					}
-					$market->save();
-				}
+				$market->balancetime = time();
+				$market->save();
 			}
 		}
 	}
@@ -244,6 +253,7 @@ function doCryptopiaTrading($quick=false)
 	}
 
 	// auto withdraw
+	if(is_object($savebalance))
 	if(floatval(EXCH_AUTO_WITHDRAW) > 0 && $savebalance->balance >= (EXCH_AUTO_WITHDRAW + 0.0002))
 	{
 		$btcaddr = YAAMP_BTCADDRESS;

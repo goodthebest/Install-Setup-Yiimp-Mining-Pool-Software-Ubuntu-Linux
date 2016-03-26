@@ -16,35 +16,40 @@ function doYobitCancelOrder($OrderID=false)
 
 function doYobitTrading($quick=false)
 {
-	$savebalance = getdbosql('db_balances', "name='yobit'");
-	if(!$savebalance) return;
-
-	$savebalance->balance = 0;
+	$exchange = 'yobit';
+	$updatebalances = !YAAMP_ALLOW_EXCHANGE;
 
 	$balances = yobit_api_query2('getInfo');
 	if(!$balances || !isset($balances['return'])) return;
 	if(!isset($balances['return']['funds'])) return;
 
+	$savebalance = getdbosql('db_balances', "name='$exchange'");
+	if (is_object($savebalance)) {
+		$savebalance->balance = 0;
+		$savebalance->save();
+	}
+
 	foreach($balances['return']['funds'] as $symbol => $amount)
 	{
 		if ($symbol == 'btc') {
-			$savebalance->balance = $amount;
-			$savebalance->save();
+			if (is_object($savebalance)) {
+				$savebalance->balance = $amount;
+				$savebalance->save();
+			}
 			continue;
 		}
-		if (!YAAMP_ALLOW_EXCHANGE) {
+		if ($updatebalances) {
 			// store balance in market table (= available + onorders on yobit)
 			$coins = getdbolist('db_coins', "symbol=:symbol OR symbol2=:symbol",
 				array(':symbol'=>strtoupper($symbol))
 			);
 			if (empty($coins)) continue;
 			foreach ($coins as $coin) {
-				$market = getdbosql('db_markets', "coinid=:coinid AND name='yobit'", array(':coinid'=>$coin->id));
+				$market = getdbosql('db_markets', "coinid=:coinid AND name='$exchange'", array(':coinid'=>$coin->id));
 				if (!$market) continue;
-				if ($market->balance != $amount) {
-					$market->balance = $amount;
-					$market->save();
-				}
+				$market->balance = $amount;
+				$market->balancetime = time();
+				$market->save();
 			}
 		}
 	}

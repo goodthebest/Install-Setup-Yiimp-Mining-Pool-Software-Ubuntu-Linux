@@ -2,41 +2,42 @@
 
 function doKrakenTrading($quick=false)
 {
-	$flushall = rand(0, 4) == 0;
-	if($quick) $flushall = false;
+	$exchange = 'kraken';
+	$updatebalances = !YAAMP_ALLOW_EXCHANGE;
 
 	$balances = kraken_api_user('Balance');
 	if(!$balances || !is_array($balances)) return;
 
-	$savebalance = getdbosql('db_balances', "name='kraken'");
-	if (!is_object($savebalance)) return;
-
-	$savebalance->balance = 0;
-
 	foreach($balances as $symbol => $balance)
 	{
 		if ($symbol == 'BTC') {
-			$savebalance->balance = $balance;
-			$savebalance->save();
+			$db_balance = getdbosql('db_balances', "name='$exchange'");
+			if ($db_balance) {
+				$db_balance->balance = $balance;
+				$db_balance->save();
+			}
 			continue;
 		}
 
-		if (!YAAMP_ALLOW_EXCHANGE) {
+		if ($updatebalances) {
 			// store available balance in market table
 			$coins = getdbolist('db_coins', "symbol=:symbol OR symbol2=:symbol",
 				array(':symbol'=>$symbol)
 			);
 			if (empty($coins)) continue;
 			foreach ($coins as $coin) {
-				$market = getdbosql('db_markets', "coinid=:coinid AND name='kraken'", array(':coinid'=>$coin->id));
+				$market = getdbosql('db_markets', "coinid=:coinid AND name='$exchange'", array(':coinid'=>$coin->id));
 				if (!$market) continue;
-				if ($market->balance != $balance) {
-					$market->balance = $balance;
-					$market->save();
-				}
+				$market->balance = $balance;
+				$market->balancetime = time();
+				$market->save();
 			}
 		}
 	}
 
 	if (!YAAMP_ALLOW_EXCHANGE) return;
+
+	$flushall = rand(0, 8) == 0;
+	if($quick) $flushall = false;
+
 }

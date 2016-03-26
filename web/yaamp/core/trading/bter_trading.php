@@ -23,9 +23,10 @@ function doBterTrading($quick=false)
 	foreach($balances['available_funds'] as $symbol => $available)
 	{
 		if ($symbol == 'BTC') {
-			if (!is_object($savebalance)) continue;
-			$savebalance->balance = $balance->available;
-			$savebalance->save();
+			if (is_object($savebalance)) {
+				$savebalance->balance = $balance->available;
+				$savebalance->save();
+			}
 			continue;
 		}
 
@@ -38,10 +39,10 @@ function doBterTrading($quick=false)
 			foreach ($coins as $coin) {
 				$market = getdbosql('db_markets', "coinid=:coinid AND name='{$exchange}'", array(':coinid'=>$coin->id));
 				if (!$market) continue;
-				if ($market->balance != $available) {
-					$market->balance = $available;
-					$market->save();
-				}
+				$market->balance = $available;
+				$market->ontrade = arraySafeVal($balances['locked_funds'],$symbol,0);
+				$market->balancetime = time();
+				$market->save();
 			}
 		}
 	}
