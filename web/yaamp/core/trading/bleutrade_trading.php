@@ -52,8 +52,10 @@ function doBleutradeTrading($quick=false)
 					debuglog("$exchange: {$coin->symbol} deposit address updated");
 					$market->deposit_address = $balance->CryptoAddress;
 				}
-				if (property_exists($balance,'IsActive'))
+				if (property_exists($balance,'IsActive')) {
 					$market->message = ($balance->IsActive == "true") ? "" : "Disabled";
+					$market->disabled = ($balance->IsActive != "true");
+				}
 				$market->balancetime = time();
 				$market->save();
 			}

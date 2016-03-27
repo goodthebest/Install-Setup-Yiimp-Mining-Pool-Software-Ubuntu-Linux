@@ -35,6 +35,12 @@ echo ", ".CHtml::link($reserved1, "/site/payments?id=".$coin->id)." $symbol clea
 //////////////////////////////////////////////////////////////////////////////////////
 
 echo <<<end
+<style type="text/css">
+tr.ssrow.bestmarket { background-color: #dfd; }
+tr.ssrow.disabled { background-color: #fdd; color: darkred; }
+tr.ssrow.orphan { color: darkred; }
+</style>
+
 <table class="dataGrid">
 <thead><tr>
 <th width="100">Name</th>
@@ -42,6 +48,7 @@ echo <<<end
 <th width="100">Price2</th>
 <th width="500">Deposit</th>
 <th width="100">Balance</th>
+<th width="100">Locked</th>
 <th width="100">Sent</th>
 <th width="100">Traded</th>
 <th width="40">Late</th>
@@ -60,15 +67,19 @@ foreach($list as $market)
 
 	$marketurl = getMarketUrl($coin, $market->name);
 
-	if($bestmarket && $market->id == $bestmarket->id)
-		echo "<tr class='ssrow' style='background-color: #dfd'>";
-	else
-		echo "<tr class='ssrow'>";
+	$rowclass = 'ssrow';
+	if($bestmarket && $market->id == $bestmarket->id) $rowclass .= ' bestmarket';
+	if($market->disabled) $rowclass .= ' disabled';
 
-	echo "<td><b><a href='$marketurl' target=_blank>$market->name</a></b></td>";
+	echo '<tr class="'.$rowclass.'">';
 
-	echo '<td>'.$price.'</td>';
-	echo '<td>'.$price2.'</td>';
+	echo '<td><b><a href="'.$marketurl.'" target=_blank>';
+	echo $market->name;
+	echo '</a></b></td>';
+
+	$updated = "last updated: ".strip_tags(datetoa2($market->pricetime));
+	echo '<td title="'.$updated.'">'.$price.'</td>';
+	echo '<td title="'.$updated.'">'.$price2.'</td>';
 
 	echo '<td>';
 	if (!empty($market->deposit_address)) {
@@ -86,8 +97,12 @@ foreach($list as $market)
 	echo ' <a style="color:darkred" title="Remove this market" href="/market/delete?id='.$market->id.'">x</a>';
 	echo '</td>';
 
+	$updated = "last updated: ".strip_tags(datetoa2($market->balancetime));
 	$balance = $market->balance > 0 ? bitcoinvaluetoa($market->balance) : '';
-	echo '<td>'.$balance.'</td>';
+	echo '<td title="'.$updated.'">'.$balance.'</td>';
+
+	$ontrade = $market->ontrade > 0 ? bitcoinvaluetoa($market->ontrade) : '';
+	echo '<td title="'.$updated.'">'.$ontrade.'</td>';
 
 	$sent = datetoa2($market->lastsent);
 	$traded = datetoa2($market->lasttraded);
@@ -97,7 +112,8 @@ foreach($list as $market)
 	echo '<td>'.(empty($traded) ? "" : "$traded ago").'</td>';
 	echo '<td>'.$late.'</td>';
 
-	echo "<td>$market->message</td>";
+	if ($market->disabled) $market->message = trim("{$market->message} (disabled)");
+	echo "<td>{$market->message}</td>";
 	echo "</tr>";
 }
 
@@ -204,10 +220,6 @@ $maxrows = arraySafeVal($_GET,'rows', 15);
 $maxrows = min($maxrows, 2500);
 
 echo <<<end
-<style type="text/css">
-tr.ssrow.orphan { color: darkred; }
-</style>
-
 <table class="dataGrid">
 <thead class="">
 <tr>
