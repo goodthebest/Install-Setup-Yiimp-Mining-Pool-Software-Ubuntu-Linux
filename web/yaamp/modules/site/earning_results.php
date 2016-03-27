@@ -62,8 +62,9 @@ end;
 
 $coin_id = getiparam('id');
 $sqlFilter = $coin_id ? "AND coinid={$coin_id}": '';
+$limit = $coin_id ? '' : 'LIMIT 1000';
 
-$earnings = getdbolist('db_earnings', "status!=2 $sqlFilter ORDER BY create_time DESC LIMIT 1000");
+$earnings = getdbolist('db_earnings', "status!=2 $sqlFilter ORDER BY create_time DESC $limit");
 
 $total = 0.; $total_btc = 0.; $totalimmat = 0.; $totalfees = 0.; $totalstake = 0.;
 
