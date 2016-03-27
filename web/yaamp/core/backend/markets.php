@@ -96,26 +96,26 @@ function getBestMarket($coin)
 
 	if (!empty($coin->market)) {
 		// get coin market first (if set)
-		if ($coin->market != 'BEST')
+		if ($coin->market != 'BEST' && $coin->market != 'unknown')
 			$market = getdbosql('db_markets', "coinid=$coin->id AND price!=0 AND
-				deposit_address IS NOT NULL AND deposit_address != '' AND name=:name",
+				NOT disabled AND deposit_address IS NOT NULL AND deposit_address != '' AND name=:name",
 				array(':name'=>$coin->market));
 		else
 		// else take one of the big exchanges...
 			$market = getdbosql('db_markets', "coinid=$coin->id AND price!=0 AND
-				deposit_address IS NOT NULL AND deposit_address != '' AND
-				name IN ('poloniex','bittrex') ORDER BY price DESC");
+				NOT disabled AND deposit_address IS NOT NULL AND deposit_address != '' AND
+				name IN ('poloniex','bittrex') ORDER BY priority DESC, price DESC");
 	}
 	if(!$market) {
 		// else the best price
 		$market = getdbosql('db_markets', "coinid=$coin->id AND price!=0 AND
-			deposit_address IS NOT NULL AND deposit_address != ''
-			AND	name!='safecex' AND name!='cryptsy' ORDER BY price DESC");
+			NOT disabled AND deposit_address IS NOT NULL AND deposit_address != ''
+			AND name!='safecex' AND name!='cryptsy' ORDER BY priority DESC, price DESC");
 	}
 	if(!$market) {
 		$market = getdbosql('db_markets', "coinid=$coin->id AND price!=0 AND
-			deposit_address IS NOT NULL AND deposit_address != ''
-			ORDER BY price DESC");
+			NOT disabled AND deposit_address IS NOT NULL AND deposit_address != ''
+			ORDER BY priority DESC, price DESC");
 	}
 
 	if (!$market && empty($coin->market)) {
@@ -506,6 +506,7 @@ function updateCCexMarkets()
 			$market->coinid = $coin->id;
 			$market->name = $exchange;
 		}
+		if ($symbol == 'DCR') $market->disabled = 1;
 
 		$market->save();
 
