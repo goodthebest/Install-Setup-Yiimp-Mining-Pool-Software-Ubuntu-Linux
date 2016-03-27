@@ -23,6 +23,7 @@ function bleutrade_api_query($method, $params='')
 
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	curl_setopt($ch, CURLOPT_HTTPHEADER, array("apisign:$sign"));
+	curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
 	//curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
 	//curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
 	curl_setopt($ch, CURLOPT_SSLVERSION, 1 /*CURL_SSLVERSION_TLSv1*/);
