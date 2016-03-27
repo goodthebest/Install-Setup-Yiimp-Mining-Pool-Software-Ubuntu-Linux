@@ -79,9 +79,9 @@ foreach($list as $job)
 echo "</tbody></table>";
 
 echo "<p style='font-size: .8em'>
-		&nbsp;* approximate from the last 5 minutes submitted shares<br>
-		&nbsp;** price in mBTC/Mh/day (mBTC/Gh/day for sha256)<br>
-		</p>";
+	&nbsp;* approximate from the last 5 minutes submitted shares<br>
+	&nbsp;** price in mBTC/Mh/day (mBTC/Gh/day for sha256 and blake algos)<br>
+	</p>";
 
 echo "<br>";
 echo "</div></div><br>";

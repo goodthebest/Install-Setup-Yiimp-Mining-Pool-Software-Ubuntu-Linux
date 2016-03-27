@@ -41,6 +41,10 @@ echo <<<end
 </div></div><br>
 end;
 
+$algo_unit = 'Mh';
+$algo_factor = yaamp_algo_mBTC_factor($algo);
+if ($algo_factor == 1000) $algo_unit = 'Gh';
+
 echo <<<end
 </td><td valign=top>
 
@@ -141,7 +145,7 @@ function graph_init_price(data)
 	var t = $.parseJSON(data);
 	var plot1 = $.jqplot('graph_results_price', t,
 	{
-		title: '<b>Estimate (mBTC/Mh/day)</b>',
+		title: '<b>Estimate (mBTC/{$algo_unit}/day)</b>',
 		axes: {
 			xaxis: {
 				tickInterval: 7200,

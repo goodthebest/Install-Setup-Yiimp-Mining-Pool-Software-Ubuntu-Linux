@@ -209,7 +209,7 @@ echo "</table>";
 echo "<p style='font-size: .8em'>
 		&nbsp;* estimated average time to find a block at full pool speed<br>
 		&nbsp;** approximate from the last 5 minutes submitted shares<br>
-		&nbsp;*** mBTC/Mh/day (mBTC/Gh/day for sha256)<br>
+		&nbsp;*** mBTC/Mh/day (mBTC/Gh/day for sha256 and blake algos)<br>
 		</p>";
 
 echo "</div></div><br>";
