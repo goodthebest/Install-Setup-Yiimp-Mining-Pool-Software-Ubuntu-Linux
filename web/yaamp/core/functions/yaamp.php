@@ -40,6 +40,18 @@ function yaamp_get_algos()
 	);
 }
 
+// Used for graphs and 24h profit
+// GH/s for fast algos like sha256
+function yaamp_algo_mBTC_factor($algo)
+{
+	switch($algo) {
+	case 'sha256':
+		return 1000;
+	default:
+		return 1;
+	}
+}
+
 // mBTC coef per algo
 function yaamp_get_algo_norm($algo)
 {
@@ -240,8 +252,8 @@ function yaamp_profitability($coin)
 		}
 	}
 
-	if($coin->algo == 'sha256') $btcmhd *= 1000;
-	return $btcmhd;
+	$algo_unit_factor = yaamp_algo_mBTC_factor($coin->algo);
+	return $btcmhd * $algo_unit_factor;
 }
 
 function yaamp_convert_amount_user($coin, $amount, $user)

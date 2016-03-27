@@ -101,11 +101,8 @@ foreach($algos as $item)
 	$hashrate1 = controller()->memcache->get_database_scalar("current_hashrate1-$algo",
 		"select avg(hashrate) from hashrate where time>$t and algo=:algo", array(':algo'=>$algo));
 
-//	$btcmhday1 = $hashrate1 != 0? mbitcoinvaluetoa($total1 / $hashrate1 * 1000000 * 1000): '-';
-	if($algo == 'sha256')
-		$btcmhday1 = $hashrate1 != 0? mbitcoinvaluetoa($total1 / $hashrate1 * 1000000 * 1000000): '';
-	else
-		$btcmhday1 = $hashrate1 != 0? mbitcoinvaluetoa($total1 / $hashrate1 * 1000000 * 1000): '';
+	$algo_unit_factor = yaamp_algo_mBTC_factor($algo);
+	$btcmhday1 = $hashrate1 != 0? mbitcoinvaluetoa($total1 / $hashrate1 * 1000000 * 1000 * $algo_unit_factor): '';
 
 	$fees = yaamp_fee($algo);
 	$port = getAlgoPort($algo);

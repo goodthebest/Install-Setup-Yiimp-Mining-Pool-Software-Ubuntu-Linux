@@ -96,10 +96,8 @@ foreach($algos as $item)
 	$total1 = dboscalar("select sum(amount*price) from blocks where category!='orphan' and time>$t1 and algo=:algo", array(':algo'=>$algo));
 	$hashrate1 = dboscalar("select avg(hashrate) from hashrate where time>$t1 and algo=:algo", array(':algo'=>$algo));
 
-	if($algo == 'sha256')
-		$btcmhday1 = $hashrate1 != 0? mbitcoinvaluetoa($total1 / $hashrate1 * 1000000 * 1000000): '';
-	else
-		$btcmhday1 = $hashrate1 != 0? mbitcoinvaluetoa($total1 / $hashrate1 * 1000000 * 1000): '';
+	$algo_unit_factor = yaamp_algo_mBTC_factor($algo);
+	$btcmhday1 = $hashrate1 != 0? mbitcoinvaluetoa($total1 / $hashrate1 * 1000000 * 1000 * $algo_unit_factor): '';
 
 	$fees = yaamp_fee($algo);
 

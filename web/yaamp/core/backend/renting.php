@@ -24,7 +24,8 @@ function BackendRentingUpdate()
 		$rent = dboscalar("select rent from hashrate where algo=:algo order by time desc limit 1", array(':algo'=>$submit->algo));
 		$amount = $rent * $submit->difficulty / 20116.56761169;
 
-		if($submit->algo == 'sha256') $amount /= 1000;
+		$factor = yaamp_algo_mBTC_factor($submit->algo); // 1000 for sha256
+		$amount /= $factor;
 
 		$submit->amount = $amount - $amount*YAAMP_FEES_RENTING/100;
 		$submit->status = 1;
