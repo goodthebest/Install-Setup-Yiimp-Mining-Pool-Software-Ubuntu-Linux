@@ -44,18 +44,25 @@ class CcexAPI
         }
     }
 
-
     public function getTickerInfo($pair){
         $json = $this->jsonQuery($this->api_url.$pair.'.json');
         return $json['ticker'];
     }
 
+    public function getCoinNames(){
+       $json = $this->jsonQuery($this->api_url.'coinnames.json');
+       return is_array($json) ? $json : array();
+    }
+
+    public function getMarkets(){
+       $json = $this->jsonQuery($this->api_url.'api_pub.html?a=getmarkets');
+       return isset($json['result']) ? $json['result'] : array();
+    }
 
     public function getPairs(){
        $json = $this->jsonQuery($this->api_url.'pairs.json');
        return isset($json['pairs'])? $json['pairs']: array();
     }
-
 
     public function getVolumes($hours=24,$pair=false){
         $url = ($pair) ? 'volume' : 'lastvolumes&pair='.$pair.'&';

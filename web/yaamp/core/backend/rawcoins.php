@@ -37,13 +37,16 @@ function updateRawcoins()
 	$list = $ccex->getPairs();
 	if($list)
 	{
+		sleep(1);
+		$names = $ccex->getCoinNames();
+
 		dborun("update markets set deleted=true where name='c-cex'");
 		foreach($list as $item)
 		{
 			$e = explode('-', $item);
 			$symbol = strtoupper($e[0]);
 
-			updateRawCoin('c-cex', $symbol);
+			updateRawCoin('c-cex', $symbol, arraySafeVal($names, $e[0], 'unknown'));
 		}
 	}
 
