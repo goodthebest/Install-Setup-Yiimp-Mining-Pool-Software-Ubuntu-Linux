@@ -66,11 +66,7 @@ function BackendPricesUpdate()
 				$coin->price *= $base_coin->price;
 				$coin->price2 *= $base_coin->price;
 			}
-
-//			if($market->name == 'c-cex')
-//				$coin->price *= 0.95;
 		}
-
 		else
 		{
 			$coin->price = 0;
@@ -160,24 +156,17 @@ function updateBleutradeMarkets()
 		}
 
 		$market->txfee = $currency->TxFee;
-		if(!$currency->IsActive && !$market->disabled)
-		{
-			$market->price = 0;
-			$market->disabled = 1;
-			$market->save();
-			continue;
-		}
+		if($market->disabled < 9) $market->disabled = !$currency->IsActive;
 
 		$market->save();
+
+		if($market->disabled) continue;
+
 		$pair = "{$coin->symbol}_BTC";
 
 		sleep(1);
 		$ticker = bleutrade_api_query('public/getticker', "&market=$pair");
 		if(!$ticker || !$ticker->success || !$ticker->result) continue;
-
-		if ($market->price == 0 && $market->disabled) {
-			$market->disabled = 0;
-		}
 
 		$price2 = ($ticker->result[0]->Bid+$ticker->result[0]->Ask)/2;
 		$market->price2 = AverageIncrement($market->price2, $price2);
@@ -279,15 +268,11 @@ function updateBittrexMarkets($force = false)
 		$market->txfee = $currency->TxFee;
 		$market->message = $currency->Notice;
 
-		if(!$currency->IsActive)
-		{
-			$market->price = 0;
-			$market->save();
-
-			continue;
-		}
-
+		if($market->disabled < 9) $market->disabled = !$currency->IsActive;
 		$market->save();
+
+		if($market->disabled) continue;
+
 		$pair = "BTC-$coin->symbol";
 
 		$ticker = bittrex_api_query('public/getticker', "&market=$pair");
@@ -407,13 +392,10 @@ function updateCryptsyMarkets()
 				break;
 		}
 
+		$market->disabled = (int) (arraySafeVal($currency,'maintenancemode',0) > 0);
 		$market->save();
 
-		if($currency['maintenancemode']) {
-			$market->price = 0;
-			$market->save();
-			continue;
-		}
+		if ($market->disabled) continue;
 
 		$ticker = getCryptsyTicker($market->marketid);
 		if(!$ticker) continue;
@@ -481,19 +463,17 @@ function updateCryptsyMarkets()
 function updateCCexMarkets()
 {
 	$exchange = 'c-cex';
-//	dborun("update markets set price=0 where name='c-cex'");	<- add that line
 	$ccex = new CcexAPI;
 
-	$list = $ccex->getPairs();
+	$list = $ccex->getMarkets();
 	if (!is_array($list)) return;
 
-	foreach($list as $item)
+	foreach($list as $ticker)
 	{
-		$e = explode('-', $item);
-		if(!isset($e[1])) continue;
-		if($e[1] != 'btc') continue;
+		if(!isset($ticker['MarketCurrency'])) continue;
+		if(!isset($ticker['BaseCurrency']) || $ticker['BaseCurrency'] != 'BTC') continue;
 
-		$symbol = strtoupper($e[0]);
+		$symbol = strtoupper($ticker['MarketCurrency']);
 
 		$coin = getdbosql('db_coins', "symbol=:symbol", array(':symbol'=>$symbol));
 		if(!$coin || !$coin->installed) continue;
@@ -506,11 +486,16 @@ function updateCCexMarkets()
 			$market->coinid = $coin->id;
 			$market->name = $exchange;
 		}
-		if ($symbol == 'DCR') $market->disabled = 1;
+
+		if ($market->disabled < 9) $market->disabled = !$ticker['IsActive'];
+		if ($symbol == 'DCR') $market->disabled = 9; // manually disabled
 
 		$market->save();
 
+		if ($market->disabled) continue;
+
 		sleep(1);
+		$item = strtolower($symbol."-btc");
 		$ticker = $ccex->getTickerInfo($item);
 		if(!$ticker) continue;
 
@@ -658,6 +643,12 @@ function updateYobitMarkets()
 			$market->name = $exchange;
 		}
 
+		$market->txfee = objSafeVal($item,'fee',0.2);
+		if ($market->disabled < 9) $market->disabled = arraySafeVal($item,'hidden',0);
+		$market->save();
+
+		if ($market->disabled) continue;
+
 		$pair = strtolower($coin->symbol).'_btc';
 
 		$ticker = yobit_api_query("ticker/$pair");
@@ -781,13 +772,17 @@ function updateCryptopiaMarkets()
 		foreach ($data->Data as $ticker) {
 			if ($ticker->Label === $pair) {
 
+				//$market->marketid = $ticker->TradePairId;
+				if ($market->disabled < 9) $market->disabled = ($ticker->BidPrice < $ticker->AskPrice/2);
+
 				$price2 = ($ticker->BidPrice+$ticker->AskPrice)/2;
 				$market->price2 = AverageIncrement($market->price2, $price2);
 				$market->price = AverageIncrement($market->price, $ticker->BidPrice*0.98);
 				$market->marketid = $ticker->TradePairId;
 				$market->pricetime = time();
 				$market->save();
-				if (empty($coin->price)) {
+
+				if (empty($coin->price) && !$market->disabled) {
 					$coin->price = $market->price;
 					$coin->price2 = $market->price2;
 					$coin->save();
@@ -844,13 +839,15 @@ function updateBanxioMarkets()
 		$pair = strtoupper($coin->symbol).'-BTC';
 		foreach ($data->result as $ticker) {
 			if ($ticker->marketname === $pair) {
-				$market->price = AverageIncrement($market->price, $ticker->bid);
-				$market->price2 = AverageIncrement($market->price2, $ticker->last);
-				$market->pricetime = time();
-//				debuglog("banx: $pair {$ticker->bid} {$ticker->last} => {$market->price} {$market->price2}");
-				if (intval($ticker->dayvolume) > 1)
+
+				if ($market->disabled < 9) $market->disabled = (intval($ticker->dayvolume) <= 1);
+				if (!$market->disabled) {
+					$market->price = AverageIncrement($market->price, $ticker->bid);
+					$market->price2 = AverageIncrement($market->price2, $ticker->last);
+					$market->pricetime = time();
 					$market->save();
-				if (empty($coin->price2)) {
+				}
+				if (empty($coin->price2) && !$market->disabled) {
 					$coin->price = $market->price;
 					$coin->price2 = $market->price2;
 					$coin->save();
@@ -1025,7 +1022,7 @@ function updateBterMarkets()
 			$market->price = AverageIncrement($market->price, $ticker['buy']);
 			$market->price2 = AverageIncrement($market->price2, $ticker['avg']);
 			$market->pricetime = time();
-			$market->disabled = (floatval($ticker['vol_btc']) < 0.01);
+			if ($market->disabled < 9) $market->disabled = (floatval($ticker['vol_btc']) < 0.01);
 			$market->save();
 
 			if (empty($coin->price2)) {

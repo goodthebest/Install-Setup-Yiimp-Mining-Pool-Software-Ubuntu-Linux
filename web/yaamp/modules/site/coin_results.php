@@ -112,8 +112,8 @@ foreach($list as $market)
 	echo '<td>'.(empty($traded) ? "" : "$traded ago").'</td>';
 	echo '<td>'.$late.'</td>';
 
-	if ($market->disabled) $market->message = trim("{$market->message} (disabled)");
-	echo "<td>{$market->message}</td>";
+	if ($market->disabled) $market->message = trim("{$market->message} disabled");
+	echo '<td align="center">'.$market->message.'</td>';
 	echo "</tr>";
 }
 
