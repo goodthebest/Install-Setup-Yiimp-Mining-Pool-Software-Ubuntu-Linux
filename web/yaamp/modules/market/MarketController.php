@@ -19,15 +19,26 @@ class MarketController extends CommonController
 		$this->render('update', array('market'=>$market, 'coin'=>$coin));
 	}
 
+	public function actionEnable()
+	{
+		if(!$this->admin) return;
+
+		$enable = (int) getiparam('en');
+		$market = getdbo('db_markets', getiparam('id'));
+		if($market) {
+			$market->disabled = $enable ? 0 : 9;
+			$market->save();
+		}
+		$this->goback();
+	}
+
 	public function actionDelete()
 	{
 		if(!$this->admin) return;
 
 		$market = getdbo('db_markets', getiparam('id'));
-		$coin = getdbo('db_coins', $market->coinid);
-
 		if($market) $market->delete();
-		$this->redirect(array('site/coin', 'id'=>$coin->id));
+		$this->goback();
 	}
 
 	public function actionSellto()

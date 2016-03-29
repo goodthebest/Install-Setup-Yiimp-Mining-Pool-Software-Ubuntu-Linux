@@ -53,6 +53,7 @@ tr.ssrow.orphan { color: darkred; }
 <th width="100">Traded</th>
 <th width="40">Late</th>
 <th align="center" width="500">Message</th>
+<th align="right" width="100">Actions</th>
 </tr></thead><tbody>
 end;
 
@@ -94,7 +95,6 @@ foreach($list as $market)
 		echo ' '.$market->deposit_address;
 	}
 	echo ' <a href="/market/update?id='.$market->id.'">edit</a>';
-	echo ' <a style="color:darkred" title="Remove this market" href="/market/delete?id='.$market->id.'">x</a>';
 	echo '</td>';
 
 	$updated = "last updated: ".strip_tags(datetoa2($market->balancetime));
@@ -114,6 +114,15 @@ foreach($list as $market)
 
 	if ($market->disabled) $market->message = trim("{$market->message} disabled");
 	echo '<td align="center">'.$market->message.'</td>';
+
+	echo '<td align="right">';
+	if ($market->disabled)
+		echo ' <a title="Enable this market" href="/market/enable?id='.$market->id.'&en=1">enable</a>';
+	else
+		echo ' <a title="Disable this market" href="/market/enable?id='.$market->id.'&en=0">disable</a>';
+	echo ' <a style="color:darkred;" title="Remove this market" href="/market/delete?id='.$market->id.'">delete</a>';
+	echo '</td>';
+
 	echo "</tr>";
 }
 
