@@ -86,6 +86,9 @@ class KrakenAPI
 		curl_setopt($this->curl, CURLOPT_URL, $this->url . '/' . $this->version . '/public/' . $method);
 		curl_setopt($this->curl, CURLOPT_POSTFIELDS, $postdata);
 		curl_setopt($this->curl, CURLOPT_HTTPHEADER, array());
+		curl_setopt($this->curl, CURLOPT_CONNECTTIMEOUT, 10);
+		curl_setopt($this->curl, CURLOPT_TIMEOUT, 20);
+
 		$result = curl_exec($this->curl);
 		if($result===false)
 			throw new KrakenAPIException('CURL error: ' . curl_error($this->curl));
@@ -130,6 +133,9 @@ class KrakenAPI
 		curl_setopt($this->curl, CURLOPT_URL, $this->url . $path);
 		curl_setopt($this->curl, CURLOPT_POSTFIELDS, $postdata);
 		curl_setopt($this->curl, CURLOPT_HTTPHEADER, $headers);
+		curl_setopt($this->curl, CURLOPT_CONNECTTIMEOUT, 10);
+		curl_setopt($this->curl, CURLOPT_TIMEOUT, 20);
+
 		$result = curl_exec($this->curl);
 		if($result===false)
 			throw new KrakenAPIException('CURL error: ' . curl_error($this->curl));
