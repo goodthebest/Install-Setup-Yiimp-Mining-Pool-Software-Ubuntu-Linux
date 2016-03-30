@@ -792,8 +792,8 @@ function updateCryptopiaMarkets()
 		$addresses[$balance->Symbol] = $balance->Address;
 	}
 
-	if (!empty($addresses)) {
-	foreach($list as $market)
+	if (!empty($addresses))
+	foreach($list as $market) {
 		$coin = getdbo('db_coins', $market->coinid);
 		if(!$coin) continue;
 
