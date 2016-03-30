@@ -17,7 +17,7 @@ class CUFHtml extends CHtml
      return parent::beginForm($action, $method, $htmlOptions);
    }
 
-  public static function errorSummary($model,$header=null,$footer=null)
+  public static function errorSummary($model,$header=null,$footer=null,$opt=array())
   {
     $content='';
     if(!is_array($model))
