@@ -226,7 +226,7 @@ class CheckupCommand extends CConsoleCommand
 		} catch (Exception $e) {
 			echo "Error Model: $table \n";
 			echo $e->getMessage();
-			continue;
+			return;
 		}
 
 		if ($users instanceof CActiveRecord)

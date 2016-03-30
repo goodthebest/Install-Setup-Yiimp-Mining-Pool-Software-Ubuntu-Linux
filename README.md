@@ -60,7 +60,7 @@ Some scripts are expecting the web folder to be /var/web. You can use directory 
 
 Add your exchange API public and secret keys in these two separated files:
 
-	/etc/yaamp/keys.php - fixed path in code
+	/etc/yiimp/keys.php - fixed path in code
 	web/serverconfig.php - use sample as base...
 
 You can find sample config files in web/serverconfig.sample.php and web/keys.sample.php
