@@ -17,30 +17,41 @@ function cache()
 	return app()->getController()->memcache;
 }
 
-function arraySafeVal($arr,$p,$default=NULL)
+function objSafeVal($obj,$key,$default=NULL)
 {
-	if (isset($arr[$p]))
-		return $arr[$p];
+	if (is_object($obj) && property_exists($obj,$key))
+		return $obj->$key;
+	elseif (is_array($obj))
+		return arraySafeVal($obj,$key,$default);
 	return $default;
 }
 
-function getparam($p)
+function arraySafeVal($arr,$key,$default=NULL)
 {
-	return isset($_REQUEST[$p])? $_REQUEST[$p]: '';
+	if (is_array($arr) && isset($arr[$key]))
+		return $arr[$key];
+	elseif (is_object($arr))
+		return objSafeVal($arr,$key,$default);
+	return $default;
 }
 
-function getiparam($p)
+function getparam($p,$default='')
+{
+	return isset($_REQUEST[$p]) ? $_REQUEST[$p] : $default;
+}
+
+function getiparam($p,$default=0)
 {
 	// workaround for yii default /route/<id> ....
 	if ($p == 'id') {
-		$id = isset($_REQUEST[$p])? $_REQUEST[$p]: 0;
+		$id = isset($_REQUEST[$p]) ? $_REQUEST[$p] : $default;
 		if (!$id) {
 			$url = explode('/', $_SERVER['REQUEST_URI']);
 			$id = array_pop($url);
 		}
 		return (int) $id;
 	}
-	return isset($_REQUEST[$p])? intval($_REQUEST[$p]): 0;
+	return isset($_REQUEST[$p]) ? intval($_REQUEST[$p]) : $default;
 }
 
 //////////////////////////////////////////////////////
