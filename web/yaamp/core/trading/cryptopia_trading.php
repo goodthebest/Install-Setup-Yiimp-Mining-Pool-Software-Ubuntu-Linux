@@ -154,6 +154,7 @@ function doCryptopiaTrading($quick=false)
 		foreach($list as $db_order)
 		{
 			$found = false;
+			if(is_object($orders) && $orders->Success)
 			foreach($orders->Data as $order) {
 				if(stripos($order->Type, 'Sell') === false) continue;
 				if($order->OrderId == $db_order->uuid) {
