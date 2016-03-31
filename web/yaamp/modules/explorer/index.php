@@ -69,7 +69,10 @@ foreach($list as $coin)
 	echo "<td>";
 
 	if(!empty($coin->link_bitcointalk))
-		echo "<a href='$coin->link_bitcointalk' target=_blank>forum</a> ";
+		echo CHtml::link('forum', $coin->link_bitcointalk, array('target'=>'_blank'));
+
+	elseif(!empty($coin->link_site))
+		echo CHtml::link('site', $coin->link_site, array('target'=>'_blank'));
 
 	echo "</td>";
 	echo "</tr>";

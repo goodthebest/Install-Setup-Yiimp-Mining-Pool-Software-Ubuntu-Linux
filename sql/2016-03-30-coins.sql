@@ -1,6 +1,8 @@
 -- Recent additions to add after db init (.gz)
 -- mysql yaamp -p < file.sql
 
+-- don't forget to restart memcached service to refresh the db structure
+
 ALTER TABLE `coins` ADD `rpcssl` TINYINT(1) NOT NULL DEFAULT '0' AFTER `rpcport`;
 ALTER TABLE `coins` ADD `rpccurl` TINYINT(1) NOT NULL DEFAULT '0' AFTER `rpcport`;
 ALTER TABLE `coins` ADD `rpccert` VARCHAR(255) NULL AFTER `rpcssl`;

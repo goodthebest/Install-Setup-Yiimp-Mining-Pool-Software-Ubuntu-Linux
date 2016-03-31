@@ -527,6 +527,9 @@ function getAdminWalletLinks($coin, $info=NULL, $src='wallet')
 	if(!empty($coin->link_github))
 		$html .= CHtml::link('git', $coin->link_github, array('target'=>'_blank')).' ';
 
+	if(!empty($coin->link_site))
+		$html .= CHtml::link('site', $coin->link_site, array('target'=>'_blank')).' ';
+
 	$html .= CHtml::link('google', 'http://google.com/search?q='.urlencode($coin->name.' '.$coin->symbol.' bitcointalk'), array('target'=>'_blank'));
 
 	return $html;

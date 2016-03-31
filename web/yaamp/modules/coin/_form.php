@@ -47,6 +47,12 @@ echo CUFHtml::activeTextField($coin, 'link_github');
 echo "<p class='formHint2'></p>";
 echo CUFHtml::closeCtrlHolder();
 
+echo CUFHtml::openActiveCtrlHolder($coin, 'link_site');
+echo CUFHtml::activeLabelEx($coin, 'link_site');
+echo CUFHtml::activeTextField($coin, 'link_site');
+echo "<p class='formHint2'></p>";
+echo CUFHtml::closeCtrlHolder();
+
 echo CUFHtml::openActiveCtrlHolder($coin, 'link_exchange');
 echo CUFHtml::activeLabelEx($coin, 'link_exchange');
 echo CUFHtml::activeTextField($coin, 'link_exchange');
