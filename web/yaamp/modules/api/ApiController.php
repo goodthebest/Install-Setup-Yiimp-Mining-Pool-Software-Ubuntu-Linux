@@ -71,25 +71,26 @@ class ApiController extends CommonController
 			$port = getAlgoPort($algo);
 			if($port == '-') $port = 0;
 
-			$stat  = "\"$algo\": ";
-			$stat .= "{";
-			$stat .= "\"name\": \"$algo\", ";
-			$stat .= "\"port\": $port, ";
-			$stat .= "\"coins\": $coins, ";
-			$stat .= "\"fees\": $fees, ";
-			$stat .= "\"hashrate\": $hashrate, ";
-			$stat .= "\"workers\": $workers, ";
-			$stat .= "\"lastbloc\": $lastbloc, ";
-			$stat .= "\"timesincelast\": $timesincelast, ";
-			$stat .= "\"estimate_current\": $price, ";
-			$stat .= "\"estimate_last24h\": $avgprice, ";
-			$stat .= "\"actual_last24h\": $btcmhday1, ";
-			$stat .= "\"rental_current\": $rental";
-			$stat .= "}";
-			$stats[] = $stat;
+			$stat  = array(
+				"name" => $algo,
+				"port" => $port,
+				"coins" => $coins,
+				"fees" => $fees,
+				"hashrate" => $hashrate,
+				"workers" => $workers,
+				"estimate_current" => $price,
+				"estimate_last24h" => $avgprice,
+				"actual_last24h" => $btcmhday1,
+				"rental_current" => $rental,
+				// deprecated (now in api/currencies)
+				"lastbloc" => $lastbloc,
+				"timesincelast" => $timesincelast,
+			);
+			$stats[$algo] = $stat;
 		}
 
-		echo "{".implode(', ', $stats)."}";
+		ksort($stats);
+		echo json_encode($stats);
 	}
 
 	public function actionCurrencies()
