@@ -4,6 +4,7 @@ $coin = getdbo('db_coins', getiparam('id'));
 if (!$coin) $this->goback();
 
 $PoS = ($coin->algo == 'PoS'); // or if 'stake' key is present in 'getinfo' method
+$DCR = ($coin->symbol == 'DCR');
 
 $remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
 
@@ -110,13 +111,19 @@ if (!empty($info)) {
 	if ($stake !== '') $PoS = true;
 }
 
-echo "<table class='dataGrid'>";
-//showTableSorter('maintable');
-echo "<thead class=''>";
+if ($DCR) {
+	// Decred Tickets
+	$stake = $remote->getbalance('*',0,'locked');
+	$stakeinfo = $remote->getstakeinfo();
+	$ticketprice = arraySafeVal($stakeinfo,'difficulty');
+	$tickets  = arraySafeVal($stakeinfo, 'live', 0);
+	$tickets += arraySafeVal($stakeinfo, 'immature', 0);
+}
 
-echo "<tr>";
-echo "<th width=30></th>";
-echo "<th width=30></th>";
+echo '<table class="dataGrid">';
+echo '<thead><tr>';
+echo '<th width="30"></th>';
+echo '<th width="30"></th>';
 echo "<th>Name</th>";
 echo "<th>Symbol</th>";
 echo "<th>Algo</th>";
@@ -124,7 +131,8 @@ echo "<th>Difficulty</th>";
 echo "<th>Blocks</th>";
 echo "<th>Balance</th>";
 echo "<th>BTC</th>";
-if ($PoS) echo "<th>Stake</th>";
+if ($PoS || $DCR) echo "<th>Stake</th>";
+if ($DCR) echo "<th>Ticket price</th>";
 echo "<th>Conns</th>";
 
 echo "<th>Price</th>";
@@ -170,6 +178,8 @@ echo '<td>'.altcoinvaluetoa($balance).'</td>';
 $btc = bitcoinvaluetoa($balance*$coin->price);
 echo "<td>$btc</td>";
 if ($PoS) echo '<td>'.$stake.'</td>';
+if ($DCR) echo '<td>'."$stake ($tickets)".'</td>';
+if ($DCR) echo '<td>'.$ticketprice.'</td>';
 echo "<td>$connections</td>";
 
 echo '<td>'.bitcoinvaluetoa($coin->price).'</td>';
@@ -214,7 +224,7 @@ tr.ssrow.orphan { color: darkred; }
 end;
 
 $account = '';
-if ($coin->symbol == 'DCR') $account = '*';
+if ($DCR) $account = '*';
 
 $txs = $remote->listtransactions($account, 2500);
 
@@ -244,7 +254,7 @@ if (!empty($txs)) {
 }
 
 // filter useless decred spent transactions
-if ($coin->symbol == 'DCR') {
+if ($DCR) {
 
 	$prev_tx = array(); $lastday = '';
 	foreach($txs_array as $key => $tx)
