@@ -14,18 +14,6 @@ end;
 
 showTableSorter('maintable', "{
 	tableClass: 'dataGrid',
-	headers: {
-		0:{sorter:false},
-		1:{sorter:'text'},
-		2:{sorter:'text'},
-		3:{sorter:'text'},
-		4:{sorter:'text'},
-		5:{sorter:'text'},
-		6:{sorter:'metadata'},
-		7:{sorter:'numeric'},
-		8:{sorter:'text'},
-		9:{sorter: false }
-	},
 	widgets: ['zebra','filter'],
 	widgetOptions: {
 		filter_external: '.search',
@@ -37,16 +25,16 @@ showTableSorter('maintable', "{
 
 echo <<<end
 <thead><tr>
-<th width="30"></th>
-<th>Name</th>
-<th>Symbol</th>
-<th>Algo</th>
-<th>Status</th>
-<th>Version</th>
-<th>Created</th>
-<th>Height</th>
-<th>Message</th>
-<th>Links</th>
+<th data-sorter="" width="30"></th>
+<th data-sorter="text">Name</th>
+<th data-sorter="text">Symbol</th>
+<th data-sorter="text">Algo</th>
+<th data-sorter="text">Status</th>
+<th data-sorter="text">Version</th>
+<th data-sorter="text">Created</th>
+<th data-sorter="numeric">Height</th>
+<th data-sorter="text">Message</th>
+<th data-sorter="">Links</th>
 </tr></thead>
 <tbody>
 end;
