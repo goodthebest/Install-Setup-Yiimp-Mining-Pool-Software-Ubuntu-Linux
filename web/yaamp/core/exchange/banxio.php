@@ -4,7 +4,7 @@
 
 function banx_simple_api_query($method, $params='')
 {
-	$uri = "https://www.banx.io/SimpleAPI?a=$method";
+	$uri = "https://www.cryptomic.com/SimpleAPI?a=$method";
 	if (!empty($params))
 		$uri .= "&$params";
 
@@ -21,7 +21,7 @@ function banx_simple_api_query($method, $params='')
 
 function banx_public_api_query($method, $params='')
 {
-	$uri = "https://www.banx.io/api/v2/public/$method";
+	$uri = "https://www.cryptomic.com/api/v2/public/$method";
 	if (!empty($params))
 		$uri .= "$params";
 
@@ -72,7 +72,7 @@ function banx_api_user($method, $params='')
 
 	if(!is_object($res) || !$res->success) {
 		$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-		debuglog("banx: $method failed ($status) ".strip_tags($data).' '.curl_error($ch));
+		debuglog("cryptomic: $method failed ($status) ".strip_data($data).' '.curl_error($ch));
 	}
 
 	curl_close($ch);
