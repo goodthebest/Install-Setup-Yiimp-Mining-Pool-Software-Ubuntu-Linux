@@ -14,7 +14,9 @@ function bleutrade_api_query($method, $params='')
 	$apikey = EXCH_BLEUTRADE_KEY; // your API-key
 	$apisecret = EXCH_BLEUTRADE_SECRET; // your Secret-key
 
-	$nonce = time();
+	//$nonce = time();
+	$mt = explode(' ', microtime());
+	$nonce = $mt[1];
 
 	$uri = "https://bleutrade.com/api/v2/$method?apikey=$apikey&nonce=$nonce$params";
 

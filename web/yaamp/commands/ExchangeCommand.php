@@ -62,11 +62,13 @@ class ExchangeCommand extends CConsoleCommand
 		}
 		if (!empty(EXCH_BLEUTRADE_KEY)) {
 			$balance = bleutrade_api_query('account/getbalances','&currencies=BTC');
-			echo("bleutrade btc: ".json_encode($balance->result)."\n");
+			//$balance = bleutrade_api_query('account/getbalances');
+			if (!is_object($balance)) echo "bleutrade error\n";
+			else echo("bleutrade btc: ".json_encode($balance->result)."\n");
 		}
 		if (!empty(EXCH_BTER_KEY)) {
 			$info = bter_api_user('getfunds');
-			if (!$info || arraySafeVal($info,'result') != 'true' || !isset($info['available_funds'])) echo "error\n";
+			if (!$info || arraySafeVal($info,'result') != 'true' || !isset($info['available_funds'])) echo "bter error\n";
 			else echo("bter available: ".json_encode($info['available_funds'])."\n");
 		}
 		if (!empty(EXCH_CCEX_KEY)) {
@@ -105,7 +107,8 @@ class ExchangeCommand extends CConsoleCommand
 		if (!empty(EXCH_BANX_USERNAME)) {
 			//$balance = banx_api_user('account/getbalance','?currency=BTC');
 			$balance = banx_api_user('account/getbalances');
-			echo("banx all: ".json_encode($balance->result)."\n");
+			if (!is_object($balance)) echo "banx error ".json_encode($balance)."\n";
+			else echo("banx all: ".json_encode($balance->result)."\n");
 		}
 
 		// only one secret key

@@ -58,9 +58,9 @@ function bter_api_user($method, $params=array())
 	$data = curl_exec($ch);
 	$obj = json_decode($data, true);
 
-	if(!is_object($obj)) {
+	if(!is_array($obj)) {
 		$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-		debuglog("bleutrade: $method failed ($status) ".strip_data($data).' '.curl_error($ch));
+		debuglog("bter: $method failed ($status) ".strip_data($data).' '.curl_error($ch));
 	}
 
 	curl_close($ch);
