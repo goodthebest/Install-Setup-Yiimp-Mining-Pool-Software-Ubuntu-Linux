@@ -23,7 +23,7 @@ require_once("empoex.php");
 require_once("jubi.php");
 require_once("alcurex.php");
 require_once("cryptopia.php");
-require_once("banxio.php");
+require_once("cryptomic.php");
 
 /* Format an exchange coin Url */
 function getMarketUrl($coin, $marketName)
@@ -54,7 +54,7 @@ function getMarketUrl($coin, $marketName)
 	else if($marketName == 'bter')
 		$url = "https://bter.com/trade/{$lowsymbol}_btc";
 	else if($marketName == 'banx')
-		$url = "https://www.banx.io/trade?c={$symbol}&p=BTC";
+		$url = "https://www.cryptomic.com/trade?c={$symbol}&p=BTC";
 	else if($marketName == 'bitex')
 		$url = "https://bitex.club/markets/{$lowsymbol}btc";
 	else if($marketName == 'empoex')

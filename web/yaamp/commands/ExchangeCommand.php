@@ -107,8 +107,8 @@ class ExchangeCommand extends CConsoleCommand
 		if (!empty(EXCH_BANX_USERNAME)) {
 			//$balance = banx_api_user('account/getbalance','?currency=BTC');
 			$balance = banx_api_user('account/getbalances');
-			if (!is_object($balance)) echo "banx error ".json_encode($balance)."\n";
-			else echo("banx all: ".json_encode($balance->result)."\n");
+			if (!is_object($balance)) echo "cryptomic error ".json_encode($balance)."\n";
+			else echo("cryptomic all: ".json_encode($balance->result)."\n");
 		}
 
 		// only one secret key

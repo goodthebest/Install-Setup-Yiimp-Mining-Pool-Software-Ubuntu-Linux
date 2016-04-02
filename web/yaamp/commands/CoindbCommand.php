@@ -53,7 +53,7 @@ class CoindbCommand extends CConsoleCommand
 			$nbUpdated += $this->grabCcexIcons();
 			$nbUpdated += $this->grabCryptopiaIcons();
 			$nbUpdated += $this->grabAlcurexIcons();
-			$nbUpdated += $this->grabBanxIcons();
+			$nbUpdated += $this->grabCryptomicIcons();
 
 			echo "total updated: $nbUpdated\n";
 			return 0;
@@ -401,18 +401,18 @@ class CoindbCommand extends CConsoleCommand
 	}
 
 	/**
-	 * Icon grabber - Banx
+	 * Icon grabber - Cryptomic (Banx.io)
 	 */
-	public function grabBanxIcons()
+	public function grabCryptomicIcons()
 	{
-		$url = 'https://cdn.banx.io/images/currencyicons/';
+		$url = 'https://cdn.cryptomic.com/images/currencyicons/';
 		$nbUpdated = 0;
 		$sql = "SELECT DISTINCT coins.id FROM coins INNER JOIN markets M ON M.coinid = coins.id ".
 			"WHERE M.name='banx' AND IFNULL(coins.image,'') = ''";
 		$coins = dbolist($sql);
 		if (empty($coins))
 			return 0;
-		echo "banx: try to download new icons...\n";
+		echo "cryptomic: try to download new icons...\n";
 		foreach ($coins as $coin) {
 			$coin = getdbo('db_coins', $coin["id"]);
 			$symbol = $coin->symbol;
@@ -432,7 +432,7 @@ class CoindbCommand extends CConsoleCommand
 			}
 		}
 		if ($nbUpdated)
-			echo "$nbUpdated icons downloaded from banx\n";
+			echo "$nbUpdated icons downloaded from cryptomic\n";
 		return $nbUpdated;
 	}
 

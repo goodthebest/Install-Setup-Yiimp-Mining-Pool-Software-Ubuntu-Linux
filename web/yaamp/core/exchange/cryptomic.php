@@ -1,6 +1,6 @@
 <?php
 
-// https://www.banx.io/SimpleAPI?a=marketsv2
+// https://www.cryptomic.com/SimpleAPI?a=marketsv2
 
 function banx_simple_api_query($method, $params='')
 {
@@ -17,11 +17,11 @@ function banx_simple_api_query($method, $params='')
 	return $obj;
 }
 
-// https://www.banx.io/api/v2/public/getmarkets
+// https://www.cryptomic.com/api/v4/public/getticker?market=LTC-BTC
 
 function banx_public_api_query($method, $params='')
 {
-	$uri = "https://www.cryptomic.com/api/v2/public/$method";
+	$uri = "https://www.cryptomic.com/api/v4/public/$method";
 	if (!empty($params))
 		$uri .= "$params";
 
@@ -44,7 +44,7 @@ function banx_api_user($method, $params='')
 
 	if (empty(EXCH_BANX_USERNAME) || empty(EXCH_BANX_SECKEY)) return false;
 
-	$uri = "https://www.banx.io/api/v3/$method$params";
+	$uri = "https://www.cryptomic.com/api/v4/$method$params";
 
 	//$nonce = time();
 	$mt = explode(' ', microtime());
