@@ -49,7 +49,7 @@ function showUser($userid, $what)
 	$user = getdbo('db_accounts', $userid);
 	if(!$user) return;
 
-	$d = datetoa2($user->last_login);
+	$d = datetoa2($user->last_earning);
 	$balance = bitcoinvaluetoa($user->balance);
 	$paid = dboscalar("select sum(amount) from payouts where account_id=$user->id");
 	$paid = bitcoinvaluetoa($paid);

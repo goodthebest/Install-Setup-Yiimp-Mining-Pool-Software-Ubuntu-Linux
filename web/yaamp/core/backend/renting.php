@@ -124,7 +124,7 @@ function BackendRentingPayout()
 
 		//	$value = yaamp_convert_amount_user($coin, $earning->amount, $user);
 
-			$user->last_login = time();
+			$user->last_earning = time();
 			$user->balance += $value;
 			$user->save();
 		}

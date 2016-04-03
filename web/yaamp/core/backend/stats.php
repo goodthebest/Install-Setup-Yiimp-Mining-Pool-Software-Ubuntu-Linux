@@ -323,7 +323,7 @@ function BackendStatsUpdate2()
 	$tm = floor(time()/$step/60)*$step*60;
 	$d = time()-24*60*60;
 
-	$list = getdbolist('db_accounts', "balance>0 or last_login>$d");
+	$list = getdbolist('db_accounts', "balance>0 OR last_earning>$d");
 	foreach($list as $user)
 	{
 		$stats = getdbosql('db_balanceuser', "time=$tm and userid=$user->id");

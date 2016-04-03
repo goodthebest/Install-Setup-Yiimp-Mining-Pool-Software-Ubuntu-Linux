@@ -51,7 +51,7 @@ function BackendBlockNew($coin, $db_block)
 		if (!$earning->save())
 			debuglog(__FUNCTION__.": Unable to insert earning!");
 
-		$user->last_login = time();
+		$user->last_earning = time();
 		$user->save();
 	}
 

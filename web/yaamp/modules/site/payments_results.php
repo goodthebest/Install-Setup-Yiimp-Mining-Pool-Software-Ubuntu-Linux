@@ -1,7 +1,5 @@
 <?php
 
-// PS: account last_login is not related to user logins... its the last backend payment loop, todo: rename it..
-
 JavascriptFile("/yaamp/ui/js/jquery.metadata.js");
 JavascriptFile("/yaamp/ui/js/jquery.tablesorter.widgets.js");
 
@@ -82,14 +80,14 @@ if (!empty($data)) foreach ($data as $row) {
 }
 
 $list = getdbolist('db_accounts', "coinid!=6 $sqlFilter AND (".
-	"balance > 0 OR last_login > (UNIX_TIMESTAMP()-60*60) OR id IN (SELECT DISTINCT account_id FROM payouts WHERE tx IS NULL)".
-	") ORDER BY last_login DESC limit 50");
+	"balance > 0 OR last_earning > (UNIX_TIMESTAMP()-60*60) OR id IN (SELECT DISTINCT account_id FROM payouts WHERE tx IS NULL)".
+	") ORDER BY last_earning DESC limit 50");
 
 $total = 0.; $totalimmat = 0.; $totalfailed = 0.;
 foreach($list as $user)
 {
 	$coin = getdbo('db_coins', $user->coinid);
-	$d = datetoa2($user->last_login);
+	$d = datetoa2($user->last_earning);
 
 	echo '<tr class="ssrow">';
 

@@ -77,8 +77,8 @@ function BackendUsersUpdate()
 	}
 
 //	$delay=time()-60*60;
-//	$list = dborun("update coins set dontsell=1 where id in (select coinid from accounts where balance>0 or last_login>$delay group by coinid)");
-//	$list = dborun("update coins set dontsell=0 where id not in (select coinid from accounts where balance>0 or last_login>$delay group by coinid)");
+//	$list = dborun("UPDATE coins SET dontsell=1 WHERE id in (SELECT coinid FROM accounts WHERE balance>0 OR last_earning>$delay GROUP BY coinid)");
+//	$list = dborun("UPDATE coins SET dontsell=0 WHERE id not in (SELECT coinid FROM accounts WHERE balance>0 OR last_earning>$delay GROUP BY coinid)");
 
 
 //	$list = getdbolist('db_workers', "dns is null");
