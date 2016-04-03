@@ -60,6 +60,18 @@ echo CUFHtml::activeTextField($coin, 'image', array('maxlength'=>200));
 echo '<p class="formHint2"></p>';
 echo CUFHtml::closeCtrlHolder();
 
+echo CUFHtml::openActiveCtrlHolder($coin, 'payout_min');
+echo CUFHtml::activeLabelEx($coin, 'payout_min');
+echo CUFHtml::activeTextField($coin, 'payout_min', array('maxlength'=>200,'style'=>'width: 120px;'));
+echo '<p class="formHint2">Pay users when they reach this amount</p>';
+echo CUFHtml::closeCtrlHolder();
+
+echo CUFHtml::openActiveCtrlHolder($coin, 'payout_max');
+echo CUFHtml::activeLabelEx($coin, 'payout_max');
+echo CUFHtml::activeTextField($coin, 'payout_max', array('maxlength'=>200,'style'=>'width: 120px;'));
+echo '<p class="formHint2">Maximum transaction amount</p>';
+echo CUFHtml::closeCtrlHolder();
+
 echo CUFHtml::openActiveCtrlHolder($coin, 'txfee');
 echo CUFHtml::activeLabelEx($coin, 'txfee');
 echo CUFHtml::activeTextField($coin, 'txfee', array('maxlength'=>200,'style'=>'width: 100px;','readonly'=>'readonly'));
@@ -276,6 +288,30 @@ echo CUFHtml::openActiveCtrlHolder($coin, 'rpcencoding');
 echo CUFHtml::activeLabelEx($coin, 'rpcencoding');
 echo CUFHtml::activeTextField($coin, 'rpcencoding', array('maxlength'=>5,'style'=>'width: 60px;'));
 echo '<p class="formHint2">POW/POS</p>';
+echo CUFHtml::closeCtrlHolder();
+
+echo CUFHtml::openActiveCtrlHolder($coin, 'rpccurl');
+echo CUFHtml::activeLabelEx($coin, 'rpccurl');
+echo CUFHtml::activeCheckBox($coin, 'rpccurl');
+echo '<p class="formHint2">Force the stratum to use curl for RPC</p>';
+echo CUFHtml::closeCtrlHolder();
+
+echo CUFHtml::openActiveCtrlHolder($coin, 'rpcssl');
+echo CUFHtml::activeLabelEx($coin, 'rpcssl');
+echo CUFHtml::activeCheckBox($coin, 'rpcssl');
+echo '<p class="formHint2">Wallet RPC secured via SSL</p>';
+echo CUFHtml::closeCtrlHolder();
+
+echo CUFHtml::openActiveCtrlHolder($coin, 'rpccert');
+echo CUFHtml::activeLabelEx($coin, 'rpccert');
+echo CUFHtml::activeTextField($coin, 'rpccert');
+echo "<p class='formHint2'>Certificat file for RPC via SSL</p>";
+echo CUFHtml::closeCtrlHolder();
+
+echo CUFHtml::openActiveCtrlHolder($coin, 'account');
+echo CUFHtml::activeLabelEx($coin, 'account');
+echo CUFHtml::activeTextField($coin, 'account', array('maxlength'=>128,'style'=>'width: 180px;'));
+echo '<p class="formHint2">Wallet account to use</p>';
 echo CUFHtml::closeCtrlHolder();
 
 if ($coin->id) {

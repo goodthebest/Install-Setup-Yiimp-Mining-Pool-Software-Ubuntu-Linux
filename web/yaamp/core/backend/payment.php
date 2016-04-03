@@ -42,7 +42,7 @@ function BackendCoinPayments($coin)
 	}
 
 	$txfee = floatval($coin->txfee);
-	$min_payout = max(floatval(YAAMP_PAYMENTS_MINI), $txfee);
+	$min_payout = max(floatval(YAAMP_PAYMENTS_MINI), floatval($coin->payout_min), $txfee);
 
 	if(date("w", time()) == 0 && date("H", time()) > 18) { // sunday evening, minimum reduced
 		$min_payout = max($min_payout/10, $txfee);
@@ -177,9 +177,7 @@ function BackendCoinPayments($coin)
 	set_time_limit(120);
 
 	// default account
-	$account = '';
-	if ($coin->symbol == 'DCR') $account = 'default';
-
+	$account = $coin->account;
 
 	if (!$coin->txmessage)
 		$tx = $remote->sendmany($account, $addresses);
