@@ -11,4 +11,5 @@ ALTER TABLE `coins` ADD `payout_min` DOUBLE NULL AFTER `txfee`;
 ALTER TABLE `coins` ADD `payout_max` DOUBLE NULL AFTER `payout_min`;
 ALTER TABLE `coins` ADD `link_site` VARCHAR(1024) NULL AFTER `installed`;
 
+ALTER TABLE `coins` ADD INDEX `created` (`created` DESC);
 
