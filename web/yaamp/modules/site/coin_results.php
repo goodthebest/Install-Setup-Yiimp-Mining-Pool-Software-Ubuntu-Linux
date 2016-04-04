@@ -203,7 +203,7 @@ echo '<td>'.altcoinvaluetoa($balance).'</td>';
 $btc = bitcoinvaluetoa($balance*$coin->price);
 echo "<td>$btc</td>";
 if ($PoS) echo '<td>'.$stake.'</td>';
-if ($DCR) echo '<td>'."$stake ($tickets)".'</td>';
+if ($DCR) echo '<td>'.CHtml::link("$stake ($tickets)", '/site/tickets?id='.$coin->id).'</td>';
 if ($DCR) echo '<td>'.$ticketprice.'</td>';
 echo "<td>$connections</td>";
 

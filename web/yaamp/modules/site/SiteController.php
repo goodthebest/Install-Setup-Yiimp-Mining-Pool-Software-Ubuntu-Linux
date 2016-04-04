@@ -138,6 +138,32 @@ class SiteController extends CommonController
 
 	/////////////////////////////////////////////////
 
+	public function actionTickets()
+	{
+		if(!$this->admin) return;
+		$coin = getdbo('db_coins', getiparam('id'));
+		if (!$coin) {
+			$this->goback();
+		}
+
+		$this->render('coin_tickets', array('coin'=>$coin));
+	}
+
+	public function actionTicketBuy()
+	{
+		if(!$this->admin) return;
+		$coin = getdbo('db_coins', getiparam('id'));
+		$maxamount = (double) arraySafeVal($_POST, 'maxamount');
+		if ($coin && $maxamount) {
+			$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
+			$res = $remote->purchaseticket($coin->account, $maxamount);
+			user()->setFlash('message', is_string($res) ? "ticket txid: $res" : json_encode($res));
+		}
+		$this->goback();
+	}
+
+	/////////////////////////////////////////////////
+
 	public function actionIndex()
 	{
 		if(isset($_GET['address']))
