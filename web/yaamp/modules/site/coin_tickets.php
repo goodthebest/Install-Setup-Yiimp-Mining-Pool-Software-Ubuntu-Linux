@@ -206,6 +206,9 @@ foreach($txs_array as $tx)
 
 echo '</tbody></table><br>';
 
+echo '<b>Balance: </b>'.$remote->getbalance().' '.$coin->symbol.'<br/>';
+echo '<br/>';
+
 echo '<b>Ticket price: </b>'.$stakeinfo['difficulty'].' + '.$remote->getticketfee().' '.$coin->symbol.'/kB<br/>';
 echo '<b>Tickets: </b>'.$stakeinfo['live'];
 if ($stakeinfo['immature']) echo ' + '.$stakeinfo['immature'].' immature';

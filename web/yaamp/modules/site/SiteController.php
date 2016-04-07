@@ -157,7 +157,10 @@ class SiteController extends CommonController
 		if ($coin && $maxamount) {
 			$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
 			$res = $remote->purchaseticket($coin->account, $maxamount);
-			user()->setFlash('message', is_string($res) ? "ticket txid: $res" : json_encode($res));
+			if ($res === false)
+				user()->setFlash('error', $remote->error);
+			else
+				user()->setFlash('message', is_string($res) ? "ticket txid: $res" : json_encode($res));
 		}
 		$this->goback();
 	}
