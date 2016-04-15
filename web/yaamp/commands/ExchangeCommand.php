@@ -85,6 +85,11 @@ class ExchangeCommand extends CConsoleCommand
 			$balance = kraken_api_user('Balance');
 			echo("kraken btc: ".json_encode($balance)."\n");
 		}
+		if (!empty(EXCH_NOVA_KEY)) {
+			$info = nova_api_user('getbalances');
+			if (objSafeVal($info,'status','') != 'success' || !is_array($info->balances)) echo "nova error\n";
+			else echo("nova btc: ".json_encode($info->balances[0])."\n");
+		}
 		if (!empty(EXCH_CRYPTSY_KEY)) {
 			$info = cryptsy_api_query('getinfo');
 			if (!arraySafeVal($info,'success',0) || !is_array($info['return'])) echo "error\n";

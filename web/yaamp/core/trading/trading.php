@@ -11,6 +11,7 @@ require_once('yobit_trading.php');
 require_once('alcurex_trading.php');
 require_once('cryptomic_trading.php');
 require_once('cryptopia_trading.php');
+require_once('nova_trading.php');
 require_once('safecex_trading.php');
 
 function cancelExchangeOrder($order=false) {

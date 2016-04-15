@@ -159,6 +159,19 @@ function updateRawcoins()
 		}
 	}
 
+	$list = nova_api_query('markets');
+	if(is_object($list) && !empty($list->markets))
+	{
+		dborun("UPDATE markets SET deleted=true WHERE name='nova'");
+		foreach($list->markets as $item) {
+			if ($item->basecurrency != 'BTC')
+				continue;
+			$symbol = strtoupper($item->currency);
+			updateRawCoin('nova', $symbol);
+			//debuglog("nova: $symbol");
+		}
+	}
+
 	dborun("UPDATE markets SET deleted=true WHERE name='empoex'");
 /*
 	$list = empoex_api_query('marketinfo');
@@ -210,6 +223,11 @@ function updateRawCoin($marketname, $symbol, $name='unknown')
 					}
 				}
 			}
+		}
+
+		if ($marketname == 'nova') {
+			// don't polute too much the db
+			return;
 		}
 
 		debuglog("new coin $marketname $symbol $name");

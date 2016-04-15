@@ -24,6 +24,7 @@ require_once("jubi.php");
 require_once("alcurex.php");
 require_once("cryptopia.php");
 require_once("cryptomic.php");
+require_once("nova.php");
 
 /* Format an exchange coin Url */
 function getMarketUrl($coin, $marketName)
@@ -59,6 +60,8 @@ function getMarketUrl($coin, $marketName)
 		$url = "https://bitex.club/markets/{$lowsymbol}btc";
 	else if($marketName == 'empoex')
 		$url = "http://www.empoex.com/trade/{$symbol}-BTC";
+	else if($marketName == 'nova')
+		$url = "https://https://novaexchange.com/market/BTC_{$symbol}/";
 	else
 		$url = "";
 

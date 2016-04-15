@@ -18,6 +18,7 @@ function BackendPricesUpdate()
 	updateCryptsyMarkets();
 	updateJubiMarkets();
 	updateBanxioMarkets();
+	updateNovaMarkets();
 
 	updateOtherMarkets();
 
@@ -903,6 +904,48 @@ function updateBanxioMarkets()
 			}
 		}
 		cache()->set($exchange.'-deposit_address-check', time(), 12*3600);
+	}
+}
+
+function updateNovaMarkets()
+{
+	$exchange = 'nova';
+
+	$currencies = getdbolist('db_markets', "name='$exchange'");
+	if(empty($currencies)) return;
+
+	$data = nova_api_query('markets');
+	if(!is_object($data) || $data->status != 'success' || !is_array($data->markets)) return;
+
+	$symbols = array();
+
+	foreach($currencies as $market)
+	{
+		$coin = getdbo('db_coins', $market->coinid);
+		if(!$coin || !$coin->installed) continue;
+
+		$pair = 'BTC_'.strtoupper($coin->symbol);
+		foreach ($data->markets as $ticker) {
+			if ($ticker->marketname === $pair) {
+
+				$market->marketid = $ticker->marketid;
+
+				if ($market->disabled < 9) $market->disabled = (intval($ticker->volume24h) <= 1);
+				if (!$market->disabled) {
+					$market->price = AverageIncrement($market->price, $ticker->bid);
+					$market->price2 = AverageIncrement($market->price2, $ticker->last_price);
+					$market->pricetime = time();
+					$market->save();
+
+					if (empty($coin->price2)) {
+						$coin->price = $market->price;
+						$coin->price2 = $market->price2;
+						$coin->save();
+					}
+				}
+				break;
+			}
+		}
 	}
 }
 

@@ -45,6 +45,7 @@ define('EXCH_CCEX_KEY', '');
 define('EXCH_SAFECEX_KEY', '');
 define('EXCH_KRAKEN_KEY', '');
 define('EXCH_BANX_USERNAME', '');
+define('EXCH_NOVA_KEY', '');
 
 // Automatic withdraw to Yaamp btc wallet if btc balance > 0.3
 define('EXCH_AUTO_WITHDRAW', 0.3);
