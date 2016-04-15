@@ -61,7 +61,7 @@ function getMarketUrl($coin, $marketName)
 	else if($marketName == 'empoex')
 		$url = "http://www.empoex.com/trade/{$symbol}-BTC";
 	else if($marketName == 'nova')
-		$url = "https://https://novaexchange.com/market/BTC_{$symbol}/";
+		$url = "https://novaexchange.com/market/BTC_{$symbol}/";
 	else
 		$url = "";
 
