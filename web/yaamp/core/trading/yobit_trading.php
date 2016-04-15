@@ -17,7 +17,7 @@ function doYobitCancelOrder($OrderID=false)
 function doYobitTrading($quick=false)
 {
 	$exchange = 'yobit';
-	$updatebalances = !YAAMP_ALLOW_EXCHANGE;
+	$updatebalances = true;
 
 	$balances = yobit_api_query2('getInfo');
 	if(!$balances || !isset($balances['return'])) return;
@@ -82,12 +82,6 @@ function doYobitTrading($quick=false)
 				debuglog("yobit: cancel order for $pair $uuid");
 				sleep(1);
 				doYobitCancelOrder($uuid);
-				// $res = yobit_api_query2('CancelOrder', array('order_id'=>$uuid));
-
-				//$db_order = getdbosql('db_orders', "market=:market AND uuid=:uuid", array(
-				//    ':market'=>'yobit', ':uuid'=>$uuid
-				//));
-				//if($db_order) $db_order->delete();
 			}
 
 			else
@@ -151,9 +145,6 @@ function doYobitTrading($quick=false)
 			$market->lasttraded = time();
 			$market->save();
 		}
-
-		$market2 = getdbosql('db_markets', "coinid={$coin->id} AND (name='bittrex' OR name='poloniex')");
-		if($market2) continue;
 
 		if($amount*$coin->price < $min_btc_trade) continue;
 		$pair = "{$symbol}_btc";

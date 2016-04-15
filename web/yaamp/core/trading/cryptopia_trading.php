@@ -17,7 +17,7 @@ function doCryptopiaCancelOrder($OrderID=false)
 function doCryptopiaTrading($quick=false)
 {
 	$exchange = 'cryptopia';
-	$updatebalances = !YAAMP_ALLOW_EXCHANGE;
+	$updatebalances = true;
 
 	$balances = cryptopia_api_user('GetBalance');
 	if (!is_object($balances)) return;
@@ -87,9 +87,6 @@ function doCryptopiaTrading($quick=false)
 		$market->balance = $balance->HeldForTrades;
 		$market->message = $balance->StatusMessage;
 
-		$market2 = getdbosql('db_markets', "coinid={$coin->id} AND (name='bittrex' OR name='poloniex')");
-		if($market2) continue;
-
 		$orders = NULL;
 		if ($balance->HeldForTrades > 0) {
 			sleep(1);
@@ -128,13 +125,6 @@ function doCryptopiaTrading($quick=false)
 				debuglog("cryptopia: cancel order $pair at $sellprice, ask price is now $ask");
 				sleep(1);
 				doCryptopiaCancelOrder($order->OrderId);
-				//$params = array('CancelType'=>'Trade', 'OrderId'=>$order->OrderId);
-				//cryptopia_api_user('CancelTrade', $params);
-
-				//$db_order = getdbosql('db_orders', "market=:market AND uuid=:uuid", array(
-				//    ':market'=>'cryptopia', ':uuid'=>$order->OrderId
-				//));
-				//if($db_order) $db_order->delete();
 			}
 			// store existing orders
 			else

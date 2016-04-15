@@ -17,7 +17,7 @@ function doBittrexCancelOrder($OrderID=false)
 function doBittrexTrading($quick=false)
 {
 	$exchange = 'bittrex';
-	$updatebalances = !YAAMP_ALLOW_EXCHANGE;
+	$updatebalances = true;
 
 	$balances = bittrex_api_query('account/getbalances');
 	if(!$balances || !isset($balances->result) || !$balances->success) return;

@@ -21,7 +21,7 @@ function getCryptsyTicker($marketid)
 function doCryptsyTrading($quick=false)
 {
 	$exchange = 'cryptsy';
-	$updatebalances = !YAAMP_ALLOW_EXCHANGE;
+	$updatebalances = true;
 
 	$savebalance = getdbosql('db_balances', "name='$exchange'");
 	if (is_object($savebalance)) {

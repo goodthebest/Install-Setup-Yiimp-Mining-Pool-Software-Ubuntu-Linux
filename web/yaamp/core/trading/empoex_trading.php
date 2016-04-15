@@ -3,7 +3,7 @@
 function doEmpoexTrading($quick=false)
 {
 	$exchange = 'empoex';
-	$updatebalances = !YAAMP_ALLOW_EXCHANGE;
+	$updatebalances = true;
 
 	$flushall = rand(0, 8) == 0;
 	if($quick) $flushall = false;

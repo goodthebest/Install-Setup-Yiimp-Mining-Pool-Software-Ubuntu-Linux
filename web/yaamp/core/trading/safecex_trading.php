@@ -21,7 +21,7 @@ function doSafecexCancelOrder($OrderID=false)
 function doSafecexTrading($quick=false)
 {
 	$exchange = 'safecex';
-	$updatebalances = !YAAMP_ALLOW_EXCHANGE;
+	$updatebalances = true;
 
 	// {"symbol":"BTC","balance":0.01056525,"pending":0,"orders":0,"total":0.01056525,"deposit":"15pQYjcBJxo3RQfJe6C5pYxHcxAjzVyTfv","withdraw":"1E1..."}
 	$balances = safecex_api_user('getbalances');
@@ -169,9 +169,6 @@ function doSafecexTrading($quick=false)
 			$market->balance = bitcoinvaluetoa($balance->orders);
 			$market->save();
 		}
-
-		$market2 = getdbosql('db_markets', "coinid={$coin->id} AND (name='bittrex' OR name='poloniex')");
-		if($market2) continue;
 
 		if($amount*$coin->price < $min_btc_trade) continue;
 		$pair = "{$balance->symbol}/BTC";

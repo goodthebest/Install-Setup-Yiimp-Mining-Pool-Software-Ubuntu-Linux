@@ -3,7 +3,7 @@
 function doKrakenTrading($quick=false)
 {
 	$exchange = 'kraken';
-	$updatebalances = !YAAMP_ALLOW_EXCHANGE;
+	$updatebalances = true;
 
 	$balances = kraken_api_user('Balance');
 	if(!$balances || !is_array($balances)) return;

@@ -21,7 +21,7 @@ function doPoloniexCancelOrder($OrderID=false, $pair=false, $poloniex=false)
 function doPoloniexTrading()
 {
 	$exchange = 'poloniex';
-	$updatebalances = !YAAMP_ALLOW_EXCHANGE;
+	$updatebalances = true;
 
 	$poloniex = new poloniex;
 

@@ -17,7 +17,7 @@ function doBleutradeCancelOrder($OrderID=false)
 function doBleutradeTrading($quick=false)
 {
 	$exchange = 'bleutrade';
-	$updatebalances = !YAAMP_ALLOW_EXCHANGE;
+	$updatebalances = true;
 
 	$balances = bleutrade_api_query('account/getbalances');
 	if(!$balances || !isset($balances->result) || !$balances->success) return;
@@ -98,12 +98,6 @@ function doBleutradeTrading($quick=false)
 //			debuglog("bleutrade: cancel order $order->Exchange $sellprice -> $ask");
 			sleep(1);
 			doBleutradeCancelOrder($order->OrderId);
-			//bleutrade_api_query('market/cancel', "&orderid={$order->OrderId}");
-
-			//$db_order = getdbosql('db_orders', "market=:market AND uuid=:uuid", array(
-			//    ':market'=>'bleutrade', ':uuid'=>$order->OrderId
-			//));
-			//if($db_order) $db_order->delete();
 		}
 
 		// save existing orders
@@ -167,9 +161,6 @@ function doBleutradeTrading($quick=false)
 
 		$coin = getdbosql('db_coins', "symbol=:symbol", array(':symbol'=>$balance->Currency));
 		if(!$coin || $coin->dontsell) continue;
-
-		$market2 = getdbosql('db_markets', "coinid={$coin->id} AND (name='bittrex' OR name='poloniex')");
-		if($market2) continue;
 
 		$market = getdbosql('db_markets', "coinid=$coin->id and name='bleutrade'");
 		if($market)

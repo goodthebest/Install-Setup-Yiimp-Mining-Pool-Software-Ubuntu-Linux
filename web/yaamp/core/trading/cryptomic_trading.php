@@ -3,7 +3,7 @@
 function doBanxTrading($quick=false)
 {
 	$exchange = 'banx';
-	$updatebalances = !YAAMP_ALLOW_EXCHANGE;
+	$updatebalances = true;
 
 	// [{"currency":"BTC","balance":0.02265703,"available":0.02265703,"pending":0,"isbts":0,"cryptoaddress":"1DCVPWgs..."}]}
 	$balances = banx_api_user('account/getbalances');

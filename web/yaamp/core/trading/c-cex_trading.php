@@ -18,7 +18,7 @@ function doCCexCancelOrder($OrderID=false, $ccex=false)
 function doCCexTrading($quick=false)
 {
 	$exchange = 'c-cex';
-	$updatebalances = !YAAMP_ALLOW_EXCHANGE;
+	$updatebalances = true;
 
 	$ccex = new CcexAPI;
 
@@ -70,9 +70,6 @@ function doCCexTrading($quick=false)
 		if($coin->dontsell) continue;
 		if($coin->symbol == 'BTC') continue;
 
-		$market2 = getdbosql('db_markets', "coinid={$coin->id} AND (name='bittrex' OR name='poloniex')");
-		if($market2) continue;
-
 		$pair = strtolower($coin->symbol).'-btc';
 
 		sleep(1);
@@ -90,12 +87,6 @@ function doCCexTrading($quick=false)
 				// debuglog("c-cex: cancel order for $pair $uuid");
 				sleep(1);
 				doCCexCancelOrder($uuid, $ccex);
-				//$ccex->cancelOrder($uuid);
-
-				//$db_order = getdbosql('db_orders', "market=:market AND uuid=:uuid", array(
-				//    ':market'=>'c-cex', ':uuid'=>$uuid
-				//));
-				//if($db_order) $db_order->delete();
 			}
 
 			else
