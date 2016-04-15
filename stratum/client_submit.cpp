@@ -74,7 +74,13 @@ static void create_decred_header(YAAMP_JOB_TEMPLATE *templ, YAAMP_JOB_VALUES *ou
 
 	memset(header.extra, 0, 36);
 	sscanf(nonce, "%08x", &header.nonce);
-	if (strcmp(vote, "")) sscanf(vote, "%04hx", &header.votebits);
+
+	if (strcmp(vote, "")) {
+		uint16_t votebits = 0;
+		sscanf(vote, "%04hx", &votebits);
+		header.votebits = (header.votebits & 1) | (votebits & 0xfffe);
+	}
+
 	binlify(header.extra, nonce2);
 
 	hexlify(out->header, (const unsigned char*) &header, 180);
@@ -407,15 +413,6 @@ bool client_submit(YAAMP_CLIENT *client, json_value *json_params)
 			client->submit_bad++;
 			socket_send(client->sock, "{\"id\":null,\"method\":\"mining.set_extranonce\",\"params\":[\"%s\",%d]}\n",
 				client->extranonce1, client->extranonce2size);
-			return true;
-		}
-	}
-
-	if(decred_header && strcmp(vote,"")) {
-		uint32_t nvote = 0;
-		sscanf(vote, "%04x", &nvote);
-		if ((nvote & 1) == 0) {
-			client_submit_error(client, job, 28, "Invalid vote", extranonce2, ntime, nonce);
 			return true;
 		}
 	}
