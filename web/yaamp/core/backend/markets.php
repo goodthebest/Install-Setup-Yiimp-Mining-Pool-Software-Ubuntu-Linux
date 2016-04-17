@@ -930,7 +930,9 @@ function updateNovaMarkets()
 
 				$market->marketid = $ticker->marketid;
 
-				if ($market->disabled < 9) $market->disabled = (intval($ticker->volume24h) <= 1);
+				if ($market->disabled < 9)
+					$market->disabled = (floatval($ticker->volume24h) <= 0.005); // in btc
+
 				if (!$market->disabled) {
 					$market->price = AverageIncrement($market->price, $ticker->bid);
 					$market->price2 = AverageIncrement($market->price2, $ticker->last_price);
