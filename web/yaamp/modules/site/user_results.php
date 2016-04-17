@@ -78,7 +78,7 @@ foreach($users as $user)
 
 	$balance = bitcoinvaluetoa($user->balance);
 	$paid = dboscalar("SELECT sum(amount) FROM payouts WHERE account_id=".$user->id);
-	$d = datetoa2($user->last_login);
+	$d = datetoa2($user->last_earning);
 
 	$miner_count = getdbocount('db_workers', "userid=".$user->id);
 	$block_count = getdbocount('db_blocks', "userid=".$user->id);
@@ -106,7 +106,7 @@ foreach($users as $user)
 	echo '<td width="16">'.$coinimg.'</td>';
 	echo '<td width="48"><b>'.$coinlink.'</b></td>';
 	echo '<td><a href="/?address='.$user->username.'"><b>'.$user->username.'</b></a></td>';
-	echo '<td data="'.$user->last_login.'">'.$d.'</td>';
+	echo '<td data="'.$user->last_earning.'">'.$d.'</td>';
 	echo '<td align=right>'.$miner_count.'</td>';
 
 	echo '<td width="32" data="'.(0+$user_rate).'" align="right">'.($user_rate ? Itoa2($user_rate) : '').'</td>';
