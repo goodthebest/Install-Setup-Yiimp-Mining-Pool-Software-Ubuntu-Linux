@@ -276,7 +276,7 @@ bool client_update_block(YAAMP_CLIENT *client, json_value *json_params)
 	coind->newblock = true;
 	coind->notreportingcounter = 0;
 
-	if (!strcmp("DCR", coind->symbol)) {
+	if (!strcmp("DCR", coind->rpcencoding)) {
 		usleep(300*YAAMP_MS);
 	}
 

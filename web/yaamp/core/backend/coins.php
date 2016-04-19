@@ -77,7 +77,7 @@ function BackendCoinsUpdate()
 
 		if(empty($coin->master_wallet))
 		{
-			if ($coin->symbol == 'DCR' && empty($coin->account)) $coin->account = 'default';
+			if ($coin->rpcencoding == 'DCR' && empty($coin->account)) $coin->account = 'default';
 			$coin->master_wallet = $remote->getaccountaddress($coin->account);
 		//	debuglog($coin->master_wallet);
 		}
@@ -169,7 +169,7 @@ function BackendCoinsUpdate()
 				}
 			}
 
-			else if(strpos($remote->error, "not enough voters") || $coin->symbol == 'DCR') {
+			else if(strpos($remote->error, "not enough voters") || $coin->rpcencoding == 'DCR') {
 				// ignore temporary gbt errors, we use getwork
 			}
 

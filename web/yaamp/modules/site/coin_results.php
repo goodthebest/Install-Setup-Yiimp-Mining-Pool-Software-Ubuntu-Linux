@@ -4,7 +4,7 @@ $coin = getdbo('db_coins', getiparam('id'));
 if (!$coin) $this->goback();
 
 $PoS = ($coin->algo == 'PoS'); // or if 'stake' key is present in 'getinfo' method
-$DCR = ($coin->symbol == 'DCR');
+$DCR = ($coin->rpcencoding == 'DCR');
 
 $remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
 

@@ -238,7 +238,7 @@ YAAMP_JOB_TEMPLATE *coind_create_template(YAAMP_COIND *coind)
 	if(!json || json_is_null(json))
 	{
 		// coind_error() reset auto_ready, and DCR gbt can fail
-		if (strcmp(coind->symbol, "DCR") == 0)
+		if (strcmp(coind->rpcencoding, "DCR") == 0)
 			debuglog("decred getblocktemplate failed\n");
 		else
 			coind_error(coind, "getblocktemplate");
@@ -285,7 +285,7 @@ YAAMP_JOB_TEMPLATE *coind_create_template(YAAMP_COIND *coind)
 	const char *flags = json_get_string(json_coinbaseaux, "flags");
 	strcpy(templ->flags, flags ? flags : "");
 
-	if (!strcmp(coind->symbol, "DCR")) {
+	if (strcmp(coind->rpcencoding, "DCR") == 0) {
 		decred_fix_template(coind, templ, json_result);
 	}
 
@@ -383,7 +383,7 @@ bool coind_create_job(YAAMP_COIND *coind, bool force)
 
 	// DCR gbt block header is not compatible with getwork submit, so...
 
-	if (coind->usegetwork && !strcmp(coind->symbol, "DCR"))
+	if (coind->usegetwork && strcmp(coind->rpcencoding, "DCR") == 0)
 		templ = decred_create_worktemplate(coind);
 	else
 		templ = coind_create_template(coind);

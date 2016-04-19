@@ -81,7 +81,6 @@ extern double g_stratum_difficulty;
 extern int g_stratum_max_ttf;
 extern bool g_stratum_reconnect;
 extern bool g_stratum_renting;
-extern bool g_stratum_curl;
 
 extern time_t g_last_broadcasted;
 

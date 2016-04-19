@@ -1,7 +1,9 @@
 <?php
 
 if (!$coin) $this->goback();
-$DCR = ($coin->symbol == 'DCR');
+$DCR = ($coin->rpcencoding == 'DCR');
+
+if (!$DCR) $this->goback();
 
 $this->pageTitle = 'Tickets - '.$coin->symbol;
 

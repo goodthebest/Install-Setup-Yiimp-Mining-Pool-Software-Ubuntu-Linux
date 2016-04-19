@@ -18,6 +18,7 @@ public:
 	bool newcoind;
 
 	YAAMP_RPC rpc;
+	char rpcencoding[32];
 
 //	pthread_t thread;
 	pthread_mutex_t mutex;

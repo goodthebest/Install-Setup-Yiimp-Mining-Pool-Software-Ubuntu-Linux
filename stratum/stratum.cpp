@@ -30,7 +30,6 @@ double g_stratum_difficulty;
 int g_stratum_max_ttf;
 bool g_stratum_reconnect;
 bool g_stratum_renting;
-bool g_stratum_curl;
 bool g_autoexchange = true;
 
 time_t g_last_broadcasted = 0;
@@ -191,8 +190,6 @@ int main(int argc, char **argv)
 	g_stratum_max_ttf = iniparser_getint(ini, "STRATUM:max_ttf", 0x70000000);
 	g_stratum_reconnect = iniparser_getint(ini, "STRATUM:reconnect", true);
 	g_stratum_renting = iniparser_getint(ini, "STRATUM:renting", true);
-
-	g_stratum_curl = iniparser_getint(ini, "RPC:curl", false);
 
 	iniparser_freedict(ini);
 

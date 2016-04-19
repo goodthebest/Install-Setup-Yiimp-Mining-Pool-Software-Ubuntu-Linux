@@ -79,7 +79,7 @@ foreach($list as $peer)
 
 	$node = arraySafeVal($peer,'addr');
 	echo '<td>'.$node.'</td>';
-	$addnode[] = ($coin->symbol=='DCR' ? 'addpeer=' : 'addnode=') . $node;
+	$addnode[] = ($coin->rpcencoding=='DCR' ? 'addpeer=' : 'addnode=') . $node;
 
 	$peerver = trim(arraySafeVal($peer,'subver'),'/');
 	$version = max($version, $peerver);

@@ -98,7 +98,7 @@ class SiteController extends CommonController
 		$node = getparam('node');
 		if ($coin && $node) {
 			$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
-			if ($coin->symbol == 'DCR') {
+			if ($coin->rpcencoding == 'DCR') {
 				$res = $remote->node('disconnect', $node);
 				if (!$res) $res = $remote->node('remove', $node);
 				$remote->error = false; // ignore
@@ -119,7 +119,7 @@ class SiteController extends CommonController
 		$node = arraySafeVal($_POST, 'node');
 		if ($coin && $node) {
 			$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
-			if ($coin->symbol == 'DCR') {
+			if ($coin->rpcencoding == 'DCR') {
 				$remote->addnode($node, 'add');
 				usleep(500*1000);
 				$remote->node('connect', $node);

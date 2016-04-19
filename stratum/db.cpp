@@ -139,10 +139,11 @@ void db_update_coinds(YAAMP_DB *db)
 
 	////////////////////////////////////////////////////////////////////////////////////////
 
-	db_query(db, "select id, name, rpchost, rpcport, rpcuser, rpcpasswd, rpcencoding, master_wallet, reward, price, "\
-		"hassubmitblock, txmessage, enable, auto_ready, algo, pool_ttf, charity_address, charity_amount, charity_percent, "\
-		"reward_mul, symbol, auxpow, actual_ttf, network_ttf, usememorypool, hasmasternodes, algo, symbol2 "\
-		"from coins where enable and auto_ready and algo='%s' order by index_avg", g_stratum_algo);
+	db_query(db, "SELECT id, name, rpchost, rpcport, rpcuser, rpcpasswd, rpcencoding, master_wallet, reward, price, "
+		"hassubmitblock, txmessage, enable, auto_ready, algo, pool_ttf, charity_address, charity_amount, charity_percent, "
+		"reward_mul, symbol, auxpow, actual_ttf, network_ttf, usememorypool, hasmasternodes, algo, symbol2, "
+		"rpccurl, rpcssl, rpccert, account "
+		"FROM coins WHERE enable AND auto_ready AND algo='%s' ORDER BY index_avg", g_stratum_algo);
 
 	MYSQL_RES *result = mysql_store_result(&db->mysql);
 	if(!result) yaamp_error("Cant query database");
@@ -169,10 +170,12 @@ void db_update_coinds(YAAMP_DB *db)
 		strcpy(coind->name, row[1]);
 
 		if(row[7]) strcpy(coind->wallet, row[7]);
-		if(row[6]) coind->pos = strcmp(row[6], "POS")? false: true;
+		if(row[6]) strcpy(coind->rpcencoding, row[6]);
+		if(row[6]) coind->pos = strcasecmp(row[6], "POS")? false: true;
 		if(row[10]) coind->hassubmitblock = atoi(row[10]);
 
 		coind->rpc.ssl = 0;
+		// deprecated method to set ssl and cert (before db specific fields)
 		if(row[2]) {
 			char buffer[1024];
 			char cert[1024];
@@ -230,6 +233,16 @@ void db_update_coinds(YAAMP_DB *db)
 
 		if(row[26]) strcpy(coind->algo, row[26]);
 		if(row[27]) strcpy(coind->symbol2, row[27]); // if pool + aux, prevent double submit
+
+		if(row[28]) coind->rpc.curl = atoi(row[28]) != 0;
+		if(row[29]) coind->rpc.ssl = atoi(row[29]) != 0;
+		if(row[30]) strcpy(coind->rpc.cert, row[30]);
+
+		if(row[31]) strcpy(coind->account, row[31]);
+
+		// force the right rpcencoding for DCR
+		if(!strcmp(coind->symbol, "DCR") && strcmp(coind->rpcencoding, "DCR"))
+			strcpy(coind->rpcencoding, "DCR");
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 

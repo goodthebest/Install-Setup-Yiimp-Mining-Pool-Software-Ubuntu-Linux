@@ -217,7 +217,7 @@ static void client_do_submit(YAAMP_CLIENT *client, YAAMP_JOB *job, YAAMP_JOB_VAL
 		if(coind->pos)
 			strcat(block_hex, "00");
 
-		if(!strcmp(coind->symbol, "DCR")) {
+		if(!strcmp("DCR", coind->rpcencoding)) {
 			// submit the regenerated block header
 			char hex[384];
 			hexlify(hex, submitvalues->header_bin, 180);
@@ -249,7 +249,7 @@ static void client_do_submit(YAAMP_CLIENT *client, YAAMP_JOB *job, YAAMP_JOB_VAL
 
 			string_be(doublehash2, hash1);
 
-			if(coind->usegetwork && !strcmp(coind->symbol, "DCR")) {
+			if(coind->usegetwork && !strcmp("DCR", coind->rpcencoding)) {
 				// no merkle stuff
 				strcpy(hash1, submitvalues->hash_hex);
 			}
@@ -362,6 +362,8 @@ bool client_submit(YAAMP_CLIENT *client, json_value *json_params)
 		return true;
 	}
 
+	bool is_decred = job->coind && !strcmp("DCR", job->coind->rpcencoding);
+
 	YAAMP_JOB_TEMPLATE *templ = job->templ;
 
 	if(strlen(nonce) != YAAMP_NONCE_SIZE*2)
@@ -389,10 +391,8 @@ bool client_submit(YAAMP_CLIENT *client, json_value *json_params)
 		return true;
 	}
 
-	bool decred_header = (job->coind && !strcmp(job->coind->symbol,"DCR"));
-
 	// check if the submitted extranonce is valid
-	if(decred_header && client->extranonce2size > 4) {
+	if(is_decred && client->extranonce2size > 4) {
 		char extra1_id[16], extra2_id[16];
 		int cmpoft = client->extranonce2size*2 - 8;
 		strcpy(extra1_id, &client->extranonce1[cmpoft]);
@@ -422,7 +422,7 @@ bool client_submit(YAAMP_CLIENT *client, json_value *json_params)
 	YAAMP_JOB_VALUES submitvalues;
 	memset(&submitvalues, 0, sizeof(submitvalues));
 
-	if(decred_header)
+	if(is_decred)
 		build_submit_values_decred(&submitvalues, templ, client->extranonce1, extranonce2, ntime, nonce, vote, true);
 	else
 		build_submit_values(&submitvalues, templ, client->extranonce1, extranonce2, ntime, nonce);

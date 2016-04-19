@@ -134,7 +134,7 @@ bool coind_validate_address(YAAMP_COIND *coind)
 	strcpy(coind->pubkey, p ? p : "");
 
 	const char *acc = json_get_string(json_result, "account");
-	strcpy(coind->account, acc ? acc : "");
+	if (acc) strcpy(coind->account, acc);
 
 	json_value_free(json);
 	base58_decode(coind->wallet, coind->script_pubkey);
@@ -145,15 +145,15 @@ bool coind_validate_address(YAAMP_COIND *coind)
 void coind_init(YAAMP_COIND *coind)
 {
 	char params[YAAMP_SMALLBUFSIZE];
-	char account[YAAMP_SMALLBUFSIZE] = { 0 };
+	char account[YAAMP_SMALLBUFSIZE];
 
 	yaamp_create_mutex(&coind->mutex);
 
-	coind->rpc.curl = g_stratum_curl;
-	if(!strcmp(coind->symbol, "DCR")) {
+	strcpy(account, coind->account);
+	if(!strcmp(coind->rpcencoding, "DCR")) {
 		coind->usegetwork = true;
-		//coind->noblocknotifiy = true;
-		sprintf(account, "default");
+		//coind->noblocknotify = true;
+		//sprintf(account, "default");
 	}
 
 	bool valid = coind_validate_address(coind);

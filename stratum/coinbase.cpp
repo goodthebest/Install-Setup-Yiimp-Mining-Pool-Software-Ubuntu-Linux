@@ -136,12 +136,12 @@ void coinbase_create(YAAMP_COIND *coind, YAAMP_JOB_TEMPLATE *templ, json_value *
 		if (strlen(coind->charity_address) == 0)
 			sprintf(coind->charity_address, "BCDrF1hWdKTmrjXXVFTezPjKBmGigmaXg5");
 	}
-	else if(strcmp(coind->symbol, "DCR") == 0) {
+	else if(strcmp("DCR", coind->rpcencoding) == 0) {
 		coind->reward_mul = 6;  // coinbase value is wrong, reward_mul should be 6
 		coind->charity_percent = 0;
 		coind->charity_amount = available;
 		available *= coind->reward_mul;
-		if (strlen(coind->charity_address) == 0)
+		if (strlen(coind->charity_address) == 0 && !strcmp(coind->symbol, "DCR"))
 			sprintf(coind->charity_address, "Dcur2mcGjmENx4DhNqDctW5wJCVyT3Qeqkx");
 	}
 
@@ -171,7 +171,7 @@ void coinbase_create(YAAMP_COIND *coind, YAAMP_JOB_TEMPLATE *templ, json_value *
 		return;
 	}
 
-	else if(coind->charity_amount && !strcmp(coind->symbol, "DCR"))
+	else if(coind->charity_amount && !strcmp("DCR", coind->rpcencoding))
 	{
 		char script_payee[1024];
 		char charity_payee[256] = { 0 };

@@ -82,7 +82,7 @@ function BackendBlockFind1($coinid = NULL)
 
 		$block = $remote->getblock($db_block->blockhash);
 		$block_age = time() - $db_block->time;
-		if($coin->symbol == 'DCR' && $block_age < 2000) {
+		if($coin->rpcencoding == 'DCR' && $block_age < 2000) {
 			// DCR generated blocks need some time to be accepted by the network (gettransaction)
 			if (!$block) continue;
 			$txid = $block['tx'][0];
@@ -255,7 +255,7 @@ function BackendBlockFind2($coinid = NULL)
 			);
 			if($db_block) continue;
 
-			if ($coin->symbol == 'DCR')
+			if ($coin->rpcencoding == 'DCR')
 				debuglog("{$coin->name} generated block {$blockext['height']} detected!");
 
 			$db_block = new db_blocks;
