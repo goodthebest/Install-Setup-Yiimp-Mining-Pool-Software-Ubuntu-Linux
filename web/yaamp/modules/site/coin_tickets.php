@@ -35,7 +35,8 @@ div.form { text-align: right; height: 30px; width: 350px; float: right; margin-t
 
 <div class="form">
 <form action="/site/ticketBuy?id={$coin->id}" method="post" style="padding: 8px;">
-<input type="text" name="maxamount" class="main-text-input" placeholder="Ticket maximum price" autocomplete="off" style="width: 150px; margin-right: 4px;">
+<input type="text" name="spendlimit" class="main-text-input" placeholder="Spend limit" autocomplete="off" style="width: 80px; margin-right: 4px;">
+<input type="text" name="quantity" class="main-text-input" placeholder="Quantity" style="width: 60px; margin-right: 4px;">
 <input type="submit" value="Buy" class="main-submit-button" >
 </form>
 </div>

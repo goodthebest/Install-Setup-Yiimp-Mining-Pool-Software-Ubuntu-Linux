@@ -153,10 +153,14 @@ class SiteController extends CommonController
 	{
 		if(!$this->admin) return;
 		$coin = getdbo('db_coins', getiparam('id'));
-		$maxamount = (double) arraySafeVal($_POST, 'maxamount');
-		if ($coin && $maxamount) {
+		$spendlimit = (double) arraySafeVal($_POST, 'spendlimit');
+		$quantity  = (int) arraySafeVal($_POST, 'quantity');
+		if ($coin && $spendlimit) {
 			$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
-			$res = $remote->purchaseticket($coin->account, $maxamount);
+			if ($quantity <= 1)
+				$res = $remote->purchaseticket($coin->account, $spendlimit);
+			else
+				$res = $remote->purchaseticket($coin->account, $spendlimit, 1, $coin->master_wallet, $quantity);
 			if ($res === false)
 				user()->setFlash('error', $remote->error);
 			else
