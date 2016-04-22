@@ -138,7 +138,7 @@ class Bitcoin {
         // If no parameters are passed, this will be an empty array
         if($method == 'getblocktemplate')
         {
-            $param = $params[0];
+            $param = isset($params[0]) ? $params[0] : '';
             $request = "{\"method\":\"$method\",\"params\":[$param],\"id\":$this->id}";
         //  debuglog($request);
         }

@@ -171,6 +171,22 @@ class SiteController extends CommonController
 
 	/////////////////////////////////////////////////
 
+	public function actionConsole()
+	{
+		if(!$this->admin) return;
+		$coin = getdbo('db_coins', getiparam('id'));
+		if (!$coin) {
+			$this->goback();
+		}
+
+		$this->render('coin_console', array(
+			'coin'=>$coin,
+			'query'=>arraySafeVal($_POST,'query'),
+		));
+	}
+
+	/////////////////////////////////////////////////
+
 	public function actionIndex()
 	{
 		if(isset($_GET['address']))

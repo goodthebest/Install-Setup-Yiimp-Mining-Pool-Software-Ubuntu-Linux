@@ -505,9 +505,9 @@ function getAdminWalletLinks($coin, $info=NULL, $src='wallet')
 	$html = CHtml::link("<b>COIN PROPERTIES</b>", '/site/update?id='.$coin->id);
 	if($info) {
 		$html .= ' || '.CHtml::link("<b>EXPLORER</b>", '/explorer?id='.$coin->id);
-		if ($src == 'wallet')
-			$html .= ' || '.CHtml::link("<b>PEERS</b>", '/site/peers?id='.$coin->id);
-		else
+		$html .= ' || '.CHtml::link("<b>PEERS</b>", '/site/peers?id='.$coin->id);
+		$html .= ' || '.CHtml::link("<b>CONSOLE</b>", '/site/console?id='.$coin->id);
+		if ($src != 'wallet')
 			$html .= ' || '.CHtml::link("<b>{$coin->symbol}</b>", '/site/coin?id='.$coin->id);
 	}
 
