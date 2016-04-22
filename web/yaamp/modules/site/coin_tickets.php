@@ -16,6 +16,7 @@ $maxrows = min($maxrows, 2500);
 $remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
 $info = $remote->getinfo();
 $stakeinfo = $remote->getstakeinfo();
+$locked = $remote->getbalance('*',0,'locked');
 
 echo getAdminSideBarLinks().'<br/><br/>';
 echo getAdminWalletLinks($coin, $info, 'tickets').'<br/><br/>';
@@ -29,9 +30,15 @@ echo <<<end
 <style type="text/css">
 td.missed { color: darkred; }
 tr.voted { color: darkgreen; }
+div.balance { text-align: right; height: 30px; width: 200px; float: right; margin-top: -80px; margin-bottom: 16px; }
 div.form { text-align: right; height: 30px; width: 350px; float: right; margin-top: -48px; margin-bottom: 16px; margin-right: -8px; }
 .main-submit-button { cursor: pointer; }
 </style>
+
+<div class="balance" style="display: block;">
+Stake: </b>{$locked} {$coin->symbol}<br/>
+Balance: </b>{$remote->getbalance()} {$coin->symbol}<br/>
+</div>
 
 <div class="form">
 <form action="/site/ticketBuy?id={$coin->id}" method="post" style="padding: 8px;">
@@ -40,6 +47,7 @@ div.form { text-align: right; height: 30px; width: 350px; float: right; margin-t
 <input type="submit" value="Buy" class="main-submit-button" >
 </form>
 </div>
+
 end;
 
 showTableSorter('maintable', "{
@@ -61,7 +69,7 @@ echo <<<end
 <th>Height</th>
 <th>Confirm</th>
 <th>Fees</th>
-<th>Tx(s)</th>
+<th>Tx id</th>
 </tr>
 </thead><tbody>
 end;
@@ -95,15 +103,17 @@ if (!empty($txs)) {
 }
 
 $voted_txs = array();
+$list_txs = array();
 $tickets = $remote->gettickets(true);
 
-// extract stake txs from decred transactions
-if ($DCR) {
+// extract  stxs from decred transactions
+if (!empty($txs_array)) {
 
 	$prev_tx = array(); $lastday = '';
 	foreach($txs_array as $key => $tx)
 	{
 		$prev_txid = arraySafeVal($prev_tx,"txid");
+
 		$category = $tx['category'];
 		if ($category == 'send' && arraySafeVal($tx,'generated')) {
 			$txs_array[$key]['category'] = 'spent';
@@ -118,11 +128,13 @@ if ($DCR) {
 
 			// voted (listed twice ? in listtransactions)
 			if ($tx['vout'] > 0) {
+				if (in_array($tx['txid'], $list_txs)) continue; // dup
 				$category = 'ticket';
 				// ticket price
 				if ($stx && isset($stx['vin'][0])) {
 					$txs_array[$key]['input'] = $stx['vin'][0]['amountin'] * 0.00000001;
 				}
+				$list_txs[] = $tx['txid'];
 			} else {
 				$category = 'stake';
 				if ($stx && isset($stx['vin'][0])) {
@@ -131,6 +143,7 @@ if ($DCR) {
 				}
 				if ($stx && isset($stx['vin'][1])) {
 					$voted_txs[] = $stx['vin'][1]['txid'];
+					$list_txs[] = $stx['vin'][1]['txid'];
 				}
 			}
 
@@ -148,6 +161,27 @@ if ($DCR) {
 	ksort($txs_array);
 }
 
+if (!empty($tickets)) foreach ($tickets['hashes'] as $n => $txid) {
+	if (!in_array($txid, $list_txs)) {
+		$stx = $remote->getrawtransaction($txid, 1);
+		$k = time() - $stx['time'] + $n; // sort key
+		$stx['category'] = 'ticket';
+		if (isset($stx['vin'][0]))
+			$stx['input'] = $stx['vin'][0]['amountin'] * 0.00000001;
+		$commitamt = 0.;
+		foreach ($stx['vout'] as $v) {
+			if (arraySafeVal($v['scriptPubKey'],'type') == 'sstxcommitment')
+				$commitamt += $v['scriptPubKey']['commitamt'];
+		}
+		if ($commitamt && isset($stx['vout'][0])) {
+			$stx['fee'] = round($commitamt - $stx['vout'][0]['value'], 4);
+		}
+		$stx['stx'] = $stx;
+		$txs_array[$k] = $stx;
+	}
+	ksort($txs_array);
+}
+
 $rows = 0;
 foreach($txs_array as $tx)
 {
@@ -161,8 +195,8 @@ foreach($txs_array as $tx)
 	$stx = arraySafeVal($tx,'stx');
 	$stake = ''; $amount = '';
 	if ($category == 'ticket') {
-		$stake = $stx['vout'][0]['value'];
-		if ($stake == 0) continue;
+		$stake = arraySafeVal($stx, 'stake', $stx['vout'][0]['value']);
+		if ($stake === 0) continue;
 		if (in_array($tx['txid'], $voted_txs)) $category = 'voted';
 		else if (!in_array($tx['txid'], $tickets['hashes'])) $category = 'missed';
 	} else {
@@ -197,7 +231,6 @@ foreach($txs_array as $tx)
 		$txid = arraySafeVal($tx, 'txid');
 		$label = substr($txid, 0, 7);
 		echo CHtml::link($label, '/explorer?id='.$coin->id.'&txid='.$txid, array('target'=>'_blank'));
-		echo '&nbsp;('.count($block['tx']).')';
 	}
 	echo '</td>';
 
@@ -208,9 +241,6 @@ foreach($txs_array as $tx)
 }
 
 echo '</tbody></table><br>';
-
-echo '<b>Balance: </b>'.$remote->getbalance().' '.$coin->symbol.'<br/>';
-echo '<br/>';
 
 echo '<b>Ticket price: </b>'.$stakeinfo['difficulty'].' + '.$remote->getticketfee().' '.$coin->symbol.'/kB<br/>';
 echo '<b>Tickets: </b>'.$stakeinfo['live'];
