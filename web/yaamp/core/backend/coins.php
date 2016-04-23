@@ -87,6 +87,8 @@ function BackendCoinsUpdate()
 			$difficulty = $remote->getdifficulty();
 			if(is_array($difficulty))
 				$coin->rpcencoding = 'POS';
+			else if ($coin->symbol == 'DCR')
+				$coin->rpcencoding = 'DCR';
 			else
 				$coin->rpcencoding = 'POW';
 		}
@@ -169,8 +171,9 @@ function BackendCoinsUpdate()
 				}
 			}
 
-			else if(strpos($remote->error, "not enough voters") || $coin->rpcencoding == 'DCR') {
-				// ignore temporary gbt errors, we use getwork
+			else if ($coin->rpcencoding == 'DCR')
+			{
+				$coin->auto_ready = ($coin->connections > 0);
 			}
 
 			else
