@@ -321,6 +321,20 @@ class SiteController extends CommonController
 
 	/////////////////////////////////////////////////
 
+	public function actionGraphMarketPrices()
+	{
+		if (!$this->admin) return;
+		$this->renderPartial('results/graph_market_prices', array('id'=> getiparam('id')));
+	}
+
+	public function actionGraphMarketBalance()
+	{
+		if (!$this->admin) return;
+		$this->renderPartial('results/graph_market_balance', array('id'=> getiparam('id')));
+	}
+
+	/////////////////////////////////////////////////
+
 	public function actionAbout()
 	{
 		$this->render('about');

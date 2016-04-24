@@ -112,15 +112,14 @@ foreach($list as $market)
 	echo '<td>'.(empty($traded) ? "" : "$traded ago").'</td>';
 	echo '<td>'.$late.'</td>';
 
-	if ($market->disabled) $market->message = trim("{$market->message} disabled");
 	echo '<td align="center">'.$market->message.'</td>';
 
 	echo '<td align="right">';
 	if ($market->disabled)
-		echo ' <a title="Enable this market" href="/market/enable?id='.$market->id.'&en=1">enable</a>';
+		echo '<a title="Enable this market" href="/market/enable?id='.$market->id.'&en=1">enable</a>';
 	else
-		echo ' <a title="Disable this market" href="/market/enable?id='.$market->id.'&en=0">disable</a>';
-	echo ' <a style="color:darkred;" title="Remove this market" href="/market/delete?id='.$market->id.'">delete</a>';
+		echo '<a title="Disable this market" href="/market/enable?id='.$market->id.'&en=0">disable</a>';
+	echo '&nbsp;<a style="color:darkred;" title="Remove this market" href="/market/delete?id='.$market->id.'">delete</a>';
 	echo '</td>';
 
 	echo "</tr>";
@@ -239,7 +238,7 @@ echo <<<end
 <th>Difficulty</th>
 <th>Confirm</th>
 <th>Address</th>
-<th>Tx(s)</th>
+<th>Tx</th>
 </tr>
 </thead><tbody>
 end;
@@ -365,7 +364,6 @@ foreach($txs_array as $tx)
 		$txid = arraySafeVal($tx, 'txid');
 		$label = substr($txid, 0, 7);
 		echo CHtml::link($label, '/explorer?id='.$coin->id.'&txid='.$txid, array('target'=>'_blank'));
-		echo '&nbsp;('.count($block['tx']).')';
 	}
 	echo '</td>';
 
@@ -380,7 +378,7 @@ echo '</tbody></table>';
 //////////////////////////////////////////////////////////////////////////////////////
 
 echo <<<end
-<div id="sums" style="width: 400px; min-height: 250px; float: left; margin-top: 16px; margin-right: 16px;">
+<div id="sums" style="width: 400px; min-height: 250px; float: left; margin-top: 24px; margin-bottom: 8px; margin-right: 16px;">
 <table class="dataGrid">
 <thead class="">
 <tr>
@@ -428,3 +426,158 @@ if (empty($sums)) {
 
 echo '</tbody></table></div>';
 
+//////////////////////////////////////////////////////////////////////////////////////
+
+if (strpos(YIIMP_WATCH_CURRENCIES, $coin->symbol) === false) return;
+
+JavascriptFile("/extensions/jqplot/jquery.jqplot.js");
+JavascriptFile("/extensions/jqplot/plugins/jqplot.enhancedLegendRenderer.js");
+JavascriptFile("/extensions/jqplot/plugins/jqplot.dateAxisRenderer.js");
+JavascriptFile("/extensions/jqplot/plugins/jqplot.highlighter.js");
+
+echo <<<end
+
+<style type="text/css">
+#graph_history_price, #graph_history_balance {
+	width: 75%; height: 300px; float: right;
+	margin-top: 16px;
+}
+.jqplot-title {
+	margin-bottom: 3px;
+}
+.jqplot-xaxis-tick {
+	margin-top: 4px;
+	font-size: 10px;
+}
+.jqplot-y2axis-tick {
+	font-size: 7pt;
+	margin-top: -4px;
+	margin-left: 8px;
+	width: 36px;
+}
+.jqplot-table-legend-swatch {
+	height: 8px;
+	width: 8px;
+	margin-top: 2px;
+	margin-left: 16px;
+}
+</style>
+
+<div class="graph" id="graph_history_price"></div>
+<div class="graph" id="graph_history_balance"></div>
+
+</div>
+
+<script type="text/javascript" event="">
+
+var last_graph_update = 0;
+
+function graph_refresh()
+{
+	var now = Date.now()/1000;
+
+	if (now < last_graph_update + 900) return;
+	last_graph_update = now;
+
+	var w = 0 + $('div#graph_history_price').parent().width();
+	w = w - $('div#sums').width() - 32;
+	$('.graph').width(w);
+
+	var url = "/site/graphMarketBalance?id={$coin->id}";
+	$.get(url, '', graph_balance_data);
+
+	var url = "/site/graphMarketPrices?id={$coin->id}";
+	$.get(url, '', graph_price_data);
+}
+
+function graph_price_data(data)
+{
+	var t = $.parseJSON(data);
+	var plot1 = $.jqplot('graph_history_price', t.data,
+	{
+		title: '<b>Market History</b>',
+		animate: false, animateReplot: false,
+		axes: {
+			xaxis: {
+				renderer: $.jqplot.DateAxisRenderer
+			},
+			y2axis: {
+				min: t.rangeMin, max: t.rangeMax
+			}
+		},
+
+		seriesDefaults: {
+			yaxis: 'y2axis',
+			showLabel: true,
+			markerOptions: { style: 'circle', size: 2 }
+		},
+
+		grid: {
+			borderWidth: 1,
+			shadowWidth: 0,
+			shadowDepth: 0,
+			background: '#f0f0f0'
+		},
+
+		legend: {
+			labels: t.labels,
+			renderer: jQuery.jqplot.EnhancedLegendRenderer,
+			rendererOptions: { numberRows: 1 },
+			location: 'n',
+			show: true
+		},
+
+		highlighter: {
+			show: true
+		}
+	});
+}
+
+function graph_balance_data(data)
+{
+	var t = $.parseJSON(data);
+	var plot2 = $.jqplot('graph_history_balance', t.data,
+	{
+		title: '<b>Market Balances</b>',
+		animate: false, animateReplot: false,
+		stackSeries: true,
+		axes: {
+			xaxis: {
+				renderer: $.jqplot.DateAxisRenderer
+			},
+			y2axis: {
+				min: t.rangeMin, max: t.rangeMax
+			}
+		},
+
+		seriesDefaults: {
+			yaxis: 'y2axis',
+			fill: true,
+			showLabel: true,
+			markerOptions: { style: 'circle', size: 2 }
+		},
+
+		grid: {
+			borderWidth: 1,
+			shadowWidth: 0,
+			shadowDepth: 0,
+			background: '#f0f0f0'
+		},
+
+		legend: {
+			labels: t.labels,
+			renderer: jQuery.jqplot.EnhancedLegendRenderer,
+			rendererOptions: { numberRows: 1 },
+			location: 'n',
+			show: true
+		},
+
+		highlighter: {
+			show: true
+		}
+	});
+}
+</script>
+end;
+
+JavascriptReady("graph_refresh();");

@@ -25,12 +25,13 @@ echo getAdminWalletLinks($coin, $info, 'wallet');
 
 echo '<br><div id="main_results"></div>';
 
-echo '<br><div id="main_actions" style="margin-top: 8px;">';
-
 // todo: use router createUrl
 $url = '/site/coin?id='.$coin->id.'&since='.(time()-31*24*3600).'&rows='.($maxrows*2);
 $moreurl = CHtml::link('Click here to show more transactions...', $url);
-echo "{$moreurl}<br/>";
+
+echo '<div class="loadfooter" style="margin-top: 8px;"><br/>'.$moreurl.'</div>';
+
+echo '<div id="main_actions" style="margin-top: 8px;">';
 
 /* 
 echo "<br><a href='/site/makeconfigfile?id=$coin->id'><b>MAKE CONFIG & START</b></a>";
@@ -53,20 +54,24 @@ else
 }
 
 */
-echo "<br><a href='/site/clearearnings?id=$coin->id'><b>CLEAR EARNINGS</b></a>";
-echo "<br><a href='/site/deleteearnings?id=$coin->id'><b>DELETE EARNINGS</b></a>";
-echo "<br><a href='/site/payuserscoin?id=$coin->id'><b>DO PAYMENTS</b></a>";
-echo '<br><a href="/site/checkblocks?id='.$coin->id.'"><b>UPDATE BLOCKS</b></a>';
-
 echo <<<END
+
+<br/><a class="red" href="/site/deleteearnings?id={$coin->id}"><b>DELETE EARNINGS</b></a>
+<br/><a href="/site/clearearnings?id={$coin->id}"><b>CLEAR EARNINGS</b></a>
+<br/><a href="/site/checkblocks?id={$coin->id}"><b>UPDATE BLOCKS</b></a>
+<br/><a href="/site/payuserscoin?id={$coin->id}"><b>DO PAYMENTS</b></a>
 
 <br><br><br><br><br><br><br><br><br><br>
 <br><br><br><br><br><br><br><br><br><br>
 <br><br><br><br><br><br><br><br><br><br>
 
 </div>
+<style type="text/css">
+loadfooter.main_actions { min-width: 200px; }
+a.red { color: darkred; }
+</style>
 
-<script>
+<script type="text/javascript">
 
 function uninstall_coin()
 {

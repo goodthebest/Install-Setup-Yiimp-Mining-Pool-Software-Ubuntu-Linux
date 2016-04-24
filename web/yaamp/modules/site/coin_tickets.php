@@ -69,7 +69,7 @@ echo <<<end
 <th>Height</th>
 <th>Confirm</th>
 <th>Fees</th>
-<th>Tx id</th>
+<th>Tx</th>
 </tr>
 </thead><tbody>
 end;
