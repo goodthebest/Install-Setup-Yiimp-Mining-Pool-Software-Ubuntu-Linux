@@ -146,6 +146,7 @@ class CronjobController extends CommonController
 
 			case 2:
 				BackendPricesUpdate();
+				BackendWatchMarkets();
 				break;
 
 			case 3:

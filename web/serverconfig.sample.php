@@ -23,6 +23,9 @@ define('YAAMP_PAYMENTS_MINI', 0.001);
 
 define('YAAMP_ALLOW_EXCHANGE', false);
 define('YIIMP_PUBLIC_EXPLORER', true);
+define('YIIMP_WATCH_CURRENCIES', 'BTC,DCR,XVC'); // track history
+define('YIIMP_FIAT_ALTERNATIVE', 'EUR'); // USD is main
+
 define('YAAMP_USE_NICEHASH_API', false);
 
 define('YAAMP_BTCADDRESS', '1Auhps1mHZQpoX4mCcVL8odU81VakZQ6dR');

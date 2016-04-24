@@ -12,6 +12,8 @@ if (!defined('YAAMP_DBUSER')) define('YAAMP_DBUSER', 'root');
 if (!defined('YAAMP_DBPASSWORD')) define('YAAMP_DBPASSWORD', '');
 
 if (!defined('YIIMP_PUBLIC_EXPLORER')) define('YIIMP_PUBLIC_EXPLORER', true);
+if (!defined('YIIMP_WATCH_CURRENCIES')) define('YIIMP_WATCH_CURRENCIES', 'BTC');
+if (!defined('YIIMP_FIAT_ALTERNATIVE')) define('YIIMP_FIAT_ALTERNATIVE', 'EUR');
 
 if (!defined('YAAMP_FEES_MINING')) define('YAAMP_FEES_MINING', 0.5);
 if (!defined('YAAMP_FEES_EXCHANGE')) define('YAAMP_FEES_EXCHANGE', 2);

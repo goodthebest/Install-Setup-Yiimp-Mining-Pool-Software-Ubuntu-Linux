@@ -187,6 +187,8 @@ function kraken_api_query($method, $params='')
 	$kraken = new KrakenAPI('', '');
 
 	$arrParams = array();
+	if (is_array($params)) $arrParams = $params;
+	else
 	switch ($method) {
 		case 'Ticker':
 			$pair = kraken_convertPair($params);
@@ -266,4 +268,16 @@ function kraken_api_user($method, $params='')
 	}
 
 	return $res;
+}
+
+function kraken_btceur()
+{
+	$ticker = kraken_api_query('Ticker',array('pair'=>'XXBTZEUR'));
+	if (isset($ticker["BTC-EUR"])) {
+		$a = $ticker["BTC-EUR"]['a'][0];
+		$b = $ticker["BTC-EUR"]['b'][0];
+		$btceur = (($a + $b) / 2);
+		return $btceur;
+	}
+	return false;
 }

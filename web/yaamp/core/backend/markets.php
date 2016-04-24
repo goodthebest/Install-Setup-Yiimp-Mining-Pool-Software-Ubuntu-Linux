@@ -79,6 +79,47 @@ function BackendPricesUpdate()
 	}
 }
 
+function BackendWatchMarkets($marketname=NULL)
+{
+	$watched = explode(',', YIIMP_WATCH_CURRENCIES);
+
+	$coins = new db_coins;
+	$coins = $coins->findAllByAttributes(array('symbol'=>$watched));
+	foreach ($coins as $coin)
+	{
+		// track btc/usd for history analysis
+		if ($coin->symbol == 'BTC') {
+			if ($marketname) continue;
+			$mh = new db_market_history;
+			$mh->time = time();
+			$mh->idcoin = $coin->id;
+			$mh->idmarket = NULL;
+			$mh->price = dboscalar("SELECT usdbtc FROM mining LIMIT 1");
+			if (YIIMP_FIAT_ALTERNATIVE == 'EUR')
+				$mh->price2 = kraken_btceur();
+			$mh->balance = dboscalar("SELECT SUM(balance) AS btc FROM balances");
+			$mh->save();
+			continue;
+		}
+
+		// user watched currencies
+		$markets = getdbolist('db_markets', "coinid={$coin->id} AND NOT disabled");
+		foreach($markets as $market) {
+			if ($marketname && $market->name != $marketname) continue;
+			if (empty($market->price)) continue;
+			$mh = new db_market_history;
+			$mh->time = time();
+			$mh->idcoin = $coin->id;
+			$mh->idmarket = $market->id;
+			$mh->price = $market->price;
+			$mh->price2 = $market->price2;
+			$mh->balance = (double) ($market->balance) + (double) ($market->ontrade);
+			$mh->save();
+			//debuglog("{$coin->symbol} {$market->name} market history");
+		}
+	}
+}
+
 function getBestMarket($coin)
 {
 	$market = NULL;
