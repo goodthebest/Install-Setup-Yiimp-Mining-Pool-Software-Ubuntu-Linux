@@ -100,6 +100,16 @@ function BackendWatchMarkets($marketname=NULL)
 			$mh->balance = dboscalar("SELECT SUM(balance) AS btc FROM balances");
 			$mh->save();
 			continue;
+		} else if ($coin->installed) {
+			// "yiimp" prices and balance history
+			$mh = new db_market_history;
+			$mh->time = time();
+			$mh->idcoin = $coin->id;
+			$mh->idmarket = NULL;
+			$mh->price = $coin->price;
+			$mh->price2 = $coin->price2;
+			$mh->balance = $coin->balance;
+			$mh->save();
 		}
 
 		// user watched currencies
@@ -115,7 +125,6 @@ function BackendWatchMarkets($marketname=NULL)
 			$mh->price2 = $market->price2;
 			$mh->balance = (double) ($market->balance) + (double) ($market->ontrade);
 			$mh->save();
-			//debuglog("{$coin->symbol} {$market->name} market history");
 		}
 	}
 }
@@ -530,7 +539,12 @@ function updateCCexMarkets()
 		}
 
 		if ($market->disabled < 9) $market->disabled = !$ticker['IsActive'];
-		if ($symbol == 'DCR') $market->disabled = 9; // manually disabled
+
+		// manually disabled, wrong api data since months
+		if ($symbol == 'DCR') {
+			$market->delete();
+			continue;
+		}
 
 		$market->save();
 

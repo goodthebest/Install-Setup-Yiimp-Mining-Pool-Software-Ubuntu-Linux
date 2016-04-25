@@ -242,6 +242,11 @@ function yaamp_hashrate_step()
 	return 300;
 }
 
+function yaamp_watched_coin($symbol)
+{
+	return (strpos(",".YIIMP_WATCH_CURRENCIES.",", ",$symbol,") !== false);
+}
+
 function yaamp_profitability($coin)
 {
 	if(!$coin->difficulty) return 0;

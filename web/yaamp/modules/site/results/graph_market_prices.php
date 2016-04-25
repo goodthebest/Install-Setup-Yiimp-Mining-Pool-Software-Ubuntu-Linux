@@ -8,10 +8,11 @@ if (!$coin) return;
 
 $t = time() - 7*24*60*60;
 
-$markets = dbolist("SELECT M.id AS id, M.name, MIN(MH.price) AS min, MAX(MH.price) AS max
+$markets = dbolist("SELECT M.id AS id, M.name, M.priority, MIN(MH.price) AS min, MAX(MH.price) AS max
 	FROM market_history MH LEFT JOIN markets M ON M.id = MH.idmarket
 	WHERE MH.idcoin=$id AND MH.time>$t AND NOT M.disabled
-	GROUP BY M.id, M.name");
+	GROUP BY M.id, M.name, M.priority
+	ORDER BY M.priority DESC");
 
 $min = 999999999;
 $max = 0;
@@ -25,12 +26,12 @@ foreach ($markets as $m) {
 
 	foreach($stats as $histo)
 	{
-		$d = date('Y-m-d H:i:s', $histo->time);
+		$d = date('Y-m-d H:i', $histo->time);
 		$series[$m['name']][] = array($d, (double) bitcoinvaluetoa($histo->price));
 	}
 
 	if ($histo && $market->pricetime && $market->pricetime > $histo->time) {
-		$d = date('Y-m-d H:i:s', $market->pricetime);
+		$d = date('Y-m-d H:i', $market->pricetime);
 		$series[$m['name']][] = array($d, (double) bitcoinvaluetoa($market->price));
 	}
 
@@ -41,6 +42,15 @@ foreach ($markets as $m) {
 if ($min == 999999999) {
 	// empty
 	$min = 0;
+}
+
+// "yiimp" price
+
+$stats = getdbolist('db_market_history', "time>$t AND idcoin={$id} AND idmarket IS NULL ORDER BY time");
+foreach($stats as $histo) {
+	$d = date('Y-m-d H:i', $histo->time);
+	$series['yiimp'][] = array($d, (double) bitcoinvaluetoa($histo->price));
+	$max = max($max, $histo->price);
 }
 
 echo json_encode(array(

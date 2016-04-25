@@ -52,7 +52,7 @@ echo <<<end
 </tr></thead><tbody>
 end;
 
-$list = getdbolist('db_markets', "coinid={$coin->id} ORDER BY disabled, priority, price DESC");
+$list = getdbolist('db_markets', "coinid={$coin->id} ORDER BY disabled, priority DESC, price DESC");
 
 $bestmarket = getBestMarket($coin);
 foreach($list as $market)
@@ -175,8 +175,13 @@ echo '<td>'.$coin->algo.'</td>';
 
 if(!$info)
 {
-	echo "<td colspan=8>ERROR $remote->error</td>";
-	echo "</tr></tbody></table>";
+	echo '<td colspan="5">ERROR '.$remote->error.'</td>';
+	echo '<td>'.bitcoinvaluetoa($coin->price).'</td>';
+	echo '<td colspan="2">';
+	echo "</tr></tbody></table><br/>";
+	if (yaamp_watched_coin($coin->symbol)) {
+		$this->renderPartial('coin_market_graph', array('coin'=>$coin));
+	}
 	return;
 }
 
@@ -426,6 +431,6 @@ if (empty($sums)) {
 
 echo '</tbody></table></div>';
 
-if (strpos(YIIMP_WATCH_CURRENCIES, $coin->symbol) !== false) {
+if (yaamp_watched_coin($coin->symbol)) {
 	$this->renderPartial('coin_market_graph', array('coin'=>$coin));
 }
