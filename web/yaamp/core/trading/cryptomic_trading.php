@@ -1,6 +1,6 @@
 <?php
 
-function doBanxTrading($quick=false)
+function doCryptomicTrading($quick=false)
 {
 	$exchange = 'banx';
 	$updatebalances = true;

@@ -51,8 +51,8 @@ function runExchange($exchangeName=false)
 				break;
 
 			case 'banx':
-				doBanxTrading(true);
-				updateBanxMarkets();
+				doCryptomicTrading(true);
+				updateCryptomicMarkets();
 				break;
 
 			case 'bter':

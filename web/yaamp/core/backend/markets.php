@@ -17,7 +17,7 @@ function BackendPricesUpdate()
 	//updateEmpoexMarkets();
 	updateCryptsyMarkets();
 	updateJubiMarkets();
-	updateBanxioMarkets();
+	updateCryptomicMarkets();
 	updateNovaMarkets();
 
 	updateOtherMarkets();
@@ -196,7 +196,7 @@ function updateBleutradeMarkets()
 		if($currency->Currency == 'BTC') continue;
 
 		$coin = getdbosql('db_coins', "symbol='{$currency->Currency}'");
-		if(!$coin || !$coin->installed) continue;
+		if(!$coin) continue;
 
 		$market = getdbosql('db_markets', "coinid=$coin->id and name='$exchange'");
 		if(!$market)
@@ -266,11 +266,11 @@ function updateKrakenMarkets($force = false)
 		if(strpos($symbol,'.d') !== false) continue;
 
 		$coin = getdbosql('db_coins', "symbol='{$symbol}'");
-		if(!$coin || !$coin->installed) continue;
+		if(!$coin) continue;
+		if(!$coin->installed && !yaamp_watched_coin($coin->symbol)) continue;
 
-		debuglog("kraken: $symbol/$base ".json_encode($data));
-		$fees = reset($currency['fees']);
-		$feepct = end($fees);
+		$fees = reset($data['fees']);
+		$feepct = is_array($fees) ? end($fees) : null;
 		$market = getdbosql('db_markets', "coinid={$coin->id} and name='{$exchange}'");
 		if(!$market) {
 			$market = new db_markets;
@@ -284,14 +284,13 @@ function updateKrakenMarkets($force = false)
 		$ticker = kraken_api_query('Ticker', $symbol);
 		if(!is_array($ticker) || !isset($ticker[$pair])) continue;
 
-		$ticker = arraySafeVal($ticker,$pair);
+		$ticker = arraySafeVal($ticker, $pair);
 		if(!is_array($ticker) || !isset($ticker['b'])) continue;
 
-		debuglog("kraken: $symbol/$base ticker ".json_encode($ticker));
-
-		$price2 = ($ticker['b'][0] + $ticker['a'][0]) / 2;
-		$market->price2 = AverageIncrement($market->price2, $price2);
-		$market->price = AverageIncrement($market->price, $ticker['b'][0]);
+		$price = (double) $ticker['b'][0];
+		$market->price = AverageIncrement($market->price, $price ? 1 / $price : 0);
+		$price2 = (double) ($ticker['b'][0] + $ticker['a'][0]) / 2;
+		$market->price2 = AverageIncrement($market->price2, $price2 ? 1 / $price2 : 0);
 		$market->pricetime = time();
 
 		$market->save();
@@ -311,7 +310,7 @@ function updateBittrexMarkets($force = false)
 		if($currency->Currency == 'BTC') continue;
 
 		$coin = getdbosql('db_coins', "symbol='$currency->Currency'");
-		if(!$coin || !$coin->installed) continue;
+		if(!$coin) continue;
 
 		$market = getdbosql('db_markets', "coinid=$coin->id and name='$exchange'");
 		if(!$market) continue;
@@ -386,7 +385,7 @@ function updateCryptsyMarkets()
 		$symbol = $currency['code'];
 
 		$coin = getdbosql('db_coins', "symbol=:symbol", array(':symbol'=>$symbol));
-		if(!$coin || !$coin->installed) continue;
+		if(!$coin) continue;
 
 //		debuglog("$exchange:  $coin->name $symbol");
 
@@ -527,7 +526,7 @@ function updateCCexMarkets()
 		$symbol = strtoupper($ticker['MarketCurrency']);
 
 		$coin = getdbosql('db_coins', "symbol=:symbol", array(':symbol'=>$symbol));
-		if(!$coin || !$coin->installed) continue;
+		if(!$coin) continue;
 
 		$market = getdbosql('db_markets', "coinid={$coin->id} and name='$exchange'");
 		if(!$market)
@@ -540,15 +539,13 @@ function updateCCexMarkets()
 
 		if ($market->disabled < 9) $market->disabled = !$ticker['IsActive'];
 
-		// manually disabled, wrong api data since months
-		if ($symbol == 'DCR') {
-			$market->delete();
-			continue;
-		}
+		// ignored, wrong api data since months
+		if ($symbol == 'DCR') $market->deleted = 1;
 
 		$market->save();
 
-		if ($market->disabled) continue;
+		if ($market->deleted) continue;
+		if (!$coin->installed && !yaamp_watched_coin($coin->symbol)) continue;
 
 		sleep(1);
 		$item = strtolower($symbol."-btc");
@@ -560,7 +557,6 @@ function updateCCexMarkets()
 		$market->price2 = AverageIncrement($market->price2, $price2);
 		$market->price = AverageIncrement($market->price, $ticker['buy']);
 		$market->pricetime = time();
-
 		$market->save();
 
 		if (empty($coin->price2)) {
@@ -616,7 +612,7 @@ function updatePoloniexMarkets()
 		$symbol = $a[1];
 
 		$coin = getdbosql('db_coins', "symbol=:symbol", array(':symbol'=>$symbol));
-		if(!$coin || !$coin->installed) continue;
+		if(!$coin) continue;
 
 		$market = getdbosql('db_markets', "coinid=$coin->id and name='poloniex'");
 		if(!$market)
@@ -688,7 +684,7 @@ function updateYobitMarkets()
 		if($symbol == 'BTC') continue;
 
 		$coin = getdbosql('db_coins', "symbol=:symbol", array(':symbol'=>$symbol));
-		if(!$coin || !$coin->installed) continue;
+		if(!$coin) continue;
 
 		$market = getdbosql('db_markets', "coinid={$coin->id} and name='$exchange'");
 		if(!$market)
@@ -703,7 +699,8 @@ function updateYobitMarkets()
 		if ($market->disabled < 9) $market->disabled = arraySafeVal($item,'hidden',0);
 		$market->save();
 
-		if ($market->disabled) continue;
+		if ($market->deleted || $market->disabled) continue;
+		if (!$coin->installed) continue; // todo: allow watched coins
 
 		$pair = strtolower($coin->symbol).'_btc';
 
@@ -780,7 +777,8 @@ function updateAlcurexMarkets()
 	foreach($list as $market)
 	{
 		$coin = getdbo('db_coins', $market->coinid);
-		if(!$coin || !$coin->installed) continue;
+		if(!$coin) continue;
+		if (!$coin->installed && !yaamp_watched_coin($coin->symbol)) continue;
 
 		$pair = strtoupper($coin->symbol).'_BTC';
 		foreach ($data->MARKETS as $ticker) {
@@ -821,7 +819,7 @@ function updateCryptopiaMarkets()
 	foreach($list as $market)
 	{
 		$coin = getdbo('db_coins', $market->coinid);
-		if(!$coin || !$coin->installed) continue;
+		if(!$coin) continue;
 
 		$pair = strtoupper($coin->symbol).'/BTC';
 
@@ -878,7 +876,7 @@ function updateCryptopiaMarkets()
 	cache()->set($exchange.'-deposit_address-check', time(), 12*3600);
 }
 
-function updateBanxioMarkets()
+function updateCryptomicMarkets()
 {
 	$exchange = 'banx';
 	$data = banx_public_api_query('getmarketsummaries');
@@ -890,7 +888,7 @@ function updateBanxioMarkets()
 	foreach($currencies as $market)
 	{
 		$coin = getdbo('db_coins', $market->coinid);
-		if(!$coin || !$coin->installed) continue;
+		if(!$coin) continue;
 
 		$pair = strtoupper($coin->symbol).'-BTC';
 		foreach ($data->result as $ticker) {
@@ -977,7 +975,7 @@ function updateNovaMarkets()
 	foreach($currencies as $market)
 	{
 		$coin = getdbo('db_coins', $market->coinid);
-		if(!$coin || !$coin->installed) continue;
+		if(!$coin) continue;
 
 		$pair = 'BTC_'.strtoupper($coin->symbol);
 		foreach ($data->markets as $ticker) {
@@ -1016,7 +1014,7 @@ function updateSafecexMarkets()
 	foreach($list as $market)
 	{
 		$coin = getdbo('db_coins', $market->coinid);
-		if(!$coin || !$coin->installed) continue;
+		if(!$coin) continue;
 
 		$pair = strtoupper($coin->symbol).'/BTC';
 
@@ -1106,7 +1104,8 @@ function updateBterMarkets()
 	foreach($list as $market)
 	{
 		$coin = getdbo('db_coins', $market->coinid);
-		if(!$coin || !$coin->installed) continue;
+		if(!$coin) continue;
+
 		if($coin->symbol == 'SFR') {
 			// black hole: no deposits since months
 			$market->deleted = 1;
@@ -1144,7 +1143,7 @@ function updateEmpoexMarkets()
 	foreach($list as $market)
 	{
 		$coin = getdbo('db_coins', $market->coinid);
-		if(!$coin || !$coin->installed) continue;
+		if(!$coin) continue;
 
 		$pair = strtoupper($coin->symbol).'-BTC';
 
