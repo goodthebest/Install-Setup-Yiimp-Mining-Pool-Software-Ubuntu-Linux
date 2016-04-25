@@ -8,9 +8,6 @@ if (!$coin) {
 
 $this->pageTitle = 'Wallet - '.$coin->symbol;
 
-$maxrows = arraySafeVal($_REQUEST,'rows',15);
-$since = arraySafeVal($_REQUEST,'since',time()-(7*24*3600));
-
 if (!empty($coin->algo) && $coin->algo != 'PoS')
 	user()->setState('yaamp-algo', $coin->algo);
 
@@ -23,15 +20,10 @@ $sellamount = $coin->balance;
 echo getAdminSideBarLinks().'<br/><br/>';
 echo getAdminWalletLinks($coin, $info, 'wallet');
 
-echo '<br><div id="main_results"></div>';
+$maxrows = arraySafeVal($_REQUEST,'rows', 200);
+$since = arraySafeVal($_REQUEST,'since', time() - (7*24*3600)); // one week
 
-// todo: use router createUrl
-$url = '/site/coin?id='.$coin->id.'&since='.(time()-31*24*3600).'&rows='.($maxrows*2);
-$moreurl = CHtml::link('Click here to show more transactions...', $url);
-
-echo '<div class="loadfooter" style="margin-top: 8px;"><br/>'.$moreurl.'</div>';
-
-echo '<div id="main_actions" style="margin-top: 8px;">';
+echo '<div id="main_actions">';
 
 /* 
 echo "<br><a href='/site/makeconfigfile?id=$coin->id'><b>MAKE CONFIG & START</b></a>";
@@ -60,15 +52,30 @@ echo <<<END
 <br/><a href="/site/clearearnings?id={$coin->id}"><b>CLEAR EARNINGS</b></a>
 <br/><a href="/site/checkblocks?id={$coin->id}"><b>UPDATE BLOCKS</b></a>
 <br/><a href="/site/payuserscoin?id={$coin->id}"><b>DO PAYMENTS</b></a>
-
-<br><br><br><br><br><br><br><br><br><br>
-<br><br><br><br><br><br><br><br><br><br>
-<br><br><br><br><br><br><br><br><br><br>
-
+<br/>
 </div>
+
+<div id="main_results"></div>
+
 <style type="text/css">
-loadfooter.main_actions { min-width: 200px; }
-a.red { color: darkred; }
+table.dataGrid a.red, table.dataGrid a.red:visited, a.red { color: darkred; }
+div#main_actions {
+	position: absolute; top: 60px; right: 16px; width: 280px; text-align: right;
+}
+div#markets {
+	overflow-x: hidden; overflow-y: scroll; max-height: 156px;
+}
+div#transactions {
+	overflow-x: hidden; overflow-y: scroll; min-height: 200px; max-height: 360px;
+}
+div#sums {
+	overflow-x: hidden; overflow-y: scroll; min-height: 250px; max-height: 600px;
+	width: 380px; float: left; margin-top: 16px; margin-bottom: 8px; margin-right: 16px;
+}
+.page .footer { clear: both; }
+tr.ssrow.bestmarket { background-color: #dfd; }
+tr.ssrow.disabled { background-color: #fdd; color: darkred; }
+tr.ssrow.orphan { color: darkred; }
 </style>
 
 <script type="text/javascript">
@@ -98,7 +105,7 @@ function main_ready(data)
 	main_timeout = setTimeout(main_refresh, main_delay);
 	var sumHeight = 0 + $('#sums').height();
 	if ($('#main_actions').height() < sumHeight) {
-		$('#main_actions').height(sumHeight);
+	//	$('#main_actions').height(sumHeight);
 	}
 }
 
@@ -142,3 +149,5 @@ Amount: <input type=text id="input_sell_amount" value="$sellamount">
 END;
 
 JavascriptReady("main_refresh();");
+
+//////////////////////////////////////////////////////////////////////////////////////

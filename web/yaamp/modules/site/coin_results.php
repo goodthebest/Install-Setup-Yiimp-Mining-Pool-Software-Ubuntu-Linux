@@ -35,17 +35,12 @@ echo ", ".CHtml::link($reserved1, "/site/payments?id=".$coin->id)." $symbol clea
 //////////////////////////////////////////////////////////////////////////////////////
 
 echo <<<end
-<style type="text/css">
-tr.ssrow.bestmarket { background-color: #dfd; }
-tr.ssrow.disabled { background-color: #fdd; color: darkred; }
-tr.ssrow.orphan { color: darkred; }
-</style>
-
+<div id="markets">
 <table class="dataGrid">
 <thead><tr>
-<th width="100">Name</th>
-<th width="100">Price</th>
-<th width="100">Price2</th>
+<th width="100">Market</th>
+<th width="100">Bid</th>
+<th width="100">Ask</th>
 <th width="500">Deposit</th>
 <th width="100">Balance</th>
 <th width="100">Locked</th>
@@ -57,7 +52,7 @@ tr.ssrow.orphan { color: darkred; }
 </tr></thead><tbody>
 end;
 
-$list = getdbolist('db_markets', "coinid={$coin->id} ORDER BY price DESC");
+$list = getdbolist('db_markets', "coinid={$coin->id} ORDER BY disabled, priority, price DESC");
 
 $bestmarket = getBestMarket($coin);
 foreach($list as $market)
@@ -119,13 +114,13 @@ foreach($list as $market)
 		echo '<a title="Enable this market" href="/market/enable?id='.$market->id.'&en=1">enable</a>';
 	else
 		echo '<a title="Disable this market" href="/market/enable?id='.$market->id.'&en=0">disable</a>';
-	echo '&nbsp;<a style="color:darkred;" title="Remove this market" href="/market/delete?id='.$market->id.'">delete</a>';
+	echo '&nbsp;<a class="red" title="Remove this market" href="/market/delete?id='.$market->id.'">delete</a>';
 	echo '</td>';
 
 	echo "</tr>";
 }
 
-echo "</tbody></table><br>";
+echo "</tbody></table></div>";
 
 //////////////////////////////////////////////////////////////////////////////////////
 
@@ -144,7 +139,7 @@ if ($DCR) {
 	$tickets += arraySafeVal($stakeinfo, 'immature', 0);
 }
 
-echo '<table class="dataGrid">';
+echo '<table id="infos" class="dataGrid">';
 echo '<thead><tr>';
 echo '<th width="30"></th>';
 echo '<th width="30"></th>';
@@ -193,7 +188,7 @@ $blocks = isset($info['blocks'])? $info['blocks']: '';
 
 echo '<td>'.round_difficulty($coin->difficulty).'</td>';
 if(!empty($errors))
-	echo "<td style='color: red;' title='$errors'>$blocks</td>";
+	echo '<td class="red" title="'.$errors.'">'.$blocks.'</td>';
 else
 	echo "<td>$blocks</td>";
 
@@ -217,17 +212,16 @@ echo '<td>'.$index.'</td>';
 echo '</tr>';
 echo '</tbody></table>';
 
-echo '<br>';
-
 //////////////////////////////////////////////////////////////////////////////////////
 
 // last week
 $list_since = arraySafeVal($_GET,'since',time()-(7*24*3600));
 
-$maxrows = arraySafeVal($_GET,'rows', 15);
+$maxrows = arraySafeVal($_GET,'rows', 200);
 $maxrows = min($maxrows, 2500);
 
 echo <<<end
+<div id="transactions">
 <table class="dataGrid">
 <thead class="">
 <tr>
@@ -375,10 +369,16 @@ foreach($txs_array as $tx)
 
 echo '</tbody></table>';
 
+$url = '/site/coin?id='.$coin->id.'&since='.(time()-31*24*3600).'&rows='.($maxrows*2);
+$moreurl = CHtml::link('Click here to show more transactions...', $url);
+
+echo '<div class="loadfooter" style="margin-top: 4px;">'.$moreurl.'</div>';
+echo '</div>';
+
 //////////////////////////////////////////////////////////////////////////////////////
 
 echo <<<end
-<div id="sums" style="width: 400px; min-height: 250px; float: left; margin-top: 24px; margin-bottom: 8px; margin-right: 16px;">
+<div id="sums">
 <table class="dataGrid">
 <thead class="">
 <tr>
@@ -426,216 +426,6 @@ if (empty($sums)) {
 
 echo '</tbody></table></div>';
 
-//////////////////////////////////////////////////////////////////////////////////////
-
-if (strpos(YIIMP_WATCH_CURRENCIES, $coin->symbol) === false) return;
-
-JavascriptFile("/extensions/jqplot/jquery.jqplot.js");
-JavascriptFile("/extensions/jqplot/plugins/jqplot.enhancedLegendRenderer.js");
-JavascriptFile("/extensions/jqplot/plugins/jqplot.dateAxisRenderer.js");
-JavascriptFile("/extensions/jqplot/plugins/jqplot.highlighter.js");
-
-echo <<<end
-
-<style type="text/css">
-#graph_history_price, #graph_history_balance {
-	width: 75%; height: 300px; float: right;
-	margin-top: 16px;
+if (strpos(YIIMP_WATCH_CURRENCIES, $coin->symbol) !== false) {
+	$this->renderPartial('coin_market_graph', array('coin'=>$coin));
 }
-.jqplot-title {
-	margin-bottom: 3px;
-}
-.jqplot-cursor-tooltip,
-.jqplot-highlighter-tooltip {
-	background: rgba(220,220,220, .5) !important;
-	border: 1px solid gray;
-	padding: 2px 4px;
-}
-.jqplot-xaxis-tick {
-	margin-top: 4px;
-}
-.jqplot-y2axis-tick {
-	font-size: 7pt;
-	margin-top: -4px;
-	margin-left: 8px;
-	width: 36px;
-}
-.jqplot-table-legend-swatch {
-	height: 8px;
-	width: 8px;
-	margin-top: 2px;
-	margin-left: 16px;
-}
-</style>
-
-<div class="graph" id="graph_history_price"></div>
-<div class="graph" id="graph_history_balance"></div>
-
-<script type="text/javascript">
-
-var last_graph_update = 0;
-
-function graph_refresh()
-{
-	var now = Date.now()/1000;
-
-	if (now < last_graph_update + 1) return;
-	last_graph_update = now;
-
-	var w = 0 + $('div#graph_history_price').parent().width();
-	w = w - $('div#sums').width() - 32;
-	$('.graph').width(w);
-
-	var url = "/site/graphMarketBalance?id={$coin->id}";
-	$.get(url, '', graph_balance_data);
-
-	var url = "/site/graphMarketPrices?id={$coin->id}";
-	$.get(url, '', graph_price_data);
-}
-
-function graph_price_data(data)
-{
-	var t = $.parseJSON(data);
-	var graph = $.jqplot('graph_history_price', t.data,
-	{
-		title: '<b>Market History</b>',
-		animate: false, animateReplot: false,
-		axes: {
-			xaxis: {
-				show: true,
-				tickInterval: 600,
-				tickOptions: { fontSize: '7pt', escapeHTML: false, formatString:'%#d %b</br>%H:00' },
-				renderer: $.jqplot.DateAxisRenderer
-			},
-			x2axis: {
-				// hidden (top) axis with higher granularity
-				syncTicks: 1,
-				tickInterval: 600,
-				tickOptions: { show: false },
-				renderer: $.jqplot.DateAxisRenderer
-			},
-			y2axis: {
-				min: t.rangeMin, max: t.rangeMax
-			}
-		},
-
-		seriesDefaults: {
-			xaxis: 'x2axis',
-			yaxis: 'y2axis',
-			showLabel: true,
-			markerOptions: { style: 'circle', size: 2 }
-		},
-
-		grid: {
-			borderWidth: 1,
-			shadowWidth: 0,
-			shadowDepth: 0,
-			background: '#f0f0f0'
-		},
-
-		legend: {
-			labels: t.labels,
-			renderer: jQuery.jqplot.EnhancedLegendRenderer,
-			rendererOptions: { numberRows: 1 },
-			location: 'n',
-			show: true
-		},
-
-		highlighter: {
-			useAxesFormatters: false,
-			tooltipContentEditor: function(str, seriesIndex, pointIndex, jqPlot) {
-				var pt = jqPlot.series[seriesIndex].data[pointIndex];
-				var dt = new Date(0+pt[0]);
-				var date = $.datepicker.formatDate('dd M yy', dt);
-				var time = dt.getHours().toString()+'h'+dt.getMinutes();
-				return date+' '+time+' ' + pt[1]+' BTC';
-			},
-			show: true
-		}
-	});
-	var x2 = graph.axes.x2axis;
-	for (var i=0; i < x2._ticks.length; i++) {
-		// put in visible axis, only one tick per hour...
-		if (i % 12 == 0) {
-			graph.axes.xaxis.ticks.push(x2._ticks[i].value);
-		}
-	}
-	graph.replot(false);
-}
-
-function graph_balance_data(data)
-{
-	var t = $.parseJSON(data);
-	var graph = $.jqplot('graph_history_balance', t.data,
-	{
-		title: '<b>Market Balances</b>',
-		animate: false, animateReplot: false,
-		stackSeries: true,
-		axes: {
-			xaxis: {
-				show: true,
-				tickInterval: 600,
-				tickOptions: { fontSize: '7pt', escapeHTML: false, formatString:'%#d %b</br>%#Hh' },
-				showMinorTicks: false,
-				renderer: $.jqplot.DateAxisRenderer
-			},
-			x2axis: {
-				// hidden (top) axis with higher granularity
-				syncTicks: 1,
-				tickInterval: 600,
-				tickOptions: { show: false },
-				renderer: $.jqplot.DateAxisRenderer
-			},
-			y2axis: {
-				min: t.rangeMin, max: t.rangeMax
-			}
-		},
-
-		seriesDefaults: {
-			xaxis: 'x2axis',
-			yaxis: 'y2axis',
-			fill: true,
-			showLabel: true,
-			markerOptions: { style: 'circle', size: 2 }
-		},
-
-		grid: {
-			borderWidth: 1,
-			shadowWidth: 0,
-			shadowDepth: 0,
-			background: '#f0f0f0'
-		},
-
-		legend: {
-			labels: t.labels,
-			renderer: jQuery.jqplot.EnhancedLegendRenderer,
-			rendererOptions: { numberRows: 1 },
-			location: 'n',
-			show: true
-		},
-
-		highlighter: {
-			useAxesFormatters: false,
-			tooltipContentEditor: function(str, seriesIndex, pointIndex, jqPlot) {
-				var pt = jqPlot.series[seriesIndex].data[pointIndex];
-				var dt = new Date(0+pt[0]);
-				var date = $.datepicker.formatDate('dd M yy', dt);
-				var time = dt.getHours().toString()+'h';
-				return date+' '+time+' ' + pt[1]+' {$coin->symbol}';
-			},
-			show: true
-		}
-	});
-	var x2 = graph.axes.x2axis;
-	for (var i=0; i < x2._ticks.length; i++) {
-		// put in visible axis, only one tick per hour...
-		if (i % 12 == 0) {
-			graph.axes.xaxis.ticks.push(x2._ticks[i].value);
-		}
-	}
-	graph.replot(false);
-}
-</script>
-end;
-
-JavascriptReady("graph_refresh(); $(window).resize(graph_refresh);");
