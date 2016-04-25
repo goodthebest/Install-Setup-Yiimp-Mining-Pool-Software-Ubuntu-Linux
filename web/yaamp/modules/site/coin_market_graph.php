@@ -69,7 +69,7 @@ function graph_price_data(data)
 	var t = $.parseJSON(data);
 	var graph = $.jqplot('graph_history_price', t.data,
 	{
-		title: '<b>Market History</b>',
+		title: '<b>Price history</b>',
 		animate: false, animateReplot: false,
 		axes: {
 			xaxis: {
@@ -138,7 +138,7 @@ function graph_balance_data(data)
 	var t = $.parseJSON(data);
 	var graph = $.jqplot('graph_history_balance', t.data,
 	{
-		title: '<b>Market Balances</b>',
+		title: '<b>Balances</b>',
 		animate: false, animateReplot: false,
 		stackSeries: true,
 		axes: {

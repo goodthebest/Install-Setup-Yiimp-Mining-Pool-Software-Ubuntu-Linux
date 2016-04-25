@@ -12,7 +12,7 @@ $markets = dbolist("SELECT M.id AS id, M.name, M.priority, MIN(MH.price) AS min,
 	FROM market_history MH LEFT JOIN markets M ON M.id = MH.idmarket
 	WHERE MH.idcoin=$id AND MH.time>$t AND NOT M.disabled
 	GROUP BY M.id, M.name, M.priority
-	ORDER BY M.priority DESC");
+	ORDER BY M.priority DESC, M.name");
 
 $min = 999999999;
 $max = 0;
@@ -49,7 +49,7 @@ if ($min == 999999999) {
 $stats = getdbolist('db_market_history', "time>$t AND idcoin={$id} AND idmarket IS NULL ORDER BY time");
 foreach($stats as $histo) {
 	$d = date('Y-m-d H:i', $histo->time);
-	$series['yiimp'][] = array($d, (double) bitcoinvaluetoa($histo->price));
+	$series[YAAMP_SITE_NAME][] = array($d, (double) bitcoinvaluetoa($histo->price));
 	$max = max($max, $histo->price);
 }
 
