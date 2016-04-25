@@ -445,9 +445,14 @@ echo <<<end
 .jqplot-title {
 	margin-bottom: 3px;
 }
+.jqplot-cursor-tooltip,
+.jqplot-highlighter-tooltip {
+	background: rgba(220,220,220, .5) !important;
+	border: 1px solid gray;
+	padding: 2px 4px;
+}
 .jqplot-xaxis-tick {
 	margin-top: 4px;
-	font-size: 10px;
 }
 .jqplot-y2axis-tick {
 	font-size: 7pt;
@@ -466,9 +471,7 @@ echo <<<end
 <div class="graph" id="graph_history_price"></div>
 <div class="graph" id="graph_history_balance"></div>
 
-</div>
-
-<script type="text/javascript" event="">
+<script type="text/javascript">
 
 var last_graph_update = 0;
 
@@ -476,7 +479,7 @@ function graph_refresh()
 {
 	var now = Date.now()/1000;
 
-	if (now < last_graph_update + 900) return;
+	if (now < last_graph_update + 1) return;
 	last_graph_update = now;
 
 	var w = 0 + $('div#graph_history_price').parent().width();
@@ -493,12 +496,22 @@ function graph_refresh()
 function graph_price_data(data)
 {
 	var t = $.parseJSON(data);
-	var plot1 = $.jqplot('graph_history_price', t.data,
+	var graph = $.jqplot('graph_history_price', t.data,
 	{
 		title: '<b>Market History</b>',
 		animate: false, animateReplot: false,
 		axes: {
 			xaxis: {
+				show: true,
+				tickInterval: 600,
+				tickOptions: { fontSize: '7pt', escapeHTML: false, formatString:'%#d %b</br>%H:00' },
+				renderer: $.jqplot.DateAxisRenderer
+			},
+			x2axis: {
+				// hidden (top) axis with higher granularity
+				syncTicks: 1,
+				tickInterval: 600,
+				tickOptions: { show: false },
 				renderer: $.jqplot.DateAxisRenderer
 			},
 			y2axis: {
@@ -507,6 +520,7 @@ function graph_price_data(data)
 		},
 
 		seriesDefaults: {
+			xaxis: 'x2axis',
 			yaxis: 'y2axis',
 			showLabel: true,
 			markerOptions: { style: 'circle', size: 2 }
@@ -528,21 +542,48 @@ function graph_price_data(data)
 		},
 
 		highlighter: {
+			useAxesFormatters: false,
+			tooltipContentEditor: function(str, seriesIndex, pointIndex, jqPlot) {
+				var pt = jqPlot.series[seriesIndex].data[pointIndex];
+				var dt = new Date(0+pt[0]);
+				var date = $.datepicker.formatDate('dd M yy', dt);
+				var time = dt.getHours().toString()+'h'+dt.getMinutes();
+				return date+' '+time+' ' + pt[1]+' BTC';
+			},
 			show: true
 		}
 	});
+	var x2 = graph.axes.x2axis;
+	for (var i=0; i < x2._ticks.length; i++) {
+		// put in visible axis, only one tick per hour...
+		if (i % 12 == 0) {
+			graph.axes.xaxis.ticks.push(x2._ticks[i].value);
+		}
+	}
+	graph.replot(false);
 }
 
 function graph_balance_data(data)
 {
 	var t = $.parseJSON(data);
-	var plot2 = $.jqplot('graph_history_balance', t.data,
+	var graph = $.jqplot('graph_history_balance', t.data,
 	{
 		title: '<b>Market Balances</b>',
 		animate: false, animateReplot: false,
 		stackSeries: true,
 		axes: {
 			xaxis: {
+				show: true,
+				tickInterval: 600,
+				tickOptions: { fontSize: '7pt', escapeHTML: false, formatString:'%#d %b</br>%#Hh' },
+				showMinorTicks: false,
+				renderer: $.jqplot.DateAxisRenderer
+			},
+			x2axis: {
+				// hidden (top) axis with higher granularity
+				syncTicks: 1,
+				tickInterval: 600,
+				tickOptions: { show: false },
 				renderer: $.jqplot.DateAxisRenderer
 			},
 			y2axis: {
@@ -551,6 +592,7 @@ function graph_balance_data(data)
 		},
 
 		seriesDefaults: {
+			xaxis: 'x2axis',
 			yaxis: 'y2axis',
 			fill: true,
 			showLabel: true,
@@ -573,11 +615,27 @@ function graph_balance_data(data)
 		},
 
 		highlighter: {
+			useAxesFormatters: false,
+			tooltipContentEditor: function(str, seriesIndex, pointIndex, jqPlot) {
+				var pt = jqPlot.series[seriesIndex].data[pointIndex];
+				var dt = new Date(0+pt[0]);
+				var date = $.datepicker.formatDate('dd M yy', dt);
+				var time = dt.getHours().toString()+'h';
+				return date+' '+time+' ' + pt[1]+' {$coin->symbol}';
+			},
 			show: true
 		}
 	});
+	var x2 = graph.axes.x2axis;
+	for (var i=0; i < x2._ticks.length; i++) {
+		// put in visible axis, only one tick per hour...
+		if (i % 12 == 0) {
+			graph.axes.xaxis.ticks.push(x2._ticks[i].value);
+		}
+	}
+	graph.replot(false);
 }
 </script>
 end;
 
-JavascriptReady("graph_refresh();");
+JavascriptReady("graph_refresh(); $(window).resize(graph_refresh);");

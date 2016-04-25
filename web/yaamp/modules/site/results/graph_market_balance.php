@@ -8,7 +8,7 @@ if (!$coin) return;
 
 $t = time() - 7*24*60*60;
 
-$markets = dbolist("SELECT M.id AS id, M.name, MIN(MH.balance) AS min, MAX(MH.balance) AS max
+$markets = dbolist("SELECT M.id AS id, M.name AS name, MIN(MH.balance) AS min, MAX(MH.balance) AS max
 	FROM market_history MH LEFT JOIN markets M ON M.id = MH.idmarket
 	WHERE MH.idcoin=$id AND MH.time>$t AND NOT M.disabled
 	GROUP BY M.id, M.name");
@@ -34,9 +34,13 @@ foreach ($markets as $m) {
 	if ($histo && $market->balance && $market->balancetime > $histo->time) {
 		$d = date('Y-m-d H:i:s', $market->balancetime);
 		$series[$m['name']][] = array($d, (double) bitcoinvaluetoa($market->balance));
+		$max = max($max, $market->balance);
 	}
 
 	$stackedMax += $max;
+	if ($max == 0 && !empty($stats)) {
+		unset($series[$m['name']]);
+	}
 }
 
 
