@@ -826,8 +826,10 @@ function updateCryptopiaMarkets()
 		foreach ($data->Data as $ticker) {
 			if ($ticker->Label === $pair) {
 
-				//$market->marketid = $ticker->TradePairId;
-				if ($market->disabled < 9) $market->disabled = ($ticker->BidPrice < $ticker->AskPrice/2);
+				if ($market->disabled < 9) {
+					$nbm = (int) dboscalar("SELECT COUNT(id) FROM markets WHERE coinid={$coin->id}");
+					$market->disabled = ($ticker->BidPrice < $ticker->AskPrice/2) && ($nbm > 1);
+				}
 
 				$price2 = ($ticker->BidPrice+$ticker->AskPrice)/2;
 				$market->price2 = AverageIncrement($market->price2, $price2);
