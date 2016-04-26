@@ -40,6 +40,7 @@ if (!defined('EXCH_NOVA_KEY')) define('EXCH_NOVA_KEY', '');
 
 if (!defined('YAAMP_BTCADDRESS')) define('YAAMP_BTCADDRESS', '');
 if (!defined('YAAMP_SITE_URL')) define('YAAMP_SITE_URL', 'localhost');
+if (!defined('YAAMP_STRATUM_URL')) define('YAAMP_STRATUM_URL', YAAMP_SITE_URL);
 if (!defined('YAAMP_SITE_NAME')) define('YAAMP_SITE_NAME', 'YiiMP');
 if (!defined('YAAMP_ADMIN_EMAIL')) define('YAAMP_ADMIN_EMAIL', 'yiimp@spam.la');
 if (!defined('YAAMP_ADMIN_IP')) define('YAAMP_ADMIN_IP', '127.0.0.1');
