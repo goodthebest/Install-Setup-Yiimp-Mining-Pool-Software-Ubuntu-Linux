@@ -46,6 +46,8 @@ define('EXCH_BTER_KEY', '');
 define('EXCH_YOBIT_KEY', '');
 define('EXCH_CCEX_KEY', '');
 define('EXCH_SAFECEX_KEY', '');
+define('EXCH_BITSTAMP_ID','');
+define('EXCH_BITSTAMP_KEY','');
 define('EXCH_KRAKEN_KEY', '');
 define('EXCH_BANX_USERNAME', '');
 define('EXCH_NOVA_KEY', '');

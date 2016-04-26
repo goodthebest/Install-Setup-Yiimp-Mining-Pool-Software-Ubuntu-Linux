@@ -11,6 +11,7 @@ function strip_data($data)
 }
 
 require_once("poloniex.php");
+require_once("bitstamp.php");
 require_once("bittrex.php");
 require_once("ccexapi.php");
 require_once("bleutrade.php");

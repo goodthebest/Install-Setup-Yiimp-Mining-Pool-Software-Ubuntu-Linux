@@ -25,6 +25,8 @@ if (!defined('YAAMP_ALLOW_EXCHANGE')) define('YAAMP_ALLOW_EXCHANGE', false);
 if (!defined('EXCH_AUTO_WITHDRAW')) define('EXCH_AUTO_WITHDRAW', 9999.9999);
 if (!defined('EXCH_CRYPTSY_KEY')) define('EXCH_CRYPTSY_KEY', '');
 if (!defined('EXCH_BITTREX_KEY')) define('EXCH_BITTREX_KEY', '');
+if (!defined('EXCH_BITSTAMP_ID')) define('EXCH_BITSTAMP_ID', '');
+if (!defined('EXCH_BITSTAMP_KEY')) define('EXCH_BITSTAMP_KEY','');
 if (!defined('EXCH_BLEUTRADE_KEY')) define('EXCH_BLEUTRADE_KEY', '');
 if (!defined('EXCH_BTER_KEY')) define('EXCH_BTER_KEY', '');
 if (!defined('EXCH_CCEX_KEY')) define('EXCH_CCEX_KEY', '');

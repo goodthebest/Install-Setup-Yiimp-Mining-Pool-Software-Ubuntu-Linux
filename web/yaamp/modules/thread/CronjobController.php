@@ -117,11 +117,11 @@ class CronjobController extends CommonController
 			case 0:
 				updateRawcoins();
 
-				$a = json_decode(fetch_url("https://www.bitstamp.net/api/ticker/"));
-				if($a && isset($a->last))
-				{
+				$btcusd = bitstamp_btcusd();
+				if($btcusd) {
 					$mining = getdbosql('db_mining');
-					$mining->usdbtc = $a->last;
+					if (!$mining) $mining = new db_mining;
+					$mining->usdbtc = $btcusd;
 					$mining->save();
 				}
 
