@@ -2,7 +2,7 @@
 
 // https://www.cryptomic.com/SimpleAPI?a=marketsv2
 
-function banx_simple_api_query($method, $params='')
+function cryptomic_api_simple($method, $params='')
 {
 	$uri = "https://www.cryptomic.com/SimpleAPI?a=$method";
 	if (!empty($params))
@@ -12,14 +12,14 @@ function banx_simple_api_query($method, $params='')
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
 	$execResult = curl_exec($ch);
-	$obj = json_decode($execResult);
+	$obj = json_decode($execResult, true);
 
 	return $obj;
 }
 
 // https://www.cryptomic.com/api/v4/public/getticker?market=LTC-BTC
 
-function banx_public_api_query($method, $params='')
+function cryptomic_api_query($method, $params='')
 {
 	$uri = "https://www.cryptomic.com/api/v4/public/$method";
 	if (!empty($params))
@@ -37,7 +37,7 @@ function banx_public_api_query($method, $params='')
 // methods ok getbalances
 // method failed getbalance "?currency=BTC"
 
-function banx_api_user($method, $params='')
+function cryptomic_api_user($method, $params='')
 {
 	require_once('/etc/yiimp/keys.php');
 	if (!defined('EXCH_BANX_SECKEY')) define('EXCH_BANX_SECKEY', '');

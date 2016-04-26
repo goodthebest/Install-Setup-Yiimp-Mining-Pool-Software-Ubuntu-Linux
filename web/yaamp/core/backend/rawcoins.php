@@ -141,21 +141,21 @@ function updateRawcoins()
 		}
 	}
 
-	$list = banx_simple_api_query('marketsv2');
+	$list = cryptomic_api_simple('marketsv2');
 	if(is_array($list))
 	{
-		dborun("UPDATE markets SET deleted=true WHERE name='banx'");
+		dborun("UPDATE markets SET name='cryptomic', deleted=true WHERE name IN ('cryptomic','banx')");
 		foreach($list as $item) {
-			$e = explode('/', $item->market);
+			$e = explode('/', $item['market']);
 			$base = strtoupper($e[1]);
 			if ($base != 'BTC')
 				continue;
 			$symbol = strtoupper($e[0]);
 			if ($symbol == 'ATP')
 				continue;
-			$name = explode('/',$item->marketname);
-			updateRawCoin('banx', $symbol, $name[0]);
-			//debuglog("banx: $symbol {$name[0]}");
+			$name = explode('/', $item['marketname']);
+			updateRawCoin('cryptomic', $symbol, $name[0]);
+			//debuglog("cryptomic: $symbol {$name[0]}");
 		}
 	}
 

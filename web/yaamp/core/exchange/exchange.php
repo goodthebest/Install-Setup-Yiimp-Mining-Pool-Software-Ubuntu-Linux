@@ -55,7 +55,7 @@ function getMarketUrl($coin, $marketName)
 		$url = "https://safecex.com/market?q={$symbol}/BTC";
 	else if($marketName == 'bter')
 		$url = "https://bter.com/trade/{$lowsymbol}_btc";
-	else if($marketName == 'banx')
+	else if($marketName == 'banx' || $marketName == 'cryptomic')
 		$url = "https://www.cryptomic.com/trade?c={$symbol}&p=BTC";
 	else if($marketName == 'bitex')
 		$url = "https://bitex.club/markets/{$lowsymbol}btc";

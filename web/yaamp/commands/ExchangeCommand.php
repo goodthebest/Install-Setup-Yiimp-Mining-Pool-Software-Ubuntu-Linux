@@ -110,10 +110,15 @@ class ExchangeCommand extends CConsoleCommand
 			else echo("yobit btc: ".json_encode($info['return']['funds']['btc'])."\n");
 		}
 		if (!empty(EXCH_BANX_USERNAME)) {
-			//$balance = banx_api_user('account/getbalance','?currency=BTC');
-			$balance = banx_api_user('account/getbalances');
+			//$balance = cryptomic_api_user('account/getbalance','?currency=BTC');
+			$balance = cryptomic_api_user('account/getbalances');
 			if (!is_object($balance)) echo "cryptomic error ".json_encode($balance)."\n";
 			else echo("cryptomic all: ".json_encode($balance->result)."\n");
+		}
+		if (!empty(EXCH_BITSTAMP_KEY)) {
+			$balance = bitstamp_api_user();
+			if (!is_object($balance)) echo "bitstamp error ".json_encode($balance)."\n";
+			else echo("bitstamp: ".json_encode($balance->result)."\n");
 		}
 
 		// only one secret key

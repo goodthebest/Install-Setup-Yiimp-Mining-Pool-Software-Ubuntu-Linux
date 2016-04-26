@@ -287,10 +287,20 @@ function updateKrakenMarkets($force = false)
 		$ticker = arraySafeVal($ticker, $pair);
 		if(!is_array($ticker) || !isset($ticker['b'])) continue;
 
-		$price = (double) $ticker['b'][0];
-		$market->price = AverageIncrement($market->price, $price ? 1 / $price : 0);
-		$price2 = (double) ($ticker['b'][0] + $ticker['a'][0]) / 2;
-		$market->price2 = AverageIncrement($market->price2, $price2 ? 1 / $price2 : 0);
+		$price1 = (double) $ticker['a'][0]; // a = ask
+		$price2 = (double) $ticker['b'][0]; // b = bid, c = last
+
+		// Alt markets on kraken (LTC/DOGE/NMC) are "reversed" against BTC (1/x)
+		if ($price2 > $price1) {
+			$price = $price2 ? 1 / $price2 : 0;
+			$price2 = $price1 ? 1 / $price1 : 0;
+		} else {
+			$price = $price1 ? 1 / $price1 : 0;
+			$price2 = $price2 ? 1 / $price2 : 0;
+		}
+
+		$market->price = AverageIncrement($market->price, $price);
+		$market->price2 = AverageIncrement($market->price2, $price2);
 		$market->pricetime = time();
 
 		$market->save();
@@ -880,13 +890,13 @@ function updateCryptopiaMarkets()
 
 function updateCryptomicMarkets()
 {
-	$exchange = 'banx';
-	$data = banx_public_api_query('getmarketsummaries');
+	$exchange = 'cryptomic';
+	$data = cryptomic_api_query('getmarketsummaries');
 	if(!$data || !is_array($data->result)) return;
 
 	$symbols = array();
 
-	$currencies = getdbolist('db_markets', "name='banx'");
+	$currencies = getdbolist('db_markets', "name IN ('$exchange','banx')");
 	foreach($currencies as $market)
 	{
 		$coin = getdbo('db_coins', $market->coinid);
@@ -896,10 +906,13 @@ function updateCryptomicMarkets()
 		foreach ($data->result as $ticker) {
 			if ($ticker->marketname === $pair) {
 
-				if ($market->disabled < 9) $market->disabled = (intval($ticker->dayvolume) <= 1);
+				if ($market->disabled < 9) {
+					$nbm = (int) dboscalar("SELECT COUNT(id) FROM markets WHERE coinid={$coin->id}");
+					$market->disabled = intval($ticker->dayvolume) <= 1 && $nbm > 1;
+				}
 				if (!$market->disabled) {
 					$market->price = AverageIncrement($market->price, $ticker->bid);
-					$market->price2 = AverageIncrement($market->price2, $ticker->last);
+					$market->price2 = AverageIncrement($market->price2, $ticker->ask);
 					$market->pricetime = time();
 					$market->save();
 				}
@@ -911,7 +924,7 @@ function updateCryptomicMarkets()
 				if ($coin->name == 'unknown' && !empty($ticker->currencylong)) {
 					$coin->name = $ticker->currencylong;
 					$coin->save();
-					debuglog("$exchange: update $symbol label {$coin->name}");
+					debuglog("$exchange: update {$coin->symbol} label {$coin->name}");
 				}
 				// store for deposit addresses
 				$symbols[$ticker->currencylong] = $coin->symbol;
@@ -928,7 +941,7 @@ function updateCryptomicMarkets()
 		if (!$last_checked) {
 			// no coin symbols in the results wtf ! only labels :/
 			sleep(1);
-			$query = banx_api_user('account/getdepositaddresses');
+			$query = cryptomic_api_user('account/getdepositaddresses');
 		}
 		if (!isset($query)) return;
 		if (!is_object($query)) return;
@@ -949,7 +962,7 @@ function updateCryptomicMarkets()
 			$coin = getdbosql('db_coins', "symbol=:symbol", array(':symbol'=>$symbol));
 			if(!$coin) continue;
 
-			$market = getdbosql('db_markets', "coinid={$coin->id} and name='$exchange'");
+			$market = getdbosql('db_markets', "coinid={$coin->id} and name IN ('{$exchange}','banx')");
 			if(!$market) continue;
 
 			if ($market->deposit_address != $account->address) {

@@ -51,6 +51,7 @@ function runExchange($exchangeName=false)
 				break;
 
 			case 'banx':
+			case 'cryptomic':
 				doCryptomicTrading(true);
 				updateCryptomicMarkets();
 				break;

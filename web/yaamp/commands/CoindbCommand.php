@@ -402,14 +402,14 @@ class CoindbCommand extends CConsoleCommand
 	}
 
 	/**
-	 * Icon grabber - Cryptomic (Banx.io)
+	 * Icon grabber - Cryptomic
 	 */
 	public function grabCryptomicIcons()
 	{
 		$url = 'https://cdn.cryptomic.com/images/currencyicons/';
 		$nbUpdated = 0;
 		$sql = "SELECT DISTINCT coins.id FROM coins INNER JOIN markets M ON M.coinid = coins.id ".
-			"WHERE M.name='banx' AND IFNULL(coins.image,'') = ''";
+			"WHERE M.name='cryptomic' AND IFNULL(coins.image,'') = ''";
 		$coins = dbolist($sql);
 		if (empty($coins))
 			return 0;

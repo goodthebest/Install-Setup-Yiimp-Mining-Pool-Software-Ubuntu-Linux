@@ -2,14 +2,14 @@
 
 function doCryptomicTrading($quick=false)
 {
-	$exchange = 'banx';
+	$exchange = 'cryptomic';
 	$updatebalances = true;
 
 	// [{"currency":"BTC","balance":0.02265703,"available":0.02265703,"pending":0,"isbts":0,"cryptoaddress":"1DCVPWgs..."}]}
-	$balances = banx_api_user('account/getbalances');
+	$balances = cryptomic_api_user('account/getbalances');
 	if(!$balances || !isset($balances->result) || !$balances->success) return;
 
-	$savebalance = getdbosql('db_balances', "name='{$exchange}'");
+	$savebalance = getdbosql('db_balances', "name IN ('{$exchange}','banx')");
 	if (is_object($savebalance)) {
 		$savebalance->balance = 0;
 		$savebalance->save();
