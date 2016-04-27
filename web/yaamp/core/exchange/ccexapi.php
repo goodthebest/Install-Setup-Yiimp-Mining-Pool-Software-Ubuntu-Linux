@@ -11,34 +11,33 @@ class CcexAPI
 
     protected $api_url = 'https://c-cex.com/t/';
     protected $api_key = EXCH_CCEX_KEY;
-    protected $api_secret; // = EXCH_CCEX_SECRET;	// not used yet
+    protected $api_secret; // = EXCH_CCEX_SECRET; // not used yet
 
-//     public function __construct($api_key = '') {
-//         $this->api_key = $api_key;
-//     }
+//  public function __construct($api_key = '') {
+//       $this->api_key = $api_key;
+//  }
 
-    protected function jsonQuery($url) {
-        $opts = array('http' =>
-            array(
+    protected function jsonQuery($url)
+    {
+        $opts = array(
+            'http' => array(
                 'method'  => 'GET',
                 'timeout' => 10
             )
         );
 
-//        debuglog($url);
-        $context  = stream_context_create($opts);
+        $context = stream_context_create($opts);
         $feed = @file_get_contents($url, false, $context);
-//        debuglog($feed);
 
-        if(!$feed)
-        {
-			debuglog("c-cex error $url");
-        	return null;	//array('error' => 'Invalid parameters');
-        }
-        else
-        {
+        if(!$feed) {
+
+            debuglog("c-cex error $url");
+            return null; //array('error' => 'Invalid parameters');
+
+        } else {
+
             $a = json_decode($feed, true);
-            if(!$a) debuglog($feed);
+            if(!$a) debuglog("c-cex: $feed");
 
             return $a;
         }

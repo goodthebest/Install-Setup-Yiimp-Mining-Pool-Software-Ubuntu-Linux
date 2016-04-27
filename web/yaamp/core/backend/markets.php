@@ -585,7 +585,7 @@ function updateCCexMarkets()
 			$coin->save();
 		}
 
-		if(!empty(EXCH_CCEX_SECRET))
+		if(!empty(EXCH_CCEX_KEY))
 		{
 			$last_checked = cache()->get($exchange.'-deposit_address-check-'.$coin->symbol);
 			if(empty($market->deposit_address) && !$last_checked)
