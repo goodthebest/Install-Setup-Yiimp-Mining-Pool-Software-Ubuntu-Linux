@@ -31,7 +31,7 @@ function bitstamp_api_user($method, $params='')
 	$nonce = $mt[1].substr($mt[0], 2, 6);
 
 	$msg = "{$nonce}{$cid}{$apikey}";
-	$sha = hash_hmac('sha256', $apisecret, $msg);
+	$sha = hash_hmac('sha256', $msg, $apisecret);
 	$sign = strtoupper($sha);
 
 	$url = "https://www.bitstamp.net/api/$method/";
@@ -72,4 +72,19 @@ function bitstamp_btcusd()
 {
 	$ticker = bitstamp_api_query('ticker', 'btcusd');
 	return is_array($ticker) ? floatval($ticker["last"]) : false;
+}
+
+function getBitstampBalances()
+{
+	$exchange = 'bitstamp';
+	if (exchange_get($exchange, 'disabled')) return;
+
+	$savebalance = getdbosql('db_balances', "name='$exchange'");
+	if (is_object($savebalance)) {
+		$balances = bitstamp_api_user('balances');
+		if (is_array($balances)) {
+			$savebalance->balance = arraySafeVal($balances, 'btc_balance');
+			$savebalance->save();
+		}
+	}
 }

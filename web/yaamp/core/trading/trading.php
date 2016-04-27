@@ -71,6 +71,10 @@ function runExchange($exchangeName=false)
 				updateCryptsyMarkets();
 				break;
 
+			case 'bitstamp':
+				getBitstampBalances();
+				break;
+
 			case 'bittrex':
 				doBittrexTrading(true);
 				updateBittrexMarkets();

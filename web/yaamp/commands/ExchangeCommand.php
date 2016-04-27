@@ -124,6 +124,11 @@ class ExchangeCommand extends CConsoleCommand
 	{
 		require_once($this->basePath.'/yaamp/core/core.php');
 
+		if (!empty(EXCH_BITSTAMP_KEY)) {
+			$balance = bitstamp_api_user('balance');
+			if (!is_array($balance)) echo "bitstamp error ".json_encode($balance)."\n";
+			else echo("bitstamp: ".json_encode($balance)."\n");
+		}
 		if (!empty(EXCH_BITTREX_KEY)) {
 			$balance = bittrex_api_query('account/getbalance','&currency=BTC');
 			if (!is_object($balance)) echo "bittrex error\n";
@@ -184,12 +189,6 @@ class ExchangeCommand extends CConsoleCommand
 			if (!is_object($balance)) echo "cryptomic error ".json_encode($balance)."\n";
 			else echo("cryptomic all: ".json_encode($balance->result)."\n");
 		}
-		if (!empty(EXCH_BITSTAMP_KEY)) {
-			$balance = bitstamp_api_user('balance');
-			if (!is_object($balance)) echo "bitstamp error ".json_encode($balance)."\n";
-			else echo("bitstamp: ".json_encode($balance->result)."\n");
-		}
-
 		// only one secret key
 		$balance = empoex_api_user('account/balance','BTC');
 		if ($balance) echo("empoex btc: ".json_encode($balance['available'])."\n");
