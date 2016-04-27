@@ -3,16 +3,23 @@
 function BackendDoBackup()
 {
 	$d = date('Y-m-d-H', time());
-	$filename = "/root/backup/yaamp-$d.sql.gz";
+	$filename = "/root/backup/yaamp-$d.sql";
+
+	if (is_readable("/usr/bin/xz")) {
+		$ziptool = "xz"; $filename .= ".xz";
+	} else {
+		$ziptool = "gzip"; $filename .= ".gz";
+	}
 
 	include_once("/etc/yiimp/keys.php");
 
-        $host = YAAMP_DBHOST;
-        $db   = YAAMP_DBNAME;
+	$host = YAAMP_DBHOST;
+	$db   = YAAMP_DBNAME;
+
 	$user = YIIMP_MYSQLDUMP_USER;
 	$pass = YIIMP_MYSQLDUMP_PASS;
 
-	system("mysqldump -h $host -u$user -p$pass --skip-extended-insert $db | gzip > $filename");
+	system("mysqldump -h $host -u$user -p$pass --skip-extended-insert $db | $ziptool > $filename");
 }
 
 function BackendQuickClean()

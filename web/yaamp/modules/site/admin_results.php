@@ -71,16 +71,16 @@ foreach($coins as $coin)
 	echo '<tr class="ssrow">';
 
 	$lowsymbol = strtolower($coin->symbol);
-	echo "<td><img src='$coin->image' width=24></td>";
+	echo '<td><img src="'.$coin->image.'" width="24"></td>';
 
 	$algo_color = getAlgoColors($coin->algo);
-        echo "<td style='background-color:$algo_color;'><b>";
+	echo '<td style="background-color: '.$algo_color.';"><b>';
 
 	if($coin->enable)
 	{
 		echo "u";
-		if($coin->auto_ready) echo "<span style='color: green;'> a</span>";
-		else echo "<span style='color: red;'> d</span>";
+		if($coin->auto_ready) echo '<span style="color: green;"> a</span>';
+		else echo '<span style="color: red;"> d</span>';
 
 		echo '<br>';
 
@@ -92,7 +92,7 @@ foreach($coins as $coin)
 		if($coin->block_height < $coin->target_height)
 		{
 			$percent = round($coin->block_height*100/$coin->target_height, 2);
-			echo "<br><span style='font-size: .8em'>$percent%</span>";
+			echo '<br/><span style="font-size: .8em">'.$percent.'%</span>';
 		}
 	}
 
