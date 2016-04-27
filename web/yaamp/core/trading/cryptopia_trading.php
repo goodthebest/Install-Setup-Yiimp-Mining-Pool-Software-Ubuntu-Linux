@@ -19,6 +19,8 @@ function doCryptopiaTrading($quick=false)
 	$exchange = 'cryptopia';
 	$updatebalances = true;
 
+	if (exchange_get($exchange, 'disabled')) return;
+
 	$balances = cryptopia_api_user('GetBalance');
 	if (!is_object($balances)) return;
 
@@ -242,12 +244,16 @@ function doCryptopiaTrading($quick=false)
 		$db_order->save();
 	}
 
+	$withdraw_min = exchange_get($exchange, 'withdraw_min_btc', EXCH_AUTO_WITHDRAW);
+	$withdraw_fee = exchange_get($exchange, 'withdraw_fee_btc', 0.0002);
+
 	// auto withdraw
 	if(is_object($savebalance))
-	if(floatval(EXCH_AUTO_WITHDRAW) > 0 && $savebalance->balance >= (EXCH_AUTO_WITHDRAW + 0.0002))
+	if(floatval($withdraw_min) > 0 && $savebalance->balance >= ($withdraw_min + $withdraw_fee))
 	{
+		// $btcaddr = exchange_get($exchange, 'withdraw_btc_address', YAAMP_BTCADDRESS);
 		$btcaddr = YAAMP_BTCADDRESS;
-		$amount = $savebalance->balance + 0.0002;
+		$amount = $savebalance->balance - $withdraw_fee;
 		debuglog("cryptopia: withdraw $amount BTC to $btcaddr");
 
 		sleep(1);
@@ -263,7 +269,7 @@ function doCryptopiaTrading($quick=false)
 			$withdraw->uuid = $res->Data;
 			$withdraw->save();
 
-			$savebalance->balance = $savebalance->balance - $amount;
+			$savebalance->balance = 0;
 			$savebalance->save();
 		} else {
 			debuglog("cryptopia withdraw BTC error: ".json_encode($res));

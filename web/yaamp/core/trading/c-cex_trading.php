@@ -20,6 +20,8 @@ function doCCexTrading($quick=false)
 	$exchange = 'c-cex';
 	$updatebalances = true;
 
+	if (exchange_get($exchange, 'disabled')) return;
+
 	$ccex = new CcexAPI;
 
 	$savebalance = getdbosql('db_balances', "name='$exchange'");
@@ -59,9 +61,12 @@ function doCCexTrading($quick=false)
 	$flushall = rand(0, 4) == 0;
 	if($quick) $flushall = false;
 
-	$min_btc_trade = 0.00005000; // minimum allowed by the exchange
-	$sell_ask_pct = 1.05;        // sell on ask price + 5%
-	$cancel_ask_pct = 1.20;      // cancel order if our price is more than ask price + 20%
+	// minimum order allowed by the exchange
+	$min_btc_trade = exchange_get($exchange, 'trade_min_btc', 0.00005000);
+	// sell on ask price + 5%
+	$sell_ask_pct = exchange_get($exchange, 'trade_sell_ask_pct', 1.05);
+	// cancel order if our price is more than ask price + 20%
+	$cancel_ask_pct = exchange_get($exchange, 'trade_cancel_ask_pct', 1.20);
 
 	// upgrade orders
 	$coins = getdbolist('db_coins', "enable=1 AND IFNULL(dontsell,0)=0 AND id IN (SELECT DISTINCT coinid FROM markets WHERE name='c-cex')");
@@ -216,14 +221,20 @@ function doCCexTrading($quick=false)
 		$db_order->save();
 	}
 
-	if(floatval(EXCH_AUTO_WITHDRAW) > 0 && $savebalance->balance >= (EXCH_AUTO_WITHDRAW + 0.0002))
+	$withdraw_min = exchange_get($exchange, 'withdraw_min_btc', EXCH_AUTO_WITHDRAW);
+	$withdraw_fee = exchange_get($exchange, 'withdraw_fee_btc', 0.0002);
+
+	if(floatval($withdraw_min) > 0 && $savebalance->balance >= ($withdraw_min + $withdraw_fee))
 	{
+		// $btcaddr = exchange_get($exchange, 'withdraw_btc_address', YAAMP_BTCADDRESS);
 		$btcaddr = YAAMP_BTCADDRESS;
-		$amount = $savebalance->balance - 0.0002;
-		debuglog("[ccex] - withdraw $amount to $btcaddr");
+
+		$amount = $savebalance->balance - $withdraw_fee;
+		debuglog("$exchange: withdraw $amount BTC to $btcaddr");
+
 		sleep(1);
 		$res = $ccex->withdraw('BTC', $amount, $btcaddr);
-		debuglog("[ccex] - withdraw: ".json_encode($res));
+		debuglog("$exchange: withdraw ".json_encode($res));
 		if(isset($res['return']))
 		{
 			$withdraw = new db_withdraws;

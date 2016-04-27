@@ -7,6 +7,8 @@ function doBterTrading($quick=false)
 	$exchange = 'bter';
 	$updatebalances = true;
 
+	if (exchange_get($exchange, 'disabled')) return;
+
 	// "available_funds":{"BTC":"0.03337671","LTC":"4.364",...}, "locked_funds":{"BTC":"0.0002",...
 	$balances = bter_api_user('getfunds');
 	if(!$balances || !isset($balances['result']) || $balances['result'] != 'true') return;

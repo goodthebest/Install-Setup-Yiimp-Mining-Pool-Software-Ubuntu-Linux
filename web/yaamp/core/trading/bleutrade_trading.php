@@ -1,23 +1,26 @@
 <?php
 
-function doBleutradeCancelOrder($OrderID=false)
+function doBleutradeCancelOrder($orderID)
 {
-	if(!$OrderID) return;
+	if(empty($orderID)) return false;
 
-	$res = bleutrade_api_query('market/cancel', "&orderid={$OrderID}");
-
+	$res = bleutrade_api_query('market/cancel', "&orderid={$orderID}");
 	if($res->success) {
 		$db_order = getdbosql('db_orders', "market=:market AND uuid=:uuid", array(
-			':market'=>'bleutrade', ':uuid'=>$OrderID
+			':market'=>'bleutrade', ':uuid'=>$orderID
 		));
 		if($db_order) $db_order->delete();
+		return true;
 	}
+	return false;
 }
 
 function doBleutradeTrading($quick=false)
 {
 	$exchange = 'bleutrade';
 	$updatebalances = true;
+
+	if (exchange_get($exchange, 'disabled')) return;
 
 	$balances = bleutrade_api_query('account/getbalances');
 	if(!$balances || !isset($balances->result) || !$balances->success) return;
@@ -67,9 +70,12 @@ function doBleutradeTrading($quick=false)
 	$flushall = rand(0, 8) == 0;
 	if($quick) $flushall = false;
 
-	$min_btc_trade = 0.00050000; // minimum allowed by the exchange
-	$sell_ask_pct = 1.05;        // sell on ask price + 5%
-	$cancel_ask_pct = 1.20;      // cancel order if our price is more than ask price + 20%
+	// minimum order allowed by the exchange
+	$min_btc_trade = exchange_get($exchange, 'trade_min_btc', 0.00050000);
+	// sell on ask price + 5%
+	$sell_ask_pct = exchange_get($exchange, 'trade_sell_ask_pct', 1.05);
+	// cancel order if our price is more than ask price + 20%
+	$cancel_ask_pct = exchange_get($exchange, 'trade_cancel_ask_pct', 1.20);
 
 	sleep(1);
 	$orders = bleutrade_api_query('market/getopenorders');
@@ -236,11 +242,15 @@ function doBleutradeTrading($quick=false)
 		$db_order->save();
 	}
 
-	if(floatval(EXCH_AUTO_WITHDRAW) > 0 && $savebalance->balance >= (EXCH_AUTO_WITHDRAW + 0.0002))
+	$withdraw_min = exchange_get($exchange, 'withdraw_min_btc', EXCH_AUTO_WITHDRAW);
+	$withdraw_fee = exchange_get($exchange, 'withdraw_fee_btc', 0.0002);
+
+	if(floatval($withdraw_min) > 0 && $savebalance->balance >= ($withdraw_min + $withdraw_fee))
 	{
+		// $btcaddr = exchange_get($exchange, 'withdraw_btc_address', YAAMP_BTCADDRESS);
 		$btcaddr = YAAMP_BTCADDRESS;
 
-		$amount = $savebalance->balance - 0.0002;
+		$amount = $savebalance->balance - $withdraw_fee;
 		debuglog("bleutrade: withdraw $amount BTC to $btcaddr");
 
 		sleep(1);

@@ -5,6 +5,8 @@ function doEmpoexTrading($quick=false)
 	$exchange = 'empoex';
 	$updatebalances = true;
 
+	if (exchange_get($exchange, 'disabled')) return;
+
 	$flushall = rand(0, 8) == 0;
 	if($quick) $flushall = false;
 

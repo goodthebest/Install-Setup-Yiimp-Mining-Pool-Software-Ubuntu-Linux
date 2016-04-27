@@ -190,6 +190,14 @@ function updateRawcoins()
 */
 	//////////////////////////////////////////////////////////
 
+	$markets = dbocolumn("SELECT DISTINCT name FROM markets");
+	foreach ($markets as $exchange) {
+		if (exchange_get($exchange, 'disabled')) {
+			$res = dborun("UPDATE markets SET disabled=8 WHERE name=:name", array(':name'=>$exchange));
+			if ($res) debuglog("$exchange: $res markets disabled from db settings");
+		}
+	}
+
 	dborun("delete from markets where deleted");
 
 	$list = getdbolist('db_coins', "not enable and not installed and id not in (select distinct coinid from markets)");

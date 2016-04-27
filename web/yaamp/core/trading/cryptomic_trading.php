@@ -5,6 +5,8 @@ function doCryptomicTrading($quick=false)
 	$exchange = 'cryptomic';
 	$updatebalances = true;
 
+	if (exchange_get($exchange, 'disabled')) return;
+
 	// [{"currency":"BTC","balance":0.02265703,"available":0.02265703,"pending":0,"isbts":0,"cryptoaddress":"1DCVPWgs..."}]}
 	$balances = cryptomic_api_user('account/getbalances');
 	if(!$balances || !isset($balances->result) || !$balances->success) return;

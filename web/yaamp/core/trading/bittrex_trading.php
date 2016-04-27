@@ -1,23 +1,26 @@
 <?php
 
-function doBittrexCancelOrder($OrderID=false)
+function doBittrexCancelOrder($orderID)
 {
-	if(!$OrderID) return;
+	if(empty($orderID)) return false;
 
-	$res = bittrex_api_query('market/cancel', "&uuid={$OrderID}");
-
-	if($res && $res->success) {
+	$res = bittrex_api_query('market/cancel', "&uuid={$orderID}");
+	if ($res && $res->success) {
 		$db_order = getdbosql('db_orders', "market=:market AND uuid=:uuid", array(
-			':market'=>'bittrex', ':uuid'=>$OrderID
+			':market'=>'bittrex', ':uuid'=>$orderID
 		));
-		if($db_order) $db_order->delete();
+		if ($db_order) $db_order->delete();
+		return true;
 	}
+	return false;
 }
 
 function doBittrexTrading($quick=false)
 {
 	$exchange = 'bittrex';
 	$updatebalances = true;
+
+	if (exchange_get($exchange, 'disabled')) return;
 
 	$balances = bittrex_api_query('account/getbalances');
 	if(!$balances || !isset($balances->result) || !$balances->success) return;
@@ -96,15 +99,9 @@ function doBittrexTrading($quick=false)
 		// flush orders not on the ask
 		if($sellprice > $ask*$cancel_ask_pct || $flushall)
 		{
-			debuglog("bittrex: cancel order $order->Exchange $sellprice -> $ask");
+			debuglog("bittrex: cancel order {$order->Exchange} at $sellprice, ask price is now $ask");
 			sleep(1);
 			doBittrexCancelOrder($order->OrderUuid);
-			//bittrex_api_query('market/cancel', "&uuid={$order->OrderUuid}");
-
-			//$db_order = getdbosql('db_orders', "market=:market AND uuid=:uuid", array(
-			//    ':market'=>'bittrex', ':uuid'=>$order->OrderUuid
-			//));
-			//if($db_order) $db_order->delete();
 		}
 
 		// import existing orders
@@ -195,7 +192,6 @@ function doBittrexTrading($quick=false)
 			debuglog("bittrex selling market $pair, $sellamount, $sellprice");
 			sleep(1);
 			$res = bittrex_api_query('market/selllimit', "&market=$pair&quantity=$sellamount&rate=$sellprice");
-
 			if(!$res->success) {
 				debuglog("bittrex err: ".json_encode($res));
 				break;
@@ -241,7 +237,8 @@ function doBittrexTrading($quick=false)
 	$withdraw_fee = exchange_get($exchange, 'withdraw_fee_btc', 0.0002);
 	if($withdraw_min > 0 && $savebalance->balance >= ($withdraw_min + $withdraw_fee))
 	{
-		$btcaddr = exchange_get($exchange, 'withdraw_btc_address', YAAMP_BTCADDRESS);
+		// $btcaddr = exchange_get($exchange, 'withdraw_btc_address', YAAMP_BTCADDRESS);
+		$btcaddr = YAAMP_BTCADDRESS;
 		$amount = $savebalance->balance - $withdraw_fee;
 		debuglog("bittrex withdraw $amount to $btcaddr");
 

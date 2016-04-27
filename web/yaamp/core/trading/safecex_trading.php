@@ -2,26 +2,29 @@
 
 // note: sleep(1) are added to limit the api calls frequency (interval required of 1 second for safecex)
 
-function doSafecexCancelOrder($OrderID=false)
+function doSafecexCancelOrder($orderID)
 {
-	if(!$OrderID) return;
+	if (empty($orderID)) return false;
 
 	sleep(1);
-	$res = safecex_api_user('cancelorder', "&id={$OrderID}");
-
+	$res = safecex_api_user('cancelorder', "&id={$orderID}");
 	if($res && $res->status == 'ok')
 	{
 		$db_order = getdbosql('db_orders', "market=:market AND uuid=:uuid", array(
-			':market'=>'safecex', ':uuid'=>$OrderID
+			':market'=>'safecex', ':uuid'=>$orderID
 		));
 		if($db_order) $db_order->delete();
+		return true;
 	}
+	return false;
 }
 
 function doSafecexTrading($quick=false)
 {
 	$exchange = 'safecex';
 	$updatebalances = true;
+
+	if (exchange_get($exchange, 'disabled')) return;
 
 	// {"symbol":"BTC","balance":0.01056525,"pending":0,"orders":0,"total":0.01056525,"deposit":"15pQYjcBJxo3RQfJe6C5pYxHcxAjzVyTfv","withdraw":"1E1..."}
 	$balances = safecex_api_user('getbalances');
@@ -64,9 +67,12 @@ function doSafecexTrading($quick=false)
 	$flushall = rand(0, 8) == 0;
 	if($quick) $flushall = false;
 
-	$min_btc_trade = 0.00010000; // minimum allowed by the exchange
-	$sell_ask_pct = 1.05;        // sell on ask price + 5%
-	$cancel_ask_pct = 1.20;      // cancel order if our price is more than ask price + 20%
+	// minimum order allowed by the exchange
+	$min_btc_trade = exchange_get($exchange, 'trade_min_btc', 0.00010000);
+	// sell on ask price + 5%
+	$sell_ask_pct = exchange_get($exchange, 'trade_sell_ask_pct', 1.05);
+	// cancel order if our price is more than ask price + 20%
+	$cancel_ask_pct = exchange_get($exchange, 'trade_cancel_ask_pct', 1.20);
 
 	sleep(1);
 	$orders = safecex_api_user('getopenorders');
@@ -239,11 +245,13 @@ function doSafecexTrading($quick=false)
 	}
 
 /* withdraw API doesn't exist
+	$withdraw_min = exchange_get($exchange, 'withdraw_min_btc', EXCH_AUTO_WITHDRAW);
+	$withdraw_fee = exchange_get($exchange, 'withdraw_fee_btc', 0.0002);
 	$db_balance = getdbosql('db_balances', "name='$exchange'");
-	if(floatval(EXCH_AUTO_WITHDRAW) > 0 && $db_balance->balance >= (EXCH_AUTO_WITHDRAW + 0.0002))
+	if($withdraw_min > 0 && $db_balance->balance >= ($withdraw_min + $withdraw_fee))
 	{
-		$btcaddr = YAAMP_BTCADDRESS;
-		$amount = $db_balance->balance;
+		$btcaddr = exchange_get($exchange, 'withdraw_btc_address', YAAMP_BTCADDRESS);
+		$amount = $db_balance->balance - $withdraw_fee;
 		debuglog("$exchange: withdraw $amount to $btcaddr");
 
 		sleep(1);
@@ -255,7 +263,7 @@ function doSafecexTrading($quick=false)
 			$withdraw = new db_withdraws;
 			$withdraw->market = $exchange;
 			$withdraw->address = $btcaddr;
-			$withdraw->amount = $amount + 0.0002;
+			$withdraw->amount = $amount;
 			$withdraw->time = time();
 			$withdraw->uuid = $res->id;
 			$withdraw->save();

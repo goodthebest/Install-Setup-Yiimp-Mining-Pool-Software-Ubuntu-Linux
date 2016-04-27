@@ -5,6 +5,8 @@ function doKrakenTrading($quick=false)
 	$exchange = 'kraken';
 	$updatebalances = true;
 
+	if (exchange_get($exchange, 'disabled')) return;
+
 	$balances = kraken_api_user('Balance');
 	if(!$balances || !is_array($balances)) return;
 

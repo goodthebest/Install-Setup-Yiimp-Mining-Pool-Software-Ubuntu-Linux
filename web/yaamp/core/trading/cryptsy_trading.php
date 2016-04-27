@@ -23,6 +23,8 @@ function doCryptsyTrading($quick=false)
 	$exchange = 'cryptsy';
 	$updatebalances = true;
 
+	if (exchange_get($exchange, 'disabled')) return;
+
 	$savebalance = getdbosql('db_balances', "name='$exchange'");
 	if (is_object($savebalance)) {
 		$savebalance->balance = 0;

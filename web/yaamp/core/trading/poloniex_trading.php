@@ -8,7 +8,6 @@ function doPoloniexCancelOrder($OrderID=false, $pair=false, $poloniex=false)
 	if(!$poloniex) $poloniex = new CcexAPI;
 
 	$res = $poloniex->cancel_order($pair,$OrderID);
-
 	if($res && $res['success'])
 		{
 		$db_order = getdbosql('db_orders', "market=:market AND uuid=:uuid", array(
@@ -61,9 +60,12 @@ function doPoloniexTrading()
 
 	$flushall = rand(0, 8) == 0;
 
-	$min_btc_trade = 0.00010000; // minimum allowed by the exchange
-	$sell_ask_pct = 1.05;        // sell on ask price + 5%
-	$cancel_ask_pct = 1.20;      // cancel order if our price is more than ask price + 20%
+	// minimum order allowed by the exchange
+	$min_btc_trade = exchange_get($exchange, 'trade_min_btc', 0.00010000);
+	// sell on ask price + 5%
+	$sell_ask_pct = exchange_get($exchange, 'trade_sell_ask_pct', 1.05);
+	// cancel order if our price is more than ask price + 20%
+	$cancel_ask_pct = exchange_get($exchange, 'trade_cancel_ask_pct', 1.20);
 
 	sleep(1);
 	$tickers = $poloniex->get_ticker();
@@ -205,12 +207,16 @@ function doPoloniexTrading()
 		$db_order->save();
 	}
 
+	$withdraw_min = exchange_get($exchange, 'withdraw_min_btc', EXCH_AUTO_WITHDRAW);
+	$withdraw_fee = exchange_get($exchange, 'withdraw_fee_btc', 0.0002);
+
 	if(is_object($savebalance))
-	if(floatval(EXCH_AUTO_WITHDRAW) > 0 && $savebalance->balance >= (EXCH_AUTO_WITHDRAW + 0.0002))
+	if(floatval($withdraw_min) > 0 && $savebalance->balance >= ($withdraw_min + $withdraw_fee))
 	{
+		// $btcaddr = exchange_get($exchange, 'withdraw_btc_address', YAAMP_BTCADDRESS);
 		$btcaddr = YAAMP_BTCADDRESS;
 
-		$amount = $savebalance->balance - 0.0002;
+		$amount = $savebalance->balance - $withdraw_fee;
 		debuglog("poloniex: withdraw $amount BTC to $btcaddr");
 
 		sleep(1);
@@ -226,7 +232,7 @@ function doPoloniexTrading()
 			$withdraw->time = time();
 			$withdraw->save();
 
-			$savebalance->balance = $savebalance->balance - $amount - 0.0002;
+			$savebalance->balance = 0;
 			$savebalance->save();
 		}
 	}

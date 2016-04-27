@@ -187,6 +187,8 @@ function AverageIncrement($value1, $value2)
 function updateBleutradeMarkets()
 {
 	$exchange = 'bleutrade';
+	if (exchange_get($exchange, 'disabled')) return;
+
 	$list = bleutrade_api_query('public/getcurrencies');
 	if(!is_object($list)) return;
 
@@ -254,6 +256,8 @@ function updateBleutradeMarkets()
 function updateKrakenMarkets($force = false)
 {
 	$exchange = 'kraken';
+	if (exchange_get($exchange, 'disabled')) return;
+
 	$result = kraken_api_query('AssetPairs');
 	if(!is_array($result)) return;
 
@@ -312,6 +316,8 @@ function updateKrakenMarkets($force = false)
 function updateBittrexMarkets($force = false)
 {
 	$exchange = 'bittrex';
+	if (exchange_get($exchange, 'disabled')) return;
+
 	$list = bittrex_api_query('public/getcurrencies');
 	if(!is_object($list)) return;
 
@@ -372,6 +378,8 @@ function updateBittrexMarkets($force = false)
 function updateCryptsyMarkets()
 {
 	$exchange = 'cryptsy';
+	if (exchange_get($exchange, 'disabled')) return;
+
 //	dborun("update markets set price=0 where name='$exchange'");
 //	return;
 
@@ -523,6 +531,8 @@ function updateCryptsyMarkets()
 function updateCCexMarkets()
 {
 	$exchange = 'c-cex';
+	if (exchange_get($exchange, 'disabled')) return;
+
 	$ccex = new CcexAPI;
 
 	$list = $ccex->getMarkets();
@@ -608,6 +618,8 @@ function updateCCexMarkets()
 function updatePoloniexMarkets()
 {
 	$exchange = 'poloniex';
+	if (exchange_get($exchange, 'disabled')) return;
+
 	$poloniex = new poloniex;
 
 	$tickers = $poloniex->get_ticker();
@@ -683,6 +695,8 @@ function updatePoloniexMarkets()
 function updateYobitMarkets()
 {
 	$exchange = 'yobit';
+	if (exchange_get($exchange, 'disabled')) return;
+
 	$res = yobit_api_query('info');
 	if(!is_object($res)) return;
 
@@ -747,6 +761,8 @@ function updateYobitMarkets()
 function updateJubiMarkets()
 {
 	$exchange = 'jubi';
+	if (exchange_get($exchange, 'disabled')) return;
+
 	$btc = jubi_api_query('ticker', "?coin=btc");
 	if(!is_object($btc)) return;
 
@@ -780,6 +796,8 @@ function updateJubiMarkets()
 function updateAlcurexMarkets()
 {
 	$exchange = 'alcurex';
+	if (exchange_get($exchange, 'disabled')) return;
+
 	$data = alcurex_api_query('market', "?info=on");
 	if(!is_object($data)) return;
 
@@ -822,6 +840,8 @@ function updateAlcurexMarkets()
 function updateCryptopiaMarkets()
 {
 	$exchange = 'cryptopia';
+	if (exchange_get($exchange, 'disabled')) return;
+
 	$data = cryptopia_api_query('GetMarkets', 24);
 	if(!is_object($data)) return;
 
@@ -891,6 +911,8 @@ function updateCryptopiaMarkets()
 function updateCryptomicMarkets()
 {
 	$exchange = 'cryptomic';
+	if (exchange_get($exchange, 'disabled')) return;
+
 	$data = cryptomic_api_query('getmarketsummaries');
 	if(!$data || !is_array($data->result)) return;
 
@@ -978,6 +1000,7 @@ function updateCryptomicMarkets()
 function updateNovaMarkets()
 {
 	$exchange = 'nova';
+	if (exchange_get($exchange, 'disabled')) return;
 
 	$currencies = getdbolist('db_markets', "name='$exchange'");
 	if(empty($currencies)) return;
@@ -1022,6 +1045,8 @@ function updateNovaMarkets()
 function updateSafecexMarkets()
 {
 	$exchange = 'safecex';
+	if (exchange_get($exchange, 'disabled')) return;
+
 	$data = safecex_api_query('getmarkets');
 	if(empty($data)) return;
 
@@ -1112,6 +1137,8 @@ function updateSafecexMarkets()
 function updateBterMarkets()
 {
 	$exchange = 'bter';
+	if (exchange_get($exchange, 'disabled')) return;
+
 	$markets = bter_api_query('tickers');
 	if(!is_array($markets)) return;
 
@@ -1151,6 +1178,8 @@ function updateBterMarkets()
 function updateEmpoexMarkets()
 {
 	$exchange = 'empoex';
+	if (exchange_get($exchange, 'disabled')) return;
+
 	$markets = empoex_api_query('marketinfo');
 	if(!is_array($markets)) return;
 

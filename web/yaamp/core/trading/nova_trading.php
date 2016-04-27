@@ -5,6 +5,8 @@ function doNovaTrading($quick=false)
 	$exchange = 'nova';
 	$updatebalances = true;
 
+	if (exchange_get($exchange, 'disabled')) return;
+
 	$balances = nova_api_user('getbalances');
 	if(!is_object($balances) || $balances->status != 'success' || !isset($balances->balances)) return;
 

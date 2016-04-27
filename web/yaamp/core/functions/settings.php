@@ -94,7 +94,7 @@ function exchange_valid_keys()
 		'trade_sell_ask_pct'	=> 'Initial order ask price related to the lowest ask (in %)',
 		'trade_cancel_ask_pct'	=> 'Cancel orders if the lowest ask reach this % of your order',
 
-		'withdraw_btc_address'	=> 'Custom withdraw BTC address for the exchange',
+	//	'withdraw_btc_address'	=> 'Custom withdraw BTC address for the exchange',
 		'withdraw_min_btc'		=> 'Auto withdraw when your BTC balance reach this amount (0=disabled)',
 		'withdraw_fee_btc'		=> 'Fees in BTC required to withdraw BTCs on the exchange',
 	);
