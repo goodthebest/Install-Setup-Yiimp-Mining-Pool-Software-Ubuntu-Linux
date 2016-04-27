@@ -81,7 +81,7 @@ function getBitstampBalances()
 
 	$savebalance = getdbosql('db_balances', "name='$exchange'");
 	if (is_object($savebalance)) {
-		$balances = bitstamp_api_user('balances');
+		$balances = bitstamp_api_user('balance');
 		if (is_array($balances)) {
 			$savebalance->balance = arraySafeVal($balances, 'btc_balance');
 			$savebalance->save();
