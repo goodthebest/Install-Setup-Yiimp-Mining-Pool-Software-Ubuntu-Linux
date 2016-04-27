@@ -30,14 +30,27 @@ class ExchangeCommand extends CConsoleCommand
 		if (!isset($args[0])) {
 
 			echo "Yiimp exchange command\n";
-			echo "Usage: yiimp exchange test\n";
+			echo "Usage: yiimp exchange apitest\n";
+			echo "       yiimp exchange get <exchange> <key>\n";
+			echo "       yiimp exchange set <exchange> <key> <value>\n";
+			echo "       yiimp exchange unset <exchange> <key>\n";
+			echo "       yiimp exchange settings <exchange>\n";
 			return 1;
 
-		} else if ($args[0] == 'test') {
+		} else if ($args[0] == 'get') {
+			return $this->getExchangeSetting($args);
 
+		} else if ($args[0] == 'set') {
+			return $this->setExchangeSetting($args);
+
+		} else if ($args[0] == 'unset') {
+			return $this->unsetExchangeSetting($args);
+
+		} else if ($args[0] == 'settings') {
+			return $this->listExchangeSettings($args);
+
+		} else if ($args[0] == 'apitest') {
 			$this->testApiKeys();
-
-			echo "ok\n";
 			return 0;
 		}
 	}
@@ -49,6 +62,62 @@ class ExchangeCommand extends CConsoleCommand
 	public function getHelp()
 	{
 		return parent::getHelp().'exchange';
+	}
+
+	public function getExchangeSetting($args)
+	{
+		if (count($args) < 3)
+			die("usage: yiimp exchange get <exchange> <key>\n");
+		$exchange = $args[1];
+		$key = $args[2];
+		$value = exchange_get($exchange, $key);
+		echo "$value\n";
+		return 0;
+	}
+
+	public function setExchangeSetting($args)
+	{
+		if (count($args) < 4)
+			die("usage: yiimp exchange set <exchange> <key> <value>\n");
+		$exchange = $args[1];
+		$key      = $args[2];
+		$value    = $args[3];
+		$keys = exchange_valid_keys($exchange);
+		if (!isset($keys[$key])) {
+			echo "error: key '$key' is not handled!\n";
+			return 1;
+		}
+		$res = exchange_set($exchange, $key, $value);
+		$val = exchange_get($exchange, $key);
+		echo ($res ? "$exchange $key ".json_encode($val) : "error") . "\n";
+		return 0;
+	}
+
+	public function unsetExchangeSetting($args)
+	{
+		if (count($args) < 3)
+			die("usage: yiimp exchange unset <exchange> <key>\n");
+		$exchange = $args[1];
+		$key      = $args[2];
+		exchange_unset($exchange, $key);
+		echo "ok\n";
+		return 0;
+	}
+
+	public function listExchangeSettings($args)
+	{
+		if (count($args) < 2)
+			die("usage: yiimp exchange settings <exchange>\n");
+		$exchange = $args[1];
+		$keys = exchange_valid_keys($exchange);
+		foreach ($keys as $key => $desc) {
+			$val = exchange_get($exchange, $key);
+			if ($val !== null) {
+				//echo "$desc\n";
+				echo "$exchange $key ".json_encode($val)."\n";
+			}
+		}
+		return 0;
 	}
 
 	public function testApiKeys()
@@ -116,7 +185,7 @@ class ExchangeCommand extends CConsoleCommand
 			else echo("cryptomic all: ".json_encode($balance->result)."\n");
 		}
 		if (!empty(EXCH_BITSTAMP_KEY)) {
-			$balance = bitstamp_api_user();
+			$balance = bitstamp_api_user('balance');
 			if (!is_object($balance)) echo "bitstamp error ".json_encode($balance)."\n";
 			else echo("bitstamp: ".json_encode($balance->result)."\n");
 		}

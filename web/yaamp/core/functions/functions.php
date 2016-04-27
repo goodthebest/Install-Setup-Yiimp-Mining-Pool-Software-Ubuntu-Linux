@@ -7,5 +7,4 @@ require_once("easybitcoin.php");
 
 require_once("yaamp.php");
 require_once("memcache.php");
-
-
+require_once('settings.php');

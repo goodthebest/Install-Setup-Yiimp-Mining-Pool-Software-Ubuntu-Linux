@@ -62,9 +62,12 @@ function doBittrexTrading($quick=false)
 	$flushall = rand(0, 8) == 0;
 	if($quick) $flushall = false;
 
-	$min_btc_trade = 0.00050000; // minimum allowed by the exchange
-	$sell_ask_pct = 1.05;        // sell on ask price + 5%
-	$cancel_ask_pct = 1.20;      // cancel order if our price is more than ask price + 20%
+	// minimum order allowed by the exchange
+	$min_btc_trade = exchange_get($exchange, 'trade_min_btc', 0.00050000);
+	// sell on ask price + 5%
+	$sell_ask_pct = exchange_get($exchange, 'trade_sell_ask_pct', 1.05);
+	// cancel order if our price is more than ask price + 20%
+	$cancel_ask_pct = exchange_get($exchange, 'trade_cancel_ask_pct', 1.20);
 
 	sleep(1);
 	$orders = bittrex_api_query('market/getopenorders');
@@ -234,10 +237,12 @@ function doBittrexTrading($quick=false)
 		$db_order->save();
 	}
 
-	if(floatval(EXCH_AUTO_WITHDRAW) > 0 && $savebalance->balance >= (EXCH_AUTO_WITHDRAW + 0.0002))
+	$withdraw_min = exchange_get($exchange, 'withdraw_min_btc', EXCH_AUTO_WITHDRAW);
+	$withdraw_fee = exchange_get($exchange, 'withdraw_fee_btc', 0.0002);
+	if($withdraw_min > 0 && $savebalance->balance >= ($withdraw_min + $withdraw_fee))
 	{
-		$btcaddr = YAAMP_BTCADDRESS;
-		$amount = $savebalance->balance - 0.0002;
+		$btcaddr = exchange_get($exchange, 'withdraw_btc_address', YAAMP_BTCADDRESS);
+		$amount = $savebalance->balance - $withdraw_fee;
 		debuglog("bittrex withdraw $amount to $btcaddr");
 
 		sleep(1);
