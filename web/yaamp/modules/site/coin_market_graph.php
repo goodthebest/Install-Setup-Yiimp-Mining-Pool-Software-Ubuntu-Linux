@@ -5,15 +5,18 @@ JavascriptFile("/extensions/jqplot/plugins/jqplot.enhancedLegendRenderer.js");
 JavascriptFile("/extensions/jqplot/plugins/jqplot.dateAxisRenderer.js");
 JavascriptFile("/extensions/jqplot/plugins/jqplot.highlighter.js");
 
+$refSymbol = 'BTC';
+if ($coin->symbol == 'BTC') $refSymbol = 'USD';
+
 echo <<<end
 
 <style type="text/css">
 #graph_history_price, #graph_history_balance {
 	width: 75%; height: 300px; float: right;
-	margin-bottom: 16px;
+	margin-bottom: 8px;
 }
 .jqplot-title {
-	margin-bottom: 3px;
+	margin-bottom: 4px;
 }
 .jqplot-cursor-tooltip,
 .jqplot-highlighter-tooltip {
@@ -75,13 +78,13 @@ function graph_price_data(data)
 			xaxis: {
 				show: true,
 				tickInterval: 600,
-				tickOptions: { fontSize: '7pt', escapeHTML: false, formatString:'%#d %b<br/>%Hh' },
+				tickOptions: { fontSize: '7pt', escapeHTML: false },
 				renderer: $.jqplot.DateAxisRenderer
 			},
 			x2axis: {
 				// hidden (top) axis with higher granularity
 				syncTicks: 1,
-				tickInterval: 300,
+				tickInterval: 600,
 				tickOptions: { show: false },
 				renderer: $.jqplot.DateAxisRenderer
 			},
@@ -116,20 +119,27 @@ function graph_price_data(data)
 				var pt = jqPlot.series[seriesIndex].data[pointIndex];
 				var dt = new Date(0+pt[0]);
 				var date = $.datepicker.formatDate('dd M yy', dt);
-				var time = dt.getHours().toString()+'h'+dt.getMinutes();
-				return date+' '+time+' ' + pt[1]+' BTC';
+				var time = $.jsDate.strftime(dt, '%H:%M');
+				return date+' '+time+' '+ t.labels[seriesIndex] + '<br/>' + pt[1]+' {$refSymbol}';
 			},
 			show: true
 		}
 	});
-	var x2 = graph.axes.x2axis;
+	// limit visible axis ticks
+	var x2ticks = graph.axes.x2axis._ticks;
 	graph.axes.xaxis.ticks = [];
-	for (var i=0; i < x2._ticks.length; i++) {
-		// put in visible axis, only one tick per 2 hours (24*5mn)...
-		if (i % 24 == 0) {
-			graph.axes.xaxis.ticks.push(x2._ticks[i].value);
+	var tickInterval = graph.grid._width > 0 ? Math.round(60*300 / graph.grid._width, 0) : 1;
+	var label, day, lastDay;
+	for (var i=0; i < x2ticks.length; i++) {
+		if (i % tickInterval == 0) {
+			var dt = new Date(0+x2ticks[i].value);
+			day = '<b>'+$.datepicker.formatDate('dd M', dt)+'</b>';
+			label = (day == lastDay) ? $.jsDate.strftime(dt, '%H:%M') : day;
+			lastDay = day;
+			graph.axes.xaxis.ticks.push([x2ticks[i].value, label]);
 		}
 	}
+	graph.axes.xaxis.ticks.push([x2ticks[x2ticks.length-1].value, '']);
 	graph.replot(false);
 }
 
@@ -145,14 +155,14 @@ function graph_balance_data(data)
 			xaxis: {
 				show: true,
 				tickInterval: 600,
-				tickOptions: { fontSize: '7pt', escapeHTML: false, formatString:'%#d %b<br/>%#Hh' },
+				tickOptions: { fontSize: '7pt', escapeHTML: false },
 				showMinorTicks: false,
 				renderer: $.jqplot.DateAxisRenderer
 			},
 			x2axis: {
 				// hidden (top) axis with higher granularity
 				syncTicks: 1,
-				tickInterval: 300,
+				tickInterval: 600,
 				tickOptions: { show: false },
 				renderer: $.jqplot.DateAxisRenderer
 			},
@@ -188,20 +198,27 @@ function graph_balance_data(data)
 				var pt = jqPlot.series[seriesIndex].data[pointIndex];
 				var dt = new Date(0+pt[0]);
 				var date = $.datepicker.formatDate('dd M yy', dt);
-				var time = dt.getHours().toString()+'h';
-				return date+' '+time+' ' + pt[1]+' {$coin->symbol}';
+				var time = $.jsDate.strftime(dt, '%H:%M');
+				return date+' '+time+' '+ t.labels[seriesIndex] + '<br/>' + pt[1]+' {$coin->symbol}';
 			},
 			show: true
 		}
 	});
-	var x2 = graph.axes.x2axis;
+	// limit visible axis ticks
+	var x2ticks = graph.axes.x2axis._ticks;
 	graph.axes.xaxis.ticks = [];
-	for (var i=0; i < x2._ticks.length; i++) {
-		// put in visible axis, only one tick per 2 hours (24*5mn)...
-		if (i % 24 == 0) {
-			graph.axes.xaxis.ticks.push(x2._ticks[i].value);
+	var tickInterval = graph.grid._width > 0 ? Math.round(60*300 / graph.grid._width, 0) : 1;
+	var label, day, lastDay;
+	for (var i=0; i < x2ticks.length; i++) {
+		if (i % tickInterval == 0) {
+			var dt = new Date(0+x2ticks[i].value);
+			day = '<b>'+$.datepicker.formatDate('dd M', dt)+'</b>';
+			label = (day == lastDay) ? $.jsDate.strftime(dt, '%H:%M') : day;
+			lastDay = day;
+			graph.axes.xaxis.ticks.push([x2ticks[i].value, label]);
 		}
 	}
+	graph.axes.xaxis.ticks.push([x2ticks[x2ticks.length-1].value, '']);
 	graph.replot(false);
 }
 </script>

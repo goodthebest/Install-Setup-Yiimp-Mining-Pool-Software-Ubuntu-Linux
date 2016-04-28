@@ -67,12 +67,13 @@ div#markets {
 }
 div#transactions {
 	overflow-x: hidden; overflow-y: scroll; min-height: 200px; max-height: 360px;
+	margin-bottom: 8px;
 }
 div#sums {
 	overflow-x: hidden; overflow-y: scroll; min-height: 250px; max-height: 600px;
 	width: 380px; float: left; margin-top: 16px; margin-bottom: 8px; margin-right: 16px;
 }
-.page .footer { clear: both; }
+.page .footer { clear: both; width: auto; margin-top: 16px; }
 tr.ssrow.bestmarket { background-color: #dfd; }
 tr.ssrow.disabled { background-color: #fdd; color: darkred; }
 tr.ssrow.orphan { color: darkred; }
