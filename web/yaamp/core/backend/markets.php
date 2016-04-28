@@ -46,11 +46,9 @@ function BackendPricesUpdate()
 	$coins = getdbolist('db_coins', "installed and id in (select distinct coinid from markets)");
 	foreach($coins as $coin)
 	{
-		if($coin->symbol=='BTC')
-		{
+		if($coin->symbol=='BTC') {
 			$coin->price = 1;
 			$coin->price2 = 1;
-
 			$coin->save();
 			continue;
 		}
@@ -61,21 +59,20 @@ function BackendPricesUpdate()
 			$coin->price = $market->price*(1-YAAMP_FEES_EXCHANGE/100);
 			$coin->price2 = $market->price2;
 
-			$base_coin = !empty($market->base_coin)? getdbosql('db_coins', "symbol='$market->base_coin'"): null;
+			$base_coin = !empty($market->base_coin)? getdbosql('db_coins', "symbol='{$market->base_coin}'"): null;
 			if($base_coin)
 			{
 				$coin->price *= $base_coin->price;
 				$coin->price2 *= $base_coin->price;
 			}
 		}
-		else
-		{
+		else {
 			$coin->price = 0;
 			$coin->price2 = 0;
 		}
 
 		$coin->save();
-		dborun("UPDATE earnings SET price=$coin->price WHERE status!=2 AND coinid=$coin->id");
+		dborun("UPDATE earnings SET price={$coin->price} WHERE status!=2 AND coinid={$coin->id}");
 	}
 }
 
@@ -116,6 +113,7 @@ function BackendWatchMarkets($marketname=NULL)
 		$markets = getdbolist('db_markets', "coinid={$coin->id} AND NOT disabled");
 		foreach($markets as $market) {
 			if ($marketname && $market->name != $marketname) continue;
+			if (!empty($market->base_coin)) continue; // todo ?
 			if (empty($market->price)) continue;
 			$mh = new db_market_history;
 			$mh->time = time();
@@ -144,23 +142,23 @@ function getBestMarket($coin)
 	if (!empty($coin->market)) {
 		// get coin market first (if set)
 		if ($coin->market != 'BEST' && $coin->market != 'unknown')
-			$market = getdbosql('db_markets', "coinid=$coin->id AND price!=0 AND
+			$market = getdbosql('db_markets', "coinid=$coin->id AND price!=0 AND NOT deleted AND
 				NOT disabled AND deposit_address IS NOT NULL AND deposit_address != '' AND name=:name",
 				array(':name'=>$coin->market));
 		else
 		// else take one of the big exchanges...
-			$market = getdbosql('db_markets', "coinid=$coin->id AND price!=0 AND
+			$market = getdbosql('db_markets', "coinid=$coin->id AND price!=0 AND NOT deleted AND
 				NOT disabled AND deposit_address IS NOT NULL AND deposit_address != '' AND
 				name IN ('poloniex','bittrex') ORDER BY priority DESC, price DESC");
 	}
 	if(!$market) {
 		// else the best price
-		$market = getdbosql('db_markets', "coinid=$coin->id AND price!=0 AND
+		$market = getdbosql('db_markets', "coinid=$coin->id AND price!=0 AND NOT deleted AND
 			NOT disabled AND deposit_address IS NOT NULL AND deposit_address != ''
 			AND name!='safecex' AND name!='cryptsy' ORDER BY priority DESC, price DESC");
 	}
 	if(!$market) {
-		$market = getdbosql('db_markets', "coinid=$coin->id AND price!=0 AND
+		$market = getdbosql('db_markets', "coinid=$coin->id AND price!=0 AND NOT deleted AND
 			NOT disabled AND deposit_address IS NOT NULL AND deposit_address != ''
 			ORDER BY priority DESC, price DESC");
 	}
@@ -541,35 +539,41 @@ function updateCCexMarkets()
 	foreach($list as $ticker)
 	{
 		if(!isset($ticker['MarketCurrency'])) continue;
-		if(!isset($ticker['BaseCurrency']) || $ticker['BaseCurrency'] != 'BTC') continue;
+		if(!isset($ticker['BaseCurrency'])) continue;
 
 		$symbol = strtoupper($ticker['MarketCurrency']);
+		$pair = strtolower($symbol."-btc"); $sqlFilter = '';
 
-		$coin = getdbosql('db_coins', "symbol=:symbol", array(':symbol'=>$symbol));
-		if(!$coin) continue;
-
-		$market = getdbosql('db_markets', "coinid={$coin->id} and name='$exchange'");
-		if(!$market)
-		{
-			// is that required ?
-			$market = new db_markets;
-			$market->coinid = $coin->id;
-			$market->name = $exchange;
+		$base_symbol = $ticker['BaseCurrency'];
+		if ($base_symbol != 'BTC') {
+			// Only track ALT markets (LTC, DOGE) if the market record exists in the DB, sample market name "c-cex LTC"
+			$in_db = (int) dboscalar("SELECT count(M.id) FROM markets M INNER JOIN coins C ON C.id=M.coinid
+				WHERE C.installed AND C.symbol=:sym AND M.base_coin=:base", array(':sym'=>$symbol,':base'=>$base_symbol));
+			if (!$in_db) continue;
+			$sqlFilter = "AND base_coin='$base_symbol'";
+			$pair = strtolower($symbol.'-'.$base_symbol);
 		}
 
+		$coin = getdbosql('db_coins', "symbol=:symbol", array(':symbol'=>$symbol));
+		if (!$coin) continue;
+		if (!$coin->installed && !yaamp_watched_coin($coin->symbol)) continue;
+
+		$market = getdbosql('db_markets', "coinid={$coin->id} AND name LIKE '$exchange %' $sqlFilter");
+		if (!$market) continue;
 		if ($market->disabled < 9) $market->disabled = !$ticker['IsActive'];
 
-		// ignored, wrong api data since months
-		if ($symbol == 'DCR') $market->deleted = 1;
+		// temporary ignored, wrong api status since months
+		if ($symbol == 'DCR') {
+			$market->delete();
+			continue;
+		}
 
 		$market->save();
 
-		if ($market->deleted) continue;
-		if (!$coin->installed && !yaamp_watched_coin($coin->symbol)) continue;
+		if ($market->disabled || $market->deleted) continue;
 
 		sleep(1);
-		$item = strtolower($symbol."-btc");
-		$ticker = $ccex->getTickerInfo($item);
+		$ticker = $ccex->getTickerInfo($pair);
 		if(!$ticker) continue;
 
 		$price2 = ($ticker['buy']+$ticker['sell'])/2;
@@ -579,7 +583,7 @@ function updateCCexMarkets()
 		$market->pricetime = time();
 		$market->save();
 
-		if (empty($coin->price2)) {
+		if (empty($coin->price2) && $base_symbol=='BTC') {
 			$coin->price = $market->price;
 			$coin->price2 = $market->price2;
 			$coin->save();
@@ -845,7 +849,7 @@ function updateCryptopiaMarkets()
 	$data = cryptopia_api_query('GetMarkets', 24);
 	if(!is_object($data)) return;
 
-	$list = getdbolist('db_markets', "name='$exchange'");
+	$list = getdbolist('db_markets', "name LIKE('$exchange %')");
 	foreach($list as $market)
 	{
 		$coin = getdbo('db_coins', $market->coinid);
@@ -853,11 +857,17 @@ function updateCryptopiaMarkets()
 
 		$pair = strtoupper($coin->symbol).'/BTC';
 
+		$sqlFilter = '';
+		if (!empty($market->base_coin)) {
+			$pair = strtoupper($coin->symbol.'/'.$market->base_coin);
+			$sqlFilter = "AND base_coin='{$market->base_coin}'";
+		}
+
 		foreach ($data->Data as $ticker) {
 			if ($ticker->Label === $pair) {
 
 				if ($market->disabled < 9) {
-					$nbm = (int) dboscalar("SELECT COUNT(id) FROM markets WHERE coinid={$coin->id}");
+					$nbm = (int) dboscalar("SELECT COUNT(id) FROM markets WHERE coinid={$coin->id} $sqlFilter");
 					$market->disabled = ($ticker->BidPrice < $ticker->AskPrice/2) && ($nbm > 1);
 				}
 
@@ -868,7 +878,7 @@ function updateCryptopiaMarkets()
 				$market->pricetime = time();
 				$market->save();
 
-				if (empty($coin->price) && !$market->disabled) {
+				if (empty($coin->price) && !$market->disabled && strpos($pair,'BTC')) {
 					$coin->price = $market->price;
 					$coin->price2 = $market->price2;
 					$coin->save();
@@ -1002,7 +1012,7 @@ function updateNovaMarkets()
 	$exchange = 'nova';
 	if (exchange_get($exchange, 'disabled')) return;
 
-	$currencies = getdbolist('db_markets', "name='$exchange'");
+	$currencies = getdbolist('db_markets', "name LIKE '$exchange %'"); // allow "nova LTC"
 	if(empty($currencies)) return;
 
 	$data = nova_api_query('markets');
@@ -1016,13 +1026,22 @@ function updateNovaMarkets()
 		if(!$coin) continue;
 
 		$pair = 'BTC_'.strtoupper($coin->symbol);
+
+		$sqlFilter = '';
+		if (!empty($market->base_coin)) {
+			$pair = strtoupper($market->base_coin.'_'.$coin->symbol);
+			$sqlFilter = "AND base_coin='{$market->base_coin}'";
+		}
+
 		foreach ($data->markets as $ticker) {
 			if ($ticker->marketname === $pair) {
 
 				$market->marketid = $ticker->marketid;
 
-				if ($market->disabled < 9)
-					$market->disabled = (floatval($ticker->volume24h) <= 0.005); // in btc
+				if ($market->disabled < 9) {
+					$nbm = (int) dboscalar("SELECT COUNT(id) FROM markets WHERE coinid={$coin->id} $sqlFilter");
+					$market->disabled = (floatval($ticker->volume24h) <= 0.005) && $nbm > 1; // in btc
+				}
 
 				if (!$market->disabled) {
 					$market->price = AverageIncrement($market->price, $ticker->bid);
@@ -1030,7 +1049,7 @@ function updateNovaMarkets()
 					$market->pricetime = time();
 					$market->save();
 
-					if (empty($coin->price2)) {
+					if (empty($coin->price2) && strpos($pair,'BTC') !== false) {
 						$coin->price = $market->price;
 						$coin->price2 = $market->price2;
 						$coin->save();

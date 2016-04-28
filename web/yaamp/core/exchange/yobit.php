@@ -48,7 +48,6 @@ function yobit_api_query2($method, $req = array())
 		'Key: '.$api_key,
 	);
 
-	$ch = null;
 	$ch = curl_init();
 
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -68,10 +67,13 @@ function yobit_api_query2($method, $req = array())
 		return null;
 	}
 
-	curl_close($ch);
-
 	$result = json_decode($res, true);
-	if(!$result) debuglog($res);
+	if(!$result) {
+		$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		debuglog("yobit: $method failed ($status) ".strip_data($res));
+	}
+
+	curl_close($ch);
 
 	return $result;
 }

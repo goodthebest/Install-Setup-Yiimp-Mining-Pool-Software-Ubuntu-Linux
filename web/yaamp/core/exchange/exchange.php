@@ -32,37 +32,45 @@ function getMarketUrl($coin, $marketName)
 {
 	$symbol = !empty($coin->symbol2) ? $coin->symbol2 : $coin->symbol;
 	$lowsymbol = strtolower($symbol);
+	$base = 'BTC';
 
-	if($marketName == 'cryptsy')
-		$url = "https://www.cryptsy.com/markets/view/{$symbol}_BTC";
-	else if($marketName == 'bittrex')
-		$url = "https://bittrex.com/Market/Index?MarketName=BTC-{$symbol}";
-	else if($marketName == 'poloniex')
-		$url = "https://poloniex.com/exchange#btc_{$lowsymbol}";
-	else if($marketName == 'bleutrade')
-		$url = "https://bleutrade.com/exchange/{$symbol}/BTC";
-	else if($marketName == 'c-cex')
-		$url = "https://c-cex.com/?p={$lowsymbol}-btc";
-	else if($marketName == 'jubi')
+	$market = trim($marketName);
+	if (strpos($marketName, ' ')) {
+		$parts = explode(' ',$marketName);
+		$market = $parts[0];
+		$base = $parts[1];
+	}
+
+	$lowbase = strtolower($base);
+
+	if($market == 'alcurex')
+		$url = "https://alcurex.org/index.php/crypto/market?pair={$lowsymbol}_{$lowbase}";
+	else if($market == 'bittrex')
+		$url = "https://bittrex.com/Market/Index?MarketName={$base}-{$symbol}";
+	else if($market == 'poloniex')
+		$url = "https://poloniex.com/exchange#{$lowbase}_{$lowsymbol}";
+	else if($market == 'bleutrade')
+		$url = "https://bleutrade.com/exchange/{$symbol}/{$base}";
+	else if($market == 'bter')
+		$url = "https://bter.com/trade/{$lowsymbol}_{$lowbase}";
+	else if($market == 'banx' || $market == 'cryptomic')
+		$url = "https://www.cryptomic.com/trade?c={$symbol}&p={$base}";
+	else if($market == 'cryptopia')
+		$url = "https://www.cryptopia.co.nz/Exchange?market={$symbol}_{$base}";
+	else if($market == 'cryptsy')
+		$url = "https://www.cryptsy.com/markets/view/{$symbol}_{$base}";
+	else if($market == 'c-cex')
+		$url = "https://c-cex.com/?p={$lowsymbol}-{$lowbase}";
+	else if($market == 'empoex')
+		$url = "http://www.empoex.com/trade/{$symbol}-{$base}";
+	else if($market == 'jubi')
 		$url = "http://jubi.com/coin/{$lowsymbol}";
-	else if($marketName == 'yobit')
-		$url = "https://yobit.net/en/trade/{$symbol}/BTC";
-	else if($marketName == 'cryptopia')
-		$url = "https://www.cryptopia.co.nz/Exchange?market={$symbol}_BTC";
-	else if($marketName == 'alcurex')
-		$url = "https://alcurex.org/index.php/crypto/market?pair={$lowsymbol}_btc";
-	else if($marketName == 'safecex')
-		$url = "https://safecex.com/market?q={$symbol}/BTC";
-	else if($marketName == 'bter')
-		$url = "https://bter.com/trade/{$lowsymbol}_btc";
-	else if($marketName == 'banx' || $marketName == 'cryptomic')
-		$url = "https://www.cryptomic.com/trade?c={$symbol}&p=BTC";
-	else if($marketName == 'bitex')
-		$url = "https://bitex.club/markets/{$lowsymbol}btc";
-	else if($marketName == 'empoex')
-		$url = "http://www.empoex.com/trade/{$symbol}-BTC";
-	else if($marketName == 'nova')
-		$url = "https://novaexchange.com/market/BTC_{$symbol}/";
+	else if($market == 'nova')
+		$url = "https://novaexchange.com/market/{$base}_{$symbol}/";
+	else if($market == 'safecex')
+		$url = "https://safecex.com/market?q={$symbol}/{$base}";
+	else if($market == 'yobit')
+		$url = "https://yobit.net/en/trade/{$symbol}/{$base}";
 	else
 		$url = "";
 

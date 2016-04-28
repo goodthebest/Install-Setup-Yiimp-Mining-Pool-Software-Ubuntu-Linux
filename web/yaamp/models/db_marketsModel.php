@@ -29,5 +29,13 @@ class db_markets extends CActiveRecord
 		return array(
 		);
 	}
+
+	public function save($runValidation=true,$attributes=null)
+	{
+		if (empty($this->base_coin)) $this->base_coin = null;
+		if (empty($this->message)) $this->message = null;
+
+		return parent::save($runValidation, $attributes);
+	}
 }
 
