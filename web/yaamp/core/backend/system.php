@@ -46,7 +46,7 @@ function BackendQuickClean()
 
 function marketHistoryPrune($symbol="")
 {
-	$delay2M = time() - 61*24*60*60; // 2 months
+	$delay2M = settings_get("history_prune_delay", time() - 61*24*60*60); // 2 months
 	dborun("DELETE FROM market_history WHERE time < $delay2M");
 
 	// Prune records older than 1 week, one max per hour
@@ -54,7 +54,7 @@ function marketHistoryPrune($symbol="")
 	$sqlFilter = (!empty($symbol)) ? "AND C.symbol='$symbol'" : '';
 	$prune = dbolist("SELECT idcoin, idmarket,
 		AVG(MH.price) AS price, AVG(MH.price2) AS price2, MAX(MH.balance) AS balance,
-		MIN(MH.id) AS firstid, COUNT(MH.id) AS nbrecords, ((MH.time + 3500) DIV 3600) AS ival
+		MIN(MH.id) AS firstid, COUNT(MH.id) AS nbrecords, (MH.time DIV 3600) AS ival
 		FROM market_history MH
 		INNER JOIN coins C ON C.id = MH.idcoin
 		WHERE MH.time < $delay7D $sqlFilter
@@ -69,14 +69,16 @@ function marketHistoryPrune($symbol="")
 			$sqlFilter = "idcoin=:idcoin AND idmarket=".intval($row['idmarket']);
 
 		$nbDel += dborun("DELETE FROM market_history WHERE $sqlFilter AND id != :firstid
-			AND ((time + 3500) DIV 3600) = :interval", array(
+			AND (time DIV 3600) = :interval", array(
 			':idcoin'  => $row['idcoin'],
 			':interval'=> $row['ival'],
 			':firstid' => $row['firstid'],
 		));
 
-		$nbUpd += dborun("UPDATE market_history SET balance=:balance, price=:price, price2=:price2
+		$nbUpd += dborun("UPDATE market_history SET time=:interval,
+			balance=:balance, price=:price, price2=:price2
 			WHERE id=:firstid", array(
+			':interval' => (3600 * $row['ival']),
 			':balance' => $row['balance'],
 			':price' => $row['price'], ':price2' => $row['price2'],
 			':firstid' => $row['firstid'],
