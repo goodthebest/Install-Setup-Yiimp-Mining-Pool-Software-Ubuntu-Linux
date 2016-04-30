@@ -96,7 +96,7 @@ function graph_price_data(data)
 		seriesDefaults: {
 			xaxis: 'x2axis',
 			yaxis: 'y2axis',
-			markerOptions: { style: 'circle', size: 2 }
+			markerOptions: { style: 'circle', size: 0.25 }
 		},
 
 		grid: {
@@ -128,7 +128,7 @@ function graph_price_data(data)
 	// limit visible axis ticks
 	var x2ticks = graph.axes.x2axis._ticks;
 	graph.axes.xaxis.ticks = [];
-	var tickInterval = graph.grid._width > 0 ? Math.round(60*300 / graph.grid._width, 0) : 1;
+	var tickInterval = graph.grid._width > 0 ? Math.round(90*300 / graph.grid._width, 0) : 1;
 	var label, day, lastDay;
 	for (var i=0; i < x2ticks.length; i++) {
 		if (i % tickInterval == 0) {
@@ -207,7 +207,7 @@ function graph_balance_data(data)
 	// limit visible axis ticks
 	var x2ticks = graph.axes.x2axis._ticks;
 	graph.axes.xaxis.ticks = [];
-	var tickInterval = graph.grid._width > 0 ? Math.round(60*300 / graph.grid._width, 0) : 1;
+	var tickInterval = graph.grid._width > 0 ? Math.round(90*300 / graph.grid._width, 0) : 1;
 	var label, day, lastDay;
 	for (var i=0; i < x2ticks.length; i++) {
 		if (i % tickInterval == 0) {

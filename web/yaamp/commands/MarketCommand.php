@@ -33,6 +33,8 @@ class MarketCommand extends CConsoleCommand
 
 			echo "Yiimp market command\n";
 			echo "Usage: yiimp market <SYM> list\n";
+			echo "       yiimp market <SYM> histo <market>\n";
+			echo "       yiimp market <SYM> prune\n";
 			return 1;
 
 		} else if ($args[1] == 'list') {
@@ -47,6 +49,12 @@ class MarketCommand extends CConsoleCommand
 			if (empty($market)) die("Usage: yiimp market <SYM> histo <market>\n");
 
 			$this->queryMarketHistory($symbol, $market);
+
+			return 0;
+
+		} else if ($args[1] == 'prune') {
+
+			marketHistoryPrune($symbol);
 
 			return 0;
 		}

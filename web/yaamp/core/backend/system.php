@@ -44,8 +44,51 @@ function BackendQuickClean()
 	dborun("UPDATE blocks SET amount=0 WHERE category='orphan' AND amount>0");
 }
 
+function marketHistoryPrune($symbol="")
+{
+	$delay2M = time() - 61*24*60*60; // 2 months
+	dborun("DELETE FROM market_history WHERE time < $delay2M");
+
+	// Prune records older than 1 week, one max per hour
+	$delay7D = time() - 7*24*60*60;
+	$sqlFilter = (!empty($symbol)) ? "AND C.symbol='$symbol'" : '';
+	$prune = dbolist("SELECT idcoin, idmarket,
+		AVG(MH.price) AS price, AVG(MH.price2) AS price2, MAX(MH.balance) AS balance,
+		MIN(MH.id) AS firstid, COUNT(MH.id) AS nbrecords, ((MH.time + 3500) DIV 3600) AS ival
+		FROM market_history MH
+		INNER JOIN coins C ON C.id = MH.idcoin
+		WHERE MH.time < $delay7D $sqlFilter
+		GROUP BY MH.idcoin, MH.idmarket, ival
+		HAVING nbrecords > 1");
+
+	$nbDel = 0; $nbUpd = 0;
+	foreach ($prune as $row) {
+		if (empty($row['idmarket']))
+			$sqlFilter = "idcoin=:idcoin AND idmarket IS NULL";
+		else
+			$sqlFilter = "idcoin=:idcoin AND idmarket=".intval($row['idmarket']);
+
+		$nbDel += dborun("DELETE FROM market_history WHERE $sqlFilter AND id != :firstid
+			AND ((time + 3500) DIV 3600) = :interval", array(
+			':idcoin'  => $row['idcoin'],
+			':interval'=> $row['ival'],
+			':firstid' => $row['firstid'],
+		));
+
+		$nbUpd += dborun("UPDATE market_history SET balance=:balance, price=:price, price2=:price2
+			WHERE id=:firstid", array(
+			':balance' => $row['balance'],
+			':price' => $row['price'], ':price2' => $row['price2'],
+			':firstid' => $row['firstid'],
+		));
+	}
+	if ($nbDel) debuglog("history: $nbDel records pruned, $nbUpd updated $symbol");
+}
+
 function BackendCleanDatabase()
 {
+	marketHistoryPrune();
+
 	$delay = time() - 60*24*60*60;
 //	dborun("delete from blocks where time<$delay");
 	dborun("delete from hashstats where time<$delay");
