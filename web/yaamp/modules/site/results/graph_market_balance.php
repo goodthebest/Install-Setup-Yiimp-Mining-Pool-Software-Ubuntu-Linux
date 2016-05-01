@@ -9,7 +9,7 @@ if (!$coin) return;
 $t = time() - 7*24*60*60;
 
 $markets = dbolist("SELECT M.id, M.name, M.priority, MIN(MH.balance) AS min, MAX(MH.balance) AS max
-	FROM market_history MH LEFT JOIN markets M ON M.id = MH.idmarket
+	FROM market_history MH INNER JOIN markets M ON M.id = MH.idmarket
 	WHERE MH.idcoin=$id AND MH.time>$t AND NOT M.disabled
 	GROUP BY M.id, M.name, M.priority HAVING max > 0
 	ORDER BY M.priority DESC, M.name");
@@ -47,14 +47,35 @@ foreach($stats as $histo) {
 $stackedMax += $max;
 
 // Stacked graph specific : seems to require same amount of points :/
-$max = 0;
-foreach ($series as $serie) {
+$max = 0; $seriefull = '';
+foreach ($series as $name => $serie) {
+	if (count($serie) > $max) $seriefull = $name;
 	$max = max($max, count($serie));
 }
 foreach ($series as $name => $serie) {
-	$n = count($serie);
-	for ($i = count($serie); $i < $max; $i++) {
-		array_unshift($series[$name], $series[$name][0]);
+	if ($seriefull && count($serie) < $max) {
+		$first_dt = $serie[0][0];
+		$fill_start = ($first_dt > $series[$seriefull][0][0]);
+	}
+	for ($i = count($serie), $n = 0; $i < $max; $i++, $n++) {
+		if ($seriefull == '') {
+			$dt = $serie[0][0];
+			array_unshift($series[$name], array($dt, 0));
+			continue;
+		}
+		if ($fill_start) {
+			if ($series[$seriefull][$n][0] >= $first_dt) {
+				array_unshift($series[$name], array($dt, 0));
+				$fill_start = false;
+			} else {
+				$dt = $series[$seriefull][$n][0];
+				array_unshift($series[$name], array($dt, 0));
+			}
+		} else {
+			$dt = $series[$seriefull][$i][0];
+			$last = end($series[$name]);
+			$series[$name][] = array($dt, $last[1]);
+		}
 	}
 }
 

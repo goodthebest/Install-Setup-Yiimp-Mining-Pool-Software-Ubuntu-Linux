@@ -109,6 +109,19 @@ function BackendWatchMarkets($marketname=NULL)
 			$mh->save();
 		}
 
+		if ($coin->rpcencoding == 'DCR') {
+			// hack to store the locked balance history as a "stake" market
+			$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
+			$stake = (double) $remote->getbalance('*',0,'locked');
+			$info = $remote->getstakeinfo();
+			if (empty($remote->error) && isset($info['difficulty']))
+			dborun("UPDATE markets SET balance=0, ontrade=:stake, balancetime=:time,
+				price=:ticketprice, price2=:live, pricetime=NULL WHERE coinid=:id AND name='stake'", array(
+				':ticketprice'=>$info['difficulty'], ':live'=>$info['live'], ':stake'=>$stake,
+				':id'=>$coin->id, ':time'=>time()
+			));
+		}
+
 		// user watched currencies
 		$markets = getdbolist('db_markets', "coinid={$coin->id} AND NOT disabled");
 		foreach($markets as $market) {
@@ -116,7 +129,7 @@ function BackendWatchMarkets($marketname=NULL)
 			if (!empty($market->base_coin)) continue; // todo ?
 			if (empty($market->price)) continue;
 			$mh = new db_market_history;
-			$mh->time = time();
+			$mh->time = time(); // max(intval($market->balancetime), intval($market->pricetime));
 			$mh->idcoin = $coin->id;
 			$mh->idmarket = $market->id;
 			$mh->price = $market->price;

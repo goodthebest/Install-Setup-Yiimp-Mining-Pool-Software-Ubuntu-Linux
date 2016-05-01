@@ -10,7 +10,7 @@ $t = time() - 7*24*60*60;
 
 $markets = dbolist("SELECT M.id AS id, M.name, M.priority, MIN(MH.price) AS min, MAX(MH.price) AS max
 	FROM market_history MH LEFT JOIN markets M ON M.id = MH.idmarket
-	WHERE MH.idcoin=$id AND MH.time>$t AND NOT M.disabled
+	WHERE MH.idcoin=$id AND MH.time>$t AND NOT M.disabled AND M.name != 'stake'
 	GROUP BY M.id, M.name, M.priority
 	ORDER BY M.priority DESC, M.name");
 
