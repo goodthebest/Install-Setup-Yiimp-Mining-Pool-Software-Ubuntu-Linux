@@ -25,6 +25,8 @@ $since = arraySafeVal($_REQUEST,'since', time() - (7*24*3600)); // one week
 
 echo '<div id="main_actions">';
 
+app()->clientScript->registerCoreScript('jquery.ui'); // dialog
+
 /* 
 echo "<br><a href='/site/makeconfigfile?id=$coin->id'><b>MAKE CONFIG & START</b></a>";
 

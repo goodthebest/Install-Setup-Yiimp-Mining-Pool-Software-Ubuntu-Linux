@@ -75,7 +75,7 @@ class CheckupCommand extends CConsoleCommand
 	{
 		$root = $this->basePath;
 
-		//self::isDirWritable("$root/protected/data/.");
+		self::isDirWritable("$root/assets/.");
 		self::isDirWritable("$root/yaamp/runtime/.");
 		self::isDirWritable(YAAMP_LOGS."/.");
 

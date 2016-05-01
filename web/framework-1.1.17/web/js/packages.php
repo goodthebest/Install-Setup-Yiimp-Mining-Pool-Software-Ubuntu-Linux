@@ -29,6 +29,7 @@ return array(
 	),
 	'jquery.ui'=>array(
 		'js'=>array('jui/js/jquery-ui.min.js'),
+	//	'js'=>array('/extensions/jquery/js/jquery-ui-1.9.1.custom.min.js'),
 		'depends'=>array('jquery'),
 	),
 	'bgiframe'=>array(

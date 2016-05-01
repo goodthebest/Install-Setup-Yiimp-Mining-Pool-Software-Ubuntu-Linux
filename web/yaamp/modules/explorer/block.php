@@ -4,7 +4,7 @@ if (!$coin) return;
 
 $this->pageTitle = $coin->name." block explorer";
 
-$txid = getparam('txid');
+$txid = getparam('txid', 'tssssssss');
 
 echo <<<ENDJS
 <script type="text/javascript">

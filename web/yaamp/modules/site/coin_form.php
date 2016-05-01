@@ -4,7 +4,6 @@ echo getAdminSideBarLinks();
 
 echo " - <a href='/site/coin?id={$coin->id}'>{$coin->name}</a><br/>";
 
-//include "current.php";
 $this->widget('UniForm');
 
 echo CUFHtml::beginForm();

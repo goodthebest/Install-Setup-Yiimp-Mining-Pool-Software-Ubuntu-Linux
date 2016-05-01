@@ -131,7 +131,7 @@ function graph_price_data(data)
 			tooltipContentEditor: function(str, seriesIndex, pointIndex, jqPlot) {
 				var pt = jqPlot.series[seriesIndex].data[pointIndex];
 				var dt = new Date(0+pt[0]);
-				var date = $.datepicker.formatDate('dd M yy', dt);
+				var date = $.jsDate.strftime(dt, '%d %b');
 				var time = $.jsDate.strftime(dt, '%H:%M');
 				return date+' '+time+' '+ t.labels[seriesIndex] + '<br/>' + pt[1]+' {$refSymbol}';
 			},
@@ -146,7 +146,7 @@ function graph_price_data(data)
 	for (var i=0; i < x2ticks.length; i++) {
 		if (i % tickInterval == 0) {
 			var dt = new Date(0+x2ticks[i].value);
-			day = '<b>'+$.datepicker.formatDate('dd M', dt)+'</b>';
+			day = '<b>'+$.jsDate.strftime(dt, '%#d %b')+'</b>';
 			if (x2ticks.length > 500 && day == lastDay) label = '';
 			else label = (day == lastDay) ? $.jsDate.strftime(dt, '%H:%M') : day;
 			lastDay = day;
@@ -211,7 +211,7 @@ function graph_balance_data(data)
 			tooltipContentEditor: function(str, seriesIndex, pointIndex, jqPlot) {
 				var pt = jqPlot.series[seriesIndex].data[pointIndex];
 				var dt = new Date(0+pt[0]);
-				var date = $.datepicker.formatDate('dd M yy', dt);
+				var date = $.jsDate.strftime(dt, '%d %b');
 				var time = $.jsDate.strftime(dt, '%H:%M');
 				return date+' '+time+' '+ t.labels[seriesIndex] + '<br/>' + pt[1]+' {$coin->symbol}';
 			},
@@ -226,7 +226,7 @@ function graph_balance_data(data)
 	for (var i=0; i < x2ticks.length; i++) {
 		if (i % tickInterval == 0) {
 			var dt = new Date(0+x2ticks[i].value);
-			day = '<b>'+$.datepicker.formatDate('dd M', dt)+'</b>';
+			day = '<b>'+$.jsDate.strftime(dt, '%#d %b')+'</b>';
 			if (x2ticks.length > 500 && day == lastDay) label = '';
 			else label = (day == lastDay) ? $.jsDate.strftime(dt, '%H:%M') : day;
 			lastDay = day;

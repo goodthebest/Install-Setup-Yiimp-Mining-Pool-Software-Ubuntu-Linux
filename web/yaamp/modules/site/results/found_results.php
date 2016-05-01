@@ -17,14 +17,14 @@ $count = $count? $count: 50;
 WriteBoxHeader("Last $count Blocks ($algo)");
 
 $criteria = new CDbCriteria();
-$criteria->condition = "blocks.category NOT IN ('stake','generated')";
+$criteria->condition = "t.category NOT IN ('stake','generated')";
 $criteria->condition .= " AND IFNULL(coin.visible,1)=1"; // ifnull for rental
 if($algo != 'all') {
-	$criteria->condition .= " AND blocks.algo=:algo";
+	$criteria->condition .= " AND t.algo=:algo";
 	$criteria->params = array(':algo'=>$algo);
 }
 $criteria->limit = $count;
-$criteria->order = 'blocks.time DESC';
+$criteria->order = 't.time DESC';
 $db_blocks = getdbolistWith('db_blocks', 'coin', $criteria);
 
 echo "<table class='dataGrid2'>";
