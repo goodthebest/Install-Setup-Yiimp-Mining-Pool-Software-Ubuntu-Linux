@@ -34,6 +34,9 @@ echo <<<end
 	margin-left: 8px;
 	width: 36px;
 }
+.jqplot-seriesToggle {
+	cursor: pointer;
+}
 .jqplot-table-legend-swatch {
 	height: 8px;
 	width: 8px;
@@ -47,14 +50,17 @@ echo <<<end
 
 <script type="text/javascript">
 
-var last_graph_update = 0;
+var last_graph_update, graph_need_update, graph_timeout = 0;
 
 function graph_refresh()
 {
 	var now = Date.now()/1000;
 
-	if (now < last_graph_update + 1) return;
-	last_graph_update = now;
+	if (!graph_need_update && (now - 300) < last_graph_update) {
+		return;
+	}
+	last_graph_update = now; graph_need_update = false;
+	if (graph_timeout) clearTimeout(graph_timeout);
 
 	var w = 0 + $('div#graph_history_price').parent().width();
 	w = w - $('div#sums').width() - 32;
@@ -65,6 +71,13 @@ function graph_refresh()
 
 	var url = "/site/graphMarketPrices?id={$coin->id}";
 	$.get(url, '', graph_price_data);
+}
+
+function graph_resized()
+{
+	graph_need_update = true;
+	if (graph_timeout) clearTimeout(graph_timeout);
+	graph_timeout = setTimeout(graph_refresh, 2000);
 }
 
 function graph_price_data(data)
@@ -134,7 +147,8 @@ function graph_price_data(data)
 		if (i % tickInterval == 0) {
 			var dt = new Date(0+x2ticks[i].value);
 			day = '<b>'+$.datepicker.formatDate('dd M', dt)+'</b>';
-			label = (day == lastDay) ? $.jsDate.strftime(dt, '%H:%M') : day;
+			if (x2ticks.length > 500 && day == lastDay) label = '';
+			else label = (day == lastDay) ? $.jsDate.strftime(dt, '%H:%M') : day;
 			lastDay = day;
 			graph.axes.xaxis.ticks.push([x2ticks[i].value, label]);
 		}
@@ -213,7 +227,8 @@ function graph_balance_data(data)
 		if (i % tickInterval == 0) {
 			var dt = new Date(0+x2ticks[i].value);
 			day = '<b>'+$.datepicker.formatDate('dd M', dt)+'</b>';
-			label = (day == lastDay) ? $.jsDate.strftime(dt, '%H:%M') : day;
+			if (x2ticks.length > 500 && day == lastDay) label = '';
+			else label = (day == lastDay) ? $.jsDate.strftime(dt, '%H:%M') : day;
 			lastDay = day;
 			graph.axes.xaxis.ticks.push([x2ticks[i].value, label]);
 		}
@@ -224,4 +239,4 @@ function graph_balance_data(data)
 </script>
 end;
 
-JavascriptReady("graph_refresh(); $(window).resize(graph_refresh);");
+// JavascriptReady("$(window).resize(graph_resized);");

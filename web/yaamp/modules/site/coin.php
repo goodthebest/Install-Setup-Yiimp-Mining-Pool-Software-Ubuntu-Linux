@@ -55,8 +55,6 @@ echo <<<END
 <br/>
 </div>
 
-<div id="main_results"></div>
-
 <style type="text/css">
 table.dataGrid a.red, table.dataGrid a.red:visited, a.red { color: darkred; }
 div#main_actions {
@@ -78,6 +76,8 @@ tr.ssrow.bestmarket { background-color: #dfd; }
 tr.ssrow.disabled { background-color: #fdd; color: darkred; }
 tr.ssrow.orphan { color: darkred; }
 </style>
+
+<div id="main_results"></div>
 
 <script type="text/javascript">
 
@@ -103,11 +103,8 @@ function main_refresh()
 function main_ready(data)
 {
 	$('#main_results').html(data);
+	$(window).trigger('resize'); // will draw graph
 	main_timeout = setTimeout(main_refresh, main_delay);
-	var sumHeight = 0 + $('#sums').height();
-	if ($('#main_actions').height() < sumHeight) {
-	//	$('#main_actions').height(sumHeight);
-	}
 }
 
 function main_error()
@@ -150,5 +147,10 @@ Amount: <input type=text id="input_sell_amount" value="$sellamount">
 END;
 
 JavascriptReady("main_refresh();");
+
+if (yaamp_watched_coin($coin->symbol)) {
+	$this->renderPartial('coin_market_graph', array('coin'=>$coin));
+	JavascriptReady("$(window).resize(graph_resized);");
+}
 
 //////////////////////////////////////////////////////////////////////////////////////

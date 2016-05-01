@@ -47,7 +47,7 @@ function BackendQuickClean()
 function marketHistoryPrune($symbol="")
 {
 	$delay2M = settings_get("history_prune_delay", time() - 61*24*60*60); // 2 months
-	dborun("DELETE FROM market_history WHERE time < $delay2M");
+	dborun("DELETE FROM market_history WHERE time < ".intval($delay2M));
 
 	// Prune records older than 1 week, one max per hour
 	$delay7D = time() - 7*24*60*60;

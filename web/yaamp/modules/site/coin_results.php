@@ -179,9 +179,6 @@ if(!$info)
 	echo '<td>'.bitcoinvaluetoa($coin->price).'</td>';
 	echo '<td colspan="2">';
 	echo "</tr></tbody></table><br/>";
-	if (yaamp_watched_coin($coin->symbol)) {
-		$this->renderPartial('coin_market_graph', array('coin'=>$coin));
-	}
 	return;
 }
 
@@ -430,7 +427,3 @@ if (empty($sums)) {
 }
 
 echo '</tbody></table></div>';
-
-if (yaamp_watched_coin($coin->symbol)) {
-	$this->renderPartial('coin_market_graph', array('coin'=>$coin));
-}
