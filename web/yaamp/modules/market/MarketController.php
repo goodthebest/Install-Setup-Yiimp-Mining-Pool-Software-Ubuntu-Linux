@@ -11,7 +11,7 @@ class MarketController extends CommonController
 
 		if(isset($_POST['db_markets']))
 		{
-			$market->attributes = $_POST['db_markets'];
+			$market->setAttributes($_POST['db_markets'], false);
 			if($market->save())
 				$this->redirect(array('site/coin', 'id'=>$coin->id));
 		}

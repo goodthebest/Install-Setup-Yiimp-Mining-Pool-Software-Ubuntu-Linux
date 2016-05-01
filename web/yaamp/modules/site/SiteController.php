@@ -45,7 +45,7 @@ class SiteController extends CommonController
 
 		if(isset($_POST['db_coins']))
 		{
-			$coin->attributes = $_POST['db_coins'];
+			$coin->setAttributes($_POST['db_coins'], false);
 			if($coin->save())
 				$this->redirect(array('admin'));
 		}
@@ -59,9 +59,11 @@ class SiteController extends CommonController
 		$coin = getdbo('db_coins', getiparam('id'));
 		$txfee = $coin->txfee;
 
-		if(isset($_POST['db_coins']))
+		if($coin && isset($_POST['db_coins']))
 		{
-			$coin->attributes = $_POST['db_coins'];
+			$coin->setScenario('update');
+			$coin->setAttributes($_POST['db_coins'], false);
+
 			if($coin->save())
 			{
 				if($txfee != $coin->txfee)
@@ -69,9 +71,8 @@ class SiteController extends CommonController
 					$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
 					$remote->settxfee($coin->txfee);
 				}
-
-			//	$this->redirect(array('admin'));
-				$this->goback();
+				$this->redirect(array('coin', 'id'=>$coin->id));
+			//	$this->goback();
 			}
 		}
 
