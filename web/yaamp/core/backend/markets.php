@@ -571,7 +571,7 @@ function updateCCexMarkets()
 		if (!$coin) continue;
 		if (!$coin->installed && !yaamp_watched_coin($coin->symbol)) continue;
 
-		$market = getdbosql('db_markets', "coinid={$coin->id} AND name LIKE '$exchange %' $sqlFilter");
+		$market = getdbosql('db_markets', "coinid={$coin->id} AND name LIKE '$exchange%' $sqlFilter");
 		if (!$market) continue;
 		if ($market->disabled < 9) $market->disabled = !$ticker['IsActive'];
 
@@ -864,7 +864,7 @@ function updateCryptopiaMarkets()
 	$data = cryptopia_api_query('GetMarkets', 24);
 	if(!is_object($data)) return;
 
-	$list = getdbolist('db_markets', "name LIKE('$exchange %')");
+	$list = getdbolist('db_markets', "name LIKE('$exchange%')");
 	foreach($list as $market)
 	{
 		$coin = getdbo('db_coins', $market->coinid);
@@ -1027,7 +1027,7 @@ function updateNovaMarkets()
 	$exchange = 'nova';
 	if (exchange_get($exchange, 'disabled')) return;
 
-	$currencies = getdbolist('db_markets', "name LIKE '$exchange %'"); // allow "nova LTC"
+	$currencies = getdbolist('db_markets', "name LIKE '$exchange%'"); // allow "nova LTC"
 	if(empty($currencies)) return;
 
 	$data = nova_api_query('markets');
