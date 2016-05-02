@@ -738,15 +738,23 @@ function updateYobitMarkets()
 
 		$market->txfee = objSafeVal($item,'fee',0.2);
 		if ($market->disabled < 9) $market->disabled = arraySafeVal($item,'hidden',0);
+		if (time() - $market->pricetime > 6*3600) $market->price = 0;
 		$market->save();
 
 		if ($market->deleted || $market->disabled) continue;
-		if (!$coin->installed) continue; // todo: allow watched coins
+		if (!$coin->installed && !yaamp_watched_coin($coin->symbol)) continue;
 
 		$pair = strtolower($coin->symbol).'_btc';
 
 		$ticker = yobit_api_query("ticker/$pair");
 		if(!$ticker) continue;
+
+		$price2 = ($ticker->$pair->buy + $ticker->$pair->sell) / 2;
+		$market->price2 = AverageIncrement($market->price2, $price2);
+		$market->price = AverageIncrement($market->price, $ticker->$pair->buy);
+		if ($ticker->$pair->buy < $market->price) $market->price = $ticker->$pair->buy;
+		$market->pricetime = time();
+		$market->save();
 
 		if(!empty(EXCH_YOBIT_KEY))
 		{
@@ -760,17 +768,11 @@ function updateYobitMarkets()
 				if (!empty($addr) && $addr != $market->deposit_address) {
 					$market->deposit_address = $addr;
 					debuglog("$exchange: deposit address for {$coin->symbol} updated");
+					$market->save();
 				}
 			}
 			cache()->set($exchange.'-deposit_address-check-'.$coin->symbol, time(), 24*3600);
 		}
-
-		$price2 = ($ticker->$pair->buy + $ticker->$pair->sell) / 2;
-		$market->price2 = AverageIncrement($market->price2, $price2);
-		$market->price = AverageIncrement($market->price, $ticker->$pair->buy);
-		$market->pricetime = time();
-
-		$market->save();
 	}
 }
 
