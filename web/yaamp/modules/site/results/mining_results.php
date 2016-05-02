@@ -84,7 +84,7 @@ foreach($list as $coin)
 	$pool_hash = yaamp_coin_rate($coin->id);
 	$real_ttf = $pool_hash? $coin->difficulty * 0x100000000 / $pool_hash: 0;
 
-	$pool_hash = $pool_hash? Itoa2($pool_hash).'h/s': '';
+	$pool_hash_sfx = $pool_hash? Itoa2($pool_hash).'h/s': '';
 	$real_ttf = $real_ttf? sectoa2($real_ttf): '';
 	$pool_ttf = $pool_ttf? sectoa2($pool_ttf): '';
 
@@ -167,9 +167,9 @@ foreach($list as $coin)
 		echo "<td align=right style='font-size: .8em;'>$pool_ttf</td>";
 
 	if($coin->auxpow && $coin->auto_ready)
-		echo "<td align=right style='font-size: .8em; opacity: 0.6;' title='merge mined\n$network_hash'>$pool_hash_pow_sfx</td>";
+		echo "<td align=right style='font-size: .8em; opacity: 0.6;' title='merge mined\n$network_hash' data='$pool_hash_pow'>$pool_hash_pow_sfx</td>";
 	else
-		echo "<td align=right style='font-size: .8em;' title='$network_hash' data='$pool_hash_pow'>$pool_hash_pow_sfx</td>";
+		echo "<td align=right style='font-size: .8em;' title='$network_hash' data='$pool_hash'>$pool_hash_sfx</td>";
 
 	$btcmhd = mbitcoinvaluetoa($btcmhd);
 	echo "<td align=right style='font-size: .8em;' data='$btcmhd'><b>$btcmhd</b></td>";
