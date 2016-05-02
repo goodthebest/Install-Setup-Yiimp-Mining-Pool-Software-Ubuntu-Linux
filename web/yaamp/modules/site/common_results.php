@@ -4,28 +4,46 @@ $mining = getdbosql('db_mining');
 
 $showrental = (bool) YAAMP_RENTAL;
 
-echo '<br><table width="100%"><tr><td valign="top">';
+echo <<<END
+<style type="text/css">
+th.tablesorter-headerAsc,
+th.tablesorter-headerDesc { color: blue; }
+</style>
+<br/><table width="100%"><tr><td valign="top">
+END;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-echo '<table class="dataGrid">';
-echo '<thead>';
-echo '<tr>';
-echo '<th align="left">Algo</th>';
-echo '<th align="right"></th>';
-echo '<th align="right">C</th>';
-echo '<th align="right">M</th>';
-echo '<th align="right">Fee</th>';
-echo '<th align="right">Rate</th>';
-echo '<th align="right" class="rental">Rent</th>';
-echo '<th align="right">Bad</th>';
-echo '<th align="right">Now</th>';
-echo '<th align="right" class="rental">Rent</th>';
-//echo '<th align="right">Norm</th>';
-echo '<th align="right">24E</th>';
-echo '<th align="right">24A</th>';
-echo '</tr>';
-echo '</thead>';
+showTableSorter('maintable', '{
+tableClass: "dataGrid",
+widgets: ["Storage","saveSort"],
+textExtraction: {
+	5: function(node, table, cellIndex) { return $(node).attr("data"); }
+},
+widgetOptions: {
+	saveSort: true
+}}');
+
+echo <<<end
+<thead>
+<tr>
+<th data-sorter="text" align="left">Algo</th>
+<th data-sorter="" align="right"></th>
+<th data-sorter="numeric" align="right">C</th>
+<th data-sorter="numeric" align="right">M</th>
+<th data-sorter="currency" align="right">Fee</th>
+<th data-sorter="numeric" align="right">Rate</th>
+<th data-sorter="currency" align="right" class="rental">Rent</th>
+<th data-sorter="currency" align="right">Bad</th>
+<th data-sorter="currency" align="right">Now</th>
+<th data-sorter="currency" align="right" class="rental">Rent</th>
+<th data-sorter="currency" align="right">Norm</th>
+<th data-sorter="currency" align="right">24E</th>
+<th data-sorter="currency" align="right">24A</th>
+</tr>
+</thead>
+<tbody>
+end;
 
 $total_coins = 0;
 $total_workers = 0;
@@ -37,8 +55,9 @@ foreach(yaamp_get_algos() as $algo)
 {
 	$algo_norm = yaamp_get_algo_norm($algo);
 
+	$t = time() - 48*60*60;
 	$price = controller()->memcache->get_database_scalar("current_price-$algo",
-		"select price from hashrate where algo=:algo order by time desc limit 1", array(':algo'=>$algo));
+		"SELECT price FROM hashrate WHERE algo=:algo AND time>$t ORDER BY time DESC LIMIT 1", array(':algo'=>$algo));
 
 	$norm = $price*$algo_norm;
 	$norm = take_yaamp_fee($norm, $algo);
@@ -60,41 +79,41 @@ foreach($algos as $item)
 	$algo_color = getAlgoColors($algo);
 	$algo_norm = yaamp_get_algo_norm($algo);
 
-//	debuglog($algo);
-	$coins = getdbocount('db_coins', "enable and auto_ready and algo=:algo", array(':algo'=>$algo));
+	$coins = getdbocount('db_coins', "enable AND auto_ready AND algo=:algo", array(':algo'=>$algo));
 	$count = getdbocount('db_workers', "algo=:algo", array(':algo'=>$algo));
 
 	$total_coins += $coins;
 	$total_workers += $count;
 
-	$hashrate = dboscalar("select hashrate from hashrate where algo=:algo order by time desc limit 1", array(':algo'=>$algo));
-	$hashrate_bad = dboscalar("select hashrate_bad from hashrate where algo=:algo order by time desc limit 1", array(':algo'=>$algo));
+	$t1 = time() - 24*60*60;
+	$total1 = dboscalar("SELECT sum(amount*price) FROM blocks WHERE category!='orphan' AND time>$t1 AND algo=:algo", array(':algo'=>$algo));
+	if (!$coins && !$total1) continue;
+	$hashrate1 = dboscalar("SELECT avg(hashrate) FROM hashrate WHERE time>$t1 AND algo=:algo", array(':algo'=>$algo));
+
+	$hashrate = dboscalar("SELECT hashrate FROM hashrate WHERE algo=:algo ORDER BY time DESC LIMIT 1", array(':algo'=>$algo));
+	$hashrate_bad = dboscalar("SELECT hashrate_bad FROM hashrate WHERE algo=:algo ORDER BY time DESC LIMIT 1", array(':algo'=>$algo));
 	$bad = ($hashrate+$hashrate_bad)? round($hashrate_bad * 100 / ($hashrate+$hashrate_bad), 1): '';
 
 	$total_hashrate += $hashrate;
 	$total_hashrate_bad += $hashrate_bad;
 
-	$hashrate = $hashrate? Itoa2($hashrate).'h/s': '-';
+	$hashrate_sfx = $hashrate? Itoa2($hashrate).'h/s': '-';
 	$hashrate_bad = $hashrate_bad? Itoa2($hashrate_bad).'h/s': '-';
 
 	$hashrate_jobs = yaamp_rented_rate($algo);
 	$hashrate_jobs = $hashrate_jobs>0? Itoa2($hashrate_jobs).'h/s': '';
 
-	$price = dboscalar("select price from hashrate where algo=:algo order by time desc limit 1", array(':algo'=>$algo));
+	$price = dboscalar("SELECT price FROM hashrate WHERE algo=:algo ORDER BY time DESC LIMIT 1", array(':algo'=>$algo));
 	$price = $price? mbitcoinvaluetoa($price): '-';
 
-	$rent = dboscalar("select rent from hashrate where algo=:algo order by time desc limit 1", array(':algo'=>$algo));
+	$rent = dboscalar("SELECT rent FROM hashrate WHERE algo=:algo ORDER BY time DESC LIMIT 1", array(':algo'=>$algo));
 	$rent = $rent? mbitcoinvaluetoa($rent): '-';
 
 	$norm = mbitcoinvaluetoa($norm);
 
 	$t = time() - 24*60*60;
-	$avgprice = dboscalar("select avg(price) from hashrate where algo=:algo and time>$t", array(':algo'=>$algo));
+	$avgprice = dboscalar("SELECT avg(price) FROM hashrate WHERE algo=:algo AND time>$t", array(':algo'=>$algo));
 	$avgprice = $avgprice? mbitcoinvaluetoa(take_yaamp_fee($avgprice, $algo)): '-';
-
-	$t1 = time() - 24*60*60;
-	$total1 = dboscalar("select sum(amount*price) from blocks where category!='orphan' and time>$t1 and algo=:algo", array(':algo'=>$algo));
-	$hashrate1 = dboscalar("select avg(hashrate) from hashrate where time>$t1 and algo=:algo", array(':algo'=>$algo));
 
 	$algo_unit_factor = yaamp_algo_mBTC_factor($algo);
 	$btcmhday1 = $hashrate1 != 0? mbitcoinvaluetoa($total1 / $hashrate1 * 1000000 * 1000 * $algo_unit_factor): '';
@@ -112,7 +131,7 @@ foreach($algos as $item)
 	echo '<td align="right" style="font-size: .8em;">'.(empty($coins) ? '-' : $coins).'</td>';
 	echo '<td align="right" style="font-size: .8em;">'.(empty($count) ? '-' : $count).'</td>';
 	echo '<td align="right" style="font-size: .8em;">'.(empty($fees) ? '-' : "$fees %").'</td>';
-	echo '<td align="right" style="font-size: .8em;">'.$hashrate.'</td>';
+	echo '<td align="right" style="font-size: .8em;" data="'.$hashrate.'">'.$hashrate_sfx.'</td>';
 	echo '<td align="right" style="font-size: .8em;" class="rental">'.$hashrate_jobs.'</td>';
 
 	if ($bad > 10)
@@ -128,8 +147,14 @@ foreach($algos as $item)
 		echo '<td align=right style="font-size: .8em;">'.($price == 0.0 ? '-' : $price).'</td>';
 
 	echo '<td align="right" style="font-size: .8em;" class="rental">'.$rent.'</td>';
+
+	// Norm
+	echo '<td align="right" style="font-size: .8em;">'.($norm == 0.0 ? '-' : $norm).'</td>';
+
+	// 24E
 	echo '<td align="right" style="font-size: .8em;">'.($avgprice == 0.0 ? '-' : $avgprice).'</td>';
 
+	// 24A
 	if($btcmhday1 != '-' && $btcmhday1 > $avgprice*1.1)
 		echo '<td align="right" style="font-size: .8em; color: white; background-color: #5cb85c">'.$btcmhday1.'</td>';
 	else if($btcmhday1 != '-' && $btcmhday1*1.3 < $avgprice)
@@ -144,10 +169,12 @@ foreach($algos as $item)
 	echo '</tr>';
 }
 
+echo '</tbody>';
+
 $bad = ($total_hashrate+$total_hashrate_bad)? round($total_hashrate_bad * 100 / ($total_hashrate+$total_hashrate_bad), 1): '';
 $total_hashrate = Itoa2($total_hashrate).'h/s';
 
-echo '<tr class="ssrow">';
+echo '<tr class="ssfooter">';
 echo '<td colspan="2"></td>';
 echo '<td align="right" style="font-size: .8em;">'.$total_coins.'</td>';
 echo '<td align="right" style="font-size: .8em;">'.$total_workers.'</td>';
@@ -156,6 +183,7 @@ echo '<td align="right" style="font-size: .8em;">'.$total_hashrate.'</td>';
 echo '<td align="right" style="font-size: .8em;" class="rental"></td>';
 echo '<td align="right" style="font-size: .8em;">'.$bad.'%</td>';
 echo '<td align="right" style="font-size: .8em;"></td>';
+echo '<td align="right" style="font-size: .8em;" class="rental"></td>';
 echo '<td align="right" style="font-size: .8em;"></td>';
 echo '<td align="right" style="font-size: .8em;"></td>';
 echo '</tr>';

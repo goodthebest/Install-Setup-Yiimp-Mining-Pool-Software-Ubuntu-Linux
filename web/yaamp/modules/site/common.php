@@ -5,6 +5,9 @@ JavascriptFile("/extensions/jqplot/plugins/jqplot.dateAxisRenderer.js");
 JavascriptFile("/extensions/jqplot/plugins/jqplot.barRenderer.js");
 JavascriptFile("/extensions/jqplot/plugins/jqplot.highlighter.js");
 
+JavascriptFile("/yaamp/ui/js/jquery.metadata.js");
+JavascriptFile("/yaamp/ui/js/jquery.tablesorter.widgets.js");
+
 echo getAdminSideBarLinks();
 
 //<a href='/site/eval'>Eval</a>&nbsp;
