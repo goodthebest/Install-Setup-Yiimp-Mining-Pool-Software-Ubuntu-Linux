@@ -1,16 +1,26 @@
 <?php
 
-echo "<br>";
+JavascriptFile("/yaamp/ui/js/jquery.metadata.js");
+JavascriptFile("/yaamp/ui/js/jquery.tablesorter.widgets.js");
+
+echo "<br/>";
+
 echo "<div class='main-left-box'>";
 echo "<div class='main-left-title'>Block Explorer</div>";
 echo "<div class='main-left-inner'>";
 
-showTableSorter('maintable', '{headers: {0: {sorter: false}, 9: {sorter: false}}}');
+showTableSorter('maintable', "{
+	tableClass: 'dataGrid2',
+	textExtraction: {
+		6: function(node, table, n) { return $(node).attr('data'); },
+		8: function(node, table, n) { return $(node).attr('data'); }
+	}
+}");
 
 echo <<<end
 <thead>
 <tr>
-<th width="30"></th>
+<th width="30" data-sorter=""></th>
 <th>Name</th>
 <th>Symbol</th>
 <th>Algo</th>
@@ -19,7 +29,7 @@ echo <<<end
 <th>Difficulty</th>
 <th>Connections</th>
 <th>Network Hash</th>
-<th></th>
+<th data-sorter=""></th>
 </tr>
 </thead><tbody>
 end;
@@ -49,7 +59,7 @@ foreach($list as $coin)
 	}
 
 	$difficulty = Itoa2($coin->difficulty, 3);
-	$nethash = $coin->network_hash? strtoupper(Itoa2($coin->network_hash)).'H/s': '';
+	$nethash_sfx = $coin->network_hash? strtoupper(Itoa2($coin->network_hash)).'H/s': '';
 
 	echo '<tr class="ssrow">';
 	echo '<td><img src="'.$coin->image.'" width="18"></td>';
@@ -61,10 +71,10 @@ foreach($list as $coin)
 	echo "<td>$coin->version</td>";
 
 	echo "<td>$coin->block_height</td>";
-	echo "<td>$difficulty</td>";
+	echo '<td data="'.$coin->difficulty.'">'.$difficulty.'</td>';
 	$cnx_class = (intval($coin->connections) > 3) ? '' : 'low';
 	echo '<td class="'.$cnx_class.'">'.$coin->connections.'</td>';
-	echo "<td>$nethash</td>";
+	echo '<td data="'.$coin->network_hash.'">'.$nethash_sfx.'</td>';
 
 	echo "<td>";
 

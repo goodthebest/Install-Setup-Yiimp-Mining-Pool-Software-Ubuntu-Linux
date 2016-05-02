@@ -9,8 +9,8 @@ echo "<div class='main-left-inner'>";
 showTableSorter('maintable1', "{
 	tableClass: 'dataGrid2',
 	textExtraction: {
-		3: function(node, table, n) { return $(node).attr('data'); },
-		6: function(node, table, n) { return $(node).attr('data'); }
+		4: function(node, table, n) { return $(node).attr('data'); },
+		8: function(node, table, n) { return $(node).attr('data'); }
 	}
 }");
 
@@ -23,9 +23,9 @@ echo <<<END
 <th data-sorter="numeric" align="right">Miners</th>
 <th data-sorter="numeric" align="right">Hashrate</th>
 <th data-sorter="currency" align="right">Fees**</th>
-<th data-sorter="currency"  class="estimate" align=right>Current<br>Estimate</th>
+<th data-sorter="currency" class="estimate" align="right">Current<br>Estimate</th>
 <!--<th data-sorter="currency" >Norm</th>-->
-<th data-sorter="currency" class="estimate" align=right>24 Hours<br>Estimated</th>
+<th data-sorter="currency" class="estimate" align="right">24 Hours<br>Estimated</th>
 <th data-sorter="currency"align="right">24 Hours<br>Actual***</th>
 </tr>
 </thead>
