@@ -22,18 +22,11 @@ $saveSort = $coin_id ? 'false' : 'true';
 
 showTableSorter('maintable', "{
 	tableClass: 'dataGrid',
-	headers: {
-		0:{sorter:false},
-		1:{sorter:'text'},
-		2:{sorter:'text'},
-		3:{sorter:'currency'},
-		4:{sorter:'currency'},
-		5:{sorter:'numeric'},
-		6:{sorter:'metadata'},
-		7:{sorter:'metadata'},
-		8:{sorter:false}
-	},
 	widgets: ['zebra','filter','Storage','saveSort'],
+	textExtraction: {
+		6: function(node, table, n) { return $(node).attr('data'); },
+		7: function(node, table, n) { return $(node).attr('data'); }
+	},
 	widgetOptions: {
 		saveSort: {$saveSort},
 		filter_saveFilters: {$saveSort},
@@ -47,15 +40,15 @@ showTableSorter('maintable', "{
 echo <<<end
 <thead>
 <tr>
-<th width="20"></th>
-<th>Coin</th>
-<th>Address</th>
-<th class="currency">Quantity</th>
-<th class="currency">BTC</th>
-<th>Block</th>
-<th>Status</th>
-<th>Sent</th>
-<th></th>
+<th data-sorter="" width="20"></th>
+<th data-sorter="text">Coin</th>
+<th data-sorter="text">Address</th>
+<th data-sorter="currency">Quantity</th>
+<th data-sorter="currency">BTC</th>
+<th data-sorter="numeric">Block</th>
+<th data-sorter="">Status</th>
+<th data-sorter="numeric">Sent</th>
+<th data-sorter=""></th>
 </tr>
 </thead><tbody>
 end;
@@ -87,14 +80,14 @@ foreach($earnings as $earning)
 	$coinimg = CHtml::image($coin->image, $coin->symbol, array('width'=>'16'));
 	$coinlink = CHtml::link($coin->name, '/site/coin?id='.$coin->id);
 
-	echo "<tr class='ssrow'>";
+	echo '<tr class="ssrow">';
 	echo "<td>$coinimg</td>";
 	echo "<td><b>$coinlink</b>&nbsp;($coin->symbol_show)</td>";
 	echo '<td><b><a href="/?address='.$user->username.'">'.$user->username.'</a></b></td>';
 	echo '<td>'.bitcoinvaluetoa($earning->amount).'</td>';
 	echo '<td>'.bitcoinvaluetoa($earning->amount * $earning->price).'</td>';
-	echo "<td>$block->height</td>";
-	echo "<td>$block->category ($block->confirmations)</td>";
+	echo '<td>'.$block->height.'</td>';
+	echo '<td data="'.$block->height.'">'."$block->category ($block->confirmations)</td>";
 	echo '<td data="'.$earning->create_time.'">'."$t1 $t2</td>";
 
 	echo "<td>

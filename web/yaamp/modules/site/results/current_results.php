@@ -6,22 +6,30 @@ echo "<div class='main-left-box'>";
 echo "<div class='main-left-title'>Pool Status</div>";
 echo "<div class='main-left-inner'>";
 
-//echo "<table class='dataGrid2'>";
-showTableSorter('maintable1');
-echo "<thead>";
-echo "<tr>";
-echo "<th>Algo</th>";
-echo "<th align=right>Port</th>";
-echo "<th align=right>Coins</th>";
-echo "<th align=right>Miners</th>";
-echo "<th align=right>Hashrate</th>";
-echo "<th align=right>Fees**</th>";
-echo '<th class="estimate" align=right>Current<br>Estimate</th>';
-//echo "<th>Norm</th>";
-echo '<th class="estimate" align=right>24 Hours<br>Estimated</th>';
-echo "<th align=right>24 Hours<br>Actual***</th>";
-echo "</tr>";
-echo "</thead>";
+showTableSorter('maintable1', "{
+	tableClass: 'dataGrid2',
+	textExtraction: {
+		3: function(node, table, n) { return $(node).attr('data'); },
+		6: function(node, table, n) { return $(node).attr('data'); }
+	}
+}");
+
+echo <<<END
+<thead>
+<tr>
+<th>Algo</th>
+<th data-sorter="numeric" align="right">Port</th>
+<th data-sorter="numeric" align="right">Coins</th>
+<th data-sorter="numeric" align="right">Miners</th>
+<th data-sorter="numeric" align="right">Hashrate</th>
+<th data-sorter="currency" align="right">Fees**</th>
+<th data-sorter="currency"  class="estimate" align=right>Current<br>Estimate</th>
+<!--<th data-sorter="currency" >Norm</th>-->
+<th data-sorter="currency" class="estimate" align=right>24 Hours<br>Estimated</th>
+<th data-sorter="currency"align="right">24 Hours<br>Actual***</th>
+</tr>
+</thead>
+END;
 
 $best_algo = '';
 $best_norm = 0;
@@ -79,7 +87,7 @@ foreach($algos as $item)
 
 	$hashrate = controller()->memcache->get_database_scalar("current_hashrate-$algo",
 		"select hashrate from hashrate where algo=:algo order by time desc limit 1", array(':algo'=>$algo));
-	$hashrate = $hashrate? Itoa2($hashrate).'h/s': '-';
+	$hashrate_sfx = $hashrate? Itoa2($hashrate).'h/s': '-';
 
 	$price = controller()->memcache->get_database_scalar("current_price-$algo",
 		"select price from hashrate where algo=:algo order by time desc limit 1", array(':algo'=>$algo));
@@ -116,7 +124,7 @@ foreach($algos as $item)
 	echo "<td align=right style='font-size: .8em;'>$port</td>";
 	echo "<td align=right style='font-size: .8em;'>".($coins==1 ? $coinsym : $coins)."</td>";
 	echo "<td align=right style='font-size: .8em;'>$workers</td>";
-	echo "<td align=right style='font-size: .8em;'>$hashrate</td>";
+	echo '<td align="right" style="font-size: .8em;" data="'.$hashrate.'">'.$hashrate_sfx.'</td>';
 	echo "<td align=right style='font-size: .8em;'>{$fees}%</td>";
 
 	if($algo == $best_algo)
@@ -131,9 +139,9 @@ foreach($algos as $item)
 	echo '<td class="estimate" align="right" style="font-size: .8em;">'.$avgprice.'</td>';
 
 	if($algo == $best_algo)
-		echo "<td align=right style='font-size: .8em;'><b>$btcmhday1*</b></td>";
+		echo '<td align="right" style="font-size: .8em;" data="'.$btcmhday1.'"><b>'.$btcmhday1.'*</b></td>';
 	else
-		echo "<td align=right style='font-size: .8em;'>$btcmhday1</td>";
+		echo '<td align="right" style="font-size: .8em;" data="'.$btcmhday1.'">'.$btcmhday1.'</td>';
 
 	echo "</tr>";
 

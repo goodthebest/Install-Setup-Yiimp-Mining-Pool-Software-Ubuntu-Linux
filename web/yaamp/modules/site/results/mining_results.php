@@ -35,20 +35,28 @@ else
 
 WriteBoxHeader("Mining $count coins at $total_rate_d * with $worker miners ($algo)");
 
-//echo "<table  class='dataGrid2'>";
-showTableSorter('maintable3');
-echo "<thead>";
-echo "<tr>";
-echo "<th></th>";
-echo "<th>Name</th>";
-echo "<th align=right>Amount</th>";
-echo "<th align=right>Diff</th>";
-echo "<th align=right>Block</th>";
-echo "<th align=right>TTF*</th>";
-echo "<th align=right>Hash**</th>";
-echo "<th align=right>Profit***</th>";
-echo "</tr>";
-echo "</thead>";
+showTableSorter('maintable3', "{
+	tableClass: 'dataGrid2',
+	textExtraction: {
+		6: function(node, table, n) { return $(node).attr('data'); },
+		7: function(node, table, n) { return $(node).attr('data'); }
+	}
+}");
+
+echo <<<END
+<thead>
+<tr>
+<th data-sorter=""></th>
+<th data-sorter="text">Name</th>
+<th align="right">Amount</th>
+<th align="right">Diff</th>
+<th align="right">Block</th>
+<th align="right">TTF*</th>
+<th data-sorter="numeric" align="right">Hash**</th>
+<th data-sorter="currency" align="right">Profit***</th>
+</tr>
+</thead>
+END;
 
 if($algo != 'all' && $showrental)
 {
@@ -81,7 +89,7 @@ foreach($list as $coin)
 	$pool_ttf = $pool_ttf? sectoa2($pool_ttf): '';
 
 	$pool_hash_pow = yaamp_pool_rate_pow($coin->algo);
-	$pool_hash_pow = $pool_hash_pow? Itoa2($pool_hash_pow).'h/s': '';
+	$pool_hash_pow_sfx = $pool_hash_pow? Itoa2($pool_hash_pow).'h/s': '';
 
 	$min_ttf = $coin->network_ttf>0? min($coin->actual_ttf, $coin->network_ttf): $coin->actual_ttf;
 	$network_hash = $coin->difficulty * 0x100000000 / ($min_ttf? $min_ttf: 60);
@@ -159,12 +167,12 @@ foreach($list as $coin)
 		echo "<td align=right style='font-size: .8em;'>$pool_ttf</td>";
 
 	if($coin->auxpow && $coin->auto_ready)
-		echo "<td align=right style='font-size: .8em; opacity: 0.6;' title='merge mined\n$network_hash'>$pool_hash_pow</td>";
+		echo "<td align=right style='font-size: .8em; opacity: 0.6;' title='merge mined\n$network_hash'>$pool_hash_pow_sfx</td>";
 	else
-		echo "<td align=right style='font-size: .8em;' title='$network_hash'>$pool_hash</td>";
+		echo "<td align=right style='font-size: .8em;' title='$network_hash' data='$pool_hash_pow'>$pool_hash_pow_sfx</td>";
 
 	$btcmhd = mbitcoinvaluetoa($btcmhd);
-	echo "<td align=right style='font-size: .8em;'><b>$btcmhd</b></td>";
+	echo "<td align=right style='font-size: .8em;' data='$btcmhd'><b>$btcmhd</b></td>";
 	echo "</tr>";
 }
 

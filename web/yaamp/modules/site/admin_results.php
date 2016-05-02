@@ -7,7 +7,6 @@ echo <<<end
 tr.ssrow.filtered { display: none; }
 th.status, td.status { min-width: 30px; max-width: 48px; }
 td.status span { font-variant: small-caps; font-weight: bolder; }
-.red { color: red; } .green { color: green; } .blue { color: blue; }
 </style>
 end;
 

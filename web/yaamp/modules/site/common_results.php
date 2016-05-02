@@ -6,9 +6,8 @@ $showrental = (bool) YAAMP_RENTAL;
 
 echo <<<END
 <style type="text/css">
-th.tablesorter-headerAsc,
-th.tablesorter-headerDesc { color: blue; }
 </style>
+
 <br/><table width="100%"><tr><td valign="top">
 END;
 
