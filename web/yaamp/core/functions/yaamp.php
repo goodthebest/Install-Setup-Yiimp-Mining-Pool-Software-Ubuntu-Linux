@@ -9,6 +9,7 @@ function yaamp_get_algos()
 		'scryptn',
 		'argon2',
 		'blake',
+		'blakecoin',
 		'blake2s',
 		'decred',
 		'keccak',
@@ -109,6 +110,7 @@ function getAlgoColors($algo)
 		'x15'		=> '#f0b0a0',
 		'argon2'	=> '#e0d0e0',
 		'blake'		=> '#f0f0f0',
+		'blakecoin'	=> '#f0f0f0',
 		'groestl'	=> '#d0a0a0',
 		'dmd-gr'	=> '#a0c0f0',
 		'myr-gr'	=> '#a0c0f0',
@@ -171,6 +173,7 @@ function getAlgoPort($algo)
 		'zr5'		=> 5533,
 		// 5555 to 5683 reserved
 		'blake'		=> 5733,
+		'blakecoin'	=> 5743,
 		'decred'	=> 5744,
 		'vanilla'	=> 5755,
 		'blake2s'	=> 5766,
