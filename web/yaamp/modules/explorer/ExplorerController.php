@@ -6,6 +6,23 @@ class ExplorerController extends CommonController
 {
 	public $defaultAction='index';
 
+	public function run($actionID)
+	{
+		// Forward the url /explorer/BTC to the BTC block explorer
+		if (!empty($actionID) && !isset($_REQUEST['id'])) {
+			if (strlen($actionID) <= 5) {
+				$coin = getdbosql('db_coins', "enable AND visible AND symbol=:symbol", array(
+					':symbol'=>strtoupper($actionID)
+				));
+				if ($coin) {
+					$_REQUEST['id'] = $coin->id;
+					$this->forward('id');
+				}
+			}
+		}
+		return parent::run($actionID);
+	}
+
 	/////////////////////////////////////////////////
 
 	public function actionIndex()
@@ -43,6 +60,11 @@ class ExplorerController extends CommonController
 
 		else
 			$this->render('index');
+	}
+
+	public function actionId()
+	{
+		return $this->actionIndex();
 	}
 
 	/**
