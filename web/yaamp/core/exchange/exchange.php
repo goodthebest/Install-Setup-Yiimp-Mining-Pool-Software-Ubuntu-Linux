@@ -39,6 +39,13 @@ function getMarketUrl($coin, $marketName)
 		$parts = explode(' ',$marketName);
 		$market = $parts[0];
 		$base = $parts[1];
+		if (empty($base)) {
+			debuglog("warning: invalid market name '$marketName'");
+			$base = dboscalar(
+			"SELECT base_coin FROM markets WHERE coinid=:id AND name=:name", array(
+				':id'=>$coin->id, ':name'=>$marketName,
+			));
+		}
 	}
 
 	$lowbase = strtolower($base);

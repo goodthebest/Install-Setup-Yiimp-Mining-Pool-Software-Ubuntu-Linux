@@ -116,30 +116,31 @@ $total_pending = bitcoinvaluetoa($total_pending);
 
 if(!$show_details && $total_unsold > 0)
 {
-	echo "<tr><td colspan=6 align=right>
-		<label style='font-size: .8em;'>
-			<input type='checkbox' onclick='javascript:main_wallet_refresh_details()'>
+	echo '
+	<tr><td colspan="6" align="right">
+		<label style="font-size: .8em;">
+			<input type="checkbox" onclick="javascript:main_wallet_refresh_details()">
 			Show Details
 		</label>
-	</td></tr>";
+	</td></tr>';
 }
 
-echo "<tr class='ssrow' style='border-top: 3px solid #eee;'>";
+echo '<tr class="ssrow" style="border-top: 3px solid #eee;">';
 
-echo "<td valign=top><img width=16 src='$refcoin->image'></td>";
-echo "<td valign=top><b>";
+echo '<td valign="top"><img width="16" src="'.$refcoin->image.'"></td>';
+echo '<td valign="top"><b>';
 
 if($refcoin->symbol == 'BTC')
-	echo "$refcoin->name";
+	echo $refcoin->name;
 else
-	echo "<a href='/site/block?id={$refcoin->id}'>$refcoin->name</a>";
+	echo '<a href="/site/block?id='.$refcoin->id.'">'.$refcoin->name.'</a>';
 
 echo '<br/><span style="font-size: .8em;"">(total pending)</span></b></td>';
 
-echo "<td valign=top align=right style='font-size: .8em;'>$unconfirmed</td>";
-echo "<td valign=top align=right style='font-size: .8em;'>$confirmed</td>";
-echo "<td valign=top align=right style='font-size: .8em;'></td>";
-echo "<td valign=top align=right style='font-size: .8em;'>$total_unsold $refcoin->symbol</td>";
+echo '<td valign="top" align="right" style="font-size: .8em;">'.$unconfirmed.'</td>';
+echo '<td valign="top" align="right" style="font-size: .8em;">'.$confirmed.'</td>';
+echo '<td valign="top" align="right" style="font-size: .8em;"></td>';
+echo '<td valign="top" align="right" style="font-size: .8em;">'.$total_unsold.' '.$refcoin->symbol.'</td>';
 
 echo "</tr>";
 

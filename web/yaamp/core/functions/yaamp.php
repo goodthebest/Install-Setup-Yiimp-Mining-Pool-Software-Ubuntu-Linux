@@ -293,12 +293,12 @@ function yaamp_convert_earnings_user($user, $status)
 	$value = 0.;
 	if (YAAMP_ALLOW_EXCHANGE) {
 		if(!$refcoin) $refcoin = getdbosql('db_coins', "symbol='BTC'");
-		if(!$refcoin || $refcoin->price2 <= 0) return 0;
+		if(!$refcoin || $refcoin->price <= 0) return 0;
 		$value = dboscalar("SELECT sum(amount*price) FROM earnings WHERE $status AND userid={$user->id}");
-		$value = $value / $refcoin->price2;
-	} else if ($refcoin && $refcoin->price2 > 0.) {
+		$value = $value / $refcoin->price;
+	} else if ($refcoin && $refcoin->price > 0.) {
 		$value = dboscalar("SELECT sum(amount*price) FROM earnings WHERE $status AND userid={$user->id}");
-		$value = $value / $refcoin->price2;
+		$value = $value / $refcoin->price;
 	} else if ($user->coinid) {
 		$value = dboscalar("SELECT sum(amount) FROM earnings WHERE $status AND userid={$user->id} AND coinid=".$user->coinid);
 	}
