@@ -61,6 +61,28 @@ class db_coins extends CActiveRecord
 			return $this->symbol;
 	}
 
+	/**
+	 * Link for txs
+	 * @param string $label link content
+	 * @param array $params 'height'=>123 or 'hash'=>'xxx' or 'txid'=>'xxx'
+	 * @param array $htmlOptions target/title ...
+	 */
+	public function createExplorerLink($label, $params=array(), $htmlOptions=array(), $force=false)
+	{
+		if($this->id == 6 && isset($params['txid'])) {
+			// BTC txid
+			$url = 'https://blockchain.info/tx/'.$params['txid'];
+			$htmlOpts = array_merge(array('target'=>'_blank'), $htmlOptions);
+			return CHtml::link($label, $url, $htmlOpts);
+		}
+		else if (YIIMP_PUBLIC_EXPLORER || $force || user()->getState('yaamp_admin')) {
+			$urlParams = array_merge(array('id'=>$this->id), $params);
+			Yii::import('application.modules.explorer.ExplorerController');
+			$url = ExplorerController::createUrl('/explorer', $urlParams);
+			return CHtml::link($label, trim($url,'?'), $htmlOptions);
+		}
+		return $label;
+	}
 
 }
 

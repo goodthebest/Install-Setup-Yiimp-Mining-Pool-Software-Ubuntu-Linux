@@ -230,7 +230,7 @@ foreach($txs_array as $tx)
 	if(!empty($block)) {
 		$txid = arraySafeVal($tx, 'txid');
 		$label = substr($txid, 0, 7);
-		echo CHtml::link($label, '/explorer?id='.$coin->id.'&txid='.$txid, array('target'=>'_blank'));
+		echo $coin->createExplorerLink($label, array('txid'=>$txid), array('target'=>'_blank'));
 	}
 	echo '</td>';
 

@@ -70,9 +70,10 @@ foreach($earnings as $earning)
 	$percent = mbitcoinvaluetoa($earning->amount*100/$block->amount);
 	$value = altcoinvaluetoa($earning->amount*$earning->price*1000);
 
+	$blockUrl = $coin->createExplorerLink($coin->name, array('height'=>$block->height));
 	echo "<tr class='ssrow'>";
 	echo "<td width=18><img width=16 src='$coin->image'></td>";
-	echo "<td><b>$coin->name</b><span style='font-size: .8em'> ($coin->algo)</span></td>";
+	echo "<td><b>$blockUrl</b><span style='font-size: .8em'> ($coin->algo)</span></td>";
 	echo "<td align=right style='font-size: .8em'><b>$reward $coin->symbol_show</b></td>";
 	echo "<td align=right style='font-size: .8em'>{$percent}%</td>";
 	echo "<td align=right style='font-size: .8em'>$value</td>";

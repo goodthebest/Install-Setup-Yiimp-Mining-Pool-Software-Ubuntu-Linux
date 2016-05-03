@@ -69,11 +69,12 @@ foreach($db_blocks as $db_block)
 	$coin = $db_block->coin ? $db_block->coin : getdbo('db_coins', $db_block->coin_id);
 	$difficulty = Itoa2($db_block->difficulty, 3);
 	$height = number_format($db_block->height, 0, '.', ' ');
-	$url = "/explorer?id=$coin->id&hash=$db_block->blockhash";
 
-	echo "<tr class='ssrow'>";
-	echo "<td width=18><img width=16 src='$coin->image'></td>";
-	echo "<td><b><a href='$url'>$coin->name</a></b><span style='font-size: .8em'> ($coin->algo)</span></td>";
+	$link = $coin->createExplorerLink($coin->name, array('hash'=>$db_block->blockhash));
+
+	echo '<tr class="ssrow">';
+	echo '<td width="18"><img width="16" src="'.$coin->image.'"></td>';
+	echo "<td><b>$link</b><span style='font-size: .8em'> ($coin->algo)</span></td>";
 	echo "<td align=right style='font-size: .8em'><b>$reward $coin->symbol_show</b></td>";
 	echo "<td align=right style='font-size: .8em' title='found $db_block->difficulty_user'>$difficulty</td>";
 	echo "<td align=right style='font-size: .8em'>$height</td>";

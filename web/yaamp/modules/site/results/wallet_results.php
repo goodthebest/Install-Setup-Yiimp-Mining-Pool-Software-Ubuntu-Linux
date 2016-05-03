@@ -241,20 +241,15 @@ foreach($list as $payout)
 	$amount = bitcoinvaluetoa($payout->amount);
 	$firstid = min($firstid, (int) $payout->id);
 
+	echo '<tr class="ssrow">';
+	echo '<td align="right"><b>'.$d.' ago</b></td>';
+	echo '<td align="right"><b>'.$amount.'</b></td>';
+
 	$payout_tx = substr($payout->tx, 0, 36).'...';
+	$link = $refcoin->createExplorerLink($payout_tx, array('txid'=>$payout->tx), array(), true);
 
-	echo "<tr class='ssrow'>";
-
-	echo "<td align=right><b>$d ago</b></td>";
-	echo "<td align=right><b>$amount</b></td>";
-
-	if($user->coinid == 6)
-		$txurl = "https://blockchain.info/tx/$payout->tx";
-	else
-		$txurl = "/explorer?id=$user->coinid&txid=$payout->tx";
-
-	echo "<td style='font-family: monospace;'><a href='$txurl' target=_blank>$payout_tx</a></td>";
-	echo "</tr>";
+	echo '<td style="font-family: monospace;">'.$link.'</td>';
+	echo '</tr>';
 
 	$total += $payout->amount;
 }
@@ -296,19 +291,15 @@ end;
 		$d = datetoa2($payout->time);
 		$amount = bitcoinvaluetoa($payout->amount);
 
+		echo '<tr class="ssrow">';
+		echo '<td align="right"><b>'.$d.' ago</b></td>';
+		echo '<td align="right"><b>'.$amount.'</b></td>';
+
 		$payout_tx = substr($payout->tx, 0, 36).'...';
+		$link = $refcoin->createExplorerLink($payout_tx, array('txid'=>$payout->tx), array(), true);
 
-		echo "<tr class='ssrow'>";
-
-		echo "<td align=right><b>$d ago</b></td>";
-		echo "<td align=right><b>$amount</b></td>";
-
-		if($user->coinid == 6)
-			$txurl = "https://blockchain.info/tx/$payout->tx";
-		else
-			$txurl = "/explorer?id=$user->coinid&txid=$payout->tx";
-		echo "<td style='font-family: monospace;'><a href='$txurl' target=_blank>$payout_tx</a></td>";
-		echo "</tr>";
+		echo '<td style="font-family: monospace;">'.$link.'</td>';
+		echo '</tr>';
 
 		$total += $payout->amount;
 	}

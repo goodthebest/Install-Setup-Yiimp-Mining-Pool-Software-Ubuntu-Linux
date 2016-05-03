@@ -86,14 +86,8 @@ foreach($db_blocks as $db_block)
 
 	$d = datetoa2($db_block->time);
 	echo '<td data="'.$db_block->time.'"><b>'.$d.' ago</b></td>';
-
-	if (YIIMP_PUBLIC_EXPLORER)
-		echo '<td><a href="/explorer?id='.$coin->id.'&height='.$db_block->height.'">'.$db_block->height.'</a></td>';
-	else
-		echo "<td>$db_block->height</td>";
-
-	echo "<td>$db_block->amount</td>";
-
+	echo '<td>'.$coin->createExplorerLink($db_block->height, array('height'=>$db_block->height)).'</td>';
+	echo '<td>'.$db_block->amount.'</td>';
 	echo '<td class="'.strtolower($db_block->category).'">';
 
 	if($db_block->category == 'orphan')
@@ -126,10 +120,7 @@ foreach($db_blocks as $db_block)
 	}
 	echo '<td>'.$finder.'</td>';
 	echo '<td style="font-size: .8em; font-family: monospace;">';
-	if (YIIMP_PUBLIC_EXPLORER)
-		echo '<a href="/explorer?id='.$coin->id.'&hash='.$db_block->blockhash.'">'.$db_block->blockhash.'</a>';
-	else
-		echo $db_block->blockhash;
+	echo $coin->createExplorerLink($db_block->blockhash, array('hash'=>$db_block->blockhash));
 	echo "</td>";
 	echo "</tr>";
 }

@@ -3,11 +3,16 @@
 JavascriptFile("/yaamp/ui/js/jquery.metadata.js");
 JavascriptFile("/yaamp/ui/js/jquery.tablesorter.widgets.js");
 
-echo "<br/>";
+echo <<<end
+<style type="text/css">
+td.low { color: red; font-weight: bold; }
+</style>
 
-echo "<div class='main-left-box'>";
-echo "<div class='main-left-title'>Block Explorer</div>";
-echo "<div class='main-left-inner'>";
+<br/>
+<div class="main-left-box">
+<div class="main-left-title">Block Explorer</div>
+<div class="main-left-inner">
+end;
 
 showTableSorter('maintable', "{
 	tableClass: 'dataGrid2',
@@ -64,13 +69,13 @@ foreach($list as $coin)
 	echo '<tr class="ssrow">';
 	echo '<td><img src="'.$coin->image.'" width="18"></td>';
 
-	echo "<td><b><a href='/explorer?id=$coin->id'>$coin->name</a></b></td>";
-	echo "<td><b>$coin->symbol</b></td>";
+	echo '<td><b>'.$coin->createExplorerLink($coin->name).'</a></b></td>';
+	echo '<td><b>'.$coin->symbol.'</b></td>';
 
-	echo "<td>$coin->algo</td>";
-	echo "<td>$coin->version</td>";
+	echo '<td>'.$coin->algo.'</td>';
+	echo '<td>'.$coin->version.'</td>';
 
-	echo "<td>$coin->block_height</td>";
+	echo '<td>'.$coin->block_height.'</td>';
 	echo '<td data="'.$coin->difficulty.'">'.$difficulty.'</td>';
 	$cnx_class = (intval($coin->connections) > 3) ? '' : 'low';
 	echo '<td class="'.$cnx_class.'">'.$coin->connections.'</td>';
@@ -91,10 +96,6 @@ foreach($list as $coin)
 echo <<<end
 </tbody>
 </table>
-
-<style type="text/css">
-td.low { color: red; font-weight: bold; }
-</style>
 
 <br></div></div>
 

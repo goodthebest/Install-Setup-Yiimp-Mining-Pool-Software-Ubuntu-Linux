@@ -1,42 +1,50 @@
 <?php
 
+if (!$coin) $this->goback();
+
 JavascriptFile("/extensions/jqplot/jquery.jqplot.js");
 JavascriptFile("/extensions/jqplot/plugins/jqplot.dateAxisRenderer.js");
 JavascriptFile("/extensions/jqplot/plugins/jqplot.highlighter.js");
 
 $this->pageTitle = $coin->name." bloc explorer";
 
-$start = (int) getparam('start');
+$start = (int) getiparam('start');
 
-if ($coin) echo <<<ENDJS
-	<script>
-	$(function() {
-		$('#favicon').remove();
-		$('head').append('<link href="{$coin->image}" id="favicon" rel="shortcut icon">');
-	});
-	</script>
-ENDJS;
+echo <<<END
+<script type="text/javascript">
+$(function() {
+	$('#favicon').remove();
+	$('head').append('<link href="{$coin->image}" id="favicon" rel="shortcut icon">');
+});
+</script>
+<style type="text/css">
+table.dataGrid2 { margin-top: 0; }
+span.monospace { font-family: monospace; }
+.main-text-input { }
+.page .footer { width: auto; }
+</style>
+END;
 
 // version is used for multi algo coins
 // but each coin use different values...
 $multiAlgos = versionToAlgo($coin, 0) !== false;
 
-echo "<br>";
-echo "<div class='main-left-box'>";
-echo "<div class='main-left-title'>$coin->name Explorer</div>";
-echo "<div class='main-left-inner'>";
+echo '<br/>';
+echo '<div class="main-left-box">';
+echo '<div class="main-left-title">'.$coin->name.' Explorer</div>';
+echo '<div class="main-left-inner" style="padding-left: 8px; padding-right: 8px;">';
 
-echo "<table  class='dataGrid2'>";
+echo '<table class="dataGrid2">';
 
 echo "<thead>";
 echo "<tr>";
-echo "<th>Time</th>";
+echo "<th>Age</th>";
 echo "<th>Height</th>";
-echo "<th>Diff</th>";
+echo "<th>Difficulty</th>";
 echo "<th>Type</th>";
 if ($multiAlgos) echo "<th>Algo</th>";
-echo "<th>Transactions</th>";
-echo "<th>Confirmations</th>";
+echo "<th>Tx</th>";
+echo "<th>Conf</th>";
 echo "<th>Blockhash</th>";
 echo "</tr>";
 echo "</thead>";
@@ -63,15 +71,18 @@ for($i = $start; $i > max(1, $start-21); $i--)
 	else if (isset($block['mint']) || arraySafeVal($block,'flags') == 'proof-of-stake') $type = 'PoS';
 
 //	debuglog($block);
-	echo "<tr class='ssrow'>";
-	echo "<td>$d</td>";
-	echo "<td><a href='/explorer?id=$coin->id&height=$i'>$i</a></td>";
-	echo "<td>$diff</td>";
-	echo "<td>$type</td>";
+	echo '<tr class="ssrow">';
+	echo '<td>'.$d.'</td>';
+
+	echo '<td>'.$coin->createExplorerLink($i, array('height'=>$i)).'</td>';
+
+	echo '<td>'.$diff.'</td>';
+	echo '<td>'.$type.'</td>';
 	if ($multiAlgos) echo "<td>$algo</td>";
-	echo "<td>$tx</td>";
-	echo "<td>$confirms</td>";
-	echo "<td><span style='font-family: monospace;'><a href='/explorer?id=$coin->id&hash=$hash'>$hash</a></span></td>";
+	echo '<td>'.$tx.'</td>';
+	echo '<td>'.$confirms.'</td>';
+
+	echo '<td><span class="monospace">'.$coin->createExplorerLink($hash, array('hash'=>$hash)).'</span></td>';
 
 	echo "</tr>";
 }
@@ -80,19 +91,20 @@ echo "</table>";
 
 $pager = '';
 if ($start <= $coin->block_height - 20)
-	$pager  = '<a href="?id='.$coin->id.'&start='.min($coin->block_height,$start+20).'"><< Prev</a>';
+	$pager  = $coin->createExplorerLink('<< Prev', array('start'=>min($coin->block_height,$start+20)));
 if ($start != $coin->block_height)
-	$pager .= '&nbsp; <a href="?id='.$coin->id.'">Now</a>';
+	$pager .= '&nbsp; '.$coin->createExplorerLink('Now');
 if ($start > 20)
-	$pager .= '&nbsp; <a href="?id='.$coin->id.'&start='.max(1,$start-20).'">Next >></a>';
+	$pager .= '&nbsp; '.$coin->createExplorerLink('Next >>', array('start'=>max(1,$start-20)));
+
+$actionUrl = $coin->visible ? '/explorer/'.$coin->symbol : '/explorer/search?id='.$coin->id;
 
 echo <<<end
-<div id="pager" style="float: right; width: 200px; text-align: right; margin-right: 20px; margin-top: 4px;">$pager</div>
-<div id="form" style="width: 650px; height: 50px;">
-<form action="/explorer" method="get" style="padding-top: 4px; width: 650px;">
-<input type="hidden" name="id" value="{$coin->id}">
+<div id="pager" style="float: right; width: 200px; text-align: right; margin-right: 16px; margin-top: 8px;">$pager</div>
+<div id="form" style="width: 660px; height: 50px; overflow: hidden;">
+<form action="{$actionUrl}" method="POST" style="padding-top: 4px; width: 650px;">
 <input type="text" name="height" class="main-text-input" placeholder="Height" style="width: 80px;">
-<input type="text" name="txid" class="main-text-input" placeholder="Transaction hash" style="width: 450px;">
+<input type="text" name="txid" class="main-text-input" placeholder="Transaction hash" style="width: 450px; margin: 4px;">
 <input type="submit" value="Search" class="main-submit-button" >
 </form>
 </div>
@@ -102,7 +114,7 @@ if ($start != $coin->block_height)
 	return;
 
 echo <<<end
-<div id="diff_graph" style="margin-right: 8px;">
+<div id="diff_graph" style="margin-right: 8px; margin-top: -16px;">
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 </div>
 

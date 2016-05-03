@@ -5,8 +5,9 @@ if (!$coin) return;
 $this->pageTitle = $coin->name." block explorer";
 
 $txid = getparam('txid', 'tssssssss');
+if (empty($txid)) $txid = 'tssssssss'; // rmmm
 
-echo <<<ENDJS
+echo <<<END
 <script type="text/javascript">
 function toggleRaw(el) {
 	$(el).parents('tr').next('tr.raw').toggle();
@@ -18,7 +19,15 @@ $(function() {
 	$('span.txid:contains("{$txid}")').css('color','darkred');
 });
 </script>
-ENDJS;
+
+<style type="text/css">
+span.monospace { font-family: monospace; }
+span.txid { cursor: pointer; }
+tr.raw td { overflow-x: scroll; max-width: 1880px; }
+pre.json { font-size: 10px; }
+.main-text-input { margin-top: 4px; margin-bottom: 4px; }
+</style>
+END;
 
 function simplifyscript($script)
 {
@@ -45,8 +54,8 @@ $nonce = dechex($block['nonce']);
 echo '<table class="dataGrid1">';
 echo '<tr><td width=100></td><td></td></tr>';
 
-echo '<tr><td>Coin:</td><td><b><a href="/explorer?id='.$coin->id.'">'.$coin->name.'</a></b></td></tr>';
-echo '<tr><td>Blockhash:</td><td><span class="txid" style="font-family: monospace;">'.$hash.'</span></td></tr>';
+echo '<tr><td>Coin:</td><td><b>'.$coin->createExplorerLink($coin->name).'</b></td></tr>';
+echo '<tr><td>Blockhash:</td><td><span class="txid monospace">'.$hash.'</span></td></tr>';
 
 echo '</tr><tr class="raw" style="display:none;"><td colspan="2"><pre class="json">';
 echo json_encode($block, 128);
@@ -56,23 +65,25 @@ echo '<tr><td>Confirmations:</td><td>'.$confirms.'</td></tr>';
 echo '<tr><td>Height:</td><td>'.$block['height'].'</td></tr>';
 echo '<tr><td>Time:</td><td>'.$d.'</td></tr>';
 echo '<tr><td>Difficulty:</td><td>'.$block['difficulty'].'</td></tr>';
-echo '<tr><td>Bits:</td><td><span style="font-family: monospace;">'.$block['bits'].'</span></td></tr>';
-echo '<tr><td>Nonce:</td><td><span style="font-family: monospace;">'.$nonce.'</span></td></tr>';
-echo '<tr><td>Version:</td><td><span style="font-family: monospace;">'.$version.'</span></td></tr>';
+echo '<tr><td>Bits:</td><td><span class="monospace">'.$block['bits'].'</span></td></tr>';
+echo '<tr><td>Nonce:</td><td><span class="monospace">'.$nonce.'</span></td></tr>';
+echo '<tr><td>Version:</td><td><span class="monospace">'.$version.'</span></td></tr>';
 echo '<tr><td>Size:</td><td>'.$block['size'].' bytes</td></tr>';
 
 if(isset($block['flags']))
-	echo '<tr><td>Flags:</td><td><span style="font-family: monospace;">'.$block['flags'].'</span></td></tr>';
+	echo '<tr><td>Flags:</td><td><span class="monospace">'.$block['flags'].'</span></td></tr>';
 
 if(isset($block['previousblockhash']))
-	echo '<tr><td>Previous Hash:</td><td><span style="font-family: monospace;">
-		<a href="/explorer?id='.$coin->id.'&hash='.$block['previousblockhash'].'">'.$block['previousblockhash'].'</a></span></td></tr>';
+	echo '<tr><td>Previous Hash:</td><td><span class="monospace">'.
+		$coin->createExplorerLink($block['previousblockhash'], array('hash'=>$block['previousblockhash'])).
+	'</span></td></tr>';
 
 if(isset($block['nextblockhash']))
-	echo '<tr><td>Next Hash:</td><td><span style="font-family: monospace;">
-		<a href="/explorer?id='.$coin->id.'&hash='.$block['nextblockhash'].'">'.$block['nextblockhash'].'</a></span></td></tr>';
+	echo '<tr><td>Next Hash:</td><td><span class="monospace">'.
+		$coin->createExplorerLink($block['nextblockhash'], array('hash'=>$block['nextblockhash'])).
+	'</span></td></tr>';
 
-echo '<tr><td>Merkle Root:</td><td><span style="font-family: monospace;">'.$block['merkleroot'].'</span></td></tr>';
+echo '<tr><td>Merkle Root:</td><td><span class="monospace">'.$block['merkleroot'].'</span></td></tr>';
 
 echo '<tr><td>Transactions:</td><td>'.$txcount.'</td></tr>';
 
@@ -81,11 +92,6 @@ echo "</table><br>";
 ////////////////////////////////////////////////////////////////////////////////
 
 echo <<<end
-<style type="text/css">
-span.txid { font-family: monospace; cursor: pointer; }
-tr.raw td { overflow-x: scroll; max-width: 1880px; }
-pre.json { font-size: 10px; }
-</style>
 
 <table class="dataGrid">
 <thead>
@@ -107,9 +113,8 @@ foreach($block['tx'] as $txhash)
 	foreach($tx['vout'] as $vout)
 		$valuetx += $vout['value'];
 
-	echo "<tr class='ssrow'>";
-
-	echo '<td><span class="txid">'.$tx['txid'].'</span></td>';
+	echo '<tr class="ssrow">';
+	echo '<td><span class="txid monospace">'.$tx['txid'].'</span></td>';
 	echo "<td>$valuetx</td>";
 
 	echo "<td>";
@@ -126,7 +131,7 @@ foreach($block['tx'] as $txhash)
 		if ($value == 0) continue;
 
 		if(isset($vout['scriptPubKey']['addresses'][0]))
-			echo '<span style="font-family: monospace;">'.$vout['scriptPubKey']['addresses'][0]."</span> ($value)";
+			echo '<span class="monospace">'.$vout['scriptPubKey']['addresses'][0]."</span> ($value)";
 		else
 			echo "($value)";
 
@@ -158,7 +163,7 @@ if ($coin->rpcencoding == 'DCR' && isset($block['stx'])) {
 			$valuetx += $vout['value'];
 
 		echo '<tr class="ssrow">';
-		echo '<td><span class="txid">'.$stx['txid'].'</span></td>';
+		echo '<td><span class="txid monospace">'.$stx['txid'].'</span></td>';
 		echo "<td>$valuetx</td>";
 
 		echo "<td>";
@@ -166,7 +171,7 @@ if ($coin->rpcencoding == 'DCR' && isset($block['stx'])) {
 			echo "Ticket";
 		else foreach($stx['vin'] as $vin) {
 			if (arraySafeVal($vin,'blockheight') > 0) {
-				echo '<a href="/explorer?id='.$coin->id.'&height='.$vin['blockheight'].'">'.$vin['blockheight'].'</a>';
+				echo $coin->createExplorerLink($vin['blockheight'], array('height'=>$vin['blockheight']));
 				echo '<br/>';
 			}
 		}
@@ -179,7 +184,7 @@ if ($coin->rpcencoding == 'DCR' && isset($block['stx'])) {
 			if ($value == 0) continue;
 
 			if(isset($vout['scriptPubKey']['addresses'][0]))
-				echo '<span style="font-family: monospace;">'.$vout['scriptPubKey']['addresses'][0]."</span> ($value)";
+				echo '<span class="monospace">'.$vout['scriptPubKey']['addresses'][0]."</span> ($value)";
 			else
 				echo "($value)";
 
@@ -198,12 +203,13 @@ if ($coin->rpcencoding == 'DCR' && isset($block['stx'])) {
 
 echo '</table>';
 
+$actionUrl = $coin->visible ? '/explorer/'.$coin->symbol : '/explorer/search?id='.$coin->id;
+
 echo <<<end
-<form action="/explorer" method="get" style="padding: 10px;">
-<input type="hidden" name="id" value="$coin->id">
+<form action="{$actionUrl}" method="POST" style="padding: 8px; padding-left: 0px;">
 <input type="text" name="height" class="main-text-input" placeholder="block height" style="width: 80px;">
-<input type="text" name="txid" class="main-text-input" placeholder="tx hash" style="width: 450px;">
-<input type="submit" value="Search" class="main-submit-button" >
+<input type="text" name="txid" class="main-text-input" placeholder="tx hash" style="width: 450px; margin: 4px;">
+<input type="submit" value="Search" class="main-submit-button">
 </form>
 end;
 

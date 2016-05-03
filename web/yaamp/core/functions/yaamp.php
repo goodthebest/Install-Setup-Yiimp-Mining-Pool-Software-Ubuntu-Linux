@@ -507,12 +507,12 @@ end;
 	return $links;
 }
 
-// shared by wallet "tabs"
+// shared by wallet "tabs", to move in another php file...
 function getAdminWalletLinks($coin, $info=NULL, $src='wallet')
 {
 	$html = CHtml::link("<b>COIN PROPERTIES</b>", '/site/update?id='.$coin->id);
 	if($info) {
-		$html .= ' || '.CHtml::link("<b>EXPLORER</b>", '/explorer?id='.$coin->id);
+		$html .= ' || '.$coin->createExplorerLink("<b>EXPLORER</b>");
 		$html .= ' || '.CHtml::link("<b>PEERS</b>", '/site/peers?id='.$coin->id);
 		$html .= ' || '.CHtml::link("<b>CONSOLE</b>", '/site/console?id='.$coin->id);
 		if ($src != 'wallet')
