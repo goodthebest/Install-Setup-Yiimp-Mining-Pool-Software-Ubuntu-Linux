@@ -4,8 +4,10 @@ if (!$coin) return;
 
 $this->pageTitle = $coin->name." block explorer";
 
-$txid = getparam('txid', 'tssssssss');
-if (empty($txid)) $txid = 'tssssssss'; // rmmm
+$txid = getparam('txid');
+$q = getparam('q');
+if (!empty($q) && ctype_xdigit($q)) $txid = $q;
+elseif (empty($txid)) $txid = 'txid not set'; // prevent highlight
 
 echo <<<END
 <script type="text/javascript">

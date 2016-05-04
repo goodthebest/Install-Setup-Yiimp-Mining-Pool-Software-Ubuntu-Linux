@@ -66,12 +66,23 @@ class ExplorerController extends CommonController
 		{
 			$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
 			$hash = $remote->getblockhash(intval($height));
+		} else {
+			$hash = getparam('hash');
 		}
 
-		else
-			$hash = getparam('hash');
-
 		$txid = getparam('txid');
+		$q = getparam('q');
+		if (strlen($q) >= 32 && ctype_xdigit($q)) {
+			$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
+			$block = $remote->getblock($q);
+			if ($block) {
+				$hash = $q;
+				$height = objSafeVal($hash, 'height');
+			} else {
+				$txid = $q;
+			}
+		}
+
 		if($coin && !empty($txid) && ctype_xdigit($txid))
 		{
 			$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
@@ -103,6 +114,7 @@ class ExplorerController extends CommonController
 		$height = getiparam('height');
 		$txid = arraySafeVal($_REQUEST,'txid');
 		$hash = arraySafeVal($_REQUEST,'hash');
+		$q = arraySafeVal($_REQUEST,'q');
 		if (isset($_GET['SYM'])) {
 			// only for visible coins
 			$url = "/explorer/".$_GET['SYM']."?";
@@ -113,6 +125,7 @@ class ExplorerController extends CommonController
 		if (!empty($height)) $url .= "&height=$height";
 		if (!empty($txid)) $url .= "&txid=$txid";
 		if (!empty($hash)) $url .= "&hash=$hash";
+		if (!empty($q)) $url .= "&q=$q";
 
 		return $this->redirect(str_replace('?&', '?', $url));
 	}
