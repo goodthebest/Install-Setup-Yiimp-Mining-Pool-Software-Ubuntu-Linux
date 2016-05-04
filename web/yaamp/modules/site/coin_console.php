@@ -35,15 +35,17 @@ function colorizeJson($json)
 	// keys
 	$res = preg_match_all("#&quot;([^&]+)&quot;:#", $json, $matches);
 	if ($res) foreach($matches[1] as $n=>$m) {
-		$json = str_replace('&quot;'.$m."&quot;", ' "<s class="key">'.$m.'</s>"', $json);
+		$json = str_replace('&quot;'.$m."&quot;", '"<s class="key">'.$m.'</s>"', $json);
 	}
 	// humanize timestamps like "blocktime": 1462359961,
 	$res = preg_match_all("#: ([0-9]{10})([,\s])#", $json, $matches);
 	if ($res) foreach($matches[1] as $n=>$m) {
 		$ts = intval($m);
-		$sfx = $matches[2][$n];
-		$date = strftime("<u>%Y-%m-%d %T %z</u>", $ts);
-		$json = str_replace(' '.$m.$sfx, ' "'.$date.'"'.$sfx, $json);
+		if ($ts > 1400000000 && $ts < 1600000000) {
+			$sfx = $matches[2][$n];
+			$date = strftime("<u>%Y-%m-%d %T %z</u>", $ts);
+			$json = str_replace(' '.$m.$sfx, ' "'.$date.'"'.$sfx, $json);
+		}
 	}
 	// numeric
 	$res = preg_match_all("#: ([e\-\.0-9]+)([,\s])#", $json, $matches);

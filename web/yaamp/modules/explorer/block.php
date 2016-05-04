@@ -25,11 +25,79 @@ $(function() {
 <style type="text/css">
 span.monospace { font-family: monospace; }
 span.txid { cursor: pointer; }
-tr.raw td { overflow-x: scroll; max-width: 1880px; }
-pre.json { font-size: 10px; }
+tr.raw td { max-width: 1880px; }
+th {
+	text-align: left;
+	box-shadow: 2px 2px 2px #c0c0c0, -1px -1px 2px white;
+}
+div.json {
+	font-size: 11px;
+	white-space: pre; font-family: monospace; unicode-bidi: embed; padding: 4px;
+	overflow-x: hidden;
+	background-color: #f0f0f0;
+	border: 1px solid silver;
+	box-shadow: 2px 2px 10px silver inset;
+	-moz-box-shadow: 2px 2px 10px silver inset;
+	-webkit-box-shadow: 2px 2px 10px silver inset;
+}
+div.json s { text-decoration: none; color: #003f7f; }
+div.json s.key { color: #000000; }
+div.json s.addr { color: #3f003f; }
+div.json s a { text-decoration: none; }
+div.json s a:hover { text-decoration: underline; }
+div.json u { text-decoration: none; color: #003f7f; }
+div.json i { font-style: normal; color: #7f0000; }
+div.json b { font-style: normal; color: #7f0000; }
 .main-text-input { margin-top: 4px; margin-bottom: 4px; }
+.page .footer { width: auto; }
 </style>
 END;
+
+//////////////////////////////////////////////////////////////////////////////////////
+
+function colorizeJson($json)
+{
+	$json = str_replace('"', '&quot;', $json);
+	// strings
+	$res = preg_match_all("# &quot;([^&]+)&quot;([,\s])#", $json, $matches);
+	if ($res) foreach($matches[1] as $n=>$m) {
+		$sfx = $matches[2][$n];
+		$class = '';
+		if (strlen($m) == 64 && ctype_xdigit($m)) $class = 'hash';
+		if (strlen($m) == 34 && ctype_alnum($m)) $class = 'addr';
+		if (strlen($m) == 35 && ctype_alnum($m)) $class = 'addr';
+		if (strlen($m) > 160 && ctype_alnum($m)) $class = 'data';
+		if ($class == '' && strlen($m) < 64 && ctype_xdigit($m)) $class = 'hexa';
+		$json = str_replace(' &quot;'.$m."&quot;".$sfx, ' "<s class="'.$class.'">'.$m.'</s>"'.$sfx, $json);
+	}
+	// keys
+	$res = preg_match_all("#&quot;([^&]+)&quot;:#", $json, $matches);
+	if ($res) foreach($matches[1] as $n=>$m) {
+		$json = str_replace('&quot;'.$m."&quot;", '"<s class="key">'.$m.'</s>"', $json);
+	}
+	// humanize timestamps like "blocktime": 1462359961,
+	$res = preg_match_all("#: ([0-9]{10})([,\s])#", $json, $matches);
+	if ($res) foreach($matches[1] as $n=>$m) {
+		$ts = intval($m);
+		if ($ts > 1400000000 && $ts < 1600000000) {
+			$sfx = $matches[2][$n];
+			$date = strftime("<u>%Y-%m-%d %T %z</u>", $ts);
+			$json = str_replace(' '.$m.$sfx, ' "'.$date.'"'.$sfx, $json);
+		}
+	}
+	// numeric
+	$res = preg_match_all("#: ([e\-\.0-9]+)([,\s])#", $json, $matches);
+	if ($res) foreach($matches[1] as $n=>$m) {
+		$sfx = $matches[2][$n];
+		$json = str_replace(' '.$m.$sfx, ' <i>'.$m.'</i>'.$sfx, $json);
+	}
+	$json = preg_replace('#\[\s+\]#', '[]', $json);
+	$json = str_replace('[', '<b>[</b>', $json);
+	$json = str_replace(']', '<b>]</b>', $json);
+	$json = str_replace('{', '<b>{</b>', $json);
+	$json = str_replace('}', '<b>}</b>', $json);
+	return $json;
+}
 
 function simplifyscript($script)
 {
@@ -59,9 +127,9 @@ echo '<tr><td width=100></td><td></td></tr>';
 echo '<tr><td>Coin:</td><td><b>'.$coin->createExplorerLink($coin->name).'</b></td></tr>';
 echo '<tr><td>Blockhash:</td><td><span class="txid monospace">'.$hash.'</span></td></tr>';
 
-echo '</tr><tr class="raw" style="display:none;"><td colspan="2"><pre class="json">';
-echo json_encode($block, 128);
-echo '</pre></td>';
+echo '</tr><tr class="raw" style="display:none;"><td colspan="2"><div class="json">';
+echo colorizeJson(json_encode($block, 128));
+echo '</div></td>';
 
 echo '<tr><td>Confirmations:</td><td>'.$confirms.'</td></tr>';
 echo '<tr><td>Height:</td><td>'.$block['height'].'</td></tr>';
@@ -141,10 +209,10 @@ foreach($block['tx'] as $txhash)
 	}
 	echo "</td>";
 
-	echo '</tr><tr class="raw" style="display:none;"><td colspan="4"><pre class="json">';
+	echo '</tr><tr class="raw" style="display:none;"><td colspan="4"><div class="json">';
 	unset($tx['hex']);
-	echo json_encode($tx, 128);
-	echo '</pre></td>';
+	echo colorizeJson(json_encode($tx, 128));
+	echo '</div></td>';
 
 	echo "</tr>";
 }
@@ -152,7 +220,7 @@ foreach($block['tx'] as $txhash)
 if ($coin->rpcencoding == 'DCR' && isset($block['stx'])) {
 
 	echo '<tr><th class="section" colspan="4">';
-	echo '<b>Stake</b>';
+	echo 'Stake';
 	echo '</th></tr>';
 
 	foreach($block['stx'] as $txhash)
@@ -194,10 +262,10 @@ if ($coin->rpcencoding == 'DCR' && isset($block['stx'])) {
 		}
 		echo "</td>";
 
-		echo '</tr><tr class="raw" style="display:none;"><td colspan="4"><pre class="json">';
+		echo '</tr><tr class="raw" style="display:none;"><td colspan="4"><div class="json">';
 		unset($stx['hex']);
-		echo json_encode($stx, 128);
-		echo '</pre></td>';
+		echo colorizeJson(json_encode($stx, 128));
+		echo '</div></td>';
 
 		echo '</tr>';
 	}
