@@ -17,7 +17,21 @@ echo getAdminWalletLinks($coin, $info, 'console').'<br/><br/>';
 
 //////////////////////////////////////////////////////////////////////////////////////
 
-$last_query = htmlentities($query);
+function humanizeJson($json)
+{
+	// timestamps like "blocktime": 1462359961,
+	$res = preg_match_all("#\": ([0-9]{10}),#", $json, $matches, PREG_OFFSET_CAPTURE);
+	if ($res) foreach($matches[1] as $m) {
+		$ts = intval($m[0]);
+		$date = strftime("%Y-%m-%d %T %z", $ts);
+		$json = str_replace(' '.$m[0].",", ' "'.$date.'",', $json);
+	}
+	return $json;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+
+$last_query = htmlentities(trim($query));
 
 echo <<<end
 <script type="text/javascript">
@@ -30,6 +44,7 @@ function main_resize() {
 
 <style type="text/css">
 div.form { margin-right: 8px; }
+pre.rpcerror { color: darkred; background: transparent; padding: 4px; margin-top: 0; margin-bottom: -12px; margin-right: 8px; }
 pre.terminal { color: silver; background: black; padding: 4px; min-height: 180px; margin-right: 8px; }
 </style>
 
@@ -44,7 +59,7 @@ end;
 $result = '';
 
 if (!empty($query)) try {
-	$params = split(' ', $query);
+	$params = split(' ', trim($query));
 	$command = array_shift($params);
 
 	$p = array();
@@ -72,6 +87,12 @@ if (!empty($query)) try {
 	case 5:
 		$result = $remote->$command($p[0], $p[1], $p[2], $p[3], $p[4]);
 		break;
+	case 6:
+		$result = $remote->$command($p[0], $p[1], $p[2], $p[3], $p[4], $p[5]);
+		break;
+	case 7:
+		$result = $remote->$command($p[0], $p[1], $p[2], $p[3], $p[4], $p[5], $p[6]);
+		break;
 	default:
 		$result = 'error: too much parameters';
 	}
@@ -80,8 +101,15 @@ if (!empty($query)) try {
 	$result = $remote->error;
 }
 
+if (!empty($remote->error) && $remote->error != $result) {
+	$err = $remote->error;
+	echo '<pre class="rpcerror">';
+	echo is_string($err) ? htmlentities($err) : htmlentities(json_encode($err, 128));
+	echo '</pre>';
+}
+
 echo '<pre class="terminal">';
-echo is_string($result) ? htmlentities($result) : htmlentities(json_encode($result, 128));
+echo is_string($result) ? htmlentities($result) : htmlentities(humanizeJson(json_encode($result, 128)));
 echo '</pre>';
 
 JavascriptReady("main_resize(); $(window).resize(main_resize); $('.main-text-input:first').focus();");
