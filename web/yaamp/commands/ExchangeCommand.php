@@ -27,7 +27,7 @@ class ExchangeCommand extends CConsoleCommand
 		$root = realpath(Yii::app()->getBasePath().DIRECTORY_SEPARATOR.'..');
 		$this->basePath = str_replace(DIRECTORY_SEPARATOR, '/', $root);
 
-		if (!isset($args[0])) {
+		if (!isset($args[0]) || $args[0] == 'help') {
 
 			echo "Yiimp exchange command\n";
 			echo "Usage: yiimp exchange apitest\n";
@@ -61,7 +61,7 @@ class ExchangeCommand extends CConsoleCommand
 	 */
 	public function getHelp()
 	{
-		return parent::getHelp().'exchange';
+		return $this->run(array('help'));
 	}
 
 	public function getExchangeSetting($args)

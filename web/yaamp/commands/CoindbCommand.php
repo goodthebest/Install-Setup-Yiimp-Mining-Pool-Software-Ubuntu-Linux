@@ -33,7 +33,8 @@ class CoindbCommand extends CConsoleCommand
 		if (!isset($args[0])) {
 
 			echo "Yiimp coindb command\n";
-			echo "Usage: yiimp coindb [labels|icons]\n";
+			echo "Usage: yiimp coindb labels\n";
+			echo "       yiimp coindb icons\n";
 			return 1;
 
 		} elseif ($args[0] == 'labels') {

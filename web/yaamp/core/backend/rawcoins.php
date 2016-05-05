@@ -4,6 +4,8 @@ function updateRawcoins()
 {
 //	debuglog(__FUNCTION__);
 
+	settings_prefetch_all();
+
 	$list = bittrex_api_query('public/getcurrencies');
 	if(isset($list->result))
 	{
@@ -198,7 +200,7 @@ function updateRawcoins()
 		}
 	}
 
-	dborun("delete from markets where deleted");
+	dborun("DELETE FROM markets WHERE deleted");
 
 	$list = getdbolist('db_coins', "not enable and not installed and id not in (select distinct coinid from markets)");
 	foreach($list as $coin)
@@ -235,6 +237,10 @@ function updateRawCoin($marketname, $symbol, $name='unknown')
 
 		if ($marketname == 'nova') {
 			// don't polute too much the db
+			return;
+		}
+
+		if (market_get($marketname, $symbol, "disabled")) {
 			return;
 		}
 

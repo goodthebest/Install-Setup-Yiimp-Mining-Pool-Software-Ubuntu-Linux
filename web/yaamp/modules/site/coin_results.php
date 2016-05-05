@@ -52,7 +52,7 @@ echo <<<end
 </tr></thead><tbody>
 end;
 
-$list = getdbolist('db_markets', "coinid={$coin->id} ORDER BY disabled, priority DESC, price DESC");
+$list = getdbolist('db_markets', "coinid={$coin->id} AND NOT deleted ORDER BY disabled, priority DESC, price DESC");
 
 $bestmarket = getBestMarket($coin);
 foreach($list as $market)
@@ -199,8 +199,10 @@ echo '<td>'.altcoinvaluetoa($balance).'</td>';
 $btc = bitcoinvaluetoa($balance*$coin->price);
 echo "<td>$btc</td>";
 if ($PoS) echo '<td>'.$stake.'</td>';
-if ($DCR) echo '<td>'.CHtml::link("$stake ($tickets)", '/site/tickets?id='.$coin->id).'</td>';
-if ($DCR) echo '<td>'.$ticketprice.'</td>';
+else if ($DCR) {
+	echo '<td>'.CHtml::link("$stake ($tickets)", '/site/tickets?id='.$coin->id).'</td>';
+	echo '<td>'.CHtml::link($ticketprice, "https://dcrstats.com/", array('target'=>'_blank')).'</td>';
+}
 echo "<td>$connections</td>";
 
 echo '<td>'.bitcoinvaluetoa($coin->price).'</td>';

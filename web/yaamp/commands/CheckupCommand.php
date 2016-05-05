@@ -58,7 +58,7 @@ class CheckupCommand extends CConsoleCommand
 	 */
 	public function getHelp()
 	{
-		return parent::getHelp().'checkup';
+		return $this->run(array('help'));
 	}
 
 	private function isDirWritable($dir)

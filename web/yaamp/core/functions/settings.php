@@ -65,20 +65,51 @@ function settings_unset($key)
 	return 0;
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// exchange specific settings
+
+$cacheset_exchange = array();
+function exchange_settings_prefetch()
+{
+	global $cacheset_exchange;
+
+	$exchanges = dbocolumn("SELECT DISTINCT name FROM markets");
+	foreach ($exchanges as $exchange) {
+		$settings = dbocolumn("SELECT param FROM settings WHERE param LIKE '{$exchange}-%'");
+		if (!$settings) return array();
+		foreach ($settings as $key) {
+			if (substr_count($key,'-') > 2) continue;
+			$cacheset_exchange[$key] = settings_get($key);
+		}
+		$cacheset_exchange[$exchange] = true;
+	}
+	return $cacheset_exchange;
+}
+
 function exchange_get($exchange, $key, $default=null)
 {
+	// cache to prevent repeated sql queries in loops
+	global $cacheset_exchange;
+	if (isset($cacheset_exchange[$exchange])) {
+		return arraySafeVal($cacheset_exchange, "$exchange-$key", $default);
+	}
 	$value = settings_get("$exchange-$key", $default);
 	return $value;
 }
 
 function exchange_set($exchange, $key, $value)
 {
+	global $cacheset_exchange;
+	$cacheset_exchange = array();
 	return settings_set("$exchange-$key", $value);
 }
 
 function exchange_unset($exchange, $key)
 {
 	// reset to default value
+	global $cacheset_exchange;
+	$cacheset_exchange = array();
 	return settings_unset("$exchange-$key");
 }
 
@@ -98,4 +129,143 @@ function exchange_valid_keys()
 		'withdraw_min_btc'		=> 'Auto withdraw when your BTC balance reach this amount (0=disabled)',
 		'withdraw_fee_btc'		=> 'Fees in BTC required to withdraw BTCs on the exchange',
 	);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// market specific user settings
+
+$cacheset_market = array();
+function market_settings_prefetch($exchange)
+{
+	global $cacheset_market;
+	$settings = dbocolumn("SELECT param FROM settings WHERE param LIKE '{$exchange}-%'");
+	if (!$settings) return array();
+	foreach ($settings as $key) {
+		if (substr_count($key,'-') < 3) continue;
+		$cacheset_market[$key] = settings_get($key);
+	}
+	$cacheset_market[$exchange] = true;
+	return $cacheset_market;
+}
+
+function market_settings_prefetch_all()
+{
+	$exchanges = dbocolumn("SELECT DISTINCT name FROM markets");
+	foreach ($exchanges as $name) {
+		market_settings_prefetch($name);
+	}
+}
+
+function market_get($exchange, $symbol, $key, $default=null, $base='BTC')
+{
+	// cache to prevent repeated sql queries in loops
+	global $cacheset_market;
+	if (isset($cacheset_market[$exchange])) {
+		return arraySafeVal($cacheset_market, "$exchange-$symbol-$base-$key", $default);
+	}
+	$value = settings_get("$exchange-$symbol-$base-$key", $default);
+	return $value;
+}
+
+function market_set($exchange, $symbol, $key, $value, $base='BTC')
+{
+	global $cacheset_market;
+	$cacheset_market = array();
+	return settings_set("$exchange-$symbol-$base-$key", $value);
+}
+
+function market_unset($exchange, $symbol, $key, $base='BTC')
+{
+	global $cacheset_market;
+	$cacheset_market = array();
+	return settings_unset("$exchange-$symbol-$base-$key");
+}
+
+/**
+ * Returns a list of market valid keys, with a description
+ */
+function market_valid_keys()
+{
+	return array(
+		'disabled' => 'Fully disable (ignore) the market',
+	);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// coin specific user settings
+
+$cacheset_coin = array();
+function coin_settings_prefetch($symbol)
+{
+	global $cacheset_coin;
+	$settings = dbocolumn("SELECT param FROM settings WHERE param LIKE 'coin-{$symbol}-%'");
+	if (!$settings) return array();
+	foreach ($settings as $key) {
+		$cacheset_coin[$key] = settings_get($key);
+	}
+	$cacheset_coin[$symbol] = true;
+	return $cacheset_coin;
+}
+
+function coin_settings_prefetch_all()
+{
+	global $cacheset_coin;
+	$settings = dbocolumn("SELECT param FROM settings WHERE param LIKE 'coin-%'");
+	if (!$settings) return array();
+	foreach ($settings as $key) {
+		$parts = explode('-',$key);
+		$symbol = $parts[1];
+		$cacheset_coin[$key] = settings_get($key);
+		$cacheset_coin[$symbol] = true;
+	}
+	return $cacheset_coin;
+}
+
+
+function coin_get($symbol, $key, $default=null)
+{
+	// cache to prevent repeated sql queries in loops
+	global $cacheset_coin;
+	if (isset($cacheset_coin[$symbol])) {
+		return arraySafeVal($cacheset_coin, "coin-$symbol-$key", $default);
+	}
+	$value = settings_get("coin-$symbol-$key", $default);
+	return $value;
+}
+
+function coin_set($symbol, $key, $value)
+{
+	global $cacheset_coin;
+	$cacheset_coin = array();
+	return settings_set("coin-$symbol-$key", $value);
+}
+
+function coin_unset($exchange, $symbol, $key)
+{
+	global $cacheset_coin;
+	$cacheset_coin = array();
+	return settings_unset("coin-$symbol-$key");
+}
+
+/**
+ * Returns a list of handled settings keys, with a description
+ */
+function coin_valid_keys()
+{
+	return array(
+	);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function settings_prefetch_all()
+{
+	$exchanges = dbocolumn("SELECT DISTINCT name FROM markets");
+	foreach ($exchanges as $name) {
+		exchange_settings_prefetch($name);
+		market_settings_prefetch($name);
+	}
+	coin_settings_prefetch_all();
 }

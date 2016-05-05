@@ -27,7 +27,7 @@ class DistcleanCommand extends CConsoleCommand
 		$root = realpath(Yii::app()->getBasePath().DIRECTORY_SEPARATOR.'..');
 		$this->basePath = str_replace(DIRECTORY_SEPARATOR, '/', $root);
 
-		if (!isset($args[0])) {
+		if (!isset($args[0]) || $args[0] == 'help') {
 
 			echo "Yii checkup command\n";
 			echo "Usage: yiic distclean <yaamp db password>\n";
@@ -49,7 +49,7 @@ class DistcleanCommand extends CConsoleCommand
 	 */
 	public function getHelp()
 	{
-		return parent::getHelp();
+		return $this->run(array('help'));
 	}
 
 	/**

@@ -32,7 +32,7 @@ class PayoutCommand extends CConsoleCommand
 		$coinsym = arraySafeVal($args,1);
 		$fixit = arraySafeVal($args,2); // optional
 
-		if (!isset($args[1]) || empty($coinsym)) {
+		if (!isset($args[1]) || empty($coinsym) || $args[1] == 'help') {
 
 			echo "Yiimp payout command\n";
 			echo "Usage: yiimp payout check <symbol> [fixit]\n";
@@ -52,7 +52,7 @@ class PayoutCommand extends CConsoleCommand
 	 */
 	public function getHelp()
 	{
-		return parent::getHelp().'payout check <symbol>';
+		return $this->run(array('help'));
 	}
 
 	/**

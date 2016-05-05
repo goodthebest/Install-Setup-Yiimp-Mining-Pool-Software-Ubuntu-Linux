@@ -27,7 +27,7 @@ class DeleteUserCommand extends CConsoleCommand
 		$root = realpath(Yii::app()->getBasePath().DIRECTORY_SEPARATOR.'..');
 		$this->basePath = str_replace(DIRECTORY_SEPARATOR, '/', $root);
 
-		if (!isset($args[0])) {
+		if (!isset($args[0]) || $args[0] == 'help') {
 
 			echo "Yii deleteuser command\n";
 			echo "Usage: yiic deleteuser <id|address>\n";
@@ -51,7 +51,7 @@ class DeleteUserCommand extends CConsoleCommand
 	 */
 	public function getHelp()
 	{
-		return parent::getHelp().'deleteuser <id|address>';
+		return $this->run(array('help'));
 	}
 
 	/**
