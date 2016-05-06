@@ -3,7 +3,12 @@
 function BackendPricesUpdate()
 {
 //	debuglog(__FUNCTION__);
-	market_settings_prefetch_all();
+
+	market_set_default('c-cex', 'DCR', 'disabled', true); // no deposit
+	market_set_default('yobit', 'DCR', 'disabled', true); // no withdraw
+	market_set_default('bter', 'SFR', 'disabled', true);
+
+	settings_prefetch_all();
 
 	updateBittrexMarkets();
 	updatePoloniexMarkets();
@@ -587,7 +592,7 @@ function updateCCexMarkets()
 		if (!$market) continue;
 		if ($market->disabled < 9) $market->disabled = !$ticker['IsActive'];
 
-		if (market_get($exchange, $symbol, "disabled") || $symbol == 'DCR') {
+		if (market_get($exchange, $symbol, "disabled")) {
 			$market->disabled = 1;
 			$market->deleted = 1;
 			$market->message = 'disabled from settings';
@@ -1248,7 +1253,7 @@ function updateBterMarkets()
 		$coin = getdbo('db_coins', $market->coinid);
 		if(!$coin) continue;
 
-		if (market_get($exchange, $coin->symbol, "disabled") || $coin->symbol == 'SFR') {
+		if (market_get($exchange, $coin->symbol, "disabled")) {
 			$market->disabled = 1;
 			$market->deleted = 1;
 			$market->message = 'disabled from settings';

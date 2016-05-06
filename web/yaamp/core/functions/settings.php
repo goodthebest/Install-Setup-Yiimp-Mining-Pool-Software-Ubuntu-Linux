@@ -59,6 +59,13 @@ function settings_set($key, $value)
 	return true;
 }
 
+function settings_set_default($key, $value)
+{
+	$nb = dboscalar("SELECT COUNT(param) FROM settings WHERE param=:key", array(':key'=>$key));
+	if ($nb) return false;
+	return settings_set($key, $value);
+}
+
 function settings_unset($key)
 {
 	dborun("DELETE FROM settings WHERE param=:key", array(':key'=>$key));
@@ -103,6 +110,17 @@ function exchange_set($exchange, $key, $value)
 	global $cacheset_exchange;
 	$cacheset_exchange = array();
 	return settings_set("$exchange-$key", $value);
+}
+
+function exchange_set_default($exchange, $key, $value)
+{
+	// set value, only if not already exist in database
+	$res = settings_set_default("$exchange-$key", $value);
+	if ($res) {
+		global $cacheset_exchange;
+		$cacheset_exchange = array();
+	}
+	return $res;
 }
 
 function exchange_unset($exchange, $key)
@@ -175,6 +193,16 @@ function market_set($exchange, $symbol, $key, $value, $base='BTC')
 	return settings_set("$exchange-$symbol-$base-$key", $value);
 }
 
+function market_set_default($exchange, $symbol, $key, $value, $base='BTC')
+{
+	$res = settings_set_default("$exchange-$symbol-$base-$key", $value);
+	if ($res) {
+		global $cacheset_market;
+		$cacheset_market = array();
+	}
+	return $res;
+}
+
 function market_unset($exchange, $symbol, $key, $base='BTC')
 {
 	global $cacheset_market;
@@ -240,6 +268,16 @@ function coin_set($symbol, $key, $value)
 	global $cacheset_coin;
 	$cacheset_coin = array();
 	return settings_set("coin-$symbol-$key", $value);
+}
+
+function coin_set_default($symbol, $key, $value)
+{
+	$res = settings_set_default("coin-$symbol-$key", $value);
+	if ($res) {
+		global $cacheset_coin;
+		$cacheset_coin = array();
+	}
+	return $res;
 }
 
 function coin_unset($exchange, $symbol, $key)

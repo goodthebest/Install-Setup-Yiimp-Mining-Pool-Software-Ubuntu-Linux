@@ -4,192 +4,221 @@ function updateRawcoins()
 {
 //	debuglog(__FUNCTION__);
 
+	exchange_set_default('cryptsy', 'disabled', true);
+	exchange_set_default('empoex', 'disabled', true);
+	exchange_set_default('safecex', 'disabled', true);
+
 	settings_prefetch_all();
 
-	$list = bittrex_api_query('public/getcurrencies');
-	if(isset($list->result))
-	{
-		dborun("update markets set deleted=true where name='bittrex'");
-		foreach($list->result as $currency)
-			updateRawCoin('bittrex', $currency->Currency, $currency->CurrencyLong);
-	}
-
-	$list = bleutrade_api_query('public/getcurrencies');
-	if(isset($list->result))
-	{
-		dborun("update markets set deleted=true where name='bleutrade'");
-		foreach($list->result as $currency)
-			updateRawCoin('bleutrade', $currency->Currency, $currency->CurrencyLong);
-	}
-
-	$poloniex = new poloniex;
-	$tickers = $poloniex->get_currencies();
-	if (!$tickers)
-		$tickers = array();
-	else
-		dborun("update markets set deleted=true where name='poloniex'");
-	foreach($tickers as $symbol=>$ticker)
-	{
-		if(arraySafeVal($ticker,'disabled')) continue;
-		if(arraySafeVal($ticker,'delisted')) continue;
-		updateRawCoin('poloniex', $symbol);
-	}
-
-	$ccex = new CcexAPI;
-	$list = $ccex->getPairs();
-	if($list)
-	{
-		sleep(1);
-		$names = $ccex->getCoinNames();
-
-		dborun("update markets set deleted=true where name='c-cex'");
-		foreach($list as $item)
+	if (!exchange_get('bittrex', 'disabled')) {
+		$list = bittrex_api_query('public/getcurrencies');
+		if(isset($list->result))
 		{
-			$e = explode('-', $item);
-			$symbol = strtoupper($e[0]);
-
-			updateRawCoin('c-cex', $symbol, arraySafeVal($names, $e[0], 'unknown'));
+			dborun("UPDATE markets SET deleted=true WHERE name='bittrex'");
+			foreach($list->result as $currency)
+				updateRawCoin('bittrex', $currency->Currency, $currency->CurrencyLong);
 		}
 	}
 
-	$list = bter_api_query('marketlist');
-	if(is_object($list) && is_array($list->data))
-	{
-		dborun("UPDATE markets SET deleted=true WHERE name='bter'");
-		foreach($list->data as $item) {
-			if (strtoupper($item->curr_b) !== 'BTC')
-				continue;
-			if (strpos($item->name, 'Asset') !== false)
-				continue;
-			if (strpos($item->name, 'BitShares') !== false && $item->symbol != 'BTS')
-				continue;
-			// ignore some dead coins and assets
-			if (in_array($item->symbol, array('BITGLD','DICE','ROX','TOKEN')))
-				continue;
-			updateRawCoin('bter', $item->symbol, $item->name);
-		}
-	}
-
-// disabled
-//	$list = cryptsy_api_query('getmarkets');
-//	if(isset($list['return']))
-//	{
-		dborun("update markets set deleted=true where name='cryptsy'");
-//		foreach($list['return'] as $item)
-//			updateRawCoin('cryptsy', $item['primary_currency_code'], $item['primary_currency_name']);
-//	}
-
-	$res = yobit_api_query('info');
-	if($res)
-	{
-		dborun("UPDATE markets SET deleted=true WHERE name='yobit'");
-		foreach($res->pairs as $i=>$item)
+	if (!exchange_get('bleutrade', 'disabled')) {
+		$list = bleutrade_api_query('public/getcurrencies');
+		if(isset($list->result))
 		{
-			$e = explode('_', $i);
-			$symbol = strtoupper($e[0]);
-			updateRawCoin('yobit', $symbol);
+			dborun("UPDATE markets SET deleted=true WHERE name='bleutrade'");
+			foreach($list->result as $currency)
+				updateRawCoin('bleutrade', $currency->Currency, $currency->CurrencyLong);
 		}
 	}
 
-	$list = safecex_api_query('getmarkets');
-	if(!empty($list))
-	{
-		dborun("UPDATE markets SET deleted=true WHERE name='safecex'");
-		foreach($list as $pair => $item) {
-			$e = explode('/', $item->market);
-			if (strtoupper($e[1]) !== 'BTC')
-				continue;
-			$symbol = strtoupper($e[0]);
-			updateRawCoin('safecex', $symbol, $item->name);
+	if (!exchange_get('poloniex', 'disabled')) {
+		$poloniex = new poloniex;
+		$tickers = $poloniex->get_currencies();
+		if (!$tickers)
+			$tickers = array();
+		else
+			dborun("UPDATE markets SET deleted=true WHERE name='poloniex'");
+		foreach($tickers as $symbol=>$ticker)
+		{
+			if(arraySafeVal($ticker,'disabled')) continue;
+			if(arraySafeVal($ticker,'delisted')) continue;
+			updateRawCoin('poloniex', $symbol);
 		}
 	}
 
-	$list = cryptopia_api_query('GetMarkets');
-	if(isset($list->Data))
-	{
-		dborun("UPDATE markets SET deleted=true WHERE name='cryptopia'");
-		foreach($list->Data as $item) {
-			$e = explode('/', $item->Label);
-			if (strtoupper($e[1]) !== 'BTC')
-				continue;
-			$symbol = strtoupper($e[0]);
-			updateRawCoin('cryptopia', $symbol);
+	if (!exchange_get('c-cex', 'disabled')) {
+		$ccex = new CcexAPI;
+		$list = $ccex->getPairs();
+		if($list)
+		{
+			sleep(1);
+			$names = $ccex->getCoinNames();
+
+			dborun("UPDATE markets SET deleted=true WHERE name='c-cex'");
+			foreach($list as $item)
+			{
+				$e = explode('-', $item);
+				$symbol = strtoupper($e[0]);
+
+				updateRawCoin('c-cex', $symbol, arraySafeVal($names, $e[0], 'unknown'));
+			}
 		}
 	}
 
-	$list = kraken_api_query('AssetPairs');
-	if(is_array($list))
-	{
-		dborun("UPDATE markets SET deleted=true WHERE name='kraken'");
-		foreach($list as $pair => $item) {
-			$pairs = explode('-', $pair);
-			$base = reset($pairs); $symbol = end($pairs);
-			if($symbol == 'BTC' || $base != 'BTC') continue;
-			if(in_array($symbol, array('GBP','CAD','EUR','USD','JPY'))) continue;
-			if(strpos($symbol,'.d') !== false) continue;
-			$symbol = strtoupper($symbol);
-			updateRawCoin('kraken', $symbol);
+	if (!exchange_get('bter', 'disabled')) {
+		$list = bter_api_query('marketlist');
+		if(is_object($list) && is_array($list->data))
+		{
+			dborun("UPDATE markets SET deleted=true WHERE name='bter'");
+			foreach($list->data as $item) {
+				if (strtoupper($item->curr_b) !== 'BTC')
+					continue;
+				if (strpos($item->name, 'Asset') !== false)
+					continue;
+				if (strpos($item->name, 'BitShares') !== false && $item->symbol != 'BTS')
+					continue;
+				// ignore some dead coins and assets
+				if (in_array($item->symbol, array('BITGLD','DICE','ROX','TOKEN')))
+					continue;
+				updateRawCoin('bter', $item->symbol, $item->name);
+			}
 		}
 	}
 
-	$list = alcurex_api_query('market','?info=on');
-	if(is_object($list) && isset($list->MARKETS))
-	{
-		dborun("UPDATE markets SET deleted=true WHERE name='alcurex'");
-		foreach($list->MARKETS as $item) {
-			$e = explode('_', $item->Pair);
-			$symbol = strtoupper($e[0]);
-			updateRawCoin('alcurex', $symbol);
+	if (!exchange_get('cryptsy', 'disabled')) {
+		$list = cryptsy_api_query('getmarkets');
+		if(isset($list['return']))
+		{
+			dborun("UPDATE markets SET deleted=true WHERE name='cryptsy'");
+			foreach($list['return'] as $item)
+				updateRawCoin('cryptsy', $item['primary_currency_code'], $item['primary_currency_name']);
 		}
 	}
 
-	$list = cryptomic_api_simple('marketsv2');
-	if(is_array($list))
-	{
-		dborun("UPDATE markets SET name='cryptomic', deleted=true WHERE name IN ('cryptomic','banx')");
-		foreach($list as $item) {
-			$e = explode('/', $item['market']);
-			$base = strtoupper($e[1]);
-			if ($base != 'BTC')
-				continue;
-			$symbol = strtoupper($e[0]);
-			if ($symbol == 'ATP')
-				continue;
-			$name = explode('/', $item['marketname']);
-			updateRawCoin('cryptomic', $symbol, $name[0]);
-			//debuglog("cryptomic: $symbol {$name[0]}");
+	if (!exchange_get('yobit', 'disabled')) {
+		$res = yobit_api_query('info');
+		if($res)
+		{
+			dborun("UPDATE markets SET deleted=true WHERE name='yobit'");
+			foreach($res->pairs as $i=>$item)
+			{
+				$e = explode('_', $i);
+				$symbol = strtoupper($e[0]);
+				updateRawCoin('yobit', $symbol);
+			}
 		}
 	}
 
-	$list = nova_api_query('markets');
-	if(is_object($list) && !empty($list->markets))
-	{
-		dborun("UPDATE markets SET deleted=true WHERE name='nova'");
-		foreach($list->markets as $item) {
-			if ($item->basecurrency != 'BTC')
-				continue;
-			$symbol = strtoupper($item->currency);
-			updateRawCoin('nova', $symbol);
-			//debuglog("nova: $symbol");
+	if (!exchange_get('safecex', 'disabled')) {
+		$list = safecex_api_query('getmarkets');
+		if(!empty($list))
+		{
+			dborun("UPDATE markets SET deleted=true WHERE name='safecex'");
+			foreach($list as $pair => $item) {
+				$e = explode('/', $item->market);
+				if (strtoupper($e[1]) !== 'BTC')
+					continue;
+				$symbol = strtoupper($e[0]);
+				updateRawCoin('safecex', $symbol, $item->name);
+			}
 		}
 	}
 
-	dborun("UPDATE markets SET deleted=true WHERE name='empoex'");
-/*
-	$list = empoex_api_query('marketinfo');
-	if(is_array($list))
-	{
-		dborun("UPDATE markets SET deleted=true WHERE name='empoex'");
-		foreach($list as $item) {
-			$e = explode('-', $item->pairname);
-			$base = strtoupper($e[1]);
-			if ($base != 'BTC')
-				continue;
-			$symbol = strtoupper($e[0]);
-			updateRawCoin('empoex', $symbol);
+	if (!exchange_get('cryptopia', 'disabled')) {
+		$list = cryptopia_api_query('GetMarkets');
+		if(isset($list->Data))
+		{
+			dborun("UPDATE markets SET deleted=true WHERE name='cryptopia'");
+			foreach($list->Data as $item) {
+				$e = explode('/', $item->Label);
+				if (strtoupper($e[1]) !== 'BTC')
+					continue;
+				$symbol = strtoupper($e[0]);
+				updateRawCoin('cryptopia', $symbol);
+			}
 		}
 	}
-*/
+
+	if (!exchange_get('kraken', 'disabled')) {
+		$list = kraken_api_query('AssetPairs');
+		if(is_array($list))
+		{
+			dborun("UPDATE markets SET deleted=true WHERE name='kraken'");
+			foreach($list as $pair => $item) {
+				$pairs = explode('-', $pair);
+				$base = reset($pairs); $symbol = end($pairs);
+				if($symbol == 'BTC' || $base != 'BTC') continue;
+				if(in_array($symbol, array('GBP','CAD','EUR','USD','JPY'))) continue;
+				if(strpos($symbol,'.d') !== false) continue;
+				$symbol = strtoupper($symbol);
+				updateRawCoin('kraken', $symbol);
+			}
+		}
+	}
+
+	if (!exchange_get('alcurex', 'disabled')) {
+		$list = alcurex_api_query('market','?info=on');
+		if(is_object($list) && isset($list->MARKETS))
+		{
+			dborun("UPDATE markets SET deleted=true WHERE name='alcurex'");
+			foreach($list->MARKETS as $item) {
+				$e = explode('_', $item->Pair);
+				$symbol = strtoupper($e[0]);
+				updateRawCoin('alcurex', $symbol);
+			}
+		}
+	}
+
+	if (!exchange_get('cryptomic', 'disabled')) {
+		$list = cryptomic_api_simple('marketsv2');
+		if(is_array($list))
+		{
+			dborun("UPDATE markets SET name='cryptomic', deleted=true WHERE name IN ('cryptomic','banx')");
+			foreach($list as $item) {
+				$e = explode('/', $item['market']);
+				$base = strtoupper($e[1]);
+				if ($base != 'BTC')
+					continue;
+				$symbol = strtoupper($e[0]);
+				if ($symbol == 'ATP')
+					continue;
+				$name = explode('/', $item['marketname']);
+				updateRawCoin('cryptomic', $symbol, $name[0]);
+				//debuglog("cryptomic: $symbol {$name[0]}");
+			}
+		}
+	}
+
+	if (!exchange_get('nova', 'disabled')) {
+		$list = nova_api_query('markets');
+		if(is_object($list) && !empty($list->markets))
+		{
+			dborun("UPDATE markets SET deleted=true WHERE name='nova'");
+			foreach($list->markets as $item) {
+				if ($item->basecurrency != 'BTC')
+					continue;
+				$symbol = strtoupper($item->currency);
+				updateRawCoin('nova', $symbol);
+				//debuglog("nova: $symbol");
+			}
+		}
+	}
+
+	if (!exchange_get('empoex', 'disabled')) {
+		$list = empoex_api_query('marketinfo');
+		if(is_array($list))
+		{
+			dborun("UPDATE markets SET deleted=true WHERE name='empoex'");
+			foreach($list as $item) {
+				$e = explode('-', $item->pairname);
+				$base = strtoupper($e[1]);
+				if ($base != 'BTC')
+					continue;
+				$symbol = strtoupper($e[0]);
+				updateRawCoin('empoex', $symbol);
+			}
+		}
+	}
+
 	//////////////////////////////////////////////////////////
 
 	$markets = dbocolumn("SELECT DISTINCT name FROM markets");
@@ -279,22 +308,6 @@ function updateRawCoin($marketname, $symbol, $name='unknown')
 		$market->deleted = false;
 		$market->save();
 	}
-
-	/////////
-
-//	if($coin->enable || !empty($coin->algo) || !empty($coin->errors) || $coin->name == 'unknown') return;
-//	debuglog("http://www.cryptocoinrank.com/$coin->name");
-
-//	$data = file_get_contents("http://www.cryptocoinrank.com/$coin->name");
-//	if($data)
-//	{
-//		$b = preg_match('/Algo: <span class=\"d-gray\">(.*)<\/span>/', $data, $m);
-//		if($b)
-//		{
-//			$coin->errors = trim($m[1]);
-//			$coin->save();
-//		}
-//	}
 
 }
 
