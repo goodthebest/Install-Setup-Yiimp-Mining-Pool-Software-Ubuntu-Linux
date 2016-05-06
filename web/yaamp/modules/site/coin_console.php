@@ -125,7 +125,10 @@ if (!empty($query)) try {
 
 	$p = array();
 	foreach ($params as $param) {
-		$param = (is_numeric($param)) ? 0 + $param : trim($param,'"');
+		if ($param === 'true' || $param === 'false') {
+			$param = $param === 'true' ? true : false;
+		}
+		else $param = (is_numeric($param)) ? 0 + $param : trim($param,'"');
 		$p[] = $param;
 	}
 
