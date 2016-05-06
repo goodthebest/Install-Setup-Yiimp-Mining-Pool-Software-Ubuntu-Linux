@@ -907,8 +907,10 @@ class SiteController extends CommonController
 		if($balance)
 			runExchange($balance->name);
 
+		$tm = round($this->elapsedTime(), 3);
+
 		if ($balance)
-			debuglog("runexchange done ($balance->name)");
+			debuglog("runexchange done ({$balance->name}) {$tm} sec");
 		else
 			debuglog("runexchange failed (no id!)");
 

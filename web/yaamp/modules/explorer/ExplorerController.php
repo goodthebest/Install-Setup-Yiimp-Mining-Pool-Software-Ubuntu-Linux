@@ -5,14 +5,11 @@ require_once("util.php");
 class ExplorerController extends CommonController
 {
 	public $defaultAction='index';
-	public $admin = false;
 
 	/////////////////////////////////////////////////
 
 	public function run($actionID)
 	{
-		$this->admin = user()->getState('yaamp_admin');
-
 		// Forward the url /explorer/BTC to the BTC block explorer
 		if (!empty($actionID)) {
 			if (is_numeric($actionID) && isset($_REQUEST['id'])) {

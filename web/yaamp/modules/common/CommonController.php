@@ -2,20 +2,22 @@
 
 class CommonController extends CController
 {
-	public $admin = false;
 	public $memcache;
+	public $t1;
 
-	private $t1;
+	// read-only via getAdmin()
+	private $admin = false;
+	protected function getAdmin() { return $this->admin; }
 
-	public function goback($count=-1)
+	protected function elapsedTime()
 	{
-		Javascript("window.history.go($count)");
-		die;
+		$t2 = microtime(true);
+		return ($t2 - $this->t1);
 	}
 
-	public function beforeAction($action)
+	protected function beforeAction($action)
 	{
-	//	session_start();
+	//	debuglog("before action ".$action->getId());
 
 		$this->memcache = new YaampMemcache;
 		$this->t1 = microtime(true);
@@ -26,29 +28,28 @@ class CommonController extends CController
 		$algo = user()->getState('yaamp-algo');
 		if(!$algo) user()->setState('yaamp-algo', 'x11');
 
-		//$um = app()->getComponent('urlManager');
-		//var_dump($um); die;
-
 		return true;
 	}
 
-	public function afterAction($action)
+	protected function afterAction($action)
 	{
 	//	debuglog("after action ".$action->getId());
 
-		$t2 = microtime(true);
-		$d1 = $t2 - $this->t1;
+		$d1 = $this->elapsedTime();
 
 		$url = "$this->id/{$this->action->id}";
 		$this->memcache->add_monitoring_function($url, $d1);
-
-		//$um = app()->getComponent('urlManager');
-		//var_dump($um); die;
 	}
 
 	public function actionMaintenance()
 	{
 		$this->render('maintenance');
+	}
+
+	public function goback($count=-1)
+	{
+		Javascript("window.history.go($count);");
+		die;
 	}
 
 }

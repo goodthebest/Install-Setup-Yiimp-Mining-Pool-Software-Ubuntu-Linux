@@ -7,6 +7,7 @@ return array(
 	'layout'=>'main',
 
 	'basePath'=>YAAMP_HTDOCS."/yaamp",
+	'extensionPath'=>YAAMP_HTDOCS.'/extensions',
 	'controllerPath'=>'yaamp/modules',
 	'viewPath'=>'yaamp/modules',
 	'layoutPath'=>'yaamp/ui',
