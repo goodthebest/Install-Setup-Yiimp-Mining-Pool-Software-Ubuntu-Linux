@@ -279,13 +279,16 @@ if ($DCR) {
 	{
 		$prev_txid = arraySafeVal($prev_tx,"txid");
 		$category = $tx['category'];
+		if (arraySafeVal($tx, 'txtype') == 'ticket') {
+			$txs_array[$key]['category'] = 'ticket';
+			if ($category != 'receive' || $prev_txid === arraySafeVal($tx,"txid"))
+				unset($txs_array[$key]);
+			else
+				$txs_array[$key]['amount'] = 0 - $tx['amount'];
+			continue;
+		}
 		if ($category == 'send' && arraySafeVal($tx,'generated')) {
 			$txs_array[$key]['category'] = 'spent';
-		}
-		else if ($category == 'send' && $prev_txid === arraySafeVal($tx,"txid")) {
-			// if txid is the same as the last income... it's not a real "send"
-			if ($prev_tx['amount'] == 0 - $tx['amount'])
-				$txs_array[$key]['category'] = 'spent';
 		}
 		else if ($category == 'send' && $tx['amount'] == -0) {
 			// vote accepted (listed twice ? in listtransactions)
@@ -294,7 +297,12 @@ if ($DCR) {
 			else if (arraySafeVal($tx,"confirmations") >= 256)
 				$category = 'receive';
 			else
-				$category = 'stake';
+				$category = 'immature';
+
+			if ($category=='spent' && arraySafeVal($tx, 'txtype') == 'vote') {
+				// todo: ticket unlocked amount
+				$category='unlock';
+			}
 
 			$txs_array[$key]['category'] = $category;
 
@@ -305,6 +313,18 @@ if ($DCR) {
 					$txs_array[$key]['amount'] = $t['vin'][0]['amountin'] * 0.00000001;
 				}
 			}
+			if ($category == 'unlock') {
+				// unlocked amount
+				$t = $remote->getrawtransaction($tx['txid'], 1);
+				if ($t && isset($t['vin'][1])) {
+					$txs_array[$key]['amount'] = $t['vin'][1]['amountin'] * 0.00000001;
+				}
+			}
+		}
+		else if ($category == 'send' && $prev_txid === arraySafeVal($tx,"txid")) {
+			// if txid is the same as the last income... it's not a real "send"
+			if ($prev_tx['amount'] == 0 - $tx['amount'])
+				$txs_array[$key]['category'] = 'spent';
 		}
 		else if ($category == 'receive') {
 			$prev_tx = $tx;

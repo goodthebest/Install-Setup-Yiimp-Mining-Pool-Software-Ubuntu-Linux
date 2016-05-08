@@ -10,8 +10,7 @@ $this->pageTitle = 'Tickets - '.$coin->symbol;
 // last week
 $list_since = arraySafeVal($_GET,'since',time()-(7*24*3600));
 
-$maxrows = arraySafeVal($_GET,'rows', 100);
-$maxrows = min($maxrows, 2500);
+$maxrows = arraySafeVal($_GET,'rows', 2500);
 
 $remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
 $info = $remote->getinfo();
@@ -76,14 +75,14 @@ end;
 
 $account = $DCR ? '*' : '';
 
-$txs = $remote->listtransactions($account, 2500);
+$txs = $remote->listtransactions($account, $maxrows);
 
 if (empty($txs)) {
 	if (!empty($remote->error)) {
 		echo "<b>RPC Error: {$remote->error}</b><p/>";
 	}
 	// retry...
-	$txs = $remote->listtransactions($account, 200);
+	$txs = $remote->listtransactions($account, 400);
 }
 
 $txs_array = array(); $lastday = '';
@@ -91,7 +90,7 @@ $txs_array = array(); $lastday = '';
 if (!empty($txs)) {
 	// to hide truncated days sums
 	$tx = reset($txs);
-	if (count($txs) == 2500)
+	if (count($txs) == $maxrows)
 		$lastday = strftime('%F', $tx['time']);
 
 	if (!empty($txs)) foreach($txs as $tx)
@@ -115,13 +114,12 @@ if (!empty($txs_array)) {
 		$prev_txid = arraySafeVal($prev_tx,"txid");
 
 		$category = $tx['category'];
+		if (arraySafeVal($tx, 'txtype') == 'regular') {
+			unset($txs_array[$key]);
+			continue;
+		}
 		if ($category == 'send' && arraySafeVal($tx,'generated')) {
 			$txs_array[$key]['category'] = 'spent';
-		}
-		else if ($category == 'send' && $prev_txid === arraySafeVal($tx,"txid")) {
-			// if txid is the same as the last income... it's not a real "send"
-			if ($prev_tx['amount'] == 0 - $tx['amount'])
-				$txs_array[$key]['category'] = 'spent';
 		}
 		else if ($category == 'send' && $tx['amount'] == -0) {
 			$stx = $remote->getrawtransaction($tx['txid'], 1);
@@ -131,9 +129,11 @@ if (!empty($txs_array)) {
 				if (in_array($tx['txid'], $list_txs)) continue; // dup
 				$category = 'ticket';
 				// ticket price
-				if ($stx && isset($stx['vin'][0])) {
-					$txs_array[$key]['input'] = $stx['vin'][0]['amountin'] * 0.00000001;
+				$input = 0.;
+				if ($stx && !empty($stx['vin'])) foreach ($stx['vin'] as $vin) {
+					$input += $vin['amountin'] * 0.00000001;
 				}
+				$txs_array[$key]['input'] = $input;
 				$list_txs[] = $tx['txid'];
 			} else {
 				$category = 'stake';
@@ -142,7 +142,7 @@ if (!empty($txs_array)) {
 					$txs_array[$key]['amount'] = $stx['vin'][0]['amountin'] * 0.00000001;
 				}
 				if ($stx && isset($stx['vin'][1])) {
-					$voted_txs[] = $stx['vin'][1]['txid'];
+					$voted_txs[] = arraySafeVal($stx['vin'][1],'txid');
 					$list_txs[] = $stx['vin'][1]['txid'];
 				}
 			}
@@ -151,11 +151,16 @@ if (!empty($txs_array)) {
 			$txs_array[$key]['stx'] = $stx;
 
 		}
+		else if ($category == 'send' && $prev_txid === arraySafeVal($tx,"txid")) {
+			// if txid is the same as the last income... it's not a real "send"
+			if ($prev_tx['amount'] == 0 - $tx['amount'])
+				$txs_array[$key]['category'] = 'spent';
+		}
 		else if ($category == 'receive') {
 			$prev_tx = $tx;
 		}
 		// for truncated day sums
-		if ($lastday == '' && count($txs) == 2500)
+		if ($lastday == '' && count($txs) == $maxrows)
 			$lastday = strftime('%F', $tx['time']);
 	}
 	ksort($txs_array);
@@ -202,6 +207,8 @@ foreach($txs_array as $tx)
 	} else {
 		$amount = (double) arraySafeVal($tx,'amount');
 		$stake = $amount - $stx['vout'][2]['value'];
+		if (isset($stx['vout'][3]['value'])) // with pool fees
+			$stake -= arraySafeVal($stx['vout'][3],'value');
 	}
 
 	$block = null;
@@ -224,7 +231,8 @@ foreach($txs_array as $tx)
 
 	echo '<td>'.$conf.'</td>';
 
-	echo '<td>'.abs(arraySafeVal($tx,'fee')).'</td>';
+	$fees = abs(arraySafeVal($tx,'fee'));
+	echo '<td>'.($fees ? altcoinvaluetoa($fees) : '').'</td>';
 
 	echo '<td>';
 	if(!empty($block)) {
