@@ -26,6 +26,7 @@ return array(
 			'rules'=>array(
 				// prevent /explorer/id/<num>/p1/v1/... -> /explorer/<num>?params...
 				'/explorer/<id:\d+>' => array('/explorer', 'urlFormat'=>'get'),
+				'explorer/<id:\d+>' => array('explorer', 'urlFormat'=>'get'),
 			),
 		),
 
