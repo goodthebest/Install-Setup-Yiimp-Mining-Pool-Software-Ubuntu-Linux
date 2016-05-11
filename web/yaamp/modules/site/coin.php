@@ -150,7 +150,7 @@ END;
 
 JavascriptReady("main_refresh();");
 
-if (yaamp_watched_coin($coin->symbol)) {
+if ($coin->watch) {
 	$this->renderPartial('coin_market_graph', array('coin'=>$coin));
 	JavascriptReady("$(window).resize(graph_resized);");
 }

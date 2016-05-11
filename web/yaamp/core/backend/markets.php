@@ -84,10 +84,16 @@ function BackendPricesUpdate()
 
 function BackendWatchMarkets($marketname=NULL)
 {
-	$watched = explode(',', YIIMP_WATCH_CURRENCIES);
+	// temporary to fill new coin 'watch' field
+	if (defined('YIIMP_WATCH_CURRENCIES')) {
+		$watched = explode(',', YIIMP_WATCH_CURRENCIES);
+		foreach ($watched as $symbol) {
+			dborun("UPDATE coins SET watch=1 WHERE symbol=:sym", array(':sym'=>$symbol));
+		}
+	}
 
 	$coins = new db_coins;
-	$coins = $coins->findAllByAttributes(array('symbol'=>$watched));
+	$coins = $coins->findAllByAttributes(array('watched'=>1));
 	foreach ($coins as $coin)
 	{
 		// track btc/usd for history analysis
@@ -288,7 +294,7 @@ function updateKrakenMarkets($force = false)
 
 		$coin = getdbosql('db_coins', "symbol='{$symbol}'");
 		if(!$coin) continue;
-		if(!$coin->installed && !yaamp_watched_coin($coin->symbol)) continue;
+		if(!$coin->installed && !$coin->watch) continue;
 
 		$fees = reset($data['fees']);
 		$feepct = is_array($fees) ? end($fees) : null;
@@ -586,7 +592,7 @@ function updateCCexMarkets()
 
 		$coin = getdbosql('db_coins', "symbol=:symbol", array(':symbol'=>$symbol));
 		if (!$coin) continue;
-		if (!$coin->installed && !yaamp_watched_coin($coin->symbol)) continue;
+		if (!$coin->installed && !$coin->watch) continue;
 
 		$market = getdbosql('db_markets', "coinid={$coin->id} AND name LIKE '$exchange%' $sqlFilter");
 		if (!$market) continue;
@@ -763,7 +769,7 @@ function updateYobitMarkets()
 		$market->save();
 
 		if ($market->deleted || $market->disabled) continue;
-		if (!$coin->installed && !yaamp_watched_coin($coin->symbol)) continue;
+		if (!$coin->installed && !$coin->watch) continue;
 
 		$pair = strtolower($coin->symbol).'_btc';
 
@@ -854,7 +860,7 @@ function updateAlcurexMarkets()
 	{
 		$coin = getdbo('db_coins', $market->coinid);
 		if(!$coin) continue;
-		if (!$coin->installed && !yaamp_watched_coin($coin->symbol)) continue;
+		if (!$coin->installed && !$coin->watch) continue;
 
 		if (market_get($exchange, $coin->symbol, "disabled")) {
 			$market->disabled = 1;

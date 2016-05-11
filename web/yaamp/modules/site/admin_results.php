@@ -81,8 +81,8 @@ foreach($coins as $coin)
 		if($coin->rpcssl) echo '<span title="RPC over SSL"> s</span>';
 		else echo ' &nbsp;';
 
-		if(yaamp_watched_coin($coin->symbol))
-			echo '<span title="Monitored (history)"> m</span>';
+		if($coin->watch)
+			echo '<span title="Watched (history)"> w</span>';
 
 		if($coin->block_height < $coin->target_height) {
 			$percent = round($coin->block_height*100/$coin->target_height, 2);

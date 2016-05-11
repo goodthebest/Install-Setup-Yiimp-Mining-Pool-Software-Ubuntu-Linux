@@ -129,6 +129,12 @@ echo CUFHtml::activeCheckBox($coin, 'installed');
 echo '<p class="formHint2">Required to be visible in the Wallets board</p>';
 echo CUFHtml::closeCtrlHolder();
 
+echo CUFHtml::openActiveCtrlHolder($coin, 'watch');
+echo CUFHtml::activeLabelEx($coin, 'watch');
+echo CUFHtml::activeCheckBox($coin, 'watch');
+echo '<p class="formHint2">Track balance and markets history</p>';
+echo CUFHtml::closeCtrlHolder();
+
 echo CUFHtml::openActiveCtrlHolder($coin, 'auxpow');
 echo CUFHtml::activeLabelEx($coin, 'auxpow');
 echo CUFHtml::activeCheckBox($coin, 'auxpow');
