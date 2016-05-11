@@ -65,7 +65,8 @@ public:
 	bool usegetwork;
 	bool usememorypool;
 	bool hasmasternodes;
-	bool noblocknotifiy;
+	bool noblocknotify;
+	bool multialgos; // pow_hash field (or mined_hash)
 
 	YAAMP_JOB *job;
 //	YAAMP_JOB_TEMPLATE *templ;

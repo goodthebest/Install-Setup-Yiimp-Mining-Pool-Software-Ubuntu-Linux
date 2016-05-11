@@ -156,6 +156,14 @@ void coind_init(YAAMP_COIND *coind)
 		//sprintf(account, "default");
 	}
 
+	// todo: db field
+	if(!strcmp(coind->symbol, "XVG") || !strcmp(coind->symbol2, "XVG")) {
+		coind->multialgos = true;
+	}
+	if(!strcmp(coind->symbol, "DGB") || !strcmp(coind->symbol2, "DGB")) {
+		coind->multialgos = true;
+	}
+
 	bool valid = coind_validate_address(coind);
 	if(valid) return;
 

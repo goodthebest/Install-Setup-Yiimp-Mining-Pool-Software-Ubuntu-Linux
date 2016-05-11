@@ -225,9 +225,43 @@ void block_add(int userid, int workerid, int coinid, int height, double difficul
 }
 
 // called from blocknotify tool
-void block_confirm(int coinid, const char *hash)
+void block_confirm(int coinid, const char *blockhash)
 {
-	if(strlen(hash) > 65) return;
+	char hash[192];
+	if(strlen(blockhash) < 64) return;
+
+	snprintf(hash, 161, "%s", blockhash);
+
+	// required for multi algos wallets where pow hash is not the blockhash
+	g_list_coind.Enter();
+	for(CLI li = g_list_coind.first; li ; li = li->next)
+	{
+		YAAMP_COIND *coind = (YAAMP_COIND *)li->data;
+		if(coind->id != coinid || coind->deleted) continue;
+
+		if(coind->multialgos) {
+			char params[192];
+			sprintf(params, "[\"%s\"]", blockhash);
+			json_value *json = rpc_call(&coind->rpc, "getblock", params);
+			if(!json) {
+				debuglog("%s: error getblock, no answer\n", __func__);
+				break;
+			}
+			json_value *json_res = json_get_object(json, "result");
+			if(!json_res) {
+				debuglog("%s: error getblock, no result\n", __func__);
+				break;
+			}
+			const char *h1 = json_get_string(json_res, "pow_hash"); // DGB, MYR, J
+			const char *h2 = json_get_string(json_res, "mined_hash"); // XVG
+			if (h1) snprintf(hash, 161, "%s", h1);
+			else if (h2) snprintf(hash, 161, "%s", h2);
+			//debuglog("%s: getblock %s -> pow %s\n", __func__, blockhash, hash);
+			json_value_free(json_res);
+			break;
+		}
+	}
+	g_list_coind.Leave();
 
 	for(CLI li = g_list_block.first; li; li = li->next)
 	{
@@ -237,7 +271,7 @@ void block_confirm(int coinid, const char *hash)
 			if(strcmp(block->hash1, hash) && strcmp(block->hash2, hash)) continue;
 			debuglog("*** CONFIRMED %d : %s\n", block->height, block->hash2);
 
-			strncpy(block->hash, hash, 65);
+			strncpy(block->hash, blockhash, 65);
 			block->confirmed = true;
 
 			return;
