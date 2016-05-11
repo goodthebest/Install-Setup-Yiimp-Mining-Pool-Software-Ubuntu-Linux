@@ -111,6 +111,9 @@ if (!empty($txs_array)) {
 	$prev_tx = array(); $lastday = '';
 	foreach($txs_array as $key => $tx)
 	{
+		// required after a wallet resynch/import
+		$txs_array[$key]['time'] = min($tx['timereceived'], arraySafeVal($tx,'blocktime', $tx['time']));
+
 		$prev_txid = arraySafeVal($prev_tx,"txid");
 
 		$category = $tx['category'];
