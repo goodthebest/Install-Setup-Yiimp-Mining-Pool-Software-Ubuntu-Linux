@@ -167,6 +167,7 @@ echo <<<end
 <thead>
 <tr>
 <th>Transaction Hash</th>
+<th>Size</th>
 <th>Value</th>
 <th>From</th>
 <th>To (amount)</th>
@@ -185,6 +186,8 @@ foreach($block['tx'] as $txhash)
 
 	echo '<tr class="ssrow">';
 	echo '<td><span class="txid monospace">'.$tx['txid'].'</span></td>';
+	$size = (strlen($tx['hex'])/2);
+	echo "<td>$size</td>";
 	echo "<td>$valuetx</td>";
 
 	echo "<td>";
@@ -209,7 +212,7 @@ foreach($block['tx'] as $txhash)
 	}
 	echo "</td>";
 
-	echo '</tr><tr class="raw" style="display:none;"><td colspan="4"><div class="json">';
+	echo '</tr><tr class="raw" style="display:none;"><td colspan="5"><div class="json">';
 	unset($tx['hex']);
 	echo colorizeJson(json_encode($tx, 128));
 	echo '</div></td>';
@@ -219,7 +222,7 @@ foreach($block['tx'] as $txhash)
 
 if ($coin->rpcencoding == 'DCR' && isset($block['stx'])) {
 
-	echo '<tr><th class="section" colspan="4">';
+	echo '<tr><th class="section" colspan="5">';
 	echo 'Stake';
 	echo '</th></tr>';
 
@@ -234,6 +237,8 @@ if ($coin->rpcencoding == 'DCR' && isset($block['stx'])) {
 
 		echo '<tr class="ssrow">';
 		echo '<td><span class="txid monospace">'.$stx['txid'].'</span></td>';
+		$size = (strlen($stx['hex'])/2);
+		echo "<td>$size</td>";
 		echo "<td>$valuetx</td>";
 
 		echo "<td>";
@@ -262,7 +267,7 @@ if ($coin->rpcencoding == 'DCR' && isset($block['stx'])) {
 		}
 		echo "</td>";
 
-		echo '</tr><tr class="raw" style="display:none;"><td colspan="4"><div class="json">';
+		echo '</tr><tr class="raw" style="display:none;"><td colspan="5"><div class="json">';
 		unset($stx['hex']);
 		echo colorizeJson(json_encode($stx, 128));
 		echo '</div></td>';
