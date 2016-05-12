@@ -93,7 +93,7 @@ function BackendWatchMarkets($marketname=NULL)
 	}
 
 	$coins = new db_coins;
-	$coins = $coins->findAllByAttributes(array('watched'=>1));
+	$coins = $coins->findAllByAttributes(array('watch'=>1));
 	foreach ($coins as $coin)
 	{
 		// track btc/usd for history analysis
