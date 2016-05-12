@@ -3,136 +3,167 @@
  * API-call related functions
  *
  * @author Remdev
+ * @author tpruvot 2016
+ *
  * @license MIT License - https://github.com/Remdev/PHP-ccex-api
  */
 
 class CcexAPI
 {
+	protected $api_url = 'https://c-cex.com/t/';
+	protected $api_key = EXCH_CCEX_KEY;
 
-    protected $api_url = 'https://c-cex.com/t/';
-    protected $api_key = EXCH_CCEX_KEY;
-    protected $api_secret; // = EXCH_CCEX_SECRET; // not used yet
+	public $timeout = 10;
 
-//  public function __construct($api_key = '') {
-//       $this->api_key = $api_key;
-//  }
+	protected function jsonQueryAuth($url)
+	{
+		require_once('/etc/yiimp/keys.php');
+		if (!defined('EXCH_CCEX_SECRET')) define('EXCH_CCEX_SECRET', '');
+		if (empty(EXCH_CCEX_SECRET)) return false;
 
-    protected function jsonQuery($url)
-    {
-        $opts = array(
-            'http' => array(
-                'method'  => 'GET',
-                'timeout' => 10
-            )
-        );
+		$nonce = time();
+		$uri = $url.'&apikey='.$this->api_key.'&nonce='.$nonce;
 
-        $context = stream_context_create($opts);
-        $feed = @file_get_contents($url, false, $context);
+		$sign = hash_hmac('sha512', $uri, EXCH_CCEX_SECRET);
+		$ch = curl_init($uri);
 
-        if(!$feed) {
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array('apisign:'.$sign));
+		curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/4.0 (compatible; C-Cex PHP client; '.php_uname('s').'; PHP/'.phpversion().')');
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->timeout/2);
+		curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
 
-            debuglog("c-cex error $url");
-            return null; //array('error' => 'Invalid parameters');
+		$feed = curl_exec($ch);
+		if ($feed) {
+			$a = json_decode($feed, true);
+			$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+			if(!$a) debuglog("c-cex: auth api failed ($status) ".strip_data($feed).' '.curl_error($ch));
+		}
+		curl_close($ch);
 
-        } else {
+		return isset($a) ? $a : false;
+	}
 
-            $a = json_decode($feed, true);
-            if(!$a) debuglog("c-cex: $feed");
+	protected function jsonQuery($url)
+	{
+		$opts = array(
+			'http' => array(
+				'method'  => 'GET',
+				'timeout' => $this->timeout,
+			)
+		);
 
-            return $a;
-        }
-    }
+		$context = stream_context_create($opts);
+		$feed = @file_get_contents($url, false, $context);
 
-    public function getTickerInfo($pair){
-        $json = $this->jsonQuery($this->api_url.$pair.'.json');
-        return $json['ticker'];
-    }
+		if(!$feed) {
 
-    public function getCoinNames(){
-       $json = $this->jsonQuery($this->api_url.'coinnames.json');
-       return is_array($json) ? $json : array();
-    }
+			debuglog("c-cex error $url");
+			return null; //array('error' => 'Invalid parameters');
 
-    public function getMarkets(){
-       $json = $this->jsonQuery($this->api_url.'api_pub.html?a=getmarkets');
-       return isset($json['result']) ? $json['result'] : array();
-    }
+		} else {
 
-    public function getPairs(){
-       $json = $this->jsonQuery($this->api_url.'pairs.json');
-       return isset($json['pairs'])? $json['pairs']: array();
-    }
+			$a = json_decode($feed, true);
+			if(!$a) debuglog("c-cex: $feed");
 
-    public function getVolumes($hours=24,$pair=false){
-        $url = ($pair) ? 'volume' : 'lastvolumes&pair='.$pair.'&';
-        return $this->jsonQuery($this->api_url."s.html?a=".$url."&h=".$hours);
-    }
+			return $a;
+		}
+	}
 
-    public function getOrders($pair,$self = 0){
-        $self = intval( (bool)$self );//return only 0 or 1
-        return $this->jsonQuery($this->api_url."r.html?key={$this->api_key}&a=orderlist&self={$self}&pair={$pair}");
-    }
+	public function getTickerInfo($pair){
+		$json = $this->jsonQuery($this->api_url.$pair.'.json');
+		return $json['ticker'];
+	}
 
-    public function getHistory($pair,$fromTime = false,$toTime = false,$self = false){
+	public function getCoinNames(){
+		$json = $this->jsonQuery($this->api_url.'coinnames.json');
+		return is_array($json) ? $json : array();
+	}
 
-        if($fromTime === false){
-            $fromTime = 0;
-        }
+	public function getMarkets(){
+		$json = $this->jsonQuery($this->api_url.'api_pub.html?a=getmarkets');
+		return isset($json['result']) ? $json['result'] : array();
+	}
 
-        if($toTime === false){
-            $toTime = time();
-        }
+	public function getPairs(){
+		$json = $this->jsonQuery($this->api_url.'pairs.json');
+		return isset($json['pairs'])? $json['pairs']: array();
+	}
 
-        $fromDate = date('Y-d-m',(int)$fromTime);
-        $toDate = date('Y-d-m',(int)$toTime);
+	public function getVolumes($hours=24,$pair=false){
+		$url = ($pair) ? 'volume' : 'lastvolumes&pair='.$pair.'&';
+		return $this->jsonQuery($this->api_url."s.html?a=".$url."&h=".$hours);
+	}
 
-        $url = ($self) ? "r.html?key={$this->api_key}&" : "s.html?";
-        return $this->jsonQuery($this->api_url.$url."a=tradehistory&d1={$fromDate}&d2={$toDate}&pair={$pair}");
-    }
+	public function getOrders($pair,$self = 0){
+		$self = intval( (bool)$self );//return only 0 or 1
+		return $this->jsonQuery($this->api_url."r.html?key={$this->api_key}&a=orderlist&self={$self}&pair={$pair}");
+	}
 
-    public function makeOrder($type,$pair,$quantity,$price){
-        if(strtolower($type) == 'sell'){
-            $type = 's';
-        }
-        if(strtolower($type) == 'buy'){
-            $type = 'b';
-        }
-        return $this->jsonQuery($this->api_url."r.html?key={$this->api_key}&a=makeorder&pair={$pair}&q={$quantity}&t={$type}&r={$price}");
-    }
+	public function getHistory($pair,$fromTime = false,$toTime = false,$self = false){
 
-    public function cancelOrder($order) {
-        return $this->jsonQuery($this->api_url."r.html?key={$this->api_key}&a=cancelorder&id={$order}");
-    }
+		if($fromTime === false){
+			$fromTime = 0;
+		}
 
-    public function getBalance() {
-        return $this->jsonQuery($this->api_url."r.html?key={$this->api_key}&a=getbalance");
-    }
+		if($toTime === false){
+			$toTime = time();
+		}
 
-    // If not exists - will generate new
-    public function getDepositAddress($symbol) {
-        $coin = strtolower($symbol);
-        return $this->jsonQuery($this->api_url."r.html?key={$this->api_key}&a=getaddress&coin={$coin}");
-    }
+		$fromDate = date('Y-d-m',(int)$fromTime);
+		$toDate = date('Y-d-m',(int)$toTime);
 
-    public function checkDeposit($symbol, $txid) {
-        $coin = strtolower($symbol);
-        return $this->jsonQuery($this->api_url."r.html?key={$this->api_key}&a=checkdeposit&coin={$coin}&tid={$txid}");
-    }
+		$url = ($self) ? "r.html?key={$this->api_key}&" : "s.html?";
+		return $this->jsonQuery($this->api_url.$url."a=tradehistory&d1={$fromDate}&d2={$toDate}&pair={$pair}");
+	}
 
-    public function withdraw($symbol, $amount, $address) {
-        $coin = strtolower($symbol);
-        return $this->jsonQuery($this->api_url."r.html?key={$this->api_key}&a=withdraw&coin={$coin}&amount={$amount}&address={$address}");
-    }
+	public function makeOrder($type,$pair,$quantity,$price){
+		if(strtolower($type) == 'sell'){
+			$type = 's';
+		}
+		if(strtolower($type) == 'buy'){
+			$type = 'b';
+		}
+		return $this->jsonQuery($this->api_url."r.html?key={$this->api_key}&a=makeorder&pair={$pair}&q={$quantity}&t={$type}&r={$price}");
+	}
 
-    public function getDepositHistory($symbol, $limit=100) {
-        $coin = strtolower($symbol);
-        return $this->jsonQuery($this->api_url."r.html?key={$this->api_key}&a=deposithistory&coin={$coin}&limit={$limit}");
-    }
+	public function cancelOrder($order) {
+		return $this->jsonQuery($this->api_url."r.html?key={$this->api_key}&a=cancelorder&id={$order}");
+	}
 
-    public function getWithdrawalHistory($symbol, $limit=100) {
-        $coin = strtolower($symbol);
-        return $this->jsonQuery($this->api_url."r.html?key={$this->api_key}&a=withdrawalhistory&coin={$coin}&limit={$limit}");
-    }
+	public function getBalance() {
+		return $this->jsonQuery($this->api_url."r.html?key={$this->api_key}&a=getbalance");
+	}
+
+	public function getBalances() {
+		return $this->jsonQueryAuth($this->api_url."api.html?a=getbalances");
+	}
+
+	// If not exists - will generate new
+	public function getDepositAddress($symbol) {
+		$coin = strtolower($symbol);
+		return $this->jsonQuery($this->api_url."r.html?key={$this->api_key}&a=getaddress&coin={$coin}");
+	}
+
+	public function checkDeposit($symbol, $txid) {
+		$coin = strtolower($symbol);
+		return $this->jsonQuery($this->api_url."r.html?key={$this->api_key}&a=checkdeposit&coin={$coin}&tid={$txid}");
+	}
+
+	public function withdraw($symbol, $amount, $address) {
+		$coin = strtolower($symbol);
+		return $this->jsonQuery($this->api_url."r.html?key={$this->api_key}&a=withdraw&coin={$coin}&amount={$amount}&address={$address}");
+	}
+
+	public function getDepositHistory($symbol, $limit=100) {
+		$coin = strtolower($symbol);
+		return $this->jsonQuery($this->api_url."r.html?key={$this->api_key}&a=deposithistory&coin={$coin}&limit={$limit}");
+	}
+
+	public function getWithdrawalHistory($symbol, $limit=100) {
+		$coin = strtolower($symbol);
+		return $this->jsonQuery($this->api_url."r.html?key={$this->api_key}&a=withdrawalhistory&coin={$coin}&limit={$limit}");
+	}
 
 }
 

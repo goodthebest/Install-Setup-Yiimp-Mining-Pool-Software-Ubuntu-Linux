@@ -30,27 +30,34 @@ function doCCexTrading($quick=false)
 		$savebalance->save();
 	}
 
-	$balances = $ccex->getBalance();
-	if(!$balances || !isset($balances['return'])) return;
+	$balances = $ccex->getBalances();
+	if(!$balances || !isset($balances['result'])) return;
 
-	foreach($balances['return'] as $balance) foreach($balance as $symbol=>$amount)
+	foreach($balances['result'] as $balance)
 	{
-		if ($symbol == 'btc') {
+		$symbol = strtoupper($balance['Currency']);
+		if ($symbol == 'BTC') {
 			if (!is_object($savebalance)) continue;
-			$savebalance->balance = $amount; // (available one)
+			$savebalance->balance = arraySafeVal($balance,'Available');
 			$savebalance->save();
 			continue;
 		}
 
 		if ($updatebalances) {
 			// store available balance in market table
-			$coins = getdbolist('db_coins', "symbol=:sym OR symbol2=:sym", array(':sym'=>strtoupper($symbol)));
+			$coins = getdbolist('db_coins', "symbol=:sym OR symbol2=:sym", array(':sym'=>$symbol));
 			if (empty($coins)) continue;
 			foreach ($coins as $coin) {
 				$market = getdbosql('db_markets', "coinid=:coinid AND name='$exchange'", array(':coinid'=>$coin->id));
 				if (!$market) continue;
-				$market->balance = $amount;
+				$market->balance = arraySafeVal($balance,'Available',0.0);
+				$market->ontrade = arraySafeVal($balance,'Balance') - $market->balance;
 				$market->balancetime = time();
+				$address = arraySafeVal($balance,'CryptoAddress');
+				if (!empty($address) && $market->deposit_address != $address) {
+					debuglog("$exchange: {$coin->symbol} deposit address updated");
+					$market->deposit_address = $address;
+				}
 				$market->save();
 			}
 		}
@@ -139,6 +146,9 @@ function doCCexTrading($quick=false)
 	sleep(2);
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
+
+	$balances = $ccex->getBalance(); // old api
+	if(!$balances || !isset($balances['return'])) return;
 
 	foreach($balances['return'] as $balance) foreach($balance as $symbol=>$amount)
 	{

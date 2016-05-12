@@ -147,9 +147,14 @@ class ExchangeCommand extends CConsoleCommand
 		}
 		if (!empty(EXCH_CCEX_KEY)) {
 			$ccex = new CcexAPI;
-			$balances = $ccex->getBalance();
-			if(!$balances || !isset($balances['return'])) echo "error\n";
-			else echo("c-cex btc: ".json_encode($balances['return'][1])."\n");
+			$balances = $ccex->getBalances();
+			if(!$balances || !isset($balances['result'])) {
+				// older api
+				$balances = $ccex->getBalance();
+				if(!$balances || !isset($balances['return'])) echo "error\n";
+				else echo("c-cex btc: ".json_encode($balances['return'][1])."\n");
+			}
+			else echo("c-cex btc: ".json_encode($balances['result'][1])."\n");
 		}
 		if (!empty(EXCH_CRYPTOPIA_KEY)) {
 			$balance = cryptopia_api_user('GetBalance',array("Currency"=>"BTC"));
