@@ -80,7 +80,12 @@ json_value *socket_nextjson(YAAMP_SOCKET *s, YAAMP_CLIENT *client)
 	}
 
 	char *p = strchr(b, '}');
-	if (client->stats) p = strrchr(b, '}'); // code to fix!
+	if (p) {
+		// buffer can contain multiple queries
+		if(!strchr(p, '{')) p = strrchr(b, '}');
+		else { p = strchr(p, '{'); p--; };
+	}
+
 	if(!p)
 	{
 		if(client)
