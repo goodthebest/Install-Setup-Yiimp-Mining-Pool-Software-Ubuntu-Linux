@@ -201,6 +201,11 @@ class SiteController extends CommonController
 		$this->render('api');
 	}
 
+	public function actionBenchmarks()
+	{
+		$this->render('benchmarks');
+	}
+
 	public function actionDiff()
 	{
 		$this->render('diff');

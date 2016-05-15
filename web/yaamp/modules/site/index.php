@@ -86,6 +86,10 @@ $payout_freq = (YAAMP_PAYMENTS_FREQ / 3600)." hours";
 
 <li><b>API</b> - <a href='/site/api'>http://<?= YAAMP_SITE_URL ?>/site/api</a></li>
 <li><b>Difficulty</b> - <a href='/site/diff'>http://<?= YAAMP_SITE_URL ?>/site/diff</a></li>
+<?php if (YIIMP_PUBLIC_BENCHMARK): ?>
+<li><b>Benchmarks</b> - <a href='/site/benchmarks'>http://<?= YAAMP_SITE_URL ?>/site/benchmarks</a></li>
+<?php endif; ?>
+
 <?php if (YAAMP_ALLOW_EXCHANGE): ?>
 <li><b>Algo Switching</b> - <a href='/site/multialgo'>http://<?= YAAMP_SITE_URL ?>/site/multialgo</a></li>
 <?php endif; ?>

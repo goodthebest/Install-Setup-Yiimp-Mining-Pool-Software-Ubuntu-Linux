@@ -97,6 +97,9 @@ function showPageHeader()
 	if (YIIMP_PUBLIC_EXPLORER)
 		showItemHeader(controller()->id=='explorer', '/explorer', 'Explorers');
 
+	if (YIIMP_PUBLIC_BENCHMARK)
+		showItemHeader(controller()->id=='bench', '/bench', 'Benchs');
+
 	if (YAAMP_RENTAL)
 		showItemHeader(controller()->id=='renting', '/renting', 'Rental');
 
