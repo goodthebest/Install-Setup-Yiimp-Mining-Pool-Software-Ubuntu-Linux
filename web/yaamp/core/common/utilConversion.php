@@ -248,13 +248,13 @@ function Itoa2($i, $precision=1)
 {
 	$s = '';
 	if($i >= 1000*1000*1000*1000*1000)
-		$s = round(floatval($i)/1000/1000/1000/1000/1000, $precision) ." p";
+		$s = round(floatval($i)/1000/1000/1000/1000/1000, $precision) ." P";
 	else if($i >= 1000*1000*1000*1000)
-		$s = round(floatval($i)/1000/1000/1000/1000, $precision) ." t";
+		$s = round(floatval($i)/1000/1000/1000/1000, $precision) ." T";
 	else if($i >= 1000*1000*1000)
-		$s = round(floatval($i)/1000/1000/1000, $precision) ." g";
+		$s = round(floatval($i)/1000/1000/1000, $precision) ." G";
 	else if($i >= 1000*1000)
-		$s = round(floatval($i)/1000/1000, $precision) ." m";
+		$s = round(floatval($i)/1000/1000, $precision) ." M";
 	else if($i >= 1000)
 		$s = round(floatval($i)/1000, $precision) ." k";
 	else

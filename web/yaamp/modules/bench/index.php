@@ -39,7 +39,7 @@ var algo = '$algo';
 
 $('#algo_select').change(function(event) {
 	algo = jQuery('#algo_select').val();
-	window.location.href = '/bench/algo?algo='+algo;
+	window.location.href = '/bench?algo='+algo;
 });
 
 function page_refresh() {
@@ -47,7 +47,7 @@ function page_refresh() {
 }
 
 function select_algo(algo) {
-	window.location.href = '/bench/algo?algo='+algo;
+	window.location.href = '/bench?algo='+algo;
 }
 
 ////////////////////////////////////////////////////
@@ -65,7 +65,7 @@ page_refresh();
 
 </script>
 
-<div id="results" style="margin-top: 6px;"></div>
+<div id="results" style="margin-top: 0;"></div>
 
 end;
 

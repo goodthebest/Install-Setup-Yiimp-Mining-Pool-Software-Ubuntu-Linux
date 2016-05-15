@@ -8,20 +8,14 @@ class BenchController extends CommonController
 
 	public function actionIndex()
 	{
-		$this->render('index');
-	}
-
-	public function actionAlgo()
-	{
 		$algo = substr(getparam('algo'), 0, 32);
-		$a = dboscalar('SELECT count(id) FROM benchmarks WHERE algo LIKE :algo', array(':algo'=>$algo));
-
-		if($a)
-			user()->setState('bench-algo', $algo);
-		else
-			user()->setState('bench-algo', 'all');
-
-		$this->goback();
+		if ($algo) {
+			$a = dboscalar('SELECT count(id) FROM benchmarks WHERE algo LIKE :algo', array(':algo'=>$algo));
+			user()->setState('bench-algo', $a ? $algo : 'all');
+			$this->redirect('/bench');
+			return;
+		}
+		$this->render('index');
 	}
 
 	public function actionResults_overall()
@@ -30,4 +24,3 @@ class BenchController extends CommonController
 	}
 
 }
-
