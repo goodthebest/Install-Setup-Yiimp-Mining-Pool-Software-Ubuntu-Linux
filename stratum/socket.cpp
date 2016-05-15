@@ -79,7 +79,8 @@ json_value *socket_nextjson(YAAMP_SOCKET *s, YAAMP_CLIENT *client)
 		return NULL;
 	}
 
-	char *p = strrchr(b, '}');
+	char *p = strchr(b, '}');
+	if (client->stats) p = strrchr(b, '}'); // code to fix!
 	if(!p)
 	{
 		if(client)
