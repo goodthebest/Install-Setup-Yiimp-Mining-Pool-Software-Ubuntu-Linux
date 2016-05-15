@@ -52,6 +52,9 @@ bool client_subscribe(YAAMP_CLIENT *client, json_value *json_params)
 
 		if(strstr(client->version, "NiceHash") || strstr(client->version, "proxy") || strstr(client->version, "/3."))
 			client->reconnectable = false;
+
+		if(strstr(client->version, "ccminer"))
+			client->stats = true;
 	}
 
 	if(json_params->u.array.length>1)
@@ -300,6 +303,38 @@ bool client_update_block(YAAMP_CLIENT *client, json_value *json_params)
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
+bool client_ask_stats(YAAMP_CLIENT *client)
+{
+	int id;
+	if (!client->stats) return false;
+	if (!strstr(client->password, "stats")) return false;
+
+	//client_call(client, "client.get_stats", "[]");
+	id = client_ask(client, "client.get_version", "[\"stats\"]");
+	return true;
+}
+
+static bool client_store_stats(YAAMP_CLIENT *client, json_value *result)
+{
+	if (json_typeof(result) != json_object)
+		return false;
+
+	json_value *val = json_get_val(result, "type");
+	if (val && json_is_string(val)) {
+		// debuglog("received stats of type %s\n", json_string_value(val));
+		if (!strcmp("gpu", json_string_value(val))) {
+			CommonLock(&g_db_mutex);
+			db_store_stats(g_db, client, result);
+			CommonUnlock(&g_db_mutex);
+		}
+		return true;
+	}
+
+	return false;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
 //YAAMP_SOURCE *source_init(YAAMP_CLIENT *client)
 //{
 //	YAAMP_SOURCE *source = NULL;
@@ -414,6 +449,15 @@ void *client_thread(void *p)
 		client->id_str = json_get_string(json, "id");
 
 		const char *method = json_get_string(json, "method");
+
+		if (!method && client->stats && client->id_int == client->reqid)
+		{
+			json_value *result = json_get_object(json, "result");
+			if (result) client_store_stats(client, result);
+			json_value_free(json);
+			continue;
+		}
+
 		if(!method)
 		{
 			json_value_free(json);
@@ -440,6 +484,9 @@ void *client_thread(void *p)
 		else if(!strcmp(method, "mining.authorize"))
 			b = client_authorize(client, json_params);
 
+		else if(!strcmp(method, "mining.ping"))
+			b = client_send_result(client, "\"pong\"");
+
 		else if(!strcmp(method, "mining.submit"))
 			b = client_submit(client, json_params);
 
@@ -463,7 +510,7 @@ void *client_thread(void *p)
 
 		else if(!strcmp(method, "getwork"))
 		{
-			clientlog(client, "using getwork");
+			clientlog(client, "using getwork"); // client using http:// url
 			break;
 		}
 

@@ -38,6 +38,7 @@ public:
 //	YAAMP_SOURCE *source;
 
 	char notify_id[1024];
+	int64_t reqid; // ask request id
 
 	int created;
 	int last_best;
@@ -91,6 +92,9 @@ public:
 	YAAMP_CLIENT_ALGO algos_subscribed[YAAMP_MAXALGOS];
 	int job_history[YAAMP_JOB_MAXHISTORY];
 
+	int64_t shares;
+	int stats;
+
 	int donation;
 };
 
@@ -134,10 +138,14 @@ void client_initialize_difficulty(YAAMP_CLIENT *client);
 //////////////////////////////////////////////////////////////////////////
 
 int client_call(YAAMP_CLIENT *client, const char *method, const char *format, ...);
+int client_ask(YAAMP_CLIENT *client, const char *method, const char *format, ...);
+
 void client_dump_all();
 
 int client_send_result(YAAMP_CLIENT *client, const char *format, ...);
 int client_send_error(YAAMP_CLIENT *client, int error, const char *string);
+
+bool client_ask_stats(YAAMP_CLIENT *client);
 
 bool client_submit(YAAMP_CLIENT *client, json_value *json_params);
 void *client_thread(void *p);

@@ -450,9 +450,68 @@ void db_update_renters(YAAMP_DB *db)
 	g_list_renter.Leave();
 }
 
+///////////////////////////////////////////////////////////////////////
 
+static void _json_str_safe(YAAMP_DB *db, json_value *json, const char *key, size_t maxlen, char* out)
+{
+	json_value *val = json_get_val(json, key);
+	out[0] = '\0';
+	if (val && json_is_string(val)) {
+		strncpy(out, json_string_value(val), maxlen);
+		out[maxlen-1] = '\0';
+		db_clean_string(db, out);
+	} else {
+		//debuglog("stats: invalid string for field '%s'\n", key);
+	}
+}
+#define json_str_safe(stats, k, out) _json_str_safe(db, stats, k, sizeof(out), out)
 
+static int json_int_safe(json_value *json, const char *key)
+{
+	json_value *val = json_get_val(json, key);
+	return val ? (int) json_integer_value(val) : 0;
+}
 
+static double json_double_safe(json_value *json, const char *key)
+{
+	json_value *val = json_get_val(json, key);
+	return val ? (int) json_double_value(val) : 0.;
+}
 
+void db_store_stats(YAAMP_DB *db, YAAMP_CLIENT *client, json_value *stats)
+{
+	int t = time(NULL);
+	json_value *algo, *val;
+	char sdev[80], stype[8], svid[12], sarch[8];
+	char salgo[32], sclient[48], sdriver[32], sos[8];
+	double khashes, intensity, throughput;
+	int power, freq, memf;
 
+	json_str_safe(stats, "algo", salgo);
+	if (strcasecmp(g_current_algo->name, salgo) && client->submit_bad) {
+	//	debuglog("stats: wrong algo used %s != %s", salgo, g_current_algo->name);
+		return;
+	}
 
+	json_str_safe(stats, "device", sdev);
+	json_str_safe(stats, "type", stype);
+	json_str_safe(stats, "vendorid", svid);
+	json_str_safe(stats, "arch", sarch);
+	json_str_safe(stats, "client", sclient);
+	json_str_safe(stats, "os", sos);
+	json_str_safe(stats, "driver", sdriver);
+
+	power = json_int_safe(stats, "power");
+	freq  = json_int_safe(stats, "freq");
+	memf  = json_int_safe(stats, "memf");
+	intensity  = json_double_safe(stats, "intensity");
+	throughput = json_double_safe(stats, "throughput");
+	khashes    = json_double_safe(stats, "khashes");
+
+	db_query(db, "INSERT INTO benchmarks("
+		"time, algo, type, device, arch, vendorid, os, driver,"
+		"client, khps, freq, memf, power, intensity, throughput, userid"
+		") VALUES (%d,'%s','%s','%s','%s','%s','%s','%s', '%s',%f,%d,%d,%d,%.2f,%.0f,%d)",
+		t, g_current_algo->name, stype, sdev, sarch, svid, sos, sdriver,
+		sclient, khashes, freq, memf, power, intensity, throughput, client->userid);
+}

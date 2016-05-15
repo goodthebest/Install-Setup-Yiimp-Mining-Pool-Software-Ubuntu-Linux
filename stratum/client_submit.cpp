@@ -463,6 +463,10 @@ bool client_submit(YAAMP_CLIENT *client, json_value *json_params)
 	client_send_result(client, "true");
 	client_record_difficulty(client);
 	client->submit_bad = 0;
+	client->shares++;
+	if ((client->shares % 50) == 0) {
+		if (!client_ask_stats(client)) client->stats = false;
+	}
 
 	double share_diff = diff_to_target(hash_int);
 
