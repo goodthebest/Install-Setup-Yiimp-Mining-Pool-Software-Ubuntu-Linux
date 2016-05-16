@@ -25,7 +25,8 @@ showTableSorter('maintable', "{
 	widgets: ['zebra','filter'],
 	textExtraction: {
 		1: function(node, table, n) { return $(node).attr('data'); },
-		4: function(node, table, n) { return $(node).attr('data'); }
+		5: function(node, table, n) { return $(node).attr('data'); },
+		6: function(node, table, n) { return $(node).attr('data'); }
 	},
 	widgetOptions: {
 		filter_external: '.search',
@@ -46,6 +47,7 @@ echo <<<END
 <th class="algo" data-sorter="text">Algo</th>
 <th data-sorter="text">Time</th>
 <th data-sorter="text">Device</th>
+<th data-sorter="text">Arch</th>
 <th data-sorter="text">Vendor ID</th>
 <th data-sorter="numeric">Hashrate</th>
 <th data-sorter="numeric">Int</th>
@@ -67,10 +69,11 @@ foreach ($db_rows as $row) {
 
 	echo '<td class="algo">'.$row['algo'].'</td>';
 	echo '<td data="'.$row['time'].'">'.$age.'</td>';
-	echo '<td title="SM '.$row['arch'].'">'.$row['device'].getProductIdSuffix($row).'</td>';
+	echo '<td>'.$row['device'].getProductIdSuffix($row).'</td>';
+	echo '<td>'.formatCudaArch($row['arch']).'</td>';
 	echo '<td>'.$row['vendorid'].'</td>';
 	echo '<td data="'.$row['khps'].'">'.$hashrate.'</td>';
-	echo '<td title="'.$row['throughput'].' threads">'.$row['intensity'].'</td>';
+	echo '<td data="'.$row['throughput'].'" title="'.$row['throughput'].' threads">'.$row['intensity'].'</td>';
 	echo '<td>'.$row['freq'].'</td>';
 	echo '<td>'.(empty($row['power']) ? '-' : $row['power']).'</td>';
 	echo '<td>'.$row['client'].'</td>';

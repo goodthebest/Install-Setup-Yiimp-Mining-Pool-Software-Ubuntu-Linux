@@ -5,10 +5,19 @@ include('functions.php');
 $this->pageTitle = "Devices";
 
 $devices = array();
-$in_db = dbolist("SELECT DISTINCT device, vendorid FROM benchmarks ORDER BY device ASC, vendorid DESC");
+$in_db = dbolist("SELECT DISTINCT device, vendorid FROM benchmarks ORDER BY device, vendorid");
 foreach ($in_db as $row) {
-	$chip = array_pop(explode(' ', $row['device']));
-	$devices[$chip] = $chip;
+	// todo: chip column in db
+	$vendorid = $row['vendorid'];
+	$words = explode(' ', $row['device']);
+	$chip = array_pop($words);
+	if (!is_numeric($chip)) {
+		if (substr($vendorid,0,4) == '10de')
+			$chip = array_pop($words);
+		else
+			$chip = array_pop($words).' '.$chip;
+	}
+	$devices[$vendorid] = $chip;
 }
 
 $chip = 'all';
@@ -28,7 +37,8 @@ echo <<<end
 
 <style type="text/css">
 tr.ssrow.filtered { display: none; }
-td.tick { color: green; font-weight: bolder; }
+td.tick { font-weight: bolder; }
+span.generic { color: gray; }
 .page .footer { width: auto; };
 </style>
 
@@ -63,8 +73,9 @@ showTableSorter('maintable', "{
 echo <<<END
 <thead>
 <tr>
-<th data-sorter="text">Device</th>
-<th data-sorter="text">Vendor ID</th>
+<th data-sorter="text" width="70">Chip</th>
+<th data-sorter="text" width="220">Device</th>
+<th data-sorter="text" width="70">Vendor ID</th>
 {$algos_columns}
 </tr>
 </thead><tbody>
@@ -73,15 +84,29 @@ END;
 foreach ($in_db as $row) {
 	echo '<tr class="ssrow">';
 
-	echo '<td>'.$row['device'].getProductIdSuffix($row).'</td>';
-	echo '<td>'.$row['vendorid'].'</td>';
+	$vendorid = $row['vendorid'];
 
-	$records = dbocolumn("SELECT algo FROM benchmarks WHERE vendorid=:vid ", array(':vid'=>$row['vendorid']));
+	echo '<td>'.arraySafeVal($devices, $vendorid, '-').'</td>';
+	echo '<td>'.$row['device'].getProductIdSuffix($row).'</td>';
+
+	if (substr($vendorid,0,4) == '10de')
+		echo '<td><span class="generic" title="nVidia product id">'.$vendorid.'</i></td>';
+	else
+		echo '<td>'.$vendorid.'</td>';
+
+	$records = dbocolumn("SELECT algo FROM benchmarks WHERE vendorid=:vid ", array(':vid'=>$vendorid));
 	foreach ($algos as $algo) {
-		echo '<td class="tick">'.(in_array($algo, $records) ? '✓' : '&nbsp;').'</td>';
+		$tick = '&nbsp;';
+		if (in_array($algo, $records)) {
+			$tick = CHtml::link('✓','/bench?algo='.$algo);
+		}
+		echo '<td class="tick">'.$tick.'</td>';
 	}
 
 	echo '</tr>';
 }
 
 echo '</tbody></table><br/>';
+
+echo '<a href="/site/benchmarks">Learn how to submit your results</a>';
+echo '<br/><br/>';

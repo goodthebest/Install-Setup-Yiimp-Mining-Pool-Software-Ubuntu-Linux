@@ -28,10 +28,21 @@ function getProductIdSuffix($row)
 		// EVGA 970
 		'3842:2974' => 'SC',
 		'3842:3975' => 'SSC',
+		// EVGA 980 Ti
+		'3842:1996' => 'Hybrid',
 	);
 
 	if (isset($known[$vidpid])) {
 		return ' '.$known[$vidpid];
 	}
 	return '';
+}
+
+function formatCudaArch($arch)
+{
+	if (is_numeric($arch)) {
+		$a = intval($arch);
+		return 'SM '.floor($a / 100).'.'.(($a % 100)/10);
+	}
+	return $arch;
 }
