@@ -1,6 +1,5 @@
 <?php
 
-$algo = user()->getState('bench-algo');
 if (empty($algo)) $algo = 'all';
 
 $algos = array();
@@ -62,6 +61,7 @@ function bench_refresh() {
 }
 
 page_refresh();
+jQuery('#algo_select').val(algo);
 
 </script>
 

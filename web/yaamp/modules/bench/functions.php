@@ -12,7 +12,16 @@ function getProductIdSuffix($row)
 		'1458:3649' => 'Black',
 		// Gigabyte 960
 		'1458:36ae' => '4GB',
+		// MSI 960
+		'1462:3202' => 'Gaming 2G',
+		// MSI 970
+		'1462:3160' => 'Gaming',
+		// EVGA 750
+		'3842:3753' => 'SC',
+		// EVGA 960
+		'3842:2962' => 'SC',
 		// EVGA 970
+		'3842:2974' => 'SC',
 		'3842:3975' => 'SSC',
 	);
 

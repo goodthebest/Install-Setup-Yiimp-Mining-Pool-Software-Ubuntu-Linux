@@ -35,6 +35,11 @@ showTableSorter('maintable', "{
 	}
 }");
 
+$actions = '';
+if ($this->admin) {
+	$actions = '<th width="30" data-sorter="">Admin</th>';
+}
+
 echo <<<END
 <thead>
 <tr>
@@ -49,6 +54,7 @@ echo <<<END
 <th data-sorter="text">Client</th>
 <th data-sorter="text">OS</th>
 <th data-sorter="text">Driver</th>
+{$actions}
 </tr>
 </thead><tbody>
 END;
@@ -70,6 +76,11 @@ foreach ($db_rows as $row) {
 	echo '<td>'.$row['client'].'</td>';
 	echo '<td>'.$row['os'].'</td>';
 	echo '<td>'.$row['driver'].'</td>';
+
+	if ($this->admin) {
+		$props = array('style'=>'color: darkred;');
+		echo '<td>'.CHtml::link("delete", '/bench/del?id='.$row['id'], $props).'</td>';
+	}
 
 	echo '</tr>';
 }

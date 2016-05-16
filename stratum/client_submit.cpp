@@ -464,7 +464,8 @@ bool client_submit(YAAMP_CLIENT *client, json_value *json_params)
 	client_record_difficulty(client);
 	client->submit_bad = 0;
 	client->shares++;
-	if ((client->shares % 50) == 0) {
+	if (client->shares <= 200 && (client->shares % 50) == 0) {
+		// 4 records are enough per miner
 		if (!client_ask_stats(client)) client->stats = false;
 	}
 
