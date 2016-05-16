@@ -28,9 +28,17 @@ class BenchController extends CommonController
 	public function actionDel()
 	{
 		$id = getiparam('id');
-		if ($id > 0) {
+		if ($id > 0 && $this->admin) {
 			dborun("DELETE FROM benchmarks WHERE id=$id");
 		}
 		$this->goback();
 	}
+
+	/////////////////////////////////////////////////
+
+	public function actionDevices()
+	{
+		$this->render('devices');
+	}
+
 }

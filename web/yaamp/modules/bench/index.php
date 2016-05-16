@@ -24,6 +24,7 @@ echo <<<end
 <div align="right" style="margin-bottom: 2px; margin-right: 0px;">
 <input class="search" type="search" data-column="all" style="width: 140px;" placeholder="Search..." />
 </div>
+
 <style type="text/css">
 tr.ssrow.filtered { display: none; }
 .page .footer { width: auto; };
@@ -67,5 +68,9 @@ jQuery('#algo_select').val(algo);
 
 <div id="results" style="margin-top: 0;"></div>
 
-end;
+<p style="margin: 0; padding: 0 4px;">
+<a href="/bench/devices">Show current state of the database (devices/algos)</a><br/>
+<br/>
+</p>
 
+end;

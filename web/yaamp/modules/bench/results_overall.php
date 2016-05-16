@@ -9,9 +9,9 @@ $this->pageTitle = "Benchmarks";
 
 echo '<p style="margin-top: -20px; margin-bottom: 4px; line-height: 25px; font-weight: bolder;">';
 if ($algo == 'all') {
-	echo "Last 50 results...";
+	echo "Last 50 results";
 } else  {
-	echo "Last 150 $algo results...";
+	echo "Last 150 $algo results";
 }
 echo '</p>';
 
