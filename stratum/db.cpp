@@ -475,7 +475,7 @@ static int json_int_safe(json_value *json, const char *key)
 static double json_double_safe(json_value *json, const char *key)
 {
 	json_value *val = json_get_val(json, key);
-	return val ? (int) json_double_value(val) : 0.;
+	return val ? json_double_value(val) : 0.;
 }
 
 void db_store_stats(YAAMP_DB *db, YAAMP_CLIENT *client, json_value *stats)
