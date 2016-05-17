@@ -48,7 +48,7 @@ function doPoloniexTrading()
 			foreach ($coins as $coin) {
 				$market = getdbosql('db_markets', "coinid=:coinid AND name='$exchange'", array(':coinid'=>$coin->id));
 				if (!$market) continue;
-				$market->balance = $balance['available'];
+				$market->balance = arraySafeVal($balance,'available',0);
 				$market->ontrade = arraySafeVal($balance,'onOrders',0);
 				$market->balancetime = time();
 				$market->save();
@@ -157,7 +157,7 @@ function doPoloniexTrading()
 
 	foreach($balances as $symbol=>$balance)
 	{
-		if(!$balance || !$balance['available']) continue;
+		if(!$balance || !arraySafeVal($balance,'available')) continue;
 		if($symbol == 'BTC') continue;
 
 		$coin = getdbosql('db_coins', "symbol=:symbol", array(':symbol'=>$symbol));
