@@ -19,20 +19,8 @@ end;
 
 showTableSorter('maintable', "{
 	tableClass: 'dataGrid',
-	headers: {
-		0:{sorter:'metadata'},
-		1:{sorter:'text'},
-		2:{sorter:'text'},
-		3:{sorter:'text'},
-		4:{sorter:'text'},
-		5:{sorter:'text'},
-		6:{sorter:'metadata'},
-		7:{sorter:'numeric'},
-		8:{sorter:'numeric'},
-		9:{sorter:'numeric'},
-		10:{sorter:'numeric'},
-		11:{sorter:'numeric'},
-		12:{sorter:'text'}
+	textExtraction: {
+		6: function(node, table, n) { return $(node).attr('data'); }
 	},
 	widgets: ['zebra','filter','Storage','saveSort'],
 	widgetOptions: {
@@ -48,20 +36,20 @@ showTableSorter('maintable', "{
 echo <<<end
 <thead>
 <tr>
-<th width="20"></th>
-<th>Coin</th>
-<th>Address</th>
-<th>Pass</th>
-<th>Client</th>
-<th>Version</th>
-<th>Hashrate</th>
-<th>Diff</th>
-<th>Shares</th>
-<th>Bad</th>
-<th>%</th>
-<th>Found</th>
-<th></th>
-<th></th>
+<th data-sorter="" width="20"></th>
+<th data-sorter="text">Coin</th>
+<th data-sorter="text">Address</th>
+<th data-sorter="text">Pass</th>
+<th data-sorter="text">Client</th>
+<th data-sorter="text">Version</th>
+<th data-sorter="numeric">Hashrate</th>
+<th data-sorter="numeric">Diff</th>
+<th data-sorter="numeric">Shares</th>
+<th data-sorter="numeric">Bad</th>
+<th data-sorter="numeric">%</th>
+<th data-sorter="numeric">Found</th>
+<th data-sorter="text" width="30">Name</th>
+<th data-sorter="text"></th>
 </tr>
 </thead><tbody>
 end;
@@ -81,7 +69,7 @@ foreach($workers as $worker)
 	if ($total_rate) $percent = (100.0 * $user_rate) / $total_rate;
 	$user_bad = yaamp_worker_rate_bad($worker->id);
 	$pct_bad = ($user_rate+$user_bad)? round($user_bad*100/($user_rate+$user_bad), 3): 0;
-	$user_rate = Itoa2($user_rate).'h/s';
+	$user_rate_h = $user_rate ? Itoa2($user_rate).'H' : '-';
 
 	$name = $worker->worker;
 	$user = $coin = NULL;
@@ -104,12 +92,12 @@ foreach($workers as $worker)
 
 	echo "<tr class='ssrow'>";
 	echo '<td width="20">'.$coinimg.'</td>';
-	echo '<td><b>'.$coinlink.'</b>&nbsp;('.$coinsym.')</td>';
+	echo '<td><b>'.$coinlink.'</b>'.($coinsym ? '&nbsp;('.$coinsym.')':'-').'</td>';
 	echo "<td><a href='/?address=$worker->name'><b>$worker->name</b></a></td>";
 	echo "<td>$worker->password</td>";
 	echo "<td title='$worker->ip'>$dns</td>";
 	echo "<td>$worker->version</td>";
-	echo "<td>$user_rate</td>";
+	echo "<td data=\"$user_rate\">$user_rate_h</td>";
 	echo "<td>$worker->difficulty</td>";
 
 	$shares = dboscalar("SELECT COUNT(id) as shares FROM shares WHERE workerid=:worker AND algo=:algo", array(
@@ -140,7 +128,7 @@ foreach($workers as $worker)
 
 	echo '<td>'.$worker_blocs.' / '.$user_blocs.'</td>';
 	echo '<td>'.$name.'</td>';
-	echo '<td>'.($gift ? "$gift&nbsp;%" : '').'</td>';
+	echo '<td>'.(isset($gift) && $gift ? "$gift&nbsp;%" : '').'</td>';
 	echo '</tr>';
 }
 
