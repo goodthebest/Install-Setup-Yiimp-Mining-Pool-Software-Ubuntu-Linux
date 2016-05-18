@@ -15,6 +15,7 @@ class db_benchmarks extends CActiveRecord
 	public function rules()
 	{
 		return array(
+			array('vendorid, algo', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -29,5 +30,31 @@ class db_benchmarks extends CActiveRecord
 		return array(
 		);
 	}
+
+	public function search()
+	{
+		$criteria = new CDbCriteria;
+
+		$t = $this->getTableAlias(false);
+
+		$criteria->compare("$t.algo",$this->algo);
+		$criteria->compare("$t.vendorid",$this->vendorid);
+
+		$sort = array('defaultOrder'=>"$t.time DESC");
+
+		$criteria->limit = 150;
+		if (empty($this->algo) || $this->algo == 'all') {
+			$criteria->limit = 50;
+		}
+
+		$dataProvider = new CActiveDataProvider($this, array(
+			'criteria'=>$criteria,
+			'pagination'=>array('pageSize'=>50),
+			'sort'=>$sort,
+		));
+
+		return $dataProvider;
+	}
+
 }
 

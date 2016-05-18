@@ -19,6 +19,21 @@ foreach($algos as $a => $count) {
 JavascriptFile("/yaamp/ui/js/jquery.metadata.js");
 JavascriptFile("/yaamp/ui/js/jquery.tablesorter.widgets.js");
 
+
+include('functions.php');
+
+$algo = user()->getState('bench-algo');
+if (empty($algo)) $algo = 'all';
+if (empty($vid)) $vid = NULL;
+
+$this->pageTitle = "Benchmarks";
+
+$bench = new db_benchmarks;
+if($algo != 'all') $bench->algo = $algo;
+$bench->vendorid = $vid;
+$dp = $bench->search();
+$db_rows = $dp->getData();
+
 echo <<<end
 
 <div align="right" style="margin-bottom: 2px; margin-right: 0px;">
@@ -34,43 +49,106 @@ tr.ssrow.filtered { display: none; }
 Select Algo: <select id="algo_select">{$options}</select>&nbsp;
 </div>
 
+end;
+
+echo '<p style="margin-top: -20px; margin-bottom: 4px; line-height: 22px; font-weight: bolder;">';
+if ($algo == 'all') {
+	echo "Last 50 results";
+} else  {
+	echo "Last 50 $algo results";
+}
+echo '</p>';
+
+showTableSorter('maintable', "{
+	tableClass: 'dataGrid',
+	widgets: ['zebra','filter'],
+	textExtraction: {
+		1: function(node, table, n) { return $(node).attr('data'); },
+		5: function(node, table, n) { return $(node).attr('data'); },
+		6: function(node, table, n) { return $(node).attr('data'); }
+	},
+	widgetOptions: {
+		filter_external: '.search',
+		filter_columnFilters: false,
+		filter_childRows : true,
+		filter_ignoreCase: true
+	}
+}");
+
+$actions = '';
+if ($this->admin) {
+	$actions = '<th width="30" data-sorter="">Admin</th>';
+}
+
+echo <<<END
+<thead>
+<tr>
+<th class="algo" data-sorter="text">Algo</th>
+<th data-sorter="text">Time</th>
+<th data-sorter="text">Device</th>
+<th data-sorter="text">Arch</th>
+<th data-sorter="text">Vendor ID</th>
+<th data-sorter="numeric">Hashrate</th>
+<th data-sorter="numeric" title="Intensity (-i)">Int.</th>
+<th data-sorter="numeric" title="MHz">Freq</th>
+<th data-sorter="numeric">Watts</th>
+<th data-sorter="text">Client</th>
+<th data-sorter="text">OS</th>
+<th data-sorter="text">Driver</th>
+{$actions}
+</tr>
+</thead><tbody>
+END;
+
+foreach ($db_rows as $row) {
+
+	if ($vid && $row['vendorid'] != $vid) continue;
+
+	echo '<tr class="ssrow">';
+
+	$hashrate = Itoa2(1000*round($row['khps'],3),3).'H';
+	$age = datetoa2($row['time']);
+
+	echo '<td class="algo">'.CHtml::link($row['algo'],'/bench?algo='.$row['algo']).'</td>';
+	echo '<td data="'.$row['time'].'">'.$age.'</td>';
+	echo '<td>'.$row['device'].getProductIdSuffix($row).'</td>';
+	echo '<td>'.formatCudaArch($row['arch']).'</td>';
+	echo '<td>'.CHtml::link($row['vendorid'],'/bench?vid='.$row['vendorid']).'</td>';
+	echo '<td data="'.$row['khps'].'">'.$hashrate.'</td>';
+	if ($algo == 'neoscrypt')
+		echo '<td data="'.$row['throughput'].'" title="neoscrypt intensity is different">'.$row['throughput'].'*</td>';
+	else
+		echo '<td data="'.$row['throughput'].'" title="'.$row['throughput'].' threads">'.$row['intensity'].'</td>';
+	echo '<td>'.$row['freq'].'</td>';
+	echo '<td>'.(empty($row['power']) ? '-' : $row['power']).'</td>';
+	echo '<td>'.$row['client'].'</td>';
+	echo '<td>'.$row['os'].'</td>';
+	echo '<td>'.$row['driver'].'</td>';
+
+	if ($this->admin) {
+		$props = array('style'=>'color: darkred;');
+		echo '<td>'.CHtml::link("delete", '/bench/del?id='.$row['id'], $props).'</td>';
+	}
+
+	echo '</tr>';
+}
+
+echo '</tbody></table><br/>';
+
+echo <<<end
+
+<p style="margin: 0; padding: 0 4px;">
+<a href="/bench/devices">Show current state of the database (devices/algos)</a><br/>
+<br/>
+</p>
+
 <script type="text/javascript">
-var algo = '$algo';
 
 $('#algo_select').change(function(event) {
 	algo = jQuery('#algo_select').val();
 	window.location.href = '/bench?algo='+algo;
 });
 
-function page_refresh() {
-	bench_refresh();
-}
-
-function select_algo(algo) {
-	window.location.href = '/bench?algo='+algo;
-}
-
-////////////////////////////////////////////////////
-
-function bench_data_ready(data) {
-	$('#results').html(data);
-}
-
-function bench_refresh() {
-	var url = "/bench/results_overall";
-	jQuery.get(url, '', bench_data_ready);
-}
-
-page_refresh();
-jQuery('#algo_select').val(algo);
-
 </script>
-
-<div id="results" style="margin-top: 0;"></div>
-
-<p style="margin: 0; padding: 0 4px;">
-<a href="/bench/devices">Show current state of the database (devices/algos)</a><br/>
-<br/>
-</p>
 
 end;
