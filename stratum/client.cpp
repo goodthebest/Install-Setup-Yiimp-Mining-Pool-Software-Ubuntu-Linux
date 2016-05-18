@@ -225,6 +225,17 @@ bool client_authorize(YAAMP_CLIENT *client, json_value *json_params)
 	debuglog("new client %s, %s, %s\n", client->username, client->password, client->version);
 #endif
 
+	if (!strcmp(client->username, "test") || !strcmp(client->username, "benchmark")) {
+		if (g_list_coind.first) {
+			CLI li = g_list_coind.first;
+			YAAMP_COIND *coind = (YAAMP_COIND *)li->data;
+			debuglog("auth %s benchmark on (%s) %s:%s %s\n", coind->algo, coind->symbol,
+				client->username, client->password, client->version);
+			strcpy(client->username, coind->wallet);
+			strcat(client->password, ",stats");
+		}
+	}
+
 	// when auto exchange is disabled, only authorize good wallet address...
 	if (!g_autoexchange && !client_validate_user_address(client)) {
 

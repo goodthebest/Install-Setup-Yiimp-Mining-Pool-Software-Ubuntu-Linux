@@ -6,7 +6,7 @@ void db_check_user_input(char* input)
 {
 	char *p = NULL;
 	if (input && input[0]) {
-		p = strpbrk(input, "\"'\\");
+		p = strpbrk(input, " \"'\\");
 		if(p) *p = '\0';
 	}
 }
@@ -35,6 +35,13 @@ void db_add_user(YAAMP_DB *db, YAAMP_CLIENT *client)
 #endif
 
 	db_check_user_input(client->username);
+	if(strlen(client->username) < 34) {
+		// allow benchmark / test / donate usernames
+		if (strcmp(client->username, "test") && strcmp(client->username, "benchmark") && strcmp(client->username, "donate")) {
+			debuglog("Invalid user address '%s'\n", client->username);
+			return;
+		}
+	}
 
 	// debuglog("user %s %s gives %d %\n", client->username, symbol, gift);
 	db_query(db, "SELECT id, is_locked, logtraffic, coinid, donation FROM accounts WHERE username='%s'", client->username);
