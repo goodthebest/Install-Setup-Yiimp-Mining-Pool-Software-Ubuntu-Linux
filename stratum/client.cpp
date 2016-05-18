@@ -203,6 +203,10 @@ bool client_authorize(YAAMP_CLIENT *client, json_value *json_params)
 
 	client_initialize_difficulty(client);
 
+#ifdef CLIENT_DEBUGLOG_
+	debuglog("new client %s, %s, %s\n", client->username, client->password, client->version);
+#endif
+
 	if(!client->userid || !client->workerid)
 	{
 		CommonLock(&g_db_mutex);
@@ -219,21 +223,6 @@ bool client_authorize(YAAMP_CLIENT *client, json_value *json_params)
 
 		db_add_worker(g_db, client);
 		CommonUnlock(&g_db_mutex);
-	}
-
-#ifdef CLIENT_DEBUGLOG_
-	debuglog("new client %s, %s, %s\n", client->username, client->password, client->version);
-#endif
-
-	if (!strcmp(client->username, "test") || !strcmp(client->username, "benchmark")) {
-		if (g_list_coind.first) {
-			CLI li = g_list_coind.first;
-			YAAMP_COIND *coind = (YAAMP_COIND *)li->data;
-			debuglog("auth %s benchmark on (%s) %s:%s %s\n", coind->algo, coind->symbol,
-				client->username, client->password, client->version);
-			strcpy(client->username, coind->wallet);
-			strcat(client->password, ",stats");
-		}
 	}
 
 	// when auto exchange is disabled, only authorize good wallet address...

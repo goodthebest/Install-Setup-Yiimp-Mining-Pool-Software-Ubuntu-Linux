@@ -26,6 +26,7 @@ void db_add_user(YAAMP_DB *db, YAAMP_CLIENT *client)
 	p = strchr(symbol, ',');
 	if(p) *p = '\0';
 
+	bool guest = false;
 	int gift = -1;
 #ifdef ALLOW_CUSTOM_DONATIONS
 	// donation percent
@@ -37,7 +38,18 @@ void db_add_user(YAAMP_DB *db, YAAMP_CLIENT *client)
 	db_check_user_input(client->username);
 	if(strlen(client->username) < 34) {
 		// allow benchmark / test / donate usernames
-		if (strcmp(client->username, "test") && strcmp(client->username, "benchmark") && strcmp(client->username, "donate")) {
+		if (!strcmp(client->username, "benchmark") || !strcmp(client->username, "donate") || !strcmp(client->username, "test")) {
+			guest = true;
+			if (g_list_coind.first) {
+				CLI li = g_list_coind.first;
+				YAAMP_COIND *coind = (YAAMP_COIND *)li->data;
+				if (!strlen(client->worker)) strcpy(client->worker, client->username);
+				strcpy(client->username, coind->wallet);
+				if (!strcmp(client->username, "benchmark")) strcat(client->password, ",stats");
+				if (!strcmp(client->username, "donate")) gift = 100;
+			}
+		}
+		if (!guest) {
 			debuglog("Invalid user address '%s'\n", client->username);
 			return;
 		}
@@ -70,7 +82,7 @@ void db_add_user(YAAMP_DB *db, YAAMP_CLIENT *client)
 	if(client->userid == -1)
 		return;
 
-	else if(client->userid == 0)
+	else if(client->userid == 0 && strlen(client->username) >= 34)
 	{
 		db_query(db, "INSERT INTO accounts (username, coinsymbol, balance, donation) values ('%s', '%s', 0, %d)",
 			client->username, symbol, gift);
