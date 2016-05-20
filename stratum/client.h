@@ -31,6 +31,9 @@ struct YAAMP_CLIENT_ALGO
 
 #define YAAMP_JOB_MAXHISTORY	16
 
+#define MIN_ADDRESS_LEN 30 /* BTC len can be as few as 26 chars, but gen. 33 or 34 */
+#define MAX_ADDRESS_LEN 35 /* DCR */
+
 class YAAMP_CLIENT: public YAAMP_OBJECT
 {
 public:
@@ -149,6 +152,8 @@ bool client_ask_stats(YAAMP_CLIENT *client);
 
 bool client_submit(YAAMP_CLIENT *client, json_value *json_params);
 void *client_thread(void *p);
+
+void db_check_user_input(char* input);
 
 //void source_prune();
 

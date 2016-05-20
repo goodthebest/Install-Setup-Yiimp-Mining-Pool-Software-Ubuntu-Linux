@@ -36,7 +36,7 @@ void db_add_user(YAAMP_DB *db, YAAMP_CLIENT *client)
 #endif
 
 	db_check_user_input(client->username);
-	if(strlen(client->username) < 34) {
+	if(strlen(client->username) < MIN_ADDRESS_LEN) {
 		// allow benchmark / test / donate usernames
 		if (!strcmp(client->username, "benchmark") || !strcmp(client->username, "donate") || !strcmp(client->username, "test")) {
 			guest = true;
@@ -82,7 +82,7 @@ void db_add_user(YAAMP_DB *db, YAAMP_CLIENT *client)
 	if(client->userid == -1)
 		return;
 
-	else if(client->userid == 0 && strlen(client->username) >= 34)
+	else if(client->userid == 0 && strlen(client->username) >= MIN_ADDRESS_LEN)
 	{
 		db_query(db, "INSERT INTO accounts (username, coinsymbol, balance, donation) values ('%s', '%s', 0, %d)",
 			client->username, symbol, gift);

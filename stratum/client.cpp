@@ -184,17 +184,18 @@ bool client_authorize(YAAMP_CLIENT *client, json_value *json_params)
 	{
 		strncpy(client->username, json_params->u.array.values[0]->u.string.ptr, 1023);
 
-		if (client->username[0] == ' ')
+		db_check_user_input(client->username);
+		int len = strlen(client->username);
+		if (!len)
 			return false;
 
-		char sep = client->username[34];
-		if (sep == '.' || sep == ',' || sep == ':' || sep == ' ') {
-			client->username[34] = '\0';
-			strncpy(client->worker, client->username+35, 1023-35);
-		} else if (strlen(client->username) > 35 && client->username[0] >= 'D') {
-			// 35 chars allowed for decred...
-			client->username[35] = '\0';
-			strncpy(client->worker, client->username+36, 1023-36);
+		char *sep = strpbrk(client->username, ".,;:");
+		if (sep) {
+			*sep = '\0';
+			strncpy(client->worker, sep+1, 1023-len);
+			if (strlen(client->username) > MAX_ADDRESS_LEN) return false;
+		} else if (len > MAX_ADDRESS_LEN) {
+			return false;
 		}
 	}
 
