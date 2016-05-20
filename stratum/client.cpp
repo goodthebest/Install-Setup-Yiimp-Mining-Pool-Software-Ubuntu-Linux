@@ -308,10 +308,7 @@ bool client_ask_stats(YAAMP_CLIENT *client)
 {
 	int id;
 	if (!client->stats) return false;
-	if (!strstr(client->password, "stats")) return false;
-
 	id = client_ask(client, "client.get_stats", "[]");
-	//id = client_ask(client, "client.get_version", "[\"stats\"]");
 	return true;
 }
 
