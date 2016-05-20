@@ -53,8 +53,9 @@ bool client_subscribe(YAAMP_CLIENT *client, json_value *json_params)
 		if(strstr(client->version, "NiceHash") || strstr(client->version, "proxy") || strstr(client->version, "/3."))
 			client->reconnectable = false;
 
-		if(strstr(client->version, "ccminer"))
-			client->stats = true;
+		if(strstr(client->version, "ccminer")) client->stats = true;
+		if(strstr(client->version, "cpuminer-multi")) client->stats = true;
+		if(strstr(client->version, "cpuminer-opt")) client->stats = true;
 	}
 
 	if(json_params->u.array.length>1)
@@ -319,12 +320,12 @@ static bool client_store_stats(YAAMP_CLIENT *client, json_value *result)
 
 	json_value *val = json_get_val(result, "type");
 	if (val && json_is_string(val)) {
-		// debuglog("received stats of type %s\n", json_string_value(val));
-		if (!strcmp("gpu", json_string_value(val))) {
+		debuglog("received stats of type %s\n", json_string_value(val));
+		//if (!strcmp("gpu", json_string_value(val))) {
 			CommonLock(&g_db_mutex);
 			db_store_stats(g_db, client, result);
 			CommonUnlock(&g_db_mutex);
-		}
+		//}
 		return true;
 	}
 
