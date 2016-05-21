@@ -77,18 +77,23 @@ function formatCPU($row)
 		$device = str_replace(' V4',' v4', $device);
 	} else {
 		// from windows env PROCESSOR_IDENTIFIER (to reduce the len)
-		$device = str_replace(' Family', ' Fam.', $device);
-		$device = str_replace(' Stepping', ' Step', $device);
+		$device = str_replace(' Family', '', $device);
+		$device = str_replace(' Stepping ', '.', $device);
 		$device = str_replace(' GenuineIntel', ' Intel', $device);
 		// Clean up
 		if (strpos($device, 'Intel64') !== false && strpos($device, ' Intel')) {
 			$device = str_replace(' Intel','', $device);
+			$device = str_replace('Intel64','Intel', $device);
 			$device = rtrim($device, ',');
 		}
 		// todo, clean the vid and use linux names/vid from the db (in the db)
+		$parts = explode(':', $row['vendorid']);
+		$cores = (int) arraySafeVal($parts, 2);
 		switch ($device) {
-		case 'Intel64 Fam. 6 Model 71 Step 1':
-			return 'Intel Core i7-5775C';
+		case 'Intel 6 Model 60.3':
+			return ($cores == 4 ? 'Intel Core i5-4xxx' : 'Intel Core i7-4xxx');
+		case 'Intel 6 Model 71.1':
+			return ($cores == 4 ? 'Intel Core i5-5675C' : 'Intel Core i7-5775C');
 		}
 	}
 	return $device;

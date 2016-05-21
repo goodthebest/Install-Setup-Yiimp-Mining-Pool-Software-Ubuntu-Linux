@@ -114,7 +114,7 @@ foreach ($db_rows as $row) {
 	if ($row['type'] == 'cpu') {
 		echo '<td>'.formatCPU($row).'</td>';
 		echo '<td>'.$row['arch'].'</td>';
-		echo '<td>'.$row['vendorid'].'</td>';
+		echo '<td>'.CHtml::link($row['vendorid'],'/bench?vid='.$row['vendorid']).'</td>';
 	} else {
 		echo '<td>'.$row['device'].getProductIdSuffix($row).'</td>';
 		echo '<td>'.formatCudaArch($row['arch']).'</td>';
