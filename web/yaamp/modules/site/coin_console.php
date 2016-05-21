@@ -120,7 +120,7 @@ end;
 $result = '';
 
 if (!empty($query)) try {
-	$params = split(' ', trim($query));
+	$params = explode(' ', trim($query));
 	$command = array_shift($params);
 
 	$p = array();
@@ -179,3 +179,4 @@ echo '</div>';
 JavascriptReady("main_resize(); $(window).resize(main_resize); $('.main-text-input:first').focus();");
 
 JavascriptReady("lazyLinks = setTimeout(main_json_links, 2000);");
+
