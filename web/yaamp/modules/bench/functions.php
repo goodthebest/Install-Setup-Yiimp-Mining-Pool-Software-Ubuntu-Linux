@@ -63,3 +63,38 @@ function formatCudaArch($arch)
 	}
 	return $arch;
 }
+
+function formatCPU($row)
+{
+	$device = $row['device'];
+	if (strpos($device, '(R)')) {
+		// from /proc/cpuinfo
+		$device = str_replace('(R)', '', $device);
+		$device = str_replace('(TM)','', $device);
+		$device = str_replace(' CPU','', $device);
+		$device = str_replace(' V2',' v2', $device);
+		$device = str_replace(' V3',' v3', $device);
+		$device = str_replace(' V4',' v4', $device);
+	} else {
+		// from windows env PROCESSOR_IDENTIFIER (to reduce the len)
+		$device = str_replace(' Family', ' Fam.', $device);
+		$device = str_replace(' Stepping', ' Step', $device);
+		$device = str_replace(' GenuineIntel', ' Intel', $device);
+		// Clean up
+		if (strpos($device, 'Intel64') !== false && strpos($device, ' Intel')) {
+			$device = str_replace(' Intel','', $device);
+			$device = rtrim($device, ',');
+		}
+		// todo, clean the vid and use linux names/vid from the db (in the db)
+		switch ($device) {
+		case 'Intel64 Fam. 6 Model 71 Step 1':
+			return 'Intel Core i7-5775C';
+		}
+	}
+	return $device;
+}
+
+function formatClientName($version)
+{
+	return $version;
+}

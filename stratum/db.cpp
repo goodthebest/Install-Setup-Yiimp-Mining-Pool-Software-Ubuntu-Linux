@@ -496,10 +496,10 @@ void db_store_stats(YAAMP_DB *db, YAAMP_CLIENT *client, json_value *stats)
 	json_str_safe(stats, "device", sdev);
 	json_str_safe(stats, "type", stype);
 	json_str_safe(stats, "vendorid", svid);
-	json_str_safe(stats, "arch", sarch);
+	json_str_safe(stats, "arch", sarch); // or cpu best feature
 	json_str_safe(stats, "client", sclient);
 	json_str_safe(stats, "os", sos);
-	json_str_safe(stats, "driver", sdriver);
+	json_str_safe(stats, "driver", sdriver); // or cpu compiler
 
 	power = json_int_safe(stats, "power");
 	freq  = json_int_safe(stats, "freq");

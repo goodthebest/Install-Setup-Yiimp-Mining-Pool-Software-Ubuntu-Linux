@@ -5,19 +5,38 @@ include('functions.php');
 $this->pageTitle = "Devices";
 
 $devices = array();
-$in_db = dbolist("SELECT DISTINCT device, vendorid FROM benchmarks ORDER BY device, vendorid");
-foreach ($in_db as $row) {
+$in_db = dbolist("SELECT DISTINCT device, type, vendorid FROM benchmarks ORDER BY type DESC, device, vendorid");
+foreach ($in_db as $key => $row) {
 	// todo: chip column in db
+	$device = $row['device'];
 	$vendorid = $row['vendorid'];
-	$words = explode(' ', $row['device']);
-	$chip = array_pop($words);
-	if (!is_numeric($chip)) {
-		if (substr($vendorid,0,4) == '10de')
-			$chip = array_pop($words);
-		else
-			$chip = array_pop($words).' '.$chip;
+	if ($row['type'] == 'cpu') {
+
+		$device = formatCPU($row);
+		$device = str_ireplace(' V2', 'v2', $device);
+		$device = str_ireplace(' V2', 'v2', $device);
+		$device = str_ireplace(' V2', 'v2', $device);
+		$device = str_ireplace(' V3', 'v3', $device);
+		$device = str_ireplace(' V4', 'v4', $device);
+		$device = str_ireplace(' V5', 'v5', $device);
+		$words = explode(' ', $device);
+		$chip = array_pop($words);
+		if (strpos($device, 'Fam.')) $chip = '-'; // WIN ENV
+
+	} else {
+
+		// nNidia
+		$words = explode(' ', $device);
+		$chip = array_pop($words);
+		if (!is_numeric($chip)) {
+			if (substr($vendorid,0,4) == '10de')
+				$chip = array_pop($words);
+			else
+				$chip = array_pop($words).' '.$chip;
+		}
 	}
-	$devices[$vendorid] = $chip;
+
+	if (!empty($vendorid)) $devices[$vendorid] = $chip;
 }
 
 $chip = 'all';
@@ -87,14 +106,21 @@ foreach ($in_db as $row) {
 	$vendorid = $row['vendorid'];
 
 	echo '<td>'.arraySafeVal($devices, $vendorid, '-').'</td>';
-	echo '<td>'.$row['device'].getProductIdSuffix($row).'</td>';
+
+	if ($row['type'] == 'gpu')
+		echo '<td>'.$row['device'].getProductIdSuffix($row).'</td>';
+	else
+		echo '<td>'.formatCPU($row).'</td>';
 
 	if (substr($vendorid,0,4) == '10de')
-		echo '<td><span class="generic" title="nVidia product id">'.$vendorid.'</i></td>';
+		echo '<td><span class="generic" title="nVidia product id">'.$vendorid.'</span></td>';
 	else
-		echo '<td>'.$vendorid.'</td>';
+		echo '<td>'.CHtml::link($row['vendorid'],'/bench?vid='.$row['vendorid']).'</td>';
 
-	$records = dbocolumn("SELECT algo FROM benchmarks WHERE vendorid=:vid ", array(':vid'=>$vendorid));
+	if (!empty($vendorid))
+		$records = dbocolumn("SELECT algo FROM benchmarks WHERE vendorid=:vid ", array(':vid'=>$vendorid));
+	else
+		$records = dbocolumn("SELECT algo FROM benchmarks WHERE device=:dev ", array(':dev'=>$row['device'])); // cpu
 	foreach ($algos as $algo) {
 		$tick = '&nbsp;';
 		if (in_array($algo, $records)) {

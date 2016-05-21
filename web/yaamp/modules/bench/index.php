@@ -89,12 +89,12 @@ echo <<<END
 <th data-sorter="text">Arch</th>
 <th data-sorter="text">Vendor ID</th>
 <th data-sorter="numeric">Hashrate</th>
-<th data-sorter="numeric" title="Intensity (-i)">Int.</th>
+<th data-sorter="numeric" title="Intensity (-i) for GPU or Threads (-t) for CPU miners">Int.</th>
 <th data-sorter="numeric" title="MHz">Freq</th>
-<th data-sorter="numeric">Watts</th>
+<th data-sorter="numeric" title="Watts if available">W</th>
 <th data-sorter="text">Client</th>
 <th data-sorter="text">OS</th>
-<th data-sorter="text">Driver</th>
+<th data-sorter="text">Driver / Compiler</th>
 {$actions}
 </tr>
 </thead><tbody>
@@ -111,17 +111,28 @@ foreach ($db_rows as $row) {
 
 	echo '<td class="algo">'.CHtml::link($row['algo'],'/bench?algo='.$row['algo']).'</td>';
 	echo '<td data="'.$row['time'].'">'.$age.'</td>';
-	echo '<td>'.$row['device'].getProductIdSuffix($row).'</td>';
-	echo '<td>'.formatCudaArch($row['arch']).'</td>';
-	echo '<td>'.CHtml::link($row['vendorid'],'/bench?vid='.$row['vendorid']).'</td>';
+	if ($row['type'] == 'cpu') {
+		echo '<td>'.formatCPU($row).'</td>';
+		echo '<td>'.$row['arch'].'</td>';
+		echo '<td>'.$row['vendorid'].'</td>';
+	} else {
+		echo '<td>'.$row['device'].getProductIdSuffix($row).'</td>';
+		echo '<td>'.formatCudaArch($row['arch']).'</td>';
+		echo '<td>'.CHtml::link($row['vendorid'],'/bench?vid='.$row['vendorid']).'</td>';
+	}
+
 	echo '<td data="'.$row['khps'].'">'.$hashrate.'</td>';
-	if ($algo == 'neoscrypt')
+
+	if ($row['type'] == 'cpu') // threads
+		echo '<td data="'.$row['throughput'].'">'.$row['throughput'].'</td>';
+	else if ($algo == 'neoscrypt')
 		echo '<td data="'.$row['throughput'].'" title="neoscrypt intensity is different">'.$row['throughput'].'*</td>';
 	else
 		echo '<td data="'.$row['throughput'].'" title="'.$row['throughput'].' threads">'.$row['intensity'].'</td>';
-	echo '<td>'.$row['freq'].'</td>';
+
+	echo '<td>'.($row['freq'] ? $row['freq'] : '-').'</td>';
 	echo '<td>'.(empty($row['power']) ? '-' : $row['power']).'</td>';
-	echo '<td>'.$row['client'].'</td>';
+	echo '<td>'.formatClientName($row['client']).'</td>';
 	echo '<td>'.$row['os'].'</td>';
 	echo '<td>'.$row['driver'].'</td>';
 
