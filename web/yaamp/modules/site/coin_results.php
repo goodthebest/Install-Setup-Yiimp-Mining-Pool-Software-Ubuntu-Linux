@@ -34,6 +34,8 @@ echo ", ".CHtml::link($reserved1, "/site/payments?id=".$coin->id)." $symbol clea
 
 //////////////////////////////////////////////////////////////////////////////////////
 
+$bookmarkAdd = CHtml::link('+', "/site/bookmarkAdd?id=".$coin->id, array('title'=>'Add a bookmark'));
+
 echo <<<end
 <div id="markets">
 <table class="dataGrid">
@@ -48,7 +50,7 @@ echo <<<end
 <th width="100">Traded</th>
 <th width="40">Late</th>
 <th align="center" width="500">Message</th>
-<th align="right" width="100">Actions</th>
+<th align="right" width="100">{$bookmarkAdd} Actions</th>
 </tr></thead><tbody>
 end;
 
@@ -84,7 +86,7 @@ foreach($list as $market)
 		echo CHtml::link(
 			YAAMP_ALLOW_EXCHANGE ? "sell" : "send",
 			"javascript:;", array(
-				'onclick'=>"return showSellAmountDialog({$market->id}, $name, $addr);"
+				'onclick'=>"return showSellAmountDialog($name, $addr, {$market->id});"
 			)
 		);
 		echo ' '.$market->deposit_address;
@@ -115,6 +117,49 @@ foreach($list as $market)
 	else
 		echo '<a title="Disable this market" href="/market/enable?id='.$market->id.'&en=0">disable</a>';
 	echo '&nbsp;<a class="red" title="Remove this market" href="/market/delete?id='.$market->id.'">delete</a>';
+	echo '</td>';
+
+	echo "</tr>";
+}
+
+// in the list after the markets, made for quick send between wallets
+$list = getdbolist('db_bookmarks', "idcoin={$coin->id} ORDER BY lastused DESC");
+
+foreach($list as $bookmark)
+{
+	echo '<tr class="ssrow bookmark">';
+
+	echo '<td><b>'.$bookmark->label.'<b></td>';
+	echo '<td></td>';
+	echo '<td></td>';
+
+	echo '<td>';
+	if (!empty($bookmark->address)) {
+		$name = CJavaScript::encode($bookmark->label);
+		$addr = CJavaScript::encode($bookmark->address);
+		echo CHtml::link(
+			"send",
+			"javascript:;", array(
+				'onclick'=>"return showSellAmountDialog($name, $addr, 0, {$bookmark->id});"
+			)
+		);
+		echo ' '.$bookmark->address;
+	}
+	echo ' <a href="/site/bookmarkEdit?id='.$bookmark->id.'">edit</a>';
+	echo '</td>';
+
+	echo '<td></td>';
+	echo '<td></td>';
+
+	$sent = datetoa2($bookmark->lastused);
+	echo '<td>'.(empty($sent)   ? "" : "$sent ago").'</td>';
+	echo '<td></td>';
+	echo '<td></td>';
+
+	echo '<td align="center"></td>';
+
+	echo '<td align="right">';
+	echo '<a class="red" href="/site/bookmarkDel?id='.$bookmark->id.'">delete</a>';
 	echo '</td>';
 
 	echo "</tr>";

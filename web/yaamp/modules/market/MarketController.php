@@ -7,6 +7,11 @@ class MarketController extends CommonController
 		if(!$this->admin) return;
 
 		$market = getdbo('db_markets', getiparam('id'));
+		if(!$market) {
+			user()->setFlash('error', "invalid market");
+			$this->goback();
+			return;
+		}
 		$coin = getdbo('db_coins', $market->coinid);
 
 		if(isset($_POST['db_markets']))
@@ -46,6 +51,11 @@ class MarketController extends CommonController
 		if(!$this->admin) return;
 
 		$market = getdbo('db_markets', getiparam('id'));
+		if(!$market) {
+			user()->setFlash('error', "invalid market");
+			$this->goback();
+			return;
+		}
 		$coin = getdbo('db_coins', $market->coinid);
 		$amount = getparam('amount');
 
@@ -72,6 +82,9 @@ class MarketController extends CommonController
 		{
 			user()->setFlash('error', $remote->error);
 			$this->redirect(array('site/coin', 'id'=>$coin->id));
+		} else {
+			$market->lastsent = time();
+			$market->save();
 		}
 
 		$exchange = new db_exchange;

@@ -114,7 +114,7 @@ function main_error()
 	main_timeout = setTimeout(main_refresh, main_delay*2);
 }
 
-function showSellAmountDialog(marketid, marketname, address)
+function showSellAmountDialog(marketname, address, marketid, bookmarkid)
 {
 	$("#dlgaddr").html(address);
 	$("#sell-amount-dialog").dialog(
@@ -130,7 +130,10 @@ function showSellAmountDialog(marketid, marketname, address)
 			"Send / Sell": function()
 			{
 				amount = $('#input_sell_amount').val();
-				window.location.href = '/market/sellto?id='+marketid+'&amount='+amount;
+				if (marketid > 0)
+					window.location.href = '/market/sellto?id='+marketid+'&amount='+amount;
+				else
+					window.location.href = '/site/bookmarkSend?id='+bookmarkid+'&amount='+amount;
 			},
 		}
 	});

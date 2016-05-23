@@ -172,6 +172,94 @@ class SiteController extends CommonController
 
 	/////////////////////////////////////////////////
 
+	public function actionBookmarkAdd()
+	{
+		if(!$this->admin) return;
+		$coin = getdbo('db_coins', getiparam('id'));
+		if ($coin) {
+			$bookmark = new db_bookmarks;
+			$bookmark->isNewRecord = true;
+			$bookmark->idcoin = $coin->id;
+			if (isset($_POST['db_bookmarks'])) {
+				$bookmark->setAttributes($_POST['db_bookmarks'], false);
+				if($bookmark->save())
+					$this->redirect(array('/site/coin', 'id'=>$coin->id));
+			}
+			$this->render('bookmark', array('bookmark'=>$bookmark, 'coin'=>$coin));
+		} else {
+			$this->goback();
+		}
+	}
+
+	public function actionBookmarkDel()
+	{
+		if(!$this->admin) return;
+		$bookmark = getdbo('db_bookmarks', getiparam('id'));
+		if ($bookmark) {
+			$bookmark->delete();
+		}
+		$this->goback();
+	}
+
+	public function actionBookmarkEdit()
+	{
+		if(!$this->admin) return;
+		$bookmark = getdbo('db_bookmarks', getiparam('id'));
+		if($bookmark) {
+			$coin = getdbo('db_coins', $bookmark->idcoin);
+			if ($coin && isset($_POST['db_bookmarks'])) {
+				$bookmark->setAttributes($_POST['db_bookmarks'], false);
+				if($bookmark->save())
+					$this->redirect(array('/site/coin', 'id'=>$coin->id));
+			}
+			$this->render('bookmark', array('bookmark'=>$bookmark, 'coin'=>$coin));
+		} else {
+			user()->setFlash('error', "invalid bookmark");
+			$this->goback();
+		}
+	}
+
+	public function actionBookmarkSend()
+	{
+		if(!$this->admin) return;
+
+		$bookmark = getdbo('db_bookmarks', getiparam('id'));
+		if($bookmark) {
+			$coin = getdbo('db_coins', $bookmark->idcoin);
+			$amount = getparam('amount');
+
+			$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
+
+			$info = $remote->getinfo();
+			if(!$info || !$info['balance']) return false;
+
+			$deposit_info = $remote->validateaddress($bookmark->address);
+			if(!$deposit_info || !isset($deposit_info['isvalid']) || !$deposit_info['isvalid']) {
+				user()->setFlash('error', "invalid address for {$coin->name}, {$bookmark->address}");
+				$this->redirect(array('site/coin', 'id'=>$coin->id));
+			}
+
+			$amount = min($amount, $info['balance'] - $info['paytxfee']);
+			$amount = round($amount, 8);
+
+			$tx = $remote->sendtoaddress($bookmark->address, $amount);
+			if(!$tx) {
+				debuglog("unable to send $amount {$coin->symbol} to bookmark {$bookmark->address}");
+				debuglog($remote->error);
+				user()->setFlash('error', $remote->error);
+				$this->redirect(array('site/coin', 'id'=>$coin->id));
+			} else {
+				debuglog("sent $amount {$coin->symbol} to bookmark {$bookmark->address}");
+				$bookmark->lastused = time();
+				$bookmark->save();
+			}
+		}
+
+		$this->redirect(array('site/coin', 'id'=>$coin->id));
+	}
+
+	/////////////////////////////////////////////////
+
 	public function actionConsole()
 	{
 		if(!$this->admin) return;
