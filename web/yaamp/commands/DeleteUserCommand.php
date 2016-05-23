@@ -36,7 +36,7 @@ class DeleteUserCommand extends CConsoleCommand
 		} else {
 
 			$id = -1; $addr = '';
-			if (strlen($args[0]) < 34)
+			if (strlen($args[0]) < 26)
 				$id = (int) $args[0];
 			else
 				$addr = $args[0];
@@ -62,22 +62,11 @@ class DeleteUserCommand extends CConsoleCommand
 		$nbDeleted = 0;
 
 		$users = new db_accounts;
-
 		$user = $users->find(array('condition'=>'id=:id OR username=:username', 'params'=>array(
 			':id'=>$id, ':username'=>$addr,
 		)));
-		if ($user && $user->id)
-		{
-			$user->balance = 0;
-			dborun("DELETE FROM balanceuser WHERE userid=".$user->id);
-			dborun("DELETE FROM hashuser WHERE userid=".$user->id);
-			dborun("DELETE FROM shares WHERE userid=".$user->id);
-			dborun("DELETE FROM workers WHERE userid=".$user->id);
-			dborun("DELETE FROM earnings WHERE userid=".$user->id);
-			dborun("UPDATE blocks SET userid=NULL WHERE userid=".$user->id);
-			dborun("DELETE FROM payouts WHERE account_id=".$user->id);
-
-			$nbDeleted += $user->delete();
+		if ($user && $user->id)	{
+			$nbDeleted += $user->deleteWithDeps();
 		} else {
 			echo "user not found!\n";
 		}
