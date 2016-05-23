@@ -85,3 +85,20 @@ function getdbolistWith($model, $with, $criteria)
 {
 	return CActiveRecord::model($model)->with($with)->findAll($criteria);
 }
+
+function sqlQuote($value, $querytype='')
+{
+	$db = app()->db;
+	$quoted = $value;
+
+	if ($querytype == '')
+		$quoted = $db->quoteValue($value);
+	elseif ($querytype == 'beginWith')
+		$quoted = $db->quoteValue($value.'%');
+	elseif ($querytype == 'endWith')
+		$quoted = $db->quoteValue('%'.$value);
+	elseif ($querytype == 'contains')
+		$quoted = $db->quoteValue('%'.$value.'%');
+
+	return $quoted;
+}

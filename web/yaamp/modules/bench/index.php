@@ -2,8 +2,11 @@
 
 if (empty($algo)) $algo = 'all';
 
+$sqlFilter='1';
+if ($vid) $sqlFilter = 'vendorid LIKE '.sqlQuote($vid);
+
 $algos = array();
-$in_db = dbolist("SELECT algo, count(id) as count FROM benchmarks GROUP BY algo ORDER BY algo ASC, count DESC");
+$in_db = dbolist("SELECT algo, count(id) as count FROM benchmarks WHERE $sqlFilter GROUP BY algo ORDER BY algo ASC, count DESC");
 foreach ($in_db as $row) {
 	$algos[$row['algo']] = $row['count'];
 }
@@ -102,7 +105,7 @@ END;
 
 foreach ($db_rows as $row) {
 
-	if ($vid && $row['vendorid'] != $vid) continue;
+	//if ($vid && $row['vendorid'] != $vid) continue;
 
 	echo '<tr class="ssrow">';
 
@@ -144,7 +147,32 @@ foreach ($db_rows as $row) {
 	echo '</tr>';
 }
 
-echo '</tbody></table><br/>';
+echo '</tbody>';
+
+if (!empty($algo)) {
+	echo '<tfoot><tr class="ssfoot">';
+
+	echo '<th class="algo">'.CHtml::link($row['algo'],'/bench?algo='.$row['algo']).'</td>';
+	echo '<th>&nbsp;</td>';
+
+	$avg = dborow("SELECT AVG(khps) as khps, AVG(power) as power, AVG(intensity) as intensity, AVG(freq) as freq, ".
+		"COUNT(*) as records ".
+		"FROM benchmarks WHERE algo=:algo AND power > 5 AND $sqlFilter", array(':algo'=>$algo)
+	);
+
+	echo '<th colspan="3">Average ('.$avg["records"].' records)</td>';
+
+	echo '<th>'.Itoa2(1000*round($avg['khps'],3),3).'H</td>';
+	echo '<th>'.round($avg['intensity'],1).'</td>';
+	echo '<th>'.round($avg['freq']).'</td>';
+	echo '<th>'.round($avg['power']).'</td>';
+
+	echo '<th colspan="4">&nbsp;</td>';
+
+	echo '</tr></tfoot>';
+}
+
+echo'</table><br/>';
 
 echo <<<end
 

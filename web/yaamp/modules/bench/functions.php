@@ -80,12 +80,17 @@ function formatCPU($row)
 		$device = str_replace(' Family', '', $device);
 		$device = str_replace(' Stepping ', '.', $device);
 		$device = str_replace(' GenuineIntel', ' Intel', $device);
+		$device = str_replace(' AuthenticAMD', ' AMD', $device);
 		// Clean up
 		if (strpos($device, 'Intel64') !== false && strpos($device, ' Intel')) {
 			$device = str_replace(' Intel','', $device);
 			$device = str_replace('Intel64','Intel', $device);
-			$device = rtrim($device, ',');
 		}
+		if (strpos($device, 'AMD64') !== false && strpos($device, ' AMD')) {
+			$device = str_replace(' AMD','', $device);
+			$device = str_replace('AMD64','AMD', $device);
+		}
+		$device = rtrim($device, ',');
 		// todo, clean the vid and use linux names/vid from the db (in the db)
 		$parts = explode(':', $row['vendorid']);
 		$cores = (int) arraySafeVal($parts, 2);
