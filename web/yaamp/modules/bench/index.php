@@ -150,26 +150,35 @@ foreach ($db_rows as $row) {
 echo '</tbody>';
 
 if (!empty($algo)) {
-	echo '<tfoot><tr class="ssfoot">';
-
-	echo '<th class="algo">'.CHtml::link($row['algo'],'/bench?algo='.$row['algo']).'</td>';
-	echo '<th>&nbsp;</td>';
 
 	$avg = dborow("SELECT AVG(khps) as khps, AVG(power) as power, AVG(intensity) as intensity, AVG(freq) as freq, ".
 		"COUNT(*) as records ".
 		"FROM benchmarks WHERE algo=:algo AND power > 5 AND $sqlFilter", array(':algo'=>$algo)
 	);
 
-	echo '<th colspan="3">Average ('.$avg["records"].' records)</td>';
+	if (arraySafeVal($avg, 'records') > 0) {
+		echo '<tfoot><tr class="ssfoot">';
 
-	echo '<th>'.Itoa2(1000*round($avg['khps'],3),3).'H</td>';
-	echo '<th>'.round($avg['intensity'],1).'</td>';
-	echo '<th>'.round($avg['freq']).'</td>';
-	echo '<th>'.round($avg['power']).'</td>';
+		echo '<th class="algo">'.CHtml::link($row['algo'],'/bench?algo='.$row['algo']).'</td>';
+		echo '<th>&nbsp;</td>';
 
-	echo '<th colspan="4">&nbsp;</td>';
+		echo '<th colspan="3">Average ('.$avg["records"].' records)</td>';
 
-	echo '</tr></tfoot>';
+		echo '<th>'.Itoa2(1000*round($avg['khps'],3),3).'H</td>';
+		echo '<th>'.round($avg['intensity'],1).'</td>';
+		echo '<th>'.round($avg['freq']).'</td>';
+		echo '<th>'.round($avg['power']).'</td>';
+
+		$hpw = 0;
+		if (floatval($avg['power']) > 0) {
+			$hpw = floatval($avg['khps']) / floatval($avg['power']);
+		}
+		echo '<th>'.Itoa2(1000*round($hpw,3),3).'H/W</td>';
+
+		echo '<th colspan="3">&nbsp;</td>';
+
+		echo '</tr></tfoot>';
+	}
 }
 
 echo'</table><br/>';
