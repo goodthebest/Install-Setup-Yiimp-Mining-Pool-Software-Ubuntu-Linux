@@ -5,8 +5,9 @@
 echo <<<end
 <style type="text/css">
 tr.ssrow.filtered { display: none; }
-th.status, td.status { min-width: 30px; max-width: 48px; }
-td.status span { font-variant: small-caps; font-weight: bolder; }
+th.status, td.status { min-width: 28px; max-width: 48px; text-align: center; }
+td.status { font-family: monospace; font-size: 9pt; letter-spacing: 3px; }
+td.status span.hidden { visibility: hidden; }
 </style>
 end;
 
@@ -32,6 +33,7 @@ echo <<<end
 <th data-sorter="text">Server</th>
 <th data-sorter="currency" align="right">Diff/Height</th>
 <th data-sorter="currency" align="right">Profit</th>
+<!--<th data-sorter="currency" align="right">Stake/BTC</th>-->
 <th data-sorter="currency" align="right">Owed/BTC</th>
 <th data-sorter="currency" align="right">Balance/Mint</th>
 <th data-sorter="currency" align="right">Price</th>
@@ -45,11 +47,11 @@ end;
 
 $server = getparam('server');
 if(!empty($server)) {
-	$coins = getdbolist('db_coins', "(installed OR enable) AND rpchost=:server ORDER BY algo, index_avg DESC",
+	$coins = getdbolist('db_coins', "(installed OR enable OR watch) AND rpchost=:server ORDER BY algo, index_avg DESC",
 		array(':server'=>$server));
 }
 else
-	$coins = getdbolist('db_coins', "(installed OR enable) ORDER BY algo, index_avg DESC");
+	$coins = getdbolist('db_coins', "(installed OR enable OR watch) ORDER BY algo, index_avg DESC");
 
 $mining = getdbosql('db_mining');
 
@@ -63,31 +65,30 @@ foreach($coins as $coin)
 	$algo_color = getAlgoColors($coin->algo);
 	echo '<td class="status" style="background-color: '.$algo_color.';">';
 
-	if($coin->enable)
-	{
-		if($coin->auto_ready) echo '<span class="green" title="Auto enable">a</span>';
-		else echo '<span class="red" title="Stratum disabled">d</span>';
+	if(!$coin->enable) echo '<span class="hidden" title="Coin disabled">X</span>';
+	else if($coin->auto_ready) echo '<span class="green" title="Auto enable">A</span>';
+	else echo '<span class="red" title="Stratum disabled">D</span>';
 
-		if($coin->visible) echo '<span title="Visible to public"> v</span>';
-		else echo '<span title="Hidden"> h</span>';
+	if($coin->visible) echo '<span title="Visible to public">V</span>';
+	else echo '<span title="Hidden">H</span>';
 
-		if($coin->auxpow) echo '<span title="AUX PoW"> x</span>';
+	if($coin->auxpow) echo '<span title="AUX PoW">X</span>';
+	else echo '&nbsp;';
 
-		echo '<br/>';
+	echo '<br/>';
 
-		if($coin->rpccurl) echo '<span title="RPC with Curl">c</span>';
-		else echo '&nbsp;';
+	if($coin->rpccurl) echo '<span title="RPC with Curl">C</span>';
+	else echo '&nbsp;';
 
-		if($coin->rpcssl) echo '<span title="RPC over SSL"> s</span>';
-		else echo ' &nbsp;';
+	if($coin->rpcssl) echo '<span title="RPC over SSL">S</span>';
+	else echo '&nbsp;';
 
-		if($coin->watch)
-			echo '<span title="Watched (history)"> w</span>';
+	if($coin->watch) echo '<span title="Watched (history)">W</span>';
+	else echo '&nbsp;';
 
-		if($coin->block_height < $coin->target_height) {
-			$percent = round($coin->block_height*100/$coin->target_height, 2);
-			echo '<br/><span style="font-size: .8em">'.$percent.'%</span>';
-		}
+	if($coin->block_height < $coin->target_height) {
+		$percent = round($coin->block_height*100/$coin->target_height, 2);
+		echo '<br/><span style="font-size: .8em">'.$percent.'%</span>';
 	}
 
 	echo "</td>";
@@ -109,9 +110,6 @@ foreach($coins as $coin)
 	else
 		echo '<td align="right" style="font-size: .9em;"><b>'.$difficulty.'</b><br>'.$coin->block_height.'</td>';
 
-// 	$network_ttf = $coin->network_ttf? sectoa($coin->network_ttf): '';
-// 	$actual_ttf = $coin->actual_ttf? sectoa($coin->actual_ttf): '';
-// 	$pool_ttf = $coin->pool_ttf? sectoa($coin->pool_ttf): '';
 	$btcmhd = yaamp_profitability($coin);
 	$btcmhd = mbitcoinvaluetoa($btcmhd);
 
@@ -122,6 +120,9 @@ foreach($coins as $coin)
 	$percent_pool1 = $ss1? $ss1.'%': '';
 	$percent_pool2 = $ss2? $ss2.'%': '';
 
+// 	$network_ttf = $coin->network_ttf? sectoa($coin->network_ttf): '';
+// 	$actual_ttf = $coin->actual_ttf? sectoa($coin->actual_ttf): '';
+// 	$pool_ttf = $coin->pool_ttf? sectoa($coin->pool_ttf): '';
 // 	echo "<td align=right style='font-size: .9em'>$network_ttf<br>$actual_ttf</td>";
 // 	echo "<td align=right style='font-size: .9em'>$pool_ttf<br></td>";
 
@@ -131,6 +132,12 @@ foreach($coins as $coin)
 		echo '<td align="right" style="font-size: .9em;"><b>'.$btcmhd.'</b><br/>'.$percent_pool1;
 
 	echo '<span class="red"> '.$percent_pool2.'</span></td>';
+
+//	$stakebtc = bitcoinvaluetoa($coin->stake*$coin->price);
+//	if ($coin->stake)
+//		echo '<td align="right" style="font-size: .9em;">'.$coin->stake.'<br/>'.$stakebtc.'</td>';
+//	else
+//		echo '<td></td>';
 
 	$owed = (double) dboscalar("SELECT sum(balance) FROM accounts WHERE coinid={$coin->id}");
 	$owed_btc = bitcoinvaluetoa($owed*$coin->price);
@@ -145,7 +152,6 @@ foreach($coins as $coin)
 
 	$price = bitcoinvaluetoa($coin->price);
 	$price2 = bitcoinvaluetoa($coin->price2);
-//	$marketcount = getdbocount('db_markets', "coinid=$coin->id");
 
 	if($coin->dontsell && YAAMP_ALLOW_EXCHANGE)
 		echo "<td align=right style='font-size: .9em; background-color: #ffaaaa'>$price<br>$price2</td>";

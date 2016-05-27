@@ -19,6 +19,8 @@ function getProductIdSuffix($row)
 		'1462:3202' => 'Gaming 2G',
 		// MSI 970
 		'1462:3160' => 'Gaming',
+		// MSI 980
+		'1462:3170' => 'Gaming',
 		// EVGA 740
 		'3842:2744' => 'SC DDR3',
 		// EVGA 750 Ti
