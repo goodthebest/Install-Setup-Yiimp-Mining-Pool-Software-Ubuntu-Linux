@@ -82,7 +82,9 @@ for($i = $start; $i > max(1, $start-21); $i--)
 	echo '<td>'.$tx.'</td>';
 	echo '<td>'.$confirms.'</td>';
 
-	echo '<td><span class="monospace">'.$coin->createExplorerLink($hash, array('hash'=>$hash)).'</span></td>';
+	echo '<td style="overflow-x: hidden; max-width:800px;"><span class="monospace">';
+	echo $coin->createExplorerLink($hash, array('hash'=>$hash));
+	echo '</span></td>';
 
 	echo "</tr>";
 }

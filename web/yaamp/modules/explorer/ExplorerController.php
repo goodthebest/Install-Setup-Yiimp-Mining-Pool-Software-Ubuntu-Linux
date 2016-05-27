@@ -90,7 +90,7 @@ class ExplorerController extends CommonController
 		}
 
 		if($coin && !empty($hash) && ctype_xdigit($hash))
-			$this->render('block', array('coin'=>$coin, 'hash'=>substr($hash, 0, 64)));
+			$this->render('block', array('coin'=>$coin, 'hash'=>$hash));
 
 		else if($coin)
 			$this->render('coin', array('coin'=>$coin));
