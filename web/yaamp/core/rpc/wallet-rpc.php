@@ -52,8 +52,6 @@ class WalletRPC {
 			case 'getinfo':
 				if (!isset($this->info)) {
 					$info = array();
-					//$eth = $this->rpc->request_object('eth'); // todo when possible
-					//var_dump($eth);
 					if (!isset($this->accounts))
 						$this->accounts = $this->rpc->eth_accounts();
 					$balances = 0;
@@ -95,12 +93,17 @@ class WalletRPC {
 				return $peers;
 			case 'getwork':
 				return $this->rpc->eth_getWork();
+			// todo...
+			case 'getblocktemplate':
+				return $this->rpc->eth_getWork();
 			case 'listtransactions':
 				$txs = array();
-				// todo...
+				return $txs;
+			case 'listsinceblock':
+				$txs = array();
 				return $txs;
 			default:
-				return $this->rpc->$method($params);
+				return $this->rpc->ether_request($method,$params);
 			}
 		}
 
