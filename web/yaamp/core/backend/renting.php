@@ -146,7 +146,7 @@ function BackendUpdateDeposit()
 	$btc = getdbosql('db_coins', "symbol='BTC'");
 	if(!$btc) return;
 
-	$remote = WalletRPC($btc);
+	$remote = new WalletRPC($btc);
 
 	$info = $remote->getinfo();
 	if(!$info) return;
