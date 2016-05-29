@@ -59,7 +59,7 @@ class MarketController extends CommonController
 		$coin = getdbo('db_coins', $market->coinid);
 		$amount = getparam('amount');
 
-		$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
+		$remote = new WalletRPC($coin);
 
 		$info = $remote->getinfo();
 		if(!$info || !$info['balance']) return false;

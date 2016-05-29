@@ -112,7 +112,7 @@ class PayoutCommand extends CConsoleCommand
 		if (empty($payouts) || empty($ids))
 			return 0;
 
-		$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
+		$remote = new WalletRPC($coin);
 		$account = '';
 		if ($coin->rpcencoding == 'DCR') $account = '*';
 		$rawtxs = $remote->listtransactions($account, 25000);

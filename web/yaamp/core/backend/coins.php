@@ -35,7 +35,7 @@ function BackendCoinsUpdate()
 		$coin = getdbo('db_coins', $coin->id);
 		if(!$coin) continue;
 
-		$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
+		$remote = new WalletRPC($coin);
 
 		$info = $remote->getinfo();
 		if(!$info)
@@ -90,6 +90,10 @@ function BackendCoinsUpdate()
 				$coin->rpcencoding = 'POS';
 			else if ($coin->symbol == 'DCR')
 				$coin->rpcencoding = 'DCR';
+			else if ($coin->symbol == 'ETH')
+				$coin->rpcencoding = 'GETH';
+			else if ($coin->symbol == 'NIRO')
+				$coin->rpcencoding = 'NIRO';
 			else
 				$coin->rpcencoding = 'POW';
 		}
@@ -148,6 +152,11 @@ function BackendCoinsUpdate()
 					$target = decode_compact($template['bits']);
 					$coin->difficulty = target_to_diff($target);
 				}
+			}
+
+			else if ($coin->rpcencoding == 'GETH' || $coin->rpcencoding == 'NIRO')
+			{
+				$coin->auto_ready = ($coin->connections > 0);
 			}
 
 			else if(strcasecmp($remote->error, 'method not found') == 0)

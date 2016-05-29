@@ -5,8 +5,9 @@ if (!$coin) $this->goback();
 
 $PoS = ($coin->algo == 'PoS'); // or if 'stake' key is present in 'getinfo' method
 $DCR = ($coin->rpcencoding == 'DCR');
+$ETH = ($coin->rpcencoding == 'GETH');
 
-$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
+$remote = new WalletRPC($coin);
 
 $reserved1 = dboscalar("SELECT SUM(balance) FROM accounts WHERE coinid={$coin->id}");
 $reserved1 = altcoinvaluetoa($reserved1);
@@ -171,7 +172,7 @@ echo "</tbody></table></div>";
 
 $info = $remote->getinfo();
 if (!empty($info)) {
-	$stake = isset($info['stake'])? $info['stake']: '';
+	$stake = arraySafeVal($info, 'stake', '');
 	if ($stake !== '') $PoS = true;
 }
 
@@ -288,6 +289,7 @@ end;
 
 $account = '';
 if ($DCR) $account = '*';
+if ($ETH) $account = $coin->master_wallet;
 
 $txs = $remote->listtransactions($account, 2500);
 

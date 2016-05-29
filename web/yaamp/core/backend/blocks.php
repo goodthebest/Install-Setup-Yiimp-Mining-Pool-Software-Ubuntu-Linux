@@ -78,7 +78,7 @@ function BackendBlockFind1($coinid = NULL)
 		if(!$coin->enable) continue;
 
 		$db_block->category = 'orphan';
-		$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
+		$remote = new WalletRPC($coin);
 
 		$block = $remote->getblock($db_block->blockhash);
 		$block_age = time() - $db_block->time;
@@ -157,7 +157,7 @@ function BackendBlocksUpdate($coinid = NULL)
 			continue;
 		}
 
-		$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
+		$remote = new WalletRPC($coin);
 		if(empty($block->txhash))
 		{
 			$blockext = $remote->getblock($block->blockhash);
@@ -225,7 +225,7 @@ function BackendBlockFind2($coinid = NULL)
 	foreach($coins as $coin)
 	{
 		if($coin->symbol == 'BTC') continue;
-		$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
+		$remote = new WalletRPC($coin);
 
 		$mostrecent = 0;
 		if(empty($coin->lastblock)) $coin->lastblock = '';
@@ -311,7 +311,7 @@ function MonitorBTC()
 	$coin = getdbosql('db_coins', "symbol='BTC'");
 	if(!$coin) return;
 
-	$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
+	$remote = new WalletRPC($coin);
 	if(!$remote) return;
 
 	$mostrecent = 0;

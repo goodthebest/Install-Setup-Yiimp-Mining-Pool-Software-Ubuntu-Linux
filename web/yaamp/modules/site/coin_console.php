@@ -3,7 +3,7 @@
 if (!$coin) $this->goback();
 $this->pageTitle = 'Console - '.$coin->symbol;
 
-$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
+$remote = new WalletRPC($coin);
 
 echo getAdminSideBarLinks().'<br/><br/>';
 

@@ -4,7 +4,7 @@ if (!$coin) $this->goback();
 
 $this->pageTitle = 'Peers - '.$coin->symbol;
 
-$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
+$remote = new WalletRPC($coin);
 $info = $remote->getinfo();
 
 echo getAdminSideBarLinks().'<br/><br/>';

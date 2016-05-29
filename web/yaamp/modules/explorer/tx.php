@@ -4,7 +4,7 @@ if (!$coin) $this->goback();
 
 $this->pageTitle = $coin->name." block explorer";
 
-$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
+$remote = new WalletRPC($coin);
 
 echo <<<END
 <script type="text/javascript">

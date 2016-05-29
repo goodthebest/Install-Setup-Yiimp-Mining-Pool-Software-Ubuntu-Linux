@@ -68,7 +68,7 @@ class SiteController extends CommonController
 			{
 				if($txfee != $coin->txfee)
 				{
-					$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
+					$remote = new WalletRPC($coin);
 					$remote->settxfee($coin->txfee);
 				}
 				$this->redirect(array('coin', 'id'=>$coin->id));
@@ -98,7 +98,7 @@ class SiteController extends CommonController
 		$coin = getdbo('db_coins', getiparam('id'));
 		$node = getparam('node');
 		if ($coin && $node) {
-			$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
+			$remote = new WalletRPC($coin);
 			if ($coin->rpcencoding == 'DCR') {
 				$res = $remote->node('disconnect', $node);
 				if (!$res) $res = $remote->node('remove', $node);
@@ -119,7 +119,7 @@ class SiteController extends CommonController
 		$coin = getdbo('db_coins', getiparam('id'));
 		$node = arraySafeVal($_POST, 'node');
 		if ($coin && $node) {
-			$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
+			$remote = new WalletRPC($coin);
 			if ($coin->rpcencoding == 'DCR') {
 				$remote->addnode($node, 'add');
 				usleep(500*1000);
@@ -157,7 +157,7 @@ class SiteController extends CommonController
 		$spendlimit = (double) arraySafeVal($_POST, 'spendlimit');
 		$quantity  = (int) arraySafeVal($_POST, 'quantity');
 		if ($coin && $spendlimit) {
-			$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
+			$remote = new WalletRPC($coin);
 			if ($quantity <= 1)
 				$res = $remote->purchaseticket($coin->account, $spendlimit);
 			else
@@ -228,7 +228,7 @@ class SiteController extends CommonController
 			$coin = getdbo('db_coins', $bookmark->idcoin);
 			$amount = getparam('amount');
 
-			$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
+			$remote = new WalletRPC($coin);
 
 			$info = $remote->getinfo();
 			if(!$info || !$info['balance']) return false;

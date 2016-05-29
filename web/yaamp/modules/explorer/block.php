@@ -108,7 +108,7 @@ function simplifyscript($script)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
+$remote = new WalletRPC($coin);
 
 $block = $remote->getblock($hash);
 if(!$block) return;

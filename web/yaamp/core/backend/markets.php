@@ -123,7 +123,7 @@ function BackendWatchMarkets($marketname=NULL)
 
 		if ($coin->rpcencoding == 'DCR') {
 			// hack to store the locked balance history as a "stake" market
-			$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
+			$remote = new WalletRPC($coin);
 			$stake = (double) $remote->getbalance('*',0,'locked');
 			$info = $remote->getstakeinfo();
 			if (empty($remote->error) && isset($info['difficulty']))

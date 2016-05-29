@@ -49,7 +49,7 @@ echo "<th>Blockhash</th>";
 echo "</tr>";
 echo "</thead>";
 
-$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
+$remote = new WalletRPC($coin);
 if (!$start || $start > $coin->block_height)
 	$start = $coin->block_height;
 for($i = $start; $i > max(1, $start-21); $i--)

@@ -32,7 +32,7 @@ function BackendUserCancelFailedPayment($userid)
 function BackendCoinPayments($coin)
 {
 //	debuglog("BackendCoinPayments $coin->symbol");
-	$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
+	$remote = new WalletRPC($coin);
 
 	$info = $remote->getinfo();
 	if(!$info)

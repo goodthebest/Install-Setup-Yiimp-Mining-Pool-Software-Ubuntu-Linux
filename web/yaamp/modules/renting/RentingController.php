@@ -432,7 +432,7 @@ end;
 		$coin = getdbosql('db_coins', "symbol='BTC'");
 		if(!$coin) return;
 
-		$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
+		$remote = new WalletRPC($coin);
 
 		$res = $remote->validateaddress($address);
 		if(!$res || !isset($res['isvalid']) || !$res['isvalid'])

@@ -12,7 +12,7 @@ $list_since = arraySafeVal($_GET,'since',time()-(7*24*3600));
 
 $maxrows = arraySafeVal($_GET,'rows', 2500);
 
-$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
+$remote = new WalletRPC($coin);
 $info = $remote->getinfo();
 $stakeinfo = $remote->getstakeinfo();
 $locked = $remote->getbalance('*',0,'locked');

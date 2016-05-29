@@ -60,7 +60,7 @@ foreach($db_blocks as $db_block)
 	if($db_block->category == 'stake' && !$this->admin) continue;
 	if($db_block->category == 'generated' && !$this->admin) continue; // mature stake income
 
-//	$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
+//	$remote = new WalletRPC($coin);
 
 // 	$blockext = $remote->getblock($db_block->blockhash);
 // 	$tx = $remote->gettransaction($blockext['tx'][0]);

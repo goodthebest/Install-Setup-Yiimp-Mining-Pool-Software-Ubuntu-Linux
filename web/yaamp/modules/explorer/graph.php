@@ -13,7 +13,7 @@ if (empty($json)) {
 	$series['diff'] = array();
 	$tm = 0;
 
-	$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
+	$remote = new WalletRPC($coin);
 	for($i = $coin->block_height; $i > max(0, $coin->block_height-500); $i--)
 	{
 		$hash = $remote->getblockhash($i);

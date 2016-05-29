@@ -50,7 +50,7 @@ foreach($list as $coin)
 	//if (!$coin->network_hash)
 		$coin->network_hash = controller()->memcache->get("yiimp-nethashrate-{$coin->symbol}");
 	if (!$coin->network_hash) {
-		$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
+		$remote = new WalletRPC($coin);
 		if ($remote)
 			$info = $remote->getmininginfo();
 		if (isset($info['networkhashps'])) {

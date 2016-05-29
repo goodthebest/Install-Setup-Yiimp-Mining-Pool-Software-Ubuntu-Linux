@@ -11,7 +11,7 @@ $this->pageTitle = 'Wallet - '.$coin->symbol;
 if (!empty($coin->algo) && $coin->algo != 'PoS')
 	user()->setState('yaamp-algo', $coin->algo);
 
-$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
+$remote = new WalletRPC($coin);
 $info = $remote->getinfo();
 
 $sellamount = $coin->balance;

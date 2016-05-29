@@ -61,7 +61,7 @@ class ExplorerController extends CommonController
 		$height = getiparam('height');
 		if($coin && intval($height)>0)
 		{
-			$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
+			$remote = new WalletRPC($coin);
 			$hash = $remote->getblockhash(intval($height));
 		} else {
 			$hash = getparam('hash');
@@ -70,7 +70,7 @@ class ExplorerController extends CommonController
 		$txid = getparam('txid');
 		$q = getparam('q');
 		if (strlen($q) >= 32 && ctype_xdigit($q)) {
-			$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
+			$remote = new WalletRPC($coin);
 			$block = $remote->getblock($q);
 			if ($block) {
 				$hash = $q;
@@ -82,7 +82,7 @@ class ExplorerController extends CommonController
 
 		if($coin && !empty($txid) && ctype_xdigit($txid))
 		{
-			$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
+			$remote = new WalletRPC($coin);
 			$tx = $remote->getrawtransaction($txid, 1);
 			if (!$tx) $tx = $remote->gettransaction($txid);
 

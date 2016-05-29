@@ -22,7 +22,7 @@ function BackendUsersUpdate()
 					continue;
 				}
 
-				$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
+				$remote = new WalletRPC($coin);
 
 				$b = $remote->validateaddress($user->username);
 				if(arraySafeVal($b,'isvalid'))
@@ -56,7 +56,7 @@ function BackendUsersUpdate()
 		$coins = getdbolist('db_coins', "enable ORDER BY $order DESC");
 		foreach($coins as $coin)
 		{
-			$remote = new Bitcoin($coin->rpcuser, $coin->rpcpasswd, $coin->rpchost, $coin->rpcport);
+			$remote = new WalletRPC($coin);
 
 			$b = $remote->validateaddress($user->username);
 			if(!arraySafeVal($b,'isvalid')) continue;
