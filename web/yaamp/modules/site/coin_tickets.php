@@ -91,11 +91,11 @@ if (!empty($txs)) {
 	// to hide truncated days sums
 	$tx = reset($txs);
 	if (count($txs) == $maxrows)
-		$lastday = strftime('%F', $tx['time']);
+		$lastday = strftime('%F', arraySafeVal($tx,'blocktime', $tx['time']));
 
 	if (!empty($txs)) foreach($txs as $tx)
 	{
-		if (intval($tx['time']) > $list_since)
+		if (arraySafeVal($tx,'time',time()) > $list_since)
 			$txs_array[] = $tx;
 	}
 	krsort($txs_array);
@@ -164,7 +164,7 @@ if (!empty($txs_array)) {
 		}
 		// for truncated day sums
 		if ($lastday == '' && count($txs) == $maxrows)
-			$lastday = strftime('%F', $tx['time']);
+			$lastday = strftime('%F', arraySafeVal($tx,'blocktime', $tx['time']));
 	}
 	ksort($txs_array);
 }
@@ -172,7 +172,7 @@ if (!empty($txs_array)) {
 if (!empty($tickets)) foreach ($tickets['hashes'] as $n => $txid) {
 	if (!in_array($txid, $list_txs)) {
 		$stx = $remote->getrawtransaction($txid, 1);
-		$k = time() - $stx['time'] + $n; // sort key
+		$k = time() - arraySafeVal($stx,'time', time()) + $n; // sort key
 		$stx['category'] = 'ticket';
 		if (isset($stx['vin'][0]))
 			$stx['input'] = $stx['vin'][0]['amountin'] * 0.00000001;
@@ -220,7 +220,7 @@ foreach($txs_array as $tx)
 
 	echo '<tr class="ssrow '.$category.'">';
 
-	$d = datetoa2($tx['time']);
+	$d = datetoa2(arraySafeVal($tx,'time', time()));
 	echo '<td><b>'.$d.'</b></td>';
 
 	echo '<td>'.$category.'</td>';
