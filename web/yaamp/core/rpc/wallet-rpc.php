@@ -45,6 +45,12 @@ class WalletRPC {
 	function __call($method, $params)
 	{
 		if ($this->type == 'Ethereum') {
+			if (!isset($this->accounts))
+				$this->accounts = $this->rpc->eth_accounts();
+			if (!is_array($this->accounts)) {
+				// if wallet is stopped
+				return false;
+			}
 			// convert common methods used by yiimp
 			switch ($method) {
 			case 'getaccountaddress':
@@ -54,10 +60,9 @@ class WalletRPC {
 			case 'getinfo':
 				if (!isset($this->info)) {
 					$info = array();
-					if (!isset($this->accounts))
-						$this->accounts = $this->rpc->eth_accounts();
-					$balances = 0;
 					$info['accounts'] = array();
+					$balances = 0;
+
 					foreach ($this->accounts as $addr) {
 						// web3.fromWei(eth.getBalance("0x..."), "ether")
 						$balance = (double) $this->rpc->eth_getBalance($addr,'latest', true);
@@ -91,12 +96,12 @@ class WalletRPC {
 				$info['errors'] = '';
 				return $info;
 			case 'getblock':
-				$hash = (string) arraySafeVal($params,0);
+				$hash = arraySafeVal($params,0);
 				$block = $this->rpc->eth_getBlockByHash($hash);
 				return $block;
 			case 'getblockhash':
 				$n = arraySafeVal($params,0);
-				$block = $this->rpc->eth_getBlockByNumber($n, true);
+				$block = $this->rpc->eth_getBlockByNumber($n);
 				return $block->hash;
 			case 'gettransaction':
 			case 'getrawtransaction':

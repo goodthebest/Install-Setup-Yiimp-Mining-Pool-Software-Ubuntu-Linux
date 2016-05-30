@@ -18,7 +18,8 @@ class Ethereum extends JSON_RPC
 			return $ret->result;
 		}
 		catch(RPCException $e) {
-			throw $e;
+			$this->error = "$e";
+			return false;
 		}
 	}
 
