@@ -55,7 +55,6 @@ var last_graph_update, graph_need_update, graph_timeout = 0;
 function graph_refresh()
 {
 	var now = Date.now()/1000;
-
 	if (!graph_need_update && (now - 300) < last_graph_update) {
 		return;
 	}
@@ -155,6 +154,7 @@ function graph_price_data(data)
 	}
 	graph.axes.xaxis.ticks.push([x2ticks[x2ticks.length-1].value, '']);
 	graph.replot(false);
+	graph = x2ticks = null;
 }
 
 function graph_balance_data(data)
@@ -235,6 +235,7 @@ function graph_balance_data(data)
 	}
 	graph.axes.xaxis.ticks.push([x2ticks[x2ticks.length-1].value, '']);
 	graph.replot(false);
+	graph = x2ticks = null;
 }
 </script>
 end;
