@@ -128,7 +128,10 @@ if (!empty($query)) try {
 		if ($param === 'true' || $param === 'false') {
 			$param = $param === 'true' ? true : false;
 		}
-		else $param = (is_numeric($param)) ? 0 + $param : trim($param,'"');
+		else if (strpos($param, '0x') === 0)
+			$param = "$param"; // eth hex crap
+		else
+			$param = (is_numeric($param)) ? 0 + $param : trim($param,'"');
 		$p[] = $param;
 	}
 
@@ -156,6 +159,9 @@ if (!empty($query)) try {
 		break;
 	case 7:
 		$result = $remote->$command($p[0], $p[1], $p[2], $p[3], $p[4], $p[5], $p[6]);
+		break;
+	case 8:
+		$result = $remote->$command($p[0], $p[1], $p[2], $p[3], $p[4], $p[5], $p[6], $p[7]);
 		break;
 	default:
 		$result = 'error: too much parameters';

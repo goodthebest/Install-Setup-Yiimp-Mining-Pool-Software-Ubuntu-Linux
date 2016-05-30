@@ -8,6 +8,7 @@ class WalletRPC {
 	private $rpc;
 
 	// cache
+	private $account;
 	private $accounts;
 	private $info;
 	private $height = 0;
@@ -26,6 +27,7 @@ class WalletRPC {
 			switch ($coin->rpcencoding) {
 			case 'GETH':
 				$this->type = 'Ethereum';
+				$this->account = empty($coin->account) ? $coin->master_wallet : $coin->account;
 				$this->rpc = new Ethereum($coin->rpchost, $coin->rpcport);
 				break;
 			default:
@@ -46,9 +48,9 @@ class WalletRPC {
 			// convert common methods used by yiimp
 			switch ($method) {
 			case 'getaccountaddress':
-				if (!isset($this->accounts))
-					$this->accounts = $this->rpc->eth_accounts();
-				return arraySafeVal($this->accounts, 0, $params);
+				if (!empty($params[0]))
+					return $params[0];
+				return $this->account;
 			case 'getinfo':
 				if (!isset($this->info)) {
 					$info = array();
@@ -88,14 +90,25 @@ class WalletRPC {
 				$info['generate'] = $this->rpc->eth_mining();
 				$info['errors'] = '';
 				return $info;
+			case 'getblock':
+				$hash = (string) arraySafeVal($params,0);
+				$block = $this->rpc->eth_getBlockByHash($hash);
+				return $block;
+			case 'getblockhash':
+				$n = arraySafeVal($params,0);
+				$block = $this->rpc->eth_getBlockByNumber($n, true);
+				return $block->hash;
+			case 'gettransaction':
+			case 'getrawtransaction':
+				$txid = arraySafeVal($params,0,'');
+				$tx = $this->rpc->eth_getTransactionByHash($txid);
+				return $tx;
+			case 'getwork':
+				return false; //$this->rpc->eth_getWork(); auto enable miner!
+			// todo...
 			case 'getpeerinfo':
 				$peers = array();
 				return $peers;
-			case 'getwork':
-				return $this->rpc->eth_getWork();
-			// todo...
-			case 'getblocktemplate':
-				return $this->rpc->eth_getWork();
 			case 'listtransactions':
 				$txs = array();
 				return $txs;

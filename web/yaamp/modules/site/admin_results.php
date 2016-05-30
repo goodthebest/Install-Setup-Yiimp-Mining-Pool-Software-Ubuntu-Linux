@@ -7,6 +7,7 @@ echo <<<end
 tr.ssrow.filtered { display: none; }
 th.status, td.status { min-width: 28px; max-width: 48px; text-align: center; }
 td.status { font-family: monospace; font-size: 9pt; letter-spacing: 3px; }
+td.status span.progress { font-size: .8em; letter-spacing: 0; }
 td.status span.hidden { visibility: hidden; }
 </style>
 end;
@@ -87,8 +88,8 @@ foreach($coins as $coin)
 	else echo '&nbsp;';
 
 	if($coin->block_height < $coin->target_height) {
-		$percent = round($coin->block_height*100/$coin->target_height, 2);
-		echo '<br/><span style="font-size: .8em">'.$percent.'%</span>';
+		$percent = round($coin->block_height*100/$coin->target_height, 1);
+		echo '<br/><span class="progress">'.$percent.'%</span>';
 	}
 
 	echo "</td>";
