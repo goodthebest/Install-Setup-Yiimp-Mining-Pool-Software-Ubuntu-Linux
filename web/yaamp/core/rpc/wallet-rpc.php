@@ -5,17 +5,17 @@
 class WalletRPC {
 
 	public $type = 'Bitcoin';
-	private $rpc;
+	protected $rpc;
 
 	// cache
-	private $account;
-	private $accounts;
-	private $info;
-	private $height = 0;
+	protected $account;
+	protected $accounts;
+	protected $info;
+	protected $height = 0;
 
 	// Information and debugging
+	public $error;
 	// public $status;
-	// public $error;
 	// public $raw_response;
 	// public $response;
 
@@ -45,8 +45,10 @@ class WalletRPC {
 	function __call($method, $params)
 	{
 		if ($this->type == 'Ethereum') {
-			if (!isset($this->accounts))
+			if (!isset($this->accounts)) {
 				$this->accounts = $this->rpc->eth_accounts();
+				$this->error = $this->rpc->error;
+			}
 			if (!is_array($this->accounts)) {
 				// if wallet is stopped
 				return false;
@@ -82,6 +84,7 @@ class WalletRPC {
 				return $this->info;
 			case 'getdifficulty':
 				$this->height = $this->height ? $this->height : $this->rpc->eth_blockNumber();
+				$this->error = $this->rpc->error;
 				$block = $this->rpc->eth_getBlockByNumber($this->height);
 				$difficulty = objSafeVal($block, 'difficulty', 0);
 				return $this->rpc->decode_hex($difficulty);
@@ -94,19 +97,23 @@ class WalletRPC {
 				$info['difficulty'] = $this->rpc->decode_hex($difficulty);
 				$info['generate'] = $this->rpc->eth_mining();
 				$info['errors'] = '';
+				$this->error = $this->rpc->error;
 				return $info;
 			case 'getblock':
 				$hash = arraySafeVal($params,0);
 				$block = $this->rpc->eth_getBlockByHash($hash);
+				$this->error = $this->rpc->error;
 				return $block;
 			case 'getblockhash':
 				$n = arraySafeVal($params,0);
 				$block = $this->rpc->eth_getBlockByNumber($n);
+				$this->error = $this->rpc->error;
 				return $block->hash;
 			case 'gettransaction':
 			case 'getrawtransaction':
 				$txid = arraySafeVal($params,0,'');
 				$tx = $this->rpc->eth_getTransactionByHash($txid);
+				$this->error = $this->rpc->error;
 				return $tx;
 			case 'getwork':
 				return false; //$this->rpc->eth_getWork(); auto enable miner!
@@ -121,16 +128,20 @@ class WalletRPC {
 				$txs = array();
 				return $txs;
 			default:
-				return $this->rpc->ether_request($method,$params);
+				$res = $this->rpc->ether_request($method,$params);
+				$this->error = $this->rpc->error;
+				return $res;
 			}
 		}
 
-		return $this->rpc->__call($method,$params);
+		// Bitcoin RPC
+		$res = $this->rpc->__call($method,$params);
+		$this->error = $this->rpc->error;
+		return $res;
 	}
 
 	function __get($prop)
 	{
-		//debuglog("wallet get $prop ".json_encode($this->rpc->$prop));
 		return $this->rpc->$prop;
 	}
 

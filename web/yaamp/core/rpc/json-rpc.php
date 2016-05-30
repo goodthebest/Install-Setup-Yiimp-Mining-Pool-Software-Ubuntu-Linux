@@ -66,6 +66,6 @@ class RPCException extends Exception
 
     public function __toString()
     {
-        return __CLASS__ . ": ".(($this->code > 0)?"[{$this->code}]:":"")." {$this->message}\n";
+        return "RPC: ".trim(($this->code>0?"[{$this->code}]:":"")." ".$this->message)."\n";
     }
 }
