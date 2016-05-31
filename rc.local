@@ -21,6 +21,7 @@ screen -dmS debug tail -f $LOG_DIR/debug.log
 
 screen -dmS c11 $STRATUM_DIR/run.sh c11
 screen -dmS x11 $STRATUM_DIR/run.sh x11
+screen -dmS x11evo $STRATUM_DIR/run.sh x11evo
 screen -dmS x13 $STRATUM_DIR/run.sh x13
 screen -dmS x14 $STRATUM_DIR/run.sh x14
 screen -dmS x15 $STRATUM_DIR/run.sh x15
