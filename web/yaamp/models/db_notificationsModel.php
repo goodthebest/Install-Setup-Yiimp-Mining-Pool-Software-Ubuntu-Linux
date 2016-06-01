@@ -15,7 +15,8 @@ class db_notifications extends CActiveRecord
 	public function rules()
 	{
 		return array(
-			array('idcoin', 'safe'),
+			array('idcoin', 'required'),
+			array('enabled', 'numerical', 'integerOnly'=>true),
 		);
 	}
 
