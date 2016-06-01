@@ -31,6 +31,7 @@ td.missed { color: darkred; }
 tr.voted { color: darkgreen; }
 div.balance { text-align: right; height: 30px; width: 200px; float: right; margin-top: -80px; margin-bottom: 16px; }
 div.form { text-align: right; height: 30px; width: 350px; float: right; margin-top: -48px; margin-bottom: 16px; margin-right: -8px; }
+.tool-button { padding: 3px 5px; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; }
 .main-submit-button { cursor: pointer; }
 </style>
 
@@ -41,6 +42,7 @@ Balance: </b>{$remote->getbalance()} {$coin->symbol}<br/>
 
 <div class="form">
 <form action="/site/ticketBuy?id={$coin->id}" method="post" style="padding: 8px;">
+<input type="button" id="autofill" class="tool-button" value="fill" />
 <input type="text" name="spendlimit" class="main-text-input" placeholder="Spend limit" autocomplete="off" style="width: 80px; margin-right: 4px;">
 <input type="text" name="quantity" class="main-text-input" placeholder="Quantity" style="width: 60px; margin-right: 4px;">
 <input type="submit" value="Buy" class="main-submit-button" >
@@ -259,13 +261,24 @@ if ($stakeinfo['immature']) echo ' + '.$stakeinfo['immature'].' immature';
 if ($stakeinfo['ownmempooltix']) echo ' + '.$stakeinfo['ownmempooltix'].' purchased';
 echo '<br/>';
 echo '<b>Total won: </b>'.$stakeinfo['totalsubsidy'].' '.$coin->symbol.' ('.$stakeinfo['voted'].')<br/>';
-if ($stakeinfo['missed']) echo '<b>Missed: </b>'.$stakeinfo['missed'].'<br/>';
+if ($stakeinfo['missed']) echo '<b>Missed: </b>'.$stakeinfo['missed'].' '.$stakeinfo['revoked'].' revoked<br/>';
 
 $staking = $remote->getgenerate() > 0 ? 'enabled' : 'disabled';
 echo '<br/>';
 echo '<b>Staking: </b>'.$staking.'<br/>';
 echo '<b>Auto buy ticket(s) < '.$remote->getticketmaxprice().' '.$coin->symbol.'</b><br/>';
 
-echo '<pre>';
-//echo json_encode($stakeinfo, 128);
-echo '</pre>';
+$netfees = $remote->ticketfeeinfo(1,1);
+if (!empty($netfees)) {
+	$fees = reset($netfees['feeinfoblocks']);
+	echo '<br/>';
+	echo '<b>Last block ticket fees (network): </b></br>';
+	echo 'From '.arraySafeVal($fees,'min').' to '.arraySafeVal($fees,'max').' '.$coin->symbol.'/kB<br/>';
+}
+
+//echo '<pre>'.json_encode($stakeinfo, 128).'</pre>';
+
+$spendlimit = round(ceil(10.0 * $stakeinfo['difficulty'])/10, 1);
+JavascriptReady("$('#autofill').click(function() {
+	$('form input[name=spendlimit]').val('{$spendlimit}');
+});");
