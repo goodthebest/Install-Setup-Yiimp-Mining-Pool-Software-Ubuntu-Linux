@@ -311,6 +311,18 @@ void client_submit_error(YAAMP_CLIENT *client, YAAMP_JOB *job, int id, const cha
 	object_unlock(job);
 }
 
+static bool ntime_valid_range(const char ntimehex[])
+{
+	time_t rawtime = 0;
+	uint32_t ntime = 0;
+	if (strlen(ntimehex) != 8) return false;
+	sscanf(ntimehex, "%8x", &ntime);
+	if (ntime < 0x57000000 || ntime > 0x60000000) // 14 Jan 2021
+		ntime = bswap32(ntime); // just in case...
+	time(&rawtime);
+	return ((rawtime - ntime) < (23 * 60 * 60));
+}
+
 bool client_submit(YAAMP_CLIENT *client, json_value *json_params)
 {
 	// submit(worker_name, jobid, extranonce2, ntime, nonce):
@@ -372,11 +384,11 @@ bool client_submit(YAAMP_CLIENT *client, json_value *json_params)
 		return true;
 	}
 
-//	if(strcmp(ntime, templ->ntime))
-//	{
-//		client_submit_error(client, job, 23, "Invalid time rolling", extranonce2, ntime, nonce);
-//		return true;
-//	}
+	if(strcmp(ntime, templ->ntime) && !ntime_valid_range(ntime))
+	{
+		client_submit_error(client, job, 23, "Invalid time rolling", extranonce2, ntime, nonce);
+		return true;
+	}
 
 	YAAMP_SHARE *share = share_find(job->id, extranonce2, ntime, nonce, client->extranonce1);
 	if(share)
