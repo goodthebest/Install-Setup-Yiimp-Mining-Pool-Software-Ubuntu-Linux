@@ -38,6 +38,7 @@ WriteBoxHeader("Mining $count coins at $total_rate_d * with $worker miners ($alg
 showTableSorter('maintable3', "{
 	tableClass: 'dataGrid2',
 	textExtraction: {
+		3: function(node, table, n) { return $(node).attr('data'); },
 		6: function(node, table, n) { return $(node).attr('data'); },
 		7: function(node, table, n) { return $(node).attr('data'); }
 	}
@@ -49,7 +50,7 @@ echo <<<END
 <th data-sorter=""></th>
 <th data-sorter="text">Name</th>
 <th align="right">Amount</th>
-<th align="right">Diff</th>
+<th data-sorter="numeric" align="right">Diff</th>
 <th align="right">Block</th>
 <th align="right">TTF*</th>
 <th data-sorter="numeric" align="right">Hash**</th>
@@ -154,7 +155,7 @@ foreach($list as $coin)
 	if($coin->rpcencoding == 'POS')
 		$title .= "\nPOS $coin->difficulty_pos";
 
-	echo "<td align=right style='font-size: .8em;' title='$title'>$difficulty</td>";
+	echo '<td align="right" style="font-size: .8em;" data="'.$coin->difficulty.'" title="'.$title.'">'.$difficulty.'</td>';
 
 	if(!empty($coin->errors))
 		echo "<td align=right style='font-size: .8em; color: red;' title='$coin->errors'>$height</td>";
