@@ -9,11 +9,15 @@ echo <<<end
 </div>
 <style type="text/css">
 tr.ssrow.filtered { display: none; }
+.page .footer { clear: both; width: auto; margin-top: 16px; }
 </style>
 end;
 
 showTableSorter('maintable', "{
 	tableClass: 'dataGrid',
+	textExtraction: {
+		6: function(node, table, n) { return $(node).attr('data'); }
+	},
 	widgets: ['zebra','filter'],
 	widgetOptions: {
 		filter_external: '.search',
@@ -31,7 +35,7 @@ echo <<<end
 <th data-sorter="text">Algo</th>
 <th data-sorter="text">Status</th>
 <th data-sorter="text">Version</th>
-<th data-sorter="text">Created</th>
+<th data-sorter="numeric">Created</th>
 <th data-sorter="numeric">Height</th>
 <th data-sorter="text">Message</th>
 <th data-sorter="">Links</th>
@@ -111,23 +115,19 @@ foreach($coins as $coin)
 }
 
 echo "</tbody>";
+echo "<tfoot>";
 
 $total = count($coins);
 
-echo "<tr class='ssrow'>";
-echo "<td></td>";
-echo '<td colspan="6">';
+echo '<tr class="ssrow sfooter">';
+echo '<th></th>';
+echo '<th colspan="9">';
 echo "<b>$total coins, $total_installed installed, $total_active running</b>";
-echo '<br/><br/><a href="/coin/create">Add a coin</a>';
-echo '<td style="display: none;"></td>';
-echo '<td style="display: none;"></td>';
-echo '<td style="display: none;"></td>';
-echo '<td style="display: none;"></td>';
-echo '<td style="display: none;" data="0"></td>';
-echo '</td>';
+echo '<br/><br/><a href="/coin/create">Add a new coin</a>';
+echo '</th>';
 echo "</tr>";
 
+echo '</tfoot>';
 echo "</table>";
 
-echo "<br><br><br><br><br>";
 echo "<br><br><br><br><br>";
