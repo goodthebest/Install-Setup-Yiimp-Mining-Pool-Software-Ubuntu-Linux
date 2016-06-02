@@ -26,7 +26,7 @@ class CommonController extends CController
 			$this->admin = true;
 
 		$algo = user()->getState('yaamp-algo');
-		if(!$algo) user()->setState('yaamp-algo', 'x11');
+		if(!$algo) user()->setState('yaamp-algo', YAAMP_DEFAULT_ALGO);
 
 		return true;
 	}

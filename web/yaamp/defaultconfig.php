@@ -23,6 +23,7 @@ if (!defined('YAAMP_PAYMENTS_MINI')) define('YAAMP_PAYMENTS_MINI', 0.001);
 
 if (!defined('YAAMP_ALLOW_EXCHANGE')) define('YAAMP_ALLOW_EXCHANGE', false);
 if (!defined('EXCH_AUTO_WITHDRAW')) define('EXCH_AUTO_WITHDRAW', 9999.9999);
+
 if (!defined('EXCH_CRYPTSY_KEY')) define('EXCH_CRYPTSY_KEY', '');
 if (!defined('EXCH_BITTREX_KEY')) define('EXCH_BITTREX_KEY', '');
 if (!defined('EXCH_BITSTAMP_ID')) define('EXCH_BITSTAMP_ID', '');
@@ -42,6 +43,7 @@ if (!defined('YAAMP_BTCADDRESS')) define('YAAMP_BTCADDRESS', '');
 if (!defined('YAAMP_SITE_URL')) define('YAAMP_SITE_URL', 'localhost');
 if (!defined('YAAMP_STRATUM_URL')) define('YAAMP_STRATUM_URL', YAAMP_SITE_URL);
 if (!defined('YAAMP_SITE_NAME')) define('YAAMP_SITE_NAME', 'YiiMP');
+if (!defined('YAAMP_DEFAULT_ALGO')) define('YAAMP_DEFAULT_ALGO', 'x11');
 if (!defined('YAAMP_ADMIN_EMAIL')) define('YAAMP_ADMIN_EMAIL', 'yiimp@spam.la');
 if (!defined('YAAMP_ADMIN_IP')) define('YAAMP_ADMIN_IP', '127.0.0.1');
 

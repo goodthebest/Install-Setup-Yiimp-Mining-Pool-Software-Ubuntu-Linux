@@ -328,7 +328,7 @@ class RentingController extends CommonController
 		$renter = getrenterparam(''.getparam('address'));
 		if(!$renter) return;
 
-		$a = 'x11';
+		$a = YAAMP_DEFAULT_ALGO;
 		$server = '';
 		$username = '';
 		$password = 'xx';
