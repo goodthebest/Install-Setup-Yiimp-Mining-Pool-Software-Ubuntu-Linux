@@ -301,6 +301,18 @@ class SiteController extends CommonController
 		$this->goback();
 	}
 
+	public function actionTriggerReset()
+	{
+		if(!$this->admin) return;
+		$rule = getdbo('db_notifications', getiparam('id'));
+		if ($rule) {
+			$rule->lasttriggered = 0;
+			$rule->save();
+		}
+
+		$this->goback();
+	}
+
 	public function actionTriggerDel()
 	{
 		if(!$this->admin) return;

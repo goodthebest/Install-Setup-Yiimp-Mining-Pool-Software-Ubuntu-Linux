@@ -50,7 +50,7 @@ echo <<<end
 <th data-sorter="text" width="50%">Description</th>
 <th data-sorter="text">Status</th>
 <th data-sorter="numeric" width="80">Last check</th>
-<th data-sorter="" align="right" width="150">Operations</th>
+<th data-sorter="" align="right" width="200">Operations</th>
 </tr>
 </thead><tbody>
 end;
@@ -66,6 +66,7 @@ foreach($notifications as $rule)
 
 	if ($rule->lasttriggered && $rule->lasttriggered == $rule->lastchecked) {
 		$status = '<span class="green">Triggered</span>';
+		$operations = '<a title="Reset trigger" href="/site/triggerReset?id='.$rule->id.'">reset</a>'.'&nbsp'.$operations;
 	} else {
 		$status = '<span class="green"></span>';
 	}
