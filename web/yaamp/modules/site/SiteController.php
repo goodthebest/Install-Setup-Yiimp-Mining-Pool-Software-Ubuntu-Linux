@@ -276,6 +276,74 @@ class SiteController extends CommonController
 
 	/////////////////////////////////////////////////
 
+	public function actionTriggers()
+	{
+		if(!$this->admin) return;
+		$coin = getdbo('db_coins', getiparam('id'));
+		if (!$coin) {
+			$this->goback();
+		}
+
+		$this->render('coin_triggers', array(
+			'coin'=>$coin,
+		));
+	}
+
+	public function actionTriggerEnable()
+	{
+		if(!$this->admin) return;
+		$rule = getdbo('db_notifications', getiparam('id'));
+		if ($rule) {
+			$rule->enabled = (int) getiparam('en');
+			$rule->save();
+		}
+
+		$this->goback();
+	}
+
+	public function actionTriggerDel()
+	{
+		if(!$this->admin) return;
+		$rule = getdbo('db_notifications', getiparam('id'));
+		if ($rule) {
+			$rule->delete();
+		}
+
+		$this->goback();
+	}
+
+	public function actionTriggerAdd()
+	{
+		if(!$this->admin) return;
+		$coin = getdbo('db_coins', getiparam('id'));
+		if (!$coin) {
+			$this->goback();
+		}
+
+		$valid = true;
+		$rule = new db_notifications;
+		$rule->idcoin = $coin->id;
+		$rule->notifytype = $_POST['notifytype'];
+		$rule->conditiontype = $_POST['conditiontype'];
+		$rule->conditionvalue = $_POST['conditionvalue'];
+		$rule->notifycmd = $_POST['notifycmd'];
+		$rule->description = $_POST['description'];
+		$rule->enabled = 1;
+
+		$words = explode(' ', $rule->conditiontype);
+		if (count($words) < 2) {
+			user()->setFlash('error', "missing space in condition, sample : 'balance <' 5");
+			$valid = false;
+		}
+		if ($valid) {
+			$rule->save();
+		}
+
+		$this->goback();
+	}
+
+	/////////////////////////////////////////////////
+
 	public function actionIndex()
 	{
 		if(isset($_GET['address']))
