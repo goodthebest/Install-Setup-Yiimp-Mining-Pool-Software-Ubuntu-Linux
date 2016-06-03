@@ -150,7 +150,7 @@ if ($coin_id) {
 	echo '<tr><th>Balance</th><td>'.bitcoinvaluetoa($coin->balance)." $symbol</td></tr>";
 	echo '<tr><th>Cleared</th><td>'.bitcoinvaluetoa($cleared)." $symbol</td></tr>";
 	$exchange = $total - $totalimmat;
-	echo '<tr><th title="Availabled = (Balance - Cleared - in exchange)">Available</th>';
+	echo '<tr><th title="Available = (Balance - Cleared - in exchange)">Available</th>';
 	echo '<td>'.bitcoinvaluetoa($coin->balance - $exchange - $cleared)." $symbol</td></tr>";
 	echo '</tr></table>';
 

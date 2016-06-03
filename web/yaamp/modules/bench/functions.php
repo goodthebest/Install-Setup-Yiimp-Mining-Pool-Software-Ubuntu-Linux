@@ -92,6 +92,7 @@ function formatCPU($row)
 			$device = str_replace(' AMD','', $device);
 			$device = str_replace('AMD64','AMD', $device);
 		}
+		$device = str_replace(' APU with Radeon(tm) HD Graphics','', $device);
 		$device = rtrim($device, ',');
 		// todo, clean the vid and use linux names/vid from the db (in the db)
 		$parts = explode(':', $row['vendorid']);

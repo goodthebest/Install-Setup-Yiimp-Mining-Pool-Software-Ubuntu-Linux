@@ -156,6 +156,13 @@ if (!empty($algo)) {
 		"FROM benchmarks WHERE algo=:algo AND power > 5 AND $sqlFilter", array(':algo'=>$algo)
 	);
 
+	if (arraySafeVal($avg, 'records') == 0) {
+		$avg = dborow("SELECT AVG(khps) as khps, '' as power, '' as intensity, '' as freq, ".
+			"COUNT(*) as records ".
+			"FROM benchmarks WHERE algo=:algo AND $sqlFilter", array(':algo'=>$algo)
+		);
+	}
+
 	if (arraySafeVal($avg, 'records') > 0) {
 		echo '<tfoot><tr class="ssfoot">';
 
@@ -165,15 +172,15 @@ if (!empty($algo)) {
 		echo '<th colspan="3">Average ('.$avg["records"].' records)</td>';
 
 		echo '<th>'.Itoa2(1000*round($avg['khps'],3),3).'H</td>';
-		echo '<th>'.round($avg['intensity'],1).'</td>';
-		echo '<th>'.round($avg['freq']).'</td>';
-		echo '<th>'.round($avg['power']).'</td>';
+		echo '<th>'.($avg['intensity'] ? round($avg['intensity'],1) : '').'</td>';
+		echo '<th>'.($avg['freq'] ? round($avg['freq']) : '').'</td>';
+		echo '<th>'.($avg['power'] ? round($avg['power']) : '').'</td>';
 
 		$hpw = 0;
 		if (floatval($avg['power']) > 0) {
 			$hpw = floatval($avg['khps']) / floatval($avg['power']);
 		}
-		echo '<th>'.Itoa2(1000*round($hpw,3),3).'H/W</td>';
+		echo '<th>'.($hpw ? Itoa2(1000*round($hpw,3),3).'H/W' : '').'</td>';
 
 		echo '<th colspan="3">&nbsp;</td>';
 
