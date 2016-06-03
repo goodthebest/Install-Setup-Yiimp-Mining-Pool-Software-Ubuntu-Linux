@@ -301,7 +301,7 @@ void *monitor_thread(void *p)
 		{
 			g_exiting = true;
 			stratumlog("%s dead lock, exiting...\n", g_current_algo->name);
-			// exit(1);
+			exit(1);
 		}
 	}
 }
