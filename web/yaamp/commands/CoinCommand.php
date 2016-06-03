@@ -32,11 +32,19 @@ class CoinCommand extends CConsoleCommand
 		if (!isset($args[1]) || $args[1] == 'help') {
 
 			echo "Yiimp coin command\n";
-			echo "Usage: yiimp coin <SYM> get <key>\n";
+			echo "Usage: yiimp coin <SYM> delete - to delete with all related records\n";
+			echo "       yiimp coin <SYM> purge - to clean users and history \n";
+			echo "       yiimp coin <SYM> get <key>\n";
 			echo "       yiimp coin <SYM> set <key> <value>\n";
 			echo "       yiimp coin <SYM> unset <key>\n";
 			echo "       yiimp coin <SYM> settings\n";
 			return 1;
+
+		} else if ($args[1] == 'delete') {
+			return $this->deleteCoin($symbol);
+
+		} else if ($args[1] == 'purge') {
+			return $this->purgeCoin($symbol);
 
 		} else if ($args[1] == 'get') {
 			return $this->getCoinSetting($args);
@@ -66,6 +74,56 @@ class CoinCommand extends CConsoleCommand
 		return dboscalar("SELECT COUNT(*) FROM coins WHERE symbol=:symbol",
 			array(':symbol'=>$symbol));
 	}
+
+	/**
+	 * Purge coin by symbol
+	 */
+	public function purgeCoin($symbol)
+	{
+		$coins = new db_coins;
+
+		if (!$coins instanceof CActiveRecord)
+			return;
+
+		$coin = $coins->find(array('condition'=>'symbol=:sym', 'params'=>array(':sym'=>$symbol)));
+		if ($coin)
+		{
+			$nbAccounts = getdbocount('db_accounts', "coinid=".$coin->id);
+			$coin->deleteDeps();
+
+			echo "coin ".$coin->symbol." purged\n";
+			if ($nbAccounts) {
+				$nbAccounts -= getdbocount('db_accounts', "coinid=".$coin->id);
+				echo " $nbAccounts accounts deleted\n";
+			}
+		}
+	}
+
+	/**
+	 * Delete (and purge) coin by symbol
+	 */
+	public function deleteCoin($symbol)
+	{
+		$coins = new db_coins;
+
+		if (!$coins instanceof CActiveRecord)
+			return;
+
+		$coin = $coins->find(array('condition'=>'symbol=:sym', 'params'=>array(':sym'=>$symbol)));
+		if ($coin)
+		{
+			$this->purgeCoin($symbol);
+
+			$coin->installed=0;
+			$coin->enable=0;
+			$coin->save();
+
+			$coin->delete();
+			echo "coin ".$coin->symbol." deleted\n";
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////
 
 	public function getCoinSetting($args)
 	{
