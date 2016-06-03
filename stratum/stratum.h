@@ -90,6 +90,8 @@ extern pthread_mutex_t g_db_mutex;
 extern pthread_mutex_t g_nonce1_mutex;
 extern pthread_mutex_t g_job_create_mutex;
 
+extern volatile bool g_exiting;
+
 #include "db.h"
 #include "object.h"
 #include "socket.h"

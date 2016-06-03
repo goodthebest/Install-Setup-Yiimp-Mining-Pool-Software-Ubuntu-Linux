@@ -233,7 +233,7 @@ pthread_cond_t g_job_cond;
 void *job_thread(void *p)
 {
 	CommonLock(&g_job_mutex);
-	while(1)
+	while(!g_exiting)
 	{
 		job_update();
 		pthread_cond_wait(&g_job_cond, &g_job_mutex);

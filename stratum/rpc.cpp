@@ -11,6 +11,7 @@ bool rpc_connected(YAAMP_RPC *rpc)
 bool rpc_connect(YAAMP_RPC *rpc)
 {
 	rpc_close(rpc);
+	if(g_exiting) return false;
 
 	struct hostent *ent = gethostbyname(rpc->host);
 	if(!ent) return false;
@@ -144,7 +145,7 @@ char *rpc_do_call(YAAMP_RPC *rpc, char const *data)
 	int bufpos = 0;
 	char buffer[YAAMP_SMALLBUFSIZE] = { 0 };
 
-	while(1)
+	while(!g_exiting)
 	{
 		int bytes = recv(rpc->sock, buffer+bufpos, YAAMP_SMALLBUFSIZE-bufpos-1, 0);
 #ifdef RPC_DEBUGLOG_

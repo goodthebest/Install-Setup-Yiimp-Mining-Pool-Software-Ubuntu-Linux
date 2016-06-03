@@ -41,6 +41,8 @@ pthread_mutex_t g_job_create_mutex;
 
 struct ifaddrs *g_ifaddr;
 
+volatile bool g_exiting = false;
+
 void *stratum_thread(void *p);
 void *monitor_thread(void *p);
 
@@ -238,10 +240,10 @@ int main(int argc, char **argv)
 	pthread_t thread2;
 	pthread_create(&thread2, NULL, stratum_thread, NULL);
 
-	while(1)
-	{
-		sleep(20);
+	sleep(20);
 
+	while(!g_exiting)
+	{
 		db_register_stratum(db);
 		db_update_workers(db);
 		db_update_algos(db);
@@ -274,9 +276,16 @@ int main(int argc, char **argv)
 		object_prune(&g_list_worker, worker_delete);
 		object_prune(&g_list_share, share_delete);
 		object_prune(&g_list_submit, submit_delete);
+
+		if (!g_exiting) sleep(20);
 	}
 
+	stratumlog("closing database...\n");
 	db_close(db);
+
+	pthread_join(thread2, NULL);
+	db_close(g_db); // client threads (called by stratum one)
+
 	return 0;
 }
 
@@ -284,14 +293,15 @@ int main(int argc, char **argv)
 
 void *monitor_thread(void *p)
 {
-	while(1)
+	while(!g_exiting)
 	{
 		sleep(120);
 
 		if(g_last_broadcasted + YAAMP_MAXJOBDELAY < time(NULL))
 		{
+			g_exiting = true;
 			stratumlog("%s dead lock, exiting...\n", g_current_algo->name);
-			exit(1);
+			// exit(1);
 		}
 	}
 }
@@ -320,7 +330,7 @@ void *stratum_thread(void *p)
 
 	/////////////////////////////////////////////////////////////////////////
 
-	while(1)
+	while(!g_exiting)
 	{
 		int sock = accept(listen_sock, NULL, NULL);
 		if(sock <= 0)

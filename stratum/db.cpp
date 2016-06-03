@@ -4,6 +4,11 @@
 
 void db_reconnect(YAAMP_DB *db)
 {
+	if (g_exiting) {
+		db_close(db);
+		return;
+	}
+
 	mysql_init(&db->mysql);
 	for(int i=0; i<6; i++)
 	{
@@ -13,6 +18,7 @@ void db_reconnect(YAAMP_DB *db)
 		stratumlog("%d, %s\n", i, mysql_error(&db->mysql));
 		sleep(10);
 
+		mysql_close(&db->mysql);
 		mysql_init(&db->mysql);
 	}
 }
@@ -27,8 +33,11 @@ YAAMP_DB *db_connect()
 
 void db_close(YAAMP_DB *db)
 {
-	mysql_close(&db->mysql);
-	delete db;
+	if (db) {
+		mysql_close(&db->mysql);
+		delete db;
+	}
+	db = NULL;
 }
 
 char *db_clean_string(YAAMP_DB *db, char *string)
@@ -46,6 +55,7 @@ void db_query(YAAMP_DB *db, const char *format, ...)
 {
 	va_list arglist;
 	va_start(arglist, format);
+	if(!db) return;
 
 	char *buffer = (char *)malloc(YAAMP_SMALLBUFSIZE+strlen(format));
 	if(!buffer) return;
@@ -53,7 +63,7 @@ void db_query(YAAMP_DB *db, const char *format, ...)
 	int len = vsprintf(buffer, format, arglist);
 	va_end(arglist);
 
-	while(1)
+	while(!g_exiting)
 	{
 		int res = mysql_query(&db->mysql, buffer);
 		if(!res) break;
@@ -62,6 +72,7 @@ void db_query(YAAMP_DB *db, const char *format, ...)
 		stratumlog("SQL ERROR: %d, %s\n", res, mysql_error(&db->mysql));
 		if(res != CR_SERVER_GONE_ERROR && res != CR_SERVER_LOST) exit(1);
 
+		usleep(100*YAAMP_MS);
 		db_reconnect(db);
 	}
 
@@ -74,6 +85,7 @@ void db_register_stratum(YAAMP_DB *db)
 {
 	int pid = getpid();
 	int t = time(NULL);
+	if(!db) return;
 
 	db_query(db, "insert into stratums (pid, time, algo) values (%d, %d, '%s') on duplicate key update time=%d",
 		pid, t, g_current_algo->name, t);
@@ -81,6 +93,8 @@ void db_register_stratum(YAAMP_DB *db)
 
 void db_update_algos(YAAMP_DB *db)
 {
+	if(!db) return;
+
 	if(g_current_algo->overflow)
 	{
 		debuglog("setting overflow\n");
@@ -127,6 +141,8 @@ void db_update_algos(YAAMP_DB *db)
 
 void db_update_coinds(YAAMP_DB *db)
 {
+	if(!db) return;
+
 	for(CLI li = g_list_coind.first; li; li = li->next)
 	{
 		YAAMP_COIND *coind = (YAAMP_COIND *)li->data;
@@ -291,6 +307,8 @@ void db_update_coinds(YAAMP_DB *db)
 
 void db_update_remotes(YAAMP_DB *db)
 {
+	if(!db) return;
+
 	db_query(db, "select id, speed/1000000, host, port, username, password, time, price, renterid from jobs where active and ready and algo='%s' order by time", g_stratum_algo);
 
 	MYSQL_RES *result = mysql_store_result(&db->mysql);
@@ -420,6 +438,8 @@ void db_update_remotes(YAAMP_DB *db)
 
 void db_update_renters(YAAMP_DB *db)
 {
+	if(!db) return;
+
 	db_query(db, "select id, balance, updated from renters");
 
 	MYSQL_RES *result = mysql_store_result(&db->mysql);
@@ -456,12 +476,10 @@ static void _json_str_safe(YAAMP_DB *db, json_value *json, const char *key, size
 {
 	json_value *val = json_get_val(json, key);
 	out[0] = '\0';
-	if (val && json_is_string(val)) {
+	if (db && val && json_is_string(val)) {
 		strncpy(out, json_string_value(val), maxlen);
 		out[maxlen-1] = '\0';
 		db_clean_string(db, out);
-	} else {
-		//debuglog("stats: invalid string for field '%s'\n", key);
 	}
 }
 #define json_str_safe(stats, k, out) _json_str_safe(db, stats, k, sizeof(out), out)
@@ -486,6 +504,8 @@ void db_store_stats(YAAMP_DB *db, YAAMP_CLIENT *client, json_value *stats)
 	char salgo[32], sclient[48], sdriver[32], sos[8];
 	double khashes, intensity, throughput;
 	int power, freq, memf;
+
+	if (!db) return;
 
 	json_str_safe(stats, "algo", salgo);
 	if (strcasecmp(g_current_algo->name, salgo) && client->submit_bad) {

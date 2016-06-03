@@ -429,7 +429,7 @@ void *client_thread(void *p)
 	client->shares_per_minute = YAAMP_SHAREPERSEC;
 	client->last_submit_time = current_timestamp();
 
-	while(1)
+	while(!g_exiting)
 	{
 		if(client->submit_bad > 1024)
 		{
