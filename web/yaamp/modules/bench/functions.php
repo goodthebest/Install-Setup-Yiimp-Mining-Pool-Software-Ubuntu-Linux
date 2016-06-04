@@ -27,10 +27,13 @@ function getProductIdSuffix($row)
 		'3842:3753' => 'SC',
 		'3842:3757' => 'FTW',
 		// EVGA 950
+		'3842:2951' => 'SC',
+		'3842:2956' => 'SC+',
 		'3842:2957' => 'SSC',
-		'3842:2966' => 'SSC 4GB',
+		'3842:2958' => 'FTW',
 		// EVGA 960
 		'3842:2962' => 'SC',
+		'3842:2966' => 'SSC',
 		'3842:3966' => 'SSC 4GB',
 		// EVGA 970
 		'3842:2974' => 'SC',
@@ -47,6 +50,14 @@ function getProductIdSuffix($row)
 	if (isset($known[$vidpid])) {
 		return ' '.$known[$vidpid];
 	}
+
+	// table with user suffixes...
+	$suffix = dboscalar("SELECT suffix FROM bench_suffixes WHERE vendorid=:vid",
+		array(':vid'=>$vidpid)
+	);
+	if (!empty($suffix))
+		return ' '.$suffix;
+
 	return '';
 }
 
