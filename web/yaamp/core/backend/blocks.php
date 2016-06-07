@@ -111,7 +111,6 @@ function BackendBlockFind1($coinid = NULL)
 			continue;
 		}
 
-
 		$db_block->txhash = $block['tx'][0];
 		$db_block->category = 'immature';						//$tx['details'][0]['category'];
 		$db_block->amount = $tx['details'][0]['amount'];
@@ -170,10 +169,21 @@ function BackendBlocksUpdate($coinid = NULL)
 			if(!$blockext || !isset($blockext['tx'][0])) continue;
 
 			$block->txhash = $blockext['tx'][0];
+
+			if(empty($block->txhash)) continue;
 		}
 
 		$tx = $remote->gettransaction($block->txhash);
-		if(!$tx) continue;
+		if(!$tx) {
+			if ($coin->enable)
+				debuglog("{$coin->name} unable to find block {$block->height} tx {$block->txhash}!");
+			else if ((time() - $block->time) > (7 * 24 * 3600)) {
+				debuglog("{$coin->name} outdated immature block {$block->height} detected!");
+				$block->category = 'orphan';
+			}
+			$block->save();
+			continue;
+		}
 
 		$block->confirmations = $tx['confirmations'];
 

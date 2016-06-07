@@ -122,6 +122,12 @@ function debuglog($string, $level=2)
 	error_log("[$now] $string\n", 3, YAAMP_LOGS."/debug.log");
 }
 
+function echolog($string, $level=2)
+{
+	$now = now();
+	echo "[$now] $string\n";
+}
+
 function rentallog($string)
 {
 	$now = now();

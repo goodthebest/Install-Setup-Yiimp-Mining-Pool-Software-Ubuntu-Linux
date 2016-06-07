@@ -53,13 +53,14 @@ class CronjobController extends CommonController
 		$this->monitorApache();
 
 		$last_complete = memcache_get($this->memcache->memcache, "cronjob_block_time_start");
-		if($last_complete+5*60<time())
+		if($last_complete+(5*60) < time())
 			dborun("update jobs set active=false");
 
 		BackendBlockFind1();
 		BackendClearEarnings();
 		BackendRentingUpdate();
 		BackendProcessList();
+		BackendBlocksUpdate();
 
 		memcache_set($this->memcache->memcache, "cronjob_block_time_start", time());
 //		debuglog(__METHOD__);
@@ -137,6 +138,11 @@ class CronjobController extends CommonController
 				//doCryptsyTrading();
 				doKrakenTrading();
 				doPoloniexTrading();
+				break;
+
+			case 2:
+				if(!YAAMP_PRODUCTION) break;
+
 				doYobitTrading();
 				doCCexTrading();
 				doCryptomicTrading();
@@ -145,20 +151,20 @@ class CronjobController extends CommonController
 				doNovaTrading();
 				break;
 
-			case 2:
+			case 3:
 				BackendPricesUpdate();
 				BackendWatchMarkets();
 				break;
 
-			case 3:
+			case 4:
 				BackendBlocksUpdate();
 				break;
 
-			case 4:
+			case 5:
 				TradingSellCoins();
 				break;
 
-			case 5:
+			case 6:
 				BackendBlockFind2();
 				NotifyCheckRules();
 				break;
@@ -166,8 +172,6 @@ class CronjobController extends CommonController
 			default:
 				memcache_set($this->memcache->memcache, 'cronjob_main_state', 0);
 				BackendQuickClean();
-
-			//	sleep(120);
 
 				$t = memcache_get($this->memcache->memcache, "cronjob_main_start_time");
 				$n = time();

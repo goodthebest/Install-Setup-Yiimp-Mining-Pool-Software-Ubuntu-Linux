@@ -401,22 +401,24 @@ echo '</td><td>&nbsp;&nbsp;</td><td valign="top">';
 
 function cronstate2text($state)
 {
-	switch($state)
+	switch($state - 1)
 	{
 		case 0:
-			return '';
-		case 1:
 			return 'new coins';
+		case 1:
+			return 'trade';
 		case 2:
-			return 'trading';
+			return 'trade2';
 		case 3:
-			return 'markets';
+			return 'prices';
 		case 4:
 			return 'blocks';
 		case 5:
 			return 'sell';
 		case 6:
 			return 'find2';
+		default:
+			return '';
 	}
 }
 
