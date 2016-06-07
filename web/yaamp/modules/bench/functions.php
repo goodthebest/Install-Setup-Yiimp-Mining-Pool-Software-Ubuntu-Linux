@@ -4,7 +4,6 @@ function getProductIdSuffix($row)
 {
 	$vidpid = $row['vendorid'];
 
-	// todo: database product table...
 	$known = array(
 		// ASUS 960
 		'1043:8520' => 'Strix',

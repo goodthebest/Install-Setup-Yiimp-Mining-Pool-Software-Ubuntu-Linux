@@ -503,7 +503,7 @@ void db_store_stats(YAAMP_DB *db, YAAMP_CLIENT *client, json_value *stats)
 	char sdev[80], stype[8], svid[12], sarch[8];
 	char salgo[32], sclient[48], sdriver[32], sos[8];
 	double khashes, intensity, throughput;
-	int power, freq, memf;
+	int power, mem, freq, memf;
 
 	if (!db) return;
 
@@ -522,6 +522,7 @@ void db_store_stats(YAAMP_DB *db, YAAMP_CLIENT *client, json_value *stats)
 	json_str_safe(stats, "driver", sdriver); // or cpu compiler
 
 	power = json_int_safe(stats, "power");
+	mem   = json_int_safe(stats, "mem");
 	freq  = json_int_safe(stats, "freq");
 	memf  = json_int_safe(stats, "memf");
 	intensity  = json_double_safe(stats, "intensity");
@@ -530,8 +531,8 @@ void db_store_stats(YAAMP_DB *db, YAAMP_CLIENT *client, json_value *stats)
 
 	db_query(db, "INSERT INTO benchmarks("
 		"time, algo, type, device, arch, vendorid, os, driver,"
-		"client, khps, freq, memf, power, intensity, throughput, userid"
-		") VALUES (%d,'%s','%s','%s','%s','%s','%s','%s', '%s',%f,%d,%d,%d,%.2f,%.0f,%d)",
+		"client, khps, freq, memf, power, mem, intensity, throughput, userid"
+		") VALUES (%d,'%s','%s','%s','%s','%s','%s','%s', '%s',%f,%d,%d,%d,%d,%.2f,%.0f,%d)",
 		t, g_current_algo->name, stype, sdev, sarch, svid, sos, sdriver,
-		sclient, khashes, freq, memf, power, intensity, throughput, client->userid);
+		sclient, khashes, freq, memf, power, mem, intensity, throughput, client->userid);
 }
