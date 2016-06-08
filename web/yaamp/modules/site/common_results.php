@@ -417,6 +417,8 @@ function cronstate2text($state)
 			return 'sell';
 		case 6:
 			return 'find2';
+		case 7:
+			return 'notify';
 		default:
 			return '';
 	}

@@ -5,36 +5,11 @@ include('functions.php');
 $this->pageTitle = "Devices";
 
 $devices = array();
-$in_db = dbolist("SELECT DISTINCT device, type, vendorid FROM benchmarks ORDER BY type DESC, device, vendorid");
+$in_db = dbolist("SELECT DISTINCT device, type, chip, vendorid FROM benchmarks ORDER BY type DESC, device, vendorid");
 foreach ($in_db as $key => $row) {
-	// todo: chip column in db
-	$device = $row['device'];
 	$vendorid = $row['vendorid'];
-	if ($row['type'] == 'cpu') {
-
-		$device = formatCPU($row);
-		$device = str_ireplace(' V2', 'v2', $device);
-		$device = str_ireplace(' V2', 'v2', $device);
-		$device = str_ireplace(' V2', 'v2', $device);
-		$device = str_ireplace(' V3', 'v3', $device);
-		$device = str_ireplace(' V4', 'v4', $device);
-		$device = str_ireplace(' V5', 'v5', $device);
-		$words = explode(' ', $device);
-		$chip = array_pop($words);
-		if (strpos($device, 'Fam.')) $chip = '-'; // WIN ENV
-
-	} else {
-
-		// nNidia
-		$words = explode(' ', $device);
-		$chip = array_pop($words);
-		if (!is_numeric($chip)) {
-			if (substr($vendorid,0,4) == '10de')
-				$chip = array_pop($words);
-			else
-				$chip = array_pop($words).' '.$chip;
-		}
-	}
+	$chip = $row['chip'];
+	if (empty($chip)) $chip = getChipName($row);
 
 	if (!empty($vendorid)) $devices[$vendorid] = $chip;
 }

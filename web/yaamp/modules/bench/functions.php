@@ -107,14 +107,40 @@ function formatCPU($row)
 		// todo, clean the vid and use linux names/vid from the db (in the db)
 		$parts = explode(':', $row['vendorid']);
 		$cores = (int) arraySafeVal($parts, 2);
-		switch ($device) {
-		case 'Intel 6 Model 60.3':
-			return ($cores == 4 ? 'Intel Core i5-4xxx' : 'Intel Core i7-4xxx');
-		case 'Intel 6 Model 71.1':
-			return ($cores == 4 ? 'Intel Core i5-5675C' : 'Intel Core i7-5775C');
-		}
 	}
 	return $device;
+}
+
+function getChipName($row)
+{
+	if ($row['type'] == 'cpu') {
+
+		$device = formatCPU($row);
+		$device = str_ireplace(' V2', 'v2', $device);
+		$device = str_ireplace(' V2', 'v2', $device);
+		$device = str_ireplace(' V2', 'v2', $device);
+		$device = str_ireplace(' V3', 'v3', $device);
+		$device = str_ireplace(' V4', 'v4', $device);
+		$device = str_ireplace(' V5', 'v5', $device);
+		$words = explode(' ', $device);
+		$chip = array_pop($words);
+		if (strpos($device, 'Fam.')) $chip = '-'; // WIN ENV
+
+	} else {
+
+		// nNidia
+		$words = explode(' ', $row['device']);
+		$chip = array_pop($words);
+		$vendorid = $row['vendorid'];
+		if (!is_numeric($chip)) {
+			if (substr($vendorid,0,4) == '10de')
+				$chip = array_pop($words);
+			else
+				$chip = array_pop($words).' '.$chip;
+		}
+	}
+
+	return $chip;
 }
 
 function formatClientName($version)

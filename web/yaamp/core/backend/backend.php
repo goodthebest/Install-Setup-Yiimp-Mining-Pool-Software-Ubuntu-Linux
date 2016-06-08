@@ -13,4 +13,4 @@ require_once('clear.php');
 require_once('renting.php');
 require_once('markets.php');
 require_once('notify.php');
-
+require_once('bench.php');

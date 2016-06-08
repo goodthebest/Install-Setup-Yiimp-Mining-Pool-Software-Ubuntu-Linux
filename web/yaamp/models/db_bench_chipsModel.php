@@ -15,7 +15,7 @@ class db_bench_chips extends CActiveRecord
 	public function rules()
 	{
 		return array(
-			array('chip,vendorid', 'safe', 'on'=>'search'),
+			array('chip', 'required'),
 		);
 	}
 

@@ -166,7 +166,11 @@ class CronjobController extends CommonController
 
 			case 6:
 				BackendBlockFind2();
+				break;
+
+			case 7:
 				NotifyCheckRules();
+				BenchUpdateChips();
 				break;
 
 			default:

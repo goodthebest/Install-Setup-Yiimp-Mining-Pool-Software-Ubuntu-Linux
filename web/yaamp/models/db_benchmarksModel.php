@@ -15,7 +15,7 @@ class db_benchmarks extends CActiveRecord
 	public function rules()
 	{
 		return array(
-			array('vendorid, algo', 'safe', 'on'=>'search'),
+			array('algo, vendorid', 'required'), // allow the search also
 		);
 	}
 
