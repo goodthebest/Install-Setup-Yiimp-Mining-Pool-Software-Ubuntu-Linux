@@ -193,14 +193,14 @@ static void client_do_submit(YAAMP_CLIENT *client, YAAMP_JOB *job, YAAMP_JOB_VAL
 			bool b = coind_submitgetauxblock(coind_aux, coind_aux->aux.hash, block_hex);
 			if(b)
 			{
-				debuglog("*** ACCEPTED %s %d\n", coind_aux->name, coind_aux->height+1);
+				debuglog("*** ACCEPTED %s %d (+1)\n", coind_aux->name, coind_aux->height);
 
 				block_add(client->userid, client->workerid, coind_aux->id, coind_aux->height, target_to_diff(coin_target_aux),
 					target_to_diff(hash_int), coind_aux->aux.hash, "");
 			}
 
 			else
-				debuglog("%s %d rejected\n", coind_aux->name, coind_aux->height+1);
+				debuglog("%s %d REJECTED\n", coind_aux->name, coind_aux->height);
 		}
 	}
 
