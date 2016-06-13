@@ -321,6 +321,9 @@ if (!empty($txs)) {
 // filter useless decred spent transactions
 if ($DCR) {
 
+	// normal value since 0.1.5
+	$amountin_mul = $info['version'] >= 10500 ? 1.0 : 0.00000001;
+
 	$prev_tx = array(); $lastday = '';
 	foreach($txs_array as $key => $tx)
 	{
@@ -360,14 +363,14 @@ if ($DCR) {
 				// won ticket value
 				$t = $remote->getrawtransaction($tx['txid'], 1);
 				if ($t && isset($t['vin'][0])) {
-					$txs_array[$key]['amount'] = $t['vin'][0]['amountin'] * 0.00000001;
+					$txs_array[$key]['amount'] = $t['vin'][0]['amountin'] * $amountin_mul;
 				}
 			}
 			if ($category == 'unlock') {
 				// unlocked amount
 				$t = $remote->getrawtransaction($tx['txid'], 1);
 				if ($t && isset($t['vin'][1])) {
-					$txs_array[$key]['amount'] = $t['vin'][1]['amountin'] * 0.00000001;
+					$txs_array[$key]['amount'] = $t['vin'][1]['amountin'] * $amountin_mul;
 				}
 			}
 		}

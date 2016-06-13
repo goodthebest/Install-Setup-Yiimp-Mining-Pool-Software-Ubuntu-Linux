@@ -107,6 +107,9 @@ $voted_txs = array();
 $list_txs = array();
 $tickets = $remote->gettickets(true);
 
+// normal value since 0.1.5
+$amountin_mul = $info['version'] >= 10500 ? 1.0 : 0.00000001;
+
 // extract  stxs from decred transactions
 if (!empty($txs_array)) {
 
@@ -136,7 +139,7 @@ if (!empty($txs_array)) {
 				// ticket price
 				$input = 0.;
 				if ($stx && !empty($stx['vin'])) foreach ($stx['vin'] as $vin) {
-					$input += $vin['amountin'] * 0.00000001;
+					$input += $vin['amountin'] * $amountin_mul;
 				}
 				$txs_array[$key]['input'] = $input;
 				$list_txs[] = $tx['txid'];
@@ -144,7 +147,7 @@ if (!empty($txs_array)) {
 				$category = 'stake';
 				if ($stx && isset($stx['vin'][0])) {
 					// won ticket value
-					$txs_array[$key]['amount'] = $stx['vin'][0]['amountin'] * 0.00000001;
+					$txs_array[$key]['amount'] = $stx['vin'][0]['amountin'] * $amountin_mul;
 				}
 				if ($stx && isset($stx['vin'][1])) {
 					$voted_txs[] = arraySafeVal($stx['vin'][1],'txid');
@@ -177,7 +180,7 @@ if (!empty($tickets)) foreach ($tickets['hashes'] as $n => $txid) {
 		$k = time() - arraySafeVal($stx,'time', time()) + $n; // sort key
 		$stx['category'] = 'ticket';
 		if (isset($stx['vin'][0]))
-			$stx['input'] = $stx['vin'][0]['amountin'] * 0.00000001;
+			$stx['input'] = $stx['vin'][0]['amountin'] * $amountin_mul;
 		$commitamt = 0.;
 		foreach ($stx['vout'] as $v) {
 			if (arraySafeVal($v['scriptPubKey'],'type') == 'sstxcommitment')
