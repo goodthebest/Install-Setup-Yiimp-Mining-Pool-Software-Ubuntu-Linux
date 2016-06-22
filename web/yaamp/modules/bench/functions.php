@@ -80,7 +80,7 @@ function formatCPU($row)
 {
 	$device = $row['device'];
 	if (strpos($device, '(R)')) {
-		// from /proc/cpuinfo
+		// from /proc/cpuinfo (or vendor cpuid)
 		$device = str_replace('(R)', '', $device);
 		$device = str_replace('(TM)','', $device);
 		$device = str_replace(' CPU','', $device);
@@ -102,12 +102,11 @@ function formatCPU($row)
 			$device = str_replace(' AMD','', $device);
 			$device = str_replace('AMD64','AMD', $device);
 		}
-		$device = str_replace(' APU with Radeon(tm) HD Graphics','', $device);
 		$device = rtrim($device, ',');
-		// todo, clean the vid and use linux names/vid from the db (in the db)
-		$parts = explode(':', $row['vendorid']);
-		$cores = (int) arraySafeVal($parts, 2);
 	}
+	$device = str_replace(' APU with Radeon(tm)','', $device);
+	$device = str_replace(' APU with AMD Radeon','', $device);
+	$device = preg_replace('/(HD|R\d) Graphics/','', $device);
 	return $device;
 }
 
