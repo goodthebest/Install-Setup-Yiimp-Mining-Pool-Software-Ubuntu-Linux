@@ -139,4 +139,16 @@ class ExplorerController extends CommonController
 		else
 			echo "[]";
 	}
+
+	/**
+	 * Public nodes
+	 */
+	public function actionPeers()
+	{
+		$id = getiparam('id');
+		$coin = getdbo('db_coins', $id);
+		if ($coin)
+			$this->renderPartial('peers', array('coin'=>$coin));
+	}
+
 }

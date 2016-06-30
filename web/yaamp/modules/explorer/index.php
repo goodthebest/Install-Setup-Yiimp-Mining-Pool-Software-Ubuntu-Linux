@@ -4,8 +4,16 @@ JavascriptFile("/yaamp/ui/js/jquery.metadata.js");
 JavascriptFile("/yaamp/ui/js/jquery.tablesorter.widgets.js");
 
 echo <<<end
+<script type="text/javascript">
+function wallet_peers(id)
+{
+	var w = window.open("/explorer/peers?id=" + id, "peers",
+		"width=400,height=600,location=no,menubar=no,resizable=yes,status=no,toolbar=no");
+}
+</script>
+
 <style type="text/css">
-td.low { color: red; font-weight: bold; }
+a.low { color: red; font-weight: bold; }
 </style>
 
 <br/>
@@ -78,7 +86,8 @@ foreach($list as $coin)
 	echo '<td>'.$coin->block_height.'</td>';
 	echo '<td data="'.$coin->difficulty.'">'.$difficulty.'</td>';
 	$cnx_class = (intval($coin->connections) > 3) ? '' : 'low';
-	echo '<td class="'.$cnx_class.'">'.$coin->connections.'</td>';
+	$peers_link = CHtml::link($coin->connections, "javascript:wallet_peers({$coin->id});", array('class'=>$cnx_class));
+	echo '<td>'.$peers_link.'</td>';
 	echo '<td data="'.$coin->network_hash.'">'.$nethash_sfx.'</td>';
 
 	echo "<td>";
