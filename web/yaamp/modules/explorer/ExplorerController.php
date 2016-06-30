@@ -39,7 +39,7 @@ class ExplorerController extends CommonController
 	{
 		if ($route == '/explorer' && isset($params['id'])) {
 			$coin = getdbo('db_coins', intval($params['id']));
-			if ($coin && $coin->visible) {
+			if ($coin && $coin->visible && !is_numeric($coin->symbol)) {
 				unset($params['id']);
 				$route = '/explorer/'.$coin->symbol.'?'.http_build_query($params,'',$ampersand);
 				$params = array();
