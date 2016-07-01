@@ -107,7 +107,7 @@ function formatCPU($row)
 	$device = str_replace(' APU with Radeon(tm)','', $device);
 	$device = str_replace(' APU with AMD Radeon','', $device);
 	$device = preg_replace('/(HD|R\d) Graphics/','', $device);
-	return $device;
+	return trim($device);
 }
 
 function getChipName($row)

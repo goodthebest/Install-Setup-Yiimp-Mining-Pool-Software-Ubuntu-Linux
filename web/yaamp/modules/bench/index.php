@@ -191,7 +191,7 @@ if (!empty($algo)) {
 		echo '<th class="algo">'.CHtml::link($algo,'/bench?algo='.$algo).'</td>';
 		echo '<th>&nbsp;</td>';
 
-		echo '<th colspan="3">Average ('.$avg["records"].' records)</td>';
+		echo '<th colspan="4">Average ('.$avg["records"].' records)</td>';
 
 		echo '<th>'.Itoa2(1000*round($avg['khps'],3),3).'H</td>';
 		echo '<th>'.($avg['intensity'] ? round($avg['intensity'],1) : '').'</td>';
