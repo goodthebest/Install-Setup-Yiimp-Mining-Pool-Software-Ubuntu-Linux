@@ -37,6 +37,18 @@ function BenchUpdateChips()
 			));
 		}
 	}
+
+	// update existing ones
+	$rows = dbolist('SELECT DISTINCT chip, type FROM benchmarks WHERE idchip IS NULL');
+	foreach ($rows as $row) {
+		if (empty($row['chip']) || empty($row['type'])) continue;
+		$chip = getdbosql('db_bench_chips', 'chip=:name AND devicetype=:type', array(':name'=>$row['chip'], ':type'=>$row['type']));
+		if (!$chip || !$chip->id) continue;
+		dborun('UPDATE benchmarks SET idchip=:id WHERE chip=:chip AND type=:type', array(
+			':id'=>$chip->id, ':chip'=>$row['chip'], ':type'=>$row['type'],
+		));
+	}
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////

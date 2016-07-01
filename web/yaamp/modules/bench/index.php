@@ -3,11 +3,11 @@
 if (empty($algo)) $algo = 'all';
 
 $sqlFilter='1';
-if ($vid) $sqlFilter = 'benchmarks.vendorid LIKE '.sqlQuote($vid);
+if ($vid) $sqlFilter = 'B.vendorid LIKE '.sqlQuote($vid);
 
 // --------------
 $algos = array();
-$in_db = dbolist("SELECT algo, count(id) as count FROM benchmarks WHERE $sqlFilter GROUP BY algo ORDER BY algo ASC, count DESC");
+$in_db = dbolist("SELECT algo, count(id) as count FROM benchmarks B WHERE $sqlFilter GROUP BY algo ORDER BY algo ASC, count DESC");
 foreach ($in_db as $row) {
 	$algos[$row['algo']] = $row['count'];
 }
@@ -133,7 +133,7 @@ foreach ($db_rows as $row) {
 
 	echo '<td class="algo">'.CHtml::link($row['algo'],'/bench?algo='.$row['algo']).'</td>';
 	echo '<td data="'.$row['time'].'">'.$age.'</td>';
-	echo '<td>'.$row['chip'].'</td>';
+	echo '<td>'.($row['idchip'] ? CHtml::link($row['chip'],'/bench?chip='.$row['idchip']) : $row['chip']).'</td>';
 	if ($row['type'] == 'cpu') {
 		echo '<td>'.formatCPU($row).'</td>';
 		echo '<td>'.$row['arch'].'</td>';
@@ -175,13 +175,13 @@ if (!empty($algo)) {
 
 	$avg = dborow("SELECT AVG(khps) as khps, AVG(power) as power, AVG(intensity) as intensity, AVG(freq) as freq, ".
 		"COUNT(*) as records ".
-		"FROM benchmarks WHERE algo=:algo AND power > 5 AND $sqlFilter", array(':algo'=>$algo)
+		"FROM benchmarks B WHERE algo=:algo AND power > 5 AND $sqlFilter", array(':algo'=>$algo)
 	);
 
 	if (arraySafeVal($avg, 'records') == 0) {
 		$avg = dborow("SELECT AVG(khps) as khps, '' as power, '' as intensity, '' as freq, ".
 			"COUNT(*) as records ".
-			"FROM benchmarks WHERE algo=:algo AND $sqlFilter", array(':algo'=>$algo)
+			"FROM benchmarks B WHERE algo=:algo AND $sqlFilter", array(':algo'=>$algo)
 		);
 	}
 
