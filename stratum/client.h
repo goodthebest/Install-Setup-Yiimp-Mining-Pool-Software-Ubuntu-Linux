@@ -99,6 +99,7 @@ public:
 	int stats;
 
 	int donation;
+	int broadcast_timeouts;
 };
 
 inline void client_delete(YAAMP_OBJECT *object)

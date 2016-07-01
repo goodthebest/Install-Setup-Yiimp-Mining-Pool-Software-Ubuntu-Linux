@@ -99,7 +99,21 @@ void job_broadcast(YAAMP_JOB *job)
 
 		client_adjust_difficulty(client);
 
-		socket_send_raw(client->sock, buffer, strlen(buffer));
+		if (socket_send_raw(client->sock, buffer, strlen(buffer)) == -1) {
+			int err = errno;
+			client->broadcast_timeouts++;
+			clientlog(client, "unable to send job, sock err %d (%d times)", err, client->broadcast_timeouts);
+			// too much timeouts, disconnect him
+			if (client->broadcast_timeouts > 5) {
+				shutdown(client->sock->sock, SHUT_RDWR);
+				if(client->workerid && !client->reconnecting) {
+					CommonLock(&g_db_mutex);
+					db_clear_worker(g_db, client);
+					CommonUnlock(&g_db_mutex);
+				}
+				client_delete(client);
+			}
+		}
 		count++;
 	}
 
