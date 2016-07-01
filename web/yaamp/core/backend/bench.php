@@ -6,6 +6,8 @@ function BenchUpdateChips()
 {
 	require_once(app()->getModulePath().'/bench/functions.php');
 
+	dborun("UPDATE benchmarks SET device=TRIM(device) WHERE type='cpu'");
+
 	$benchs = getdbolist('db_benchmarks', "IFNULL(chip,'')=''");
 	foreach ($benchs as $bench) {
 		if (empty($bench->vendorid) || empty($bench->device)) continue;

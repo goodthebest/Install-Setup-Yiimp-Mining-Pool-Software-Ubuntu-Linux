@@ -3,14 +3,14 @@
 if (empty($algo)) $algo = 'all';
 
 $sqlFilter='1';
-if ($vid) $sqlFilter = 'vendorid LIKE '.sqlQuote($vid);
+if ($vid) $sqlFilter = 'benchmarks.vendorid LIKE '.sqlQuote($vid);
 
+// --------------
 $algos = array();
 $in_db = dbolist("SELECT algo, count(id) as count FROM benchmarks WHERE $sqlFilter GROUP BY algo ORDER BY algo ASC, count DESC");
 foreach ($in_db as $row) {
 	$algos[$row['algo']] = $row['count'];
 }
-
 $options = '<option value="all">Show all</option>';
 foreach($algos as $a => $count) {
 	if($a == $algo)
@@ -18,15 +18,31 @@ foreach($algos as $a => $count) {
 	else
 		$options .= '<option value="'.$a.'">'.$a.'</option>';
 }
+// --------------
+$algoFilter = $algo != 'all' ? ' AND B.algo='.sqlQuote($algo) : '';
+
+$chips = array();
+$in_db = dbolist("SELECT DISTINCT B.idchip as id, B.type, C.chip as name FROM benchmarks B".
+	" LEFT JOIN bench_chips C ON C.id=B.idchip WHERE B.idchip IS NOT NULL $algoFilter AND $sqlFilter GROUP BY B.idchip ORDER BY type DESC, name ASC");
+foreach ($in_db as $row) {
+	$chips[$row['id']] = $row['name'];
+}
+$optchips = '<option value="0">Show all</option>';
+foreach($chips as $id => $name) {
+	if($id == $idchip)
+		$optchips .= '<option value="'.$id.'" selected="selected">'.$name.'</option>';
+	else
+		$optchips .= '<option value="'.$id.'">'.$name.'</option>';
+}
 
 JavascriptFile("/yaamp/ui/js/jquery.metadata.js");
 JavascriptFile("/yaamp/ui/js/jquery.tablesorter.widgets.js");
-
 
 include('functions.php');
 
 $algo = user()->getState('bench-algo');
 if (empty($algo)) $algo = 'all';
+if (empty($idchip)) $idchip = NULL;
 if (empty($vid)) $vid = NULL;
 
 $this->pageTitle = "Benchmarks";
@@ -34,6 +50,7 @@ $this->pageTitle = "Benchmarks";
 $bench = new db_benchmarks;
 if($algo != 'all') $bench->algo = $algo;
 $bench->vendorid = $vid;
+$bench->idchip = $idchip;
 $dp = $bench->search();
 $db_rows = $dp->getData();
 
@@ -49,7 +66,8 @@ tr.ssrow.filtered { display: none; }
 </style>
 
 <div align="right" style="margin-top: -22px; margin-right: 140px;">
-Select Algo: <select id="algo_select">{$options}</select>&nbsp;
+Select Algo: <select class="filter" id="algo_select">{$options}</select>&nbsp;
+Chip: <select class="filter" id="chip_select">{$optchips}</select>&nbsp;
 </div>
 
 end;
@@ -88,6 +106,7 @@ echo <<<END
 <tr>
 <th class="algo" data-sorter="text">Algo</th>
 <th data-sorter="text">Time</th>
+<th data-sorter="text">Chip</th>
 <th data-sorter="text">Device</th>
 <th data-sorter="text">Arch</th>
 <th data-sorter="text">Vendor ID</th>
@@ -105,7 +124,7 @@ END;
 
 foreach ($db_rows as $row) {
 
-	//if ($vid && $row['vendorid'] != $vid) continue;
+	if (!isset($row['algo'])) continue;
 
 	echo '<tr class="ssrow">';
 
@@ -114,6 +133,7 @@ foreach ($db_rows as $row) {
 
 	echo '<td class="algo">'.CHtml::link($row['algo'],'/bench?algo='.$row['algo']).'</td>';
 	echo '<td data="'.$row['time'].'">'.$age.'</td>';
+	echo '<td>'.$row['chip'].'</td>';
 	if ($row['type'] == 'cpu') {
 		echo '<td>'.formatCPU($row).'</td>';
 		echo '<td>'.$row['arch'].'</td>';
@@ -151,6 +171,8 @@ echo '</tbody>';
 
 if (!empty($algo)) {
 
+	if ($idchip) $sqlFilter .= ' AND idchip='.intval($idchip);
+
 	$avg = dborow("SELECT AVG(khps) as khps, AVG(power) as power, AVG(intensity) as intensity, AVG(freq) as freq, ".
 		"COUNT(*) as records ".
 		"FROM benchmarks WHERE algo=:algo AND power > 5 AND $sqlFilter", array(':algo'=>$algo)
@@ -166,7 +188,7 @@ if (!empty($algo)) {
 	if (arraySafeVal($avg, 'records') > 0) {
 		echo '<tfoot><tr class="ssfoot">';
 
-		echo '<th class="algo">'.CHtml::link($row['algo'],'/bench?algo='.$row['algo']).'</td>';
+		echo '<th class="algo">'.CHtml::link($algo,'/bench?algo='.$algo).'</td>';
 		echo '<th>&nbsp;</td>';
 
 		echo '<th colspan="3">Average ('.$avg["records"].' records)</td>';
@@ -199,9 +221,10 @@ echo <<<end
 
 <script type="text/javascript">
 
-$('#algo_select').change(function(event) {
+$('select.filter').change(function(event) {
 	algo = jQuery('#algo_select').val();
-	window.location.href = '/bench?algo='+algo;
+	chip = jQuery('#chip_select').val();
+	window.location.href = '/bench?algo='+algo+'&chip='+chip;
 });
 
 </script>

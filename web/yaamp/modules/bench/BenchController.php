@@ -20,7 +20,8 @@ class BenchController extends CommonController
 			$a = dboscalar('SELECT count(id) FROM benchmarks WHERE vendorid LIKE :vendorid', array(':vendorid'=>$vid));
 			$vid = $a ? $vid : '';
 		}
-		$this->render('index', array('algo'=>$algo,'vid'=>$vid));
+		$idchip = getiparam('chip');
+		$this->render('index', array('algo'=>$algo,'idchip'=>$idchip,'vid'=>$vid));
 	}
 
 	public function actionDel()

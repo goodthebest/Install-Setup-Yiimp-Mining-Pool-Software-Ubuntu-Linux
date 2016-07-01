@@ -22,6 +22,7 @@ class db_benchmarks extends CActiveRecord
 	public function relations()
 	{
 		return array(
+			'bench_chip' => array(self::BELONGS_TO, 'db_bench_chips', 'idchip', 'alias'=>'BC'),
 		);
 	}
 
@@ -38,6 +39,7 @@ class db_benchmarks extends CActiveRecord
 		$t = $this->getTableAlias(false);
 
 		$criteria->compare("$t.algo",$this->algo);
+		$criteria->compare("$t.idchip",$this->idchip);
 		$criteria->compare("$t.vendorid",$this->vendorid);
 
 		$sort = array('defaultOrder'=>"$t.time DESC");
