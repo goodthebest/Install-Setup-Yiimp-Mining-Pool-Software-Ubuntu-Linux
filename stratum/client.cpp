@@ -530,8 +530,11 @@ void *client_thread(void *p)
 #ifdef CLIENT_DEBUGLOG_
 	debuglog("client terminate\n");
 #endif
+	if(!client || client->deleted) {
+		pthread_exit(NULL);
+	}
 
-	if(client->sock->total_read == 0)
+	else if(client->sock->total_read == 0)
 		clientlog(client, "no data");
 
 	if(g_list_client.Find(client))
@@ -551,9 +554,4 @@ void *client_thread(void *p)
 
 	pthread_exit(NULL);
 }
-
-
-
-
-
 
