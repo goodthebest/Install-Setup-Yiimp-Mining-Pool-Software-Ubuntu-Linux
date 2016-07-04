@@ -104,7 +104,7 @@ foreach($list as $market)
 
 	$sent = datetoa2($market->lastsent);
 	$traded = datetoa2($market->lasttraded);
-	$late = $market->lastsent > $market->lasttraded ? 'late': '';
+	$late = $market->lastsent > $market->lasttraded && $market->lasttraded ? 'late': '';
 
 	echo '<td>'.(empty($sent)   ? "" : "$sent ago").'</td>';
 	echo '<td>'.(empty($traded) ? "" : "$traded ago").'</td>';
