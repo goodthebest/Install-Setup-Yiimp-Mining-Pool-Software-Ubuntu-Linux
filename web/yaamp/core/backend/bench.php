@@ -12,8 +12,17 @@ function BenchUpdateChips()
 	foreach ($benchs as $bench) {
 		if (empty($bench->vendorid) || empty($bench->device)) continue;
 
-		debuglog("bench: {$bench->device}...");
+		$dups = getdbocount('db_benchmarks', "vendorid=:vid AND client=:client AND os=:os AND driver=:drv AND throughput=:thr AND userid=:uid",
+			array(':vid'=>$bench->vendorid, ':client'=>$bench->client, ':os'=>$bench->os, ':drv'=>$bench->driver,':thr'=>$bench->throughput,':uid'=>$bench->userid)
+		);
+		if ($dups > 10) {
+			debuglog("bench: {$bench->device} ignored ($dups records already present)");
+			$bench->delete();
+			continue;
+		}
+
 		$chip = getChipName($bench->attributes);
+		debuglog("bench: {$bench->device} ($chip)...");
 		if (!empty($chip) && $chip != '-') {
 			$bench->chip = $chip;
 			$bench->save();
