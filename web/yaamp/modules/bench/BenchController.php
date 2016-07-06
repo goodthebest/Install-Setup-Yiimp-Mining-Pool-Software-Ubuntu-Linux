@@ -40,4 +40,15 @@ class BenchController extends CommonController
 		$this->render('devices');
 	}
 
+	/////////////////////////////////////////////////
+
+	public function actionAlgo()
+	{
+		$algo = substr(getparam('algo'), 0, 32);
+		if (!empty($algo))
+			$this->render('algo', array('algo'=>$algo));
+		else
+			$this->goback();
+	}
+
 }

@@ -77,6 +77,7 @@ if ($algo == 'all') {
 	echo "Last 50 results";
 } else  {
 	echo "Last 50 $algo results";
+	echo ", ".CHtml::link(" show totals", '/bench/algo?algo='.$algo);
 }
 echo '</p>';
 

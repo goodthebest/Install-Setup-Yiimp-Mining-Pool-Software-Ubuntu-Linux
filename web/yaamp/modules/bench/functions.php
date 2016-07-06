@@ -14,12 +14,16 @@ function getProductIdSuffix($row)
 		'1458:3649' => 'Black',
 		// Gigabyte 960
 		'1458:36ae' => '4GB',
+		// Gigabyte 1080
+		'1458:3702' => 'G1',
 		// MSI 960
 		'1462:3202' => 'Gaming 2G',
 		// MSI 970
 		'1462:3160' => 'Gaming',
 		// MSI 980
 		'1462:3170' => 'Gaming',
+		// MSI 1080
+		'1462:3362' => 'Gaming',
 		// EVGA 740
 		'3842:2744' => 'SC DDR3',
 		// EVGA 750 Ti

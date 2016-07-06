@@ -4,20 +4,20 @@ include('functions.php');
 
 $this->pageTitle = "Devices";
 
-$devices = array();
-$in_db = dbolist("SELECT DISTINCT device, type, chip, vendorid FROM benchmarks ORDER BY type DESC, device, vendorid");
+$chips = array();
+$in_db = dbolist("SELECT DISTINCT device, type, chip, idchip, vendorid FROM benchmarks WHERE idchip > 0 ORDER BY type DESC, device, vendorid");
 foreach ($in_db as $key => $row) {
 	$vendorid = $row['vendorid'];
 	$chip = $row['chip'];
 	if (empty($chip)) $chip = getChipName($row);
 
-	if (!empty($vendorid)) $devices[$vendorid] = $chip;
+	if (!empty($vendorid)) $chips[$vendorid] = $chip;
 }
 
 $chip = 'all';
 
 $options = '<option value="all">Show all</option>';
-foreach($devices as $a => $count) {
+foreach($chips as $a => $count) {
 	if($a == $chip)
 		$options .= '<option value="'.$a.'" selected="selected">'.$a.'</option>';
 	else
@@ -80,7 +80,11 @@ foreach ($in_db as $row) {
 
 	$vendorid = $row['vendorid'];
 
-	echo '<td>'.arraySafeVal($devices, $vendorid, '-').'</td>';
+	$chip = arraySafeVal($chips, $vendorid, '-');
+	if (!empty($row['idchip'])) {
+		$chip = CHtml::link($chip, '/bench?chip='.$row['idchip'].'&algo=all');
+	}
+	echo '<td>'.$chip.'</td>';
 
 	if ($row['type'] == 'gpu')
 		echo '<td>'.$row['device'].getProductIdSuffix($row).'</td>';
@@ -99,7 +103,11 @@ foreach ($in_db as $row) {
 	foreach ($algos as $algo) {
 		$tick = '&nbsp;';
 		if (in_array($algo, $records)) {
-			$tick = CHtml::link('✓','/bench?algo='.$algo);
+			$url = '/bench?algo='.$algo;
+			if (!empty($row['idchip'])) {
+				$url .= '&chip='.$row['idchip'];
+			}
+			$tick = CHtml::link('✓', $url);
 		}
 		echo '<td class="tick">'.$tick.'</td>';
 	}
