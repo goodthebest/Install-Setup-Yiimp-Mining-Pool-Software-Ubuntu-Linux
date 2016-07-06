@@ -193,7 +193,7 @@ void coinbase_create(YAAMP_COIND *coind, YAAMP_JOB_TEMPLATE *templ, json_value *
 		return;
 	}
 
-	if(strcmp(coind->symbol, "VNL") == 0)
+	if(strcmp(coind->symbol, "XVC") == 0)
 	{
 		char charity_payee[256];
 		json_value* incentive = json_get_object(json_result, "incentive");
@@ -215,7 +215,7 @@ void coinbase_create(YAAMP_COIND *coind, YAAMP_JOB_TEMPLATE *templ, json_value *
 
 				coind->charity_amount = charity_amount;
 				coind->reward = (double)available/100000000*coind->reward_mul;
-				//debuglog("VNL coinbase %ld (+%ld incentive to %s)\n",
+				//debuglog("XVC coinbase %ld (+%ld incentive to %s)\n",
 				//	(long) available, (long) charity_amount, charity_payee);
 				return;
 			}
