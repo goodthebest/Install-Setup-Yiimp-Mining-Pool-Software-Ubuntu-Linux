@@ -157,6 +157,11 @@ int socket_send(YAAMP_SOCKET *s, const char *format, ...)
 	vsprintf(buffer, format, args);
 	va_end(args);
 
+	if(!s) {
+		errno = EINVAL;
+		return -1;
+	}
+
 //	json_value *json = json_parse(buffer, strlen(buffer));
 //	if(!json)
 //		debuglog("sending bad json message: %s\n", buffer);
