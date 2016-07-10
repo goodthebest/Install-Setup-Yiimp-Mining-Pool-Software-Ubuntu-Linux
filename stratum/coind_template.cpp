@@ -285,6 +285,31 @@ YAAMP_JOB_TEMPLATE *coind_create_template(YAAMP_COIND *coind)
 	const char *flags = json_get_string(json_coinbaseaux, "flags");
 	strcpy(templ->flags, flags ? flags : "");
 
+	// LBC Claim Tree (with wallet gbt patch)
+	const char *claim = json_get_string(json_result, "claimtrie");
+	if (claim) {
+		strcpy(templ->claim_hex, claim);
+		// debuglog("claimtrie: %s\n", templ->claim_hex);
+	}
+	else if (strcmp(coind->symbol, "LBC") == 0) {
+		json_value *json_claim = rpc_call(&coind->rpc, "getclaimtrie");
+		if (!json_claim || json_claim->type != json_object)
+			return NULL;
+		json_value *json_cls = json_get_array(json_claim, "result");
+		if (!json_cls || !json_is_array(json_cls))
+			return NULL;
+		// get first claim "", seems the root
+		// if empty need 0000000000000000000000000000000000000000000000000000000000000001
+		json_value *json_obj = json_cls->u.array.values[0];
+		if (!json_obj || json_claim->type != json_object)
+			return NULL;
+		claim = json_get_string(json_obj, "hash");
+		if (claim) {
+			strcpy(templ->claim_hex, claim);
+			debuglog("claim_hex: %s\n", templ->claim_hex);
+		}
+	}
+
 	if (strcmp(coind->rpcencoding, "DCR") == 0) {
 		decred_fix_template(coind, templ, json_result);
 	}
@@ -358,6 +383,9 @@ YAAMP_JOB_TEMPLATE *coind_create_template(YAAMP_COIND *coind)
 
 //	debuglog("merkle transactions %d [%s]\n", templ->txcount, templ->txmerkles);
 	ser_string_be2(templ->prevhash_hex, templ->prevhash_be, 8);
+
+	if(!strcmp(coind->symbol, "LBC"))
+		ser_string_be2(templ->claim_hex, templ->claim_be, 8);
 
 	if(!coind->pos)
 		coind_aux_build_auxs(templ);

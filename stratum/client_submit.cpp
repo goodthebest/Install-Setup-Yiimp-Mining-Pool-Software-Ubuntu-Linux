@@ -30,10 +30,16 @@ void build_submit_values(YAAMP_JOB_VALUES *submitvalues, YAAMP_JOB_TEMPLATE *tem
 #ifdef MERKLE_DEBUGLOG
 	printf("merkle root %s\n", merkleroot.c_str());
 #endif
-	sprintf(submitvalues->header, "%s%s%s%s%s%s", templ->version, templ->prevhash_be, submitvalues->merkleroot_be,
-		ntime, templ->nbits, nonce);
+	if (!strcmp(g_current_algo->name, "lbry")) {
+		sprintf(submitvalues->header, "%s%s%s%s%s%s%s", templ->version, templ->prevhash_be, submitvalues->merkleroot_be,
+			templ->claim_be, ntime, templ->nbits, nonce);
+		ser_string_be(submitvalues->header, submitvalues->header_be, 32 + 20);
+	} else {
+		sprintf(submitvalues->header, "%s%s%s%s%s%s", templ->version, templ->prevhash_be, submitvalues->merkleroot_be,
+			ntime, templ->nbits, nonce);
+		ser_string_be(submitvalues->header, submitvalues->header_be, 20);
+	}
 
-	ser_string_be(submitvalues->header, submitvalues->header_be, 20);
 	binlify(submitvalues->header_bin, submitvalues->header_be);
 
 //	printf("%s\n", submitvalues->header_be);
@@ -482,6 +488,9 @@ bool client_submit(YAAMP_CLIENT *client, json_value *json_params)
 	}
 
 	double share_diff = diff_to_target(hash_int);
+//	if (g_current_algo->diff_multiplier != 0) {
+//		share_diff = share_diff / g_current_algo->diff_multiplier;
+//	}
 
 #ifndef HASH_DEBUGLOG_
 	// only log a few...
@@ -495,4 +504,3 @@ bool client_submit(YAAMP_CLIENT *client, json_value *json_params)
 
 	return true;
 }
-

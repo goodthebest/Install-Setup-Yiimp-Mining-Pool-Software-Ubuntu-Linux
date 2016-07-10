@@ -118,6 +118,7 @@ YAAMP_ALGO g_algos[] =
 	{"keccak", keccak256_hash, 0x80, 0, sha256_hash_hex },
 
 	{"bmw", bmw_hash, 1, 0, 0},
+	{"lbry", lbry_hash, 0x100, 0, 0},
 	{"luffa", luffa_hash, 1, 0, 0},
 	{"penta", penta_hash, 1, 0, 0},
 	{"skein2", skein2_hash, 1, 0, 0},

@@ -16,6 +16,14 @@ static void job_mining_notify_buffer(YAAMP_JOB *job, char *buffer)
 {
 	YAAMP_JOB_TEMPLATE *templ = job->templ;
 
+	if (!strcmp(g_current_algo->name, "lbry")) {
+		sprintf(buffer, "{\"id\":null,\"method\":\"mining.notify\",\"params\":["
+			"\"%x\",\"%s\",\"%s\",\"%s\",\"%s\",[%s],\"%s\",\"%s\",\"%s\",true]}\n",
+			job->id, templ->prevhash_be, templ->claim_be, templ->coinb1, templ->coinb2,
+			templ->txmerkles, templ->version, templ->nbits, templ->ntime);
+		return;
+	}
+
 	sprintf(buffer, "{\"id\":null,\"method\":\"mining.notify\",\"params\":[\"%x\",\"%s\",\"%s\",\"%s\",[%s],\"%s\",\"%s\",\"%s\",true]}\n",
 		job->id, templ->prevhash_be, templ->coinb1, templ->coinb2, templ->txmerkles, templ->version, templ->nbits, templ->ntime);
 }

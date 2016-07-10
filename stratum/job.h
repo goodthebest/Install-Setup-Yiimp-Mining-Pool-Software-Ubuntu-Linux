@@ -27,6 +27,9 @@ struct YAAMP_JOB_TEMPLATE
 	char prevhash_hex[1024];
 	char prevhash_be[1024];
 
+	char claim_hex[128];
+	char claim_be[128];
+
 	int txcount;
 	char txmerkles[YAAMP_SMALLBUFSIZE];
 

@@ -13,6 +13,7 @@ function yaamp_get_algos()
 		'blake2s',
 		'decred',
 		'keccak',
+		'lbry',
 		'luffa',
 		'lyra2',
 		'lyra2v2',
@@ -119,6 +120,7 @@ function getAlgoColors($algo)
 		'dmd-gr'	=> '#a0c0f0',
 		'myr-gr'	=> '#a0c0f0',
 		'keccak'	=> '#c0f0c0',
+		'lbry'		=> '#b0d0e0',
 		'luffa'		=> '#a0c0c0',
 		'm7m'		=> '#d0a0a0',
 		'penta'		=> '#80c0c0',
@@ -150,6 +152,7 @@ function getAlgoPort($algo)
 {
 	$a = array(
 		'sha256'	=> 3333,
+		'lbry'		=> 3334,
 		'scrypt'	=> 3433,
 		'c11'		=> 3573,
 		'x11'		=> 3533,
