@@ -10,6 +10,9 @@ foreach($algos as $a) {
 	else
 		$algo_opts .= "<option value='$a'>$a</option>";
 }
+if (!strstr($algo_opts, 'selected') && $this->admin) {
+	$algo_opts = "<option value=\"$algo\" selected>$algo</option>" . $algo_opts;
+}
 
 echo <<<end
 <div align="right" style="margin-top: -14px; margin-bottom: -6px; margin-right: 140px;">
