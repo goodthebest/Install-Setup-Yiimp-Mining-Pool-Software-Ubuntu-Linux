@@ -75,11 +75,12 @@ public:
 inline void job_delete(YAAMP_OBJECT *object)
 {
 	YAAMP_JOB *job = (YAAMP_JOB *)object;
-	if (job->templ->txcount) {
+	if (!job) return;
+	if (job->templ && job->templ->txcount) {
 		job->templ->txsteps.clear();
 		job->templ->txdata.clear();
 	}
-	delete job->templ;
+	if (job->templ) delete job->templ;
 	delete job;
 }
 
