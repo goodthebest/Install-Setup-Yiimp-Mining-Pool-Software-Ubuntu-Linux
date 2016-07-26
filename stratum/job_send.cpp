@@ -117,14 +117,14 @@ void job_broadcast(YAAMP_JOB *job)
 			client->broadcast_timeouts++;
 			clientlog(client, "unable to send job, sock err %d (%d times)", err, client->broadcast_timeouts);
 			// too much timeouts, disconnect him
-			if (client->broadcast_timeouts > 5) {
+			if (client->broadcast_timeouts >= 3) {
 				shutdown(client->sock->sock, SHUT_RDWR);
 				if(client->workerid && !client->reconnecting) {
-					CommonLock(&g_db_mutex);
+				//	CommonLock(&g_db_mutex);
 					db_clear_worker(g_db, client);
-					CommonUnlock(&g_db_mutex);
+				//	CommonUnlock(&g_db_mutex);
 				}
-				client_delete(client);
+				object_delete(client);
 			}
 		}
 		count++;
