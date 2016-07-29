@@ -15,7 +15,7 @@
 #include <string.h>
 #include <stdio.h>
 
-#include <sha3/sph_types.h>
+#include "sph_types.h"
 
 #include "blake2s.h"
 
