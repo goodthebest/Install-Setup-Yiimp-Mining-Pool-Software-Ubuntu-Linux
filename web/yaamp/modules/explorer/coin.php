@@ -6,7 +6,7 @@ JavascriptFile("/extensions/jqplot/jquery.jqplot.js");
 JavascriptFile("/extensions/jqplot/plugins/jqplot.dateAxisRenderer.js");
 JavascriptFile("/extensions/jqplot/plugins/jqplot.highlighter.js");
 
-$this->pageTitle = $coin->name." bloc explorer";
+$this->pageTitle = $coin->name." block explorer";
 
 $start = (int) getiparam('start');
 

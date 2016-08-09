@@ -14,6 +14,8 @@ function getProductIdSuffix($row)
 		'1458:3649' => 'Black',
 		// Gigabyte 960
 		'1458:36ae' => '4GB',
+		// Gigabyte 1070
+		'1458:3701' => 'G1',
 		// Gigabyte 1080
 		'1458:3702' => 'G1',
 		// MSI 960
@@ -22,8 +24,13 @@ function getProductIdSuffix($row)
 		'1462:3160' => 'Gaming',
 		// MSI 980
 		'1462:3170' => 'Gaming',
+		// MSI 1070
+		'1462:3301' => 'Armor',
+		'1462:3306' => 'Gaming X',
 		// MSI 1080
 		'1462:3362' => 'Gaming',
+		// Zotac 1070
+		'19da:1435' => 'Extreme',
 		// EVGA 740
 		'3842:2744' => 'SC DDR3',
 		// EVGA 750 Ti
@@ -47,7 +54,11 @@ function getProductIdSuffix($row)
 		'3842:2986' => 'FTW',
 		'3842:2989' => 'Hydro',
 		// EVGA 980 Ti
+		'3842:4995' => 'SC+',
 		'3842:1996' => 'Hybrid',
+		// EVGA 1070
+		'3842:6173' => 'SC',
+		'3842:6276' => 'FTW',
 	);
 
 	if (isset($known[$vidpid])) {
@@ -97,7 +108,8 @@ function formatCPU($row)
 		$device = str_replace(' Stepping ', '.', $device);
 		$device = str_replace(' GenuineIntel', ' Intel', $device);
 		$device = str_replace(' AuthenticAMD', ' AMD', $device);
-		// Clean up
+		$device = str_replace(' Quad-Core Processor','', $device);
+		$device = str_replace('(tm)','', $device);
 		if (strpos($device, 'Intel64') !== false && strpos($device, ' Intel')) {
 			$device = str_replace(' Intel','', $device);
 			$device = str_replace('Intel64','Intel', $device);
@@ -108,8 +120,9 @@ function formatCPU($row)
 		}
 		$device = rtrim($device, ',');
 	}
-	$device = str_replace(' APU with Radeon(tm)','', $device);
+	$device = str_replace(' APU with Radeon','', $device);
 	$device = str_replace(' APU with AMD Radeon','', $device);
+	$device = str_replace(' version ',' ', $device);
 	$device = preg_replace('/(HD|R\d) Graphics/','', $device);
 	return trim($device);
 }
@@ -142,6 +155,8 @@ function getChipName($row)
 				$chip = array_pop($words).' '.$chip;
 		}
 	}
+
+	if ($chip == '1060 6GB') $chip = '1060'; // only 6GB, 3GB cancelled
 
 	return $chip;
 }
