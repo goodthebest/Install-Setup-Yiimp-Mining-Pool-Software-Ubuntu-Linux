@@ -28,14 +28,14 @@ foreach(yaamp_get_algos() as $algo)
 	$percent_bad = $percent_bad? round($percent_bad, 1).'%': '';
 
 	$user_rate1 = $user_rate1? Itoa2($user_rate1).'h/s': '-';
-	$minercount = getdbocount('db_workers', "userid=$user->id and algo=:algo", array(':algo'=>$algo));
+	$minercount = getdbocount('db_workers', "userid={$user->id} AND algo=:algo", array(':algo'=>$algo));
 
-	$user_shares = controller()->memcache->get_database_scalar("wallet_user_shares-$user->id-$algo",
-		"select sum(difficulty) from shares where valid and algo=:algo and userid=$user->id", array(':algo'=>$algo));
+	$user_shares = controller()->memcache->get_database_scalar("wallet_user_shares-{$user->id}-$algo",
+		"SELECT sum(difficulty) FROM shares WHERE valid AND algo=:algo AND userid={$user->id}", array(':algo'=>$algo));
 	if(!$user_shares && !$minercount) continue;
 
 	$total_shares = controller()->memcache->get_database_scalar("wallet_total_shares-$algo",
-		"select sum(difficulty) from shares where valid and algo=:algo", array(':algo'=>$algo));
+		"SELECT sum(difficulty) FROM shares WHERE valid AND algo=:algo", array(':algo'=>$algo));
 	if(!$total_shares) continue;
 
 	$percent_shares = round($user_shares * 100 / $total_shares, 4);
@@ -74,26 +74,28 @@ if(count($workers))
 	{
 		$user_rate1 = yaamp_worker_rate($worker->id, $worker->algo);
 		$user_rate1_bad = yaamp_worker_rate_bad($worker->id, $worker->algo);
+		$user_rejects = yaamp_worker_shares_bad($worker->id, $worker->algo);
+		if (!$user_rejects) $user_rejects = '';
 
 		$percent = ($user_rate1 + $user_rate1_bad)? $user_rate1_bad * 100 / ($user_rate1 + $user_rate1_bad): 0;
-		$percent = $percent? round($percent, 1).'%': '';
+		$percent = $percent? round($percent, 2).'%': '';
 
 		$user_rate1 = $user_rate1? Itoa2($user_rate1).'h/s': '';
 
 		$version = substr($worker->version, 0, 20);
-		$password = substr($worker->password, 0, 20);
+		$password = substr($worker->password, 0, 32);
 
 		$subscribe = Booltoa($worker->subscribe);
 
-		echo "<tr class='ssrow'>";
-		echo "<td title='$worker->version'>$version</td>";
-		echo "<td title='$worker->password'>$password</td>";
-		echo "<td>$worker->algo</td>";
-		echo "<td align=right>$worker->difficulty</td>";
-		echo "<td align=right>$subscribe</td>";
-		echo "<td align=right>$user_rate1</td>";
-		echo "<td align=right>$percent</td>";
-		echo "</tr>";
+		echo '<tr class="ssrow">';
+		echo '<td title="'.$worker->version.'">'.$version.'</td>';
+		echo '<td title="'.$worker->password.'">'.$password.'</td>';
+		echo '<td>'.$worker->algo.'</td>';
+		echo '<td align="right">'.$worker->difficulty.'</td>';
+		echo '<td align="right">'.$subscribe.'</td>';
+		echo '<td align="right">'.$user_rate1.'</td>';
+		echo '<td align="center" title="'.$percent.'">'.$user_rejects.'</td>';
+		echo '</tr>';
 	}
 
 	echo "</table>";
