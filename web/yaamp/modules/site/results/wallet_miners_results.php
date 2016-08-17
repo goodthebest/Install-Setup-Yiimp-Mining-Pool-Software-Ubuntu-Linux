@@ -3,11 +3,17 @@
 $user = getuserparam(getparam('address'));
 if(!$user) return;
 
+$userid = intval($user->id);
+$coinid = intval($user->coinid);
+if ($coinid) {
+	$coin = getdbo('db_coins', $coinid);
+}
+
 echo "<div class='main-left-box'>";
-echo "<div class='main-left-title'>Miners: $user->username</div>";
+echo "<div class='main-left-title'>Miners: {$user->username}</div>";
 echo "<div class='main-left-inner'>";
 
-echo "<table  class='dataGrid2'>";
+echo '<table class="dataGrid2">';
 echo "<thead>";
 echo "<tr>";
 echo "<th align=left>Summary</th>";
@@ -20,33 +26,46 @@ echo "</thead>";
 
 foreach(yaamp_get_algos() as $algo)
 {
-//	debuglog($algo);
-	$user_rate1 = yaamp_user_rate($user->id, $algo);
-	$user_rate1_bad = yaamp_user_rate_bad($user->id, $algo);
+	if (!YAAMP_ALLOW_EXCHANGE && $coin && $coin->algo != $algo) continue;
+
+	$user_rate1 = yaamp_user_rate($userid, $algo);
+	$user_rate1_bad = yaamp_user_rate_bad($userid, $algo);
 
 	$percent_bad = ($user_rate1 + $user_rate1_bad)? $user_rate1_bad * 100 / ($user_rate1 + $user_rate1_bad): 0;
 	$percent_bad = $percent_bad? round($percent_bad, 1).'%': '';
 
 	$user_rate1 = $user_rate1? Itoa2($user_rate1).'h/s': '-';
-	$minercount = getdbocount('db_workers', "userid={$user->id} AND algo=:algo", array(':algo'=>$algo));
+	$minercount = getdbocount('db_workers', "userid=$userid AND algo=:algo", array(':algo'=>$algo));
 
-	$user_shares = controller()->memcache->get_database_scalar("wallet_user_shares-{$user->id}-$algo",
-		"SELECT sum(difficulty) FROM shares WHERE valid AND algo=:algo AND userid={$user->id}", array(':algo'=>$algo));
-	if(!$user_shares && !$minercount) continue;
+	if (YAAMP_ALLOW_EXCHANGE || !$user->coinid) {
 
-	$total_shares = controller()->memcache->get_database_scalar("wallet_total_shares-$algo",
-		"SELECT sum(difficulty) FROM shares WHERE valid AND algo=:algo", array(':algo'=>$algo));
+		$user_shares = controller()->memcache->get_database_scalar("wallet_user_shares-$userid-$algo",
+			"SELECT SUM(difficulty) FROM shares WHERE valid AND userid=$userid AND algo=:algo", array(':algo'=>$algo));
+		if(!$user_shares && !$minercount) continue;
+
+		$total_shares = controller()->memcache->get_database_scalar("wallet_total_shares-$algo",
+			"SELECT SUM(difficulty) FROM shares WHERE valid AND algo=:algo", array(':algo'=>$algo));
+
+	} else {
+		// we know the single currency mined if auto exchange is disabled
+		$user_shares = controller()->memcache->get_database_scalar("wallet_user_shares-$algo-$coinid-$userid",
+			"SELECT SUM(difficulty) FROM shares WHERE valid AND userid=$userid AND coinid=$coinid AND algo=:algo", array(':algo'=>$algo));
+		if(!$user_shares) continue;
+
+		$total_shares = controller()->memcache->get_database_scalar("wallet_coin_shares-$coinid",
+			"SELECT SUM(difficulty) FROM shares WHERE valid AND coinid=$coinid AND algo=:algo", array(':algo'=>$algo));
+	}
+
 	if(!$total_shares) continue;
-
 	$percent_shares = round($user_shares * 100 / $total_shares, 4);
 
-	echo "<tr class='ssrow'>";
-	echo "<td><b>$algo</b></td>";
-	echo "<td align=right>$minercount</td>";
-	echo "<td align=right width=100>{$percent_shares}%</td>";
-	echo "<td align=right width=100><b>$user_rate1</b></td>";
-	echo "<td align=right>$percent_bad</td>";
-	echo "</tr>";
+	echo '<tr class="ssrow">';
+	echo '<td><b>'.$algo.'</b></td>';
+	echo '<td align="right">'.$minercount.'</td>';
+	echo '<td align="right" width="100">'.$percent_shares.'%</td>';
+	echo '<td align="right" width="100"><b>'.$user_rate1.'</b></td>';
+	echo '<td align="right">'.$percent_bad.'</td>';
+	echo '</tr>';
 }
 
 echo "</table>";
