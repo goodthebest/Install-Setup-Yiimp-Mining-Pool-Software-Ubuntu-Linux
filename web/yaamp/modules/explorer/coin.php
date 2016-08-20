@@ -27,7 +27,7 @@ END;
 
 // version is used for multi algo coins
 // but each coin use different values...
-$multiAlgos = versionToAlgo($coin, 0) !== false;
+$multiAlgos = $coin->multialgos || versionToAlgo($coin, 0) !== false;
 
 echo '<br/>';
 echo '<div class="main-left-box">';

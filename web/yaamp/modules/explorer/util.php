@@ -149,7 +149,7 @@ function versionToAlgo($coin, $version)
 {
 	// could be filled by block json (chain analysis)
 	$algos['MYR'] = array(
-		0=>'sha256', 1=>'scrypt', 2=>'myr-gr', 3=>'skein', 4=>'qubit'
+		0=>'sha256', 1=>'scrypt', 2=>'myr-gr', 3=>'skein', 4=>'qubit', 5=>'yescrypt'
 	);
 	$algos['DGB'] = array(
 		0=>'scrypt', 1=>'sha256', 2=>'myr-gr', 3=>'skein', 4=>'qubit'
