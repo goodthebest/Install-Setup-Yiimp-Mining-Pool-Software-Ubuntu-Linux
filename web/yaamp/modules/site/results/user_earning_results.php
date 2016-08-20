@@ -21,10 +21,10 @@ $earnings = getdbolist('db_earnings', "userid=$user->id order by create_time des
 echo <<<EOT
 
 <style type="text/css">
-span.block { padding: 2px; display: inline-block; text-align: center; min-width: 75px; }
+span.block { padding: 2px; display: inline-block; text-align: center; min-width: 75px; border-radius: 3px; }
 span.block.immature { color: white; background-color: #f0ad4e; }
 span.block.exchange { color: white; background-color: #5cb85c; }
-span.block.cleared  { color: white; background-color: #5cb85c; }
+span.block.cleared  { color: white; background-color: gray; }
 </style>
 
 <table class="dataGrid2">
@@ -95,7 +95,7 @@ foreach($earnings as $earning)
 		echo '<span class="block immature">Immature ('.$block->confirmations.')</span>';
 
 	else if($earning->status == 1)
-		echo '<span class="block exchange">'.(YAAMP_ALLOW_EXCHANGE ? 'Exchange' : 'Pending').'</span>';
+		echo '<span class="block exchange">'.(YAAMP_ALLOW_EXCHANGE ? 'Exchange' : 'Confirmed').'</span>';
 
 	else if($earning->status == 2)
 		echo '<span class="block cleared">Cleared</span>';

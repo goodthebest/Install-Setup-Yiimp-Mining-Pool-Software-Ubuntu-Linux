@@ -30,7 +30,7 @@ $db_blocks = getdbolistWith('db_blocks', 'coin', $criteria);
 echo <<<EOT
 
 <style type="text/css">
-span.block { padding: 2px; display: inline-block; text-align: center; min-width: 75px; }
+span.block { padding: 2px; display: inline-block; text-align: center; min-width: 75px; border-radius: 3px; }
 span.block.new       { color: white; background-color: #ad4ef0; }
 span.block.orphan    { color: white; background-color: #d9534f; }
 span.block.immature  { color: white; background-color: #f0ad4e; }
