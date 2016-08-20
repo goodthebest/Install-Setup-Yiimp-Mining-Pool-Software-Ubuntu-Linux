@@ -57,6 +57,7 @@ screen -dmS yescrypt $STRATUM_DIR/run.sh yescrypt
 screen -dmS zr5 $STRATUM_DIR/run.sh zr5
 screen -dmS sib $STRATUM_DIR/run.sh sib
 screen -dmS m7m $STRATUM_DIR/run.sh m7m
+screen -dmS veltor $STRATUM_DIR/run.sh veltor
 screen -dmS velvet $STRATUM_DIR/run.sh velvet
 screen -dmS argon2 $STRATUM_DIR/run.sh argon2
 

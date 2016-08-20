@@ -37,6 +37,7 @@ function yaamp_get_algos()
 		'skein',
 		'skein2',
 		'vanilla',
+		'veltor',
 		'velvet',
 		'yescrypt',
 		'whirlpool',
@@ -189,6 +190,7 @@ function getAlgoPort($algo)
 		'penta'		=> 5833,
 		'luffa'		=> 5933,
 		'm7m'		=> 6033,
+		'veltor'	=> 5034,
 		'velvet'	=> 6133,
 		'yescrypt'	=> 6233,
 	);
