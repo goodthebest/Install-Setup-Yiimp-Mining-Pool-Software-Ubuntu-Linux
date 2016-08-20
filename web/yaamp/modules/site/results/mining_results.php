@@ -12,7 +12,7 @@ $showrental = (bool) YAAMP_RENTAL;
 $algo = user()->getState('yaamp-algo');
 
 $total_rate = yaamp_pool_rate();
-$total_rate_d = $total_rate? Itoa2($total_rate).'h/s': '';
+$total_rate_d = $total_rate? 'at '.Itoa2($total_rate).'h/s': '';
 
 if($algo == 'all')
 	$list = getdbolist('db_coins', "enable and visible order by index_avg desc");
@@ -33,7 +33,9 @@ else
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-WriteBoxHeader("Mining $count coins at $total_rate_d * with $worker miners ($algo)");
+$coin_count = $count > 1 ? "on $count wallets" : 'on a single wallet';
+$miner_count = $worker > 1 ? "$worker miners" : "$worker miner";
+WriteBoxHeader("Mining $coin_count $total_rate_d, $miner_count");
 
 showTableSorter('maintable3', "{
 	tableClass: 'dataGrid2',
@@ -52,9 +54,9 @@ echo <<<END
 <th align="right">Amount</th>
 <th data-sorter="numeric" align="right">Diff</th>
 <th align="right">Block</th>
-<th align="right">TTF*</th>
+<th align="right">TTF***</th>
 <th data-sorter="numeric" align="right">Hash**</th>
-<th data-sorter="currency" align="right">Profit***</th>
+<th data-sorter="currency" align="right">Profit*</th>
 </tr>
 </thead>
 END;
@@ -216,9 +218,9 @@ if(isset($price_rent) && $showrental)
 echo "</table>";
 
 echo "<p style='font-size: .8em'>
-		&nbsp;* estimated average time to find a block at full pool speed<br>
+		&nbsp;*** estimated average time to find a block at full pool speed<br>
 		&nbsp;** approximate from the last 5 minutes submitted shares<br>
-		&nbsp;*** mBTC/Mh/day (mBTC/Gh/day for sha256 and blake algos)<br>
+		&nbsp;* 24h estimation from network difficulty in mBTC/Mh/day (mBTC/Gh/day for sha256 and blake algos)<br>
 		</p>";
 
 echo "</div></div><br>";

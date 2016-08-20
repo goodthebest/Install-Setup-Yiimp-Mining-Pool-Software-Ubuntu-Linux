@@ -70,7 +70,7 @@ var global_algo = '$algo';
 
 function select_algo(algo)
 {
-	window.location.href = '/site/algo?algo='+algo;
+	window.location.href = '/site/gomining?algo='+algo;
 }
 
 function page_refresh()

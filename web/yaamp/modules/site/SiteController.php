@@ -1027,7 +1027,8 @@ class SiteController extends CommonController
 
 	public function actionGomining()
 	{
-		user()->setState('yaamp-algo', getparam('algo'));
+		$algo = substr(getparam('algo'), 0, 32);
+		user()->setState('yaamp-algo', $algo);
 		$this->redirect("/site/mining");
 	}
 
