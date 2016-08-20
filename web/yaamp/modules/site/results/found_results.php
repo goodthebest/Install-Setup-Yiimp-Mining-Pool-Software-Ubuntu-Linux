@@ -27,18 +27,29 @@ $criteria->limit = $count;
 $criteria->order = 't.time DESC';
 $db_blocks = getdbolistWith('db_blocks', 'coin', $criteria);
 
-echo "<table class='dataGrid2'>";
-echo "<thead>";
-echo "<tr>";
-echo "<td></td>";
-echo "<th>Name</th>";
-echo "<th align=right>Amount</th>";
-echo "<th align=right>Difficulty</th>";
-echo "<th align=right>Block</th>";
-echo "<th align=right>Time</th>";
-echo "<th align=right>Status</th>";
-echo "</tr>";
-echo "</thead>";
+echo <<<EOT
+
+<style type="text/css">
+span.block { padding: 2px; display: inline-block; text-align: center; min-width: 75px; }
+span.block.new       { color: white; background-color: #ad4ef0; }
+span.block.orphan    { color: white; background-color: #d9534f; }
+span.block.immature  { color: white; background-color: #f0ad4e; }
+span.block.confirmed { color: white; background-color: #5cb85c; }
+</style>
+
+<table class="dataGrid2">
+<thead>
+<tr>
+<td></td>
+<th>Name</th>
+<th align="right">Amount</th>
+<th align="right">Difficulty</th>
+<th align="right">Block</th>
+<th align="right">Time</th>
+<th align="right">Status</th>
+</tr>
+</thead>
+EOT;
 
 foreach($db_blocks as $db_block)
 {
@@ -82,16 +93,16 @@ foreach($db_blocks as $db_block)
 	echo "<td align=right style='font-size: .8em'>";
 
 	if($db_block->category == 'orphan')
-		echo "<span style='padding: 2px; color: white; background-color: #d9534f'>Orphan</span>";
+		echo '<span class="block orphan">Orphan</span>';
 
 	else if($db_block->category == 'immature')
-		echo "<span style='padding: 2px; color: white; background-color: #f0ad4e'>Immature ($db_block->confirmations)</span>";
+		echo '<span class="block immature">Immature ('.$db_block->confirmations.')</span>';
 
 	else if($db_block->category == 'generate')
-		echo "<span style='padding: 2px; color: white; background-color: #5cb85c'>Confirmed</span>";
+		echo '<span class="block confirmed">Confirmed</span>';
 
 	else if($db_block->category == 'new')
-		echo "<span style='padding: 2px; color: white; background-color: #ad4ef0'>New</span>";
+		echo '<span class="block new">New</span>';
 
 	echo "</td>";
 	echo "</tr>";

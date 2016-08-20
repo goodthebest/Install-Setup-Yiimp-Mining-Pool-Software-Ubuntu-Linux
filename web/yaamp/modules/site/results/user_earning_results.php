@@ -18,18 +18,29 @@ $count = $count? $count: 50;
 WriteBoxHeader("Last $count Earnings: $user->username");
 $earnings = getdbolist('db_earnings', "userid=$user->id order by create_time desc limit :count", array(':count'=>$count));
 
-echo "<table class='dataGrid2'>";
-echo "<thead>";
-echo "<tr>";
-echo "<td></td>";
-echo "<th>Name</th>";
-echo "<th align=right>Amount</th>";
-echo "<th align=right>Percent</th>";
-echo "<th align=right>mBTC</th>";
-echo "<th align=right>Time</th>";
-echo "<th align=right>Status</th>";
-echo "</tr>";
-echo "</thead>";
+echo <<<EOT
+
+<style type="text/css">
+span.block { padding: 2px; display: inline-block; text-align: center; min-width: 75px; }
+span.block.immature { color: white; background-color: #f0ad4e; }
+span.block.exchange { color: white; background-color: #5cb85c; }
+span.block.cleared  { color: white; background-color: #5cb85c; }
+</style>
+
+<table class="dataGrid2">
+<thead>
+<tr>
+<td></td>
+<th>Name</th>
+<th align=right>Amount</th>
+<th align=right>Percent</th>
+<th align=right>mBTC</th>
+<th align=right>Time</th>
+<th align=right>Status</th>
+</tr>
+</thead>
+
+EOT;
 
 $showrental = (bool) YAAMP_RENTAL;
 
@@ -81,13 +92,13 @@ foreach($earnings as $earning)
 	echo "<td align=right style='font-size: .8em'>";
 
 	if($earning->status == 0)
-		echo "Immature ($block->confirmations)";
+		echo '<span class="block immature">Immature ('.$block->confirmations.')</span>';
 
 	else if($earning->status == 1)
-		echo 'Exchange';
+		echo '<span class="block exchange">'.(YAAMP_ALLOW_EXCHANGE ? 'Exchange' : 'Pending').'</span>';
 
 	else if($earning->status == 2)
-		echo 'Cleared';
+		echo '<span class="block cleared">Cleared</span>';
 
 	echo "</td>";
 	echo "</tr>";
