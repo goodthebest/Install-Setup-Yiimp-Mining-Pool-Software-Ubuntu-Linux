@@ -60,36 +60,35 @@ foreach($earnings as $earning)
 			continue;
 
 		$reward = bitcoinvaluetoa($earning->amount);
-		$value = altcoinvaluetoa($earning->amount*1000);
-		$percent = $block? mbitcoinvaluetoa($earning->amount*100/$block->amount): '';
-		$algo = $block? $block->algo: '';
+		$value = mbitcoinvaluetoa($earning->amount*1000);
+		$percent = $block->amount ? percentvaluetoa($earning->amount * 100/$block->amount) : 0;
 
-		echo "<tr class='ssrow'>";
-		echo "<td width=18><img width=16 src='/images/btc.png'></td>";
-		echo "<td><b>Rental</b><span style='font-size: .8em'> ($algo)</span></td>";
-		echo "<td align=right style='font-size: .8em'><b>$reward BTC</b></td>";
-		echo "<td align=right style='font-size: .8em'>{$percent}%</td>";
-		echo "<td align=right style='font-size: .8em'>$value</td>";
-		echo "<td align=right style='font-size: .8em'>$d ago</td>";
-		echo "<td align=right style='font-size: .8em'>Cleared</td>";
-		echo "</tr>";
+		echo '<tr class="ssrow">';
+		echo '<td width="18"><img width="16" src="/images/btc.png"></td>';
+		echo '<td><b>Rental</b><span style="font-size: .8em;"> ('.$block->algo.')</span></td>';
+		echo '<td align="right" style="font-size: .8em;"><b>'.$reward.' BTC</b></td>';
+		echo '<td align="right" style="font-size: .8em;">'.$percent.'%</td>';
+		echo '<td align="right" style="font-size: .8em;">'.$value.'</td>';
+		echo '<td align="right" style="font-size: .8em;">'.$d.'&nbsp;ago</td>';
+		echo '<td align="right" style="font-size: .8em;"><span class="block cleared">Cleared</span></td>';
+		echo '</tr>';
 
 		continue;
 	}
 
 	$reward = altcoinvaluetoa($earning->amount);
-	$percent = mbitcoinvaluetoa($earning->amount*100/$block->amount);
-	$value = altcoinvaluetoa($earning->amount*$earning->price*1000);
+	$percent = $block->amount ? percentvaluetoa($earning->amount * 100/$block->amount) : 0;
+	$value = mbitcoinvaluetoa($earning->amount*$earning->price*1000);
 
 	$blockUrl = $coin->createExplorerLink($coin->name, array('height'=>$block->height));
-	echo "<tr class='ssrow'>";
-	echo "<td width=18><img width=16 src='$coin->image'></td>";
-	echo "<td><b>$blockUrl</b><span style='font-size: .8em'> ($coin->algo)</span></td>";
-	echo "<td align=right style='font-size: .8em'><b>$reward $coin->symbol_show</b></td>";
-	echo "<td align=right style='font-size: .8em'>{$percent}%</td>";
-	echo "<td align=right style='font-size: .8em'>$value</td>";
-	echo "<td align=right style='font-size: .8em'>$d ago</td>";
-	echo "<td align=right style='font-size: .8em'>";
+	echo '<tr class="ssrow">';
+	echo '<td width="18"><img width="16" src="'.$coin->image.'"></td>';
+	echo '<td><b>'.$blockUrl.'</b><span style="font-size: .8em;"> ('.$coin->algo.')</span></td>';
+	echo '<td align="right" style="font-size: .8em;"><b>'.$reward.' '.$coin->symbol_show.'</b></td>';
+	echo '<td align="right" style="font-size: .8em;">'.$percent.'%</td>';
+	echo '<td align="right" style="font-size: .8em;">'.$value.'</td>';
+	echo '<td align="right" style="font-size: .8em;">'.$d.'&nbsp;ago</td>';
+	echo '<td align="right" style="font-size: .8em;">';
 
 	if($earning->status == 0)
 		echo '<span class="block immature">Immature ('.$block->confirmations.')</span>';

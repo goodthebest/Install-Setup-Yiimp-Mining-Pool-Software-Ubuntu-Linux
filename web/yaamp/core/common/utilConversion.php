@@ -104,12 +104,17 @@ function bitcoinvaluetoa($v)
 
 function mbitcoinvaluetoa($v)
 {
-	return sprintf('%.4f', round($v, 4, PHP_ROUND_HALF_DOWN));
+	return sprintf('%.5f', round($v, 5, PHP_ROUND_HALF_DOWN));
 }
 
 function altcoinvaluetoa($v)
 {
 	return sprintf('%.6f', round($v, 6, PHP_ROUND_HALF_DOWN));
+}
+
+function percentvaluetoa($v)
+{
+	return sprintf('%.3f', round($v, 3, PHP_ROUND_HALF_DOWN));
 }
 
 function timestampfromstr($str)
