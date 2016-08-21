@@ -75,11 +75,20 @@ echo <<<END
 <th data-sorter="text" width="70">Chip</th>
 <th data-sorter="numeric" width="220">Hashrate</th>
 <th data-sorter="numeric" width="220">Power</th>
+<th data-sorter="currency" title="mBTC/day">Cost*</th>
+<th data-sorter="currency" title="mBTC/day">Reward</th>
+<th data-sorter="currency" title="mBTC/day">Profit**</th>
 <th data-sorter="numeric" width="220">Int</th>
 <th data-sorter="numeric" width="220">Freq</th>
 </tr>
 </thead><tbody>
 END;
+
+if ($algo != 'all') {
+	$t1 = time() - 24*60*60;
+	$algo_24E = dboscalar("SELECT avg(price) FROM hashrate WHERE time>$t1 AND algo=:algo", array(':algo'=>$algo));
+	$algo_24E = $algo_24E / (1000 * yaamp_algo_mBTC_factor($algo)); // mBTC per kHs
+}
 
 foreach ($in_db as $row) {
 	echo '<tr class="ssrow">';
@@ -90,8 +99,22 @@ foreach ($in_db as $row) {
 	$chip = CHtml::link($row['chip'], '/bench?chip='.$row['idchip'].'&algo='.$algo);
 	echo '<td>'.$chip.'</td>';
 
+	$cost = powercost_mBTC($row['power']);
+	$reward = $row['khps']*$algo_24E;
+
 	echo '<td data="'.$row['khps'].'">'.Itoa2(1000*round($row['khps'],3),3).'H</td>';
 	echo '<td>'.($power>0 ? round($power) : '-').'</td>';
+	echo '<td>'.($power>0 ? mbitcoinvaluetoa($cost) : '-').'</td>';
+	if (isset($algo_24E)) {
+		echo '<td>'.mbitcoinvaluetoa($reward).'</td>';
+		if ($reward < $cost)
+			echo '<td class="red">'.($power>0 ? mbitcoinvaluetoa($reward - $cost) : '-').'</td>';
+		else
+			echo '<td>'.($power>0 ? mbitcoinvaluetoa($reward - $cost) : '-').'</td>';
+	} else {
+		echo '<td>-</td>';
+		echo '<td>-</td>';
+	}
 	echo '<td>'.($row['intensity']>0 ? round($row['intensity']) : '-').'</td>';
 	echo '<td>'.($row['freq']>0 ? round($row['freq']) : '-').'</td>';
 
@@ -100,7 +123,10 @@ foreach ($in_db as $row) {
 
 echo '</tbody></table><br/>';
 
-echo '<a href="/bench/devices">Show current state of the database (devices/algos)</a><br/>';
+echo '* Device power cost per day based on '.YIIMP_KWH_USD_PRICE.' USD per kWh<br/>';
+echo '** Reward and profit are based on the average estimates from the last 24 hours<br/><br/>';
+
+echo '<a href="/bench/devices">Show current devices in the database</a><br/>';
 echo '<a href="/site/benchmarks">Learn how to submit your results</a>';
 echo '<br/><br/>';
 

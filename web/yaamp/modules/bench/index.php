@@ -115,6 +115,7 @@ echo <<<END
 <th data-sorter="numeric" title="Intensity (-i) for GPU or Threads (-t) for CPU miners">Int.</th>
 <th data-sorter="numeric" title="MHz">Freq</th>
 <th data-sorter="numeric" title="Watts if available">W</th>
+<th data-sorter="currency" title="mBTC/day">Cost</th>
 <th data-sorter="text">Client</th>
 <th data-sorter="text">OS</th>
 <th data-sorter="text">Driver / Compiler</th>
@@ -156,6 +157,7 @@ foreach ($db_rows as $row) {
 
 	echo '<td>'.($row['freq'] ? $row['freq'] : '-').'</td>';
 	echo '<td>'.(empty($row['power']) ? '-' : $row['power']).'</td>';
+	echo '<td>'.(empty($row['power']) ? '-' : mbitcoinvaluetoa(powercost_mBTC($row['power']))).'</td>';
 	echo '<td>'.formatClientName($row['client']).'</td>';
 	echo '<td>'.$row['os'].'</td>';
 	echo '<td>'.$row['driver'].'</td>';
@@ -198,6 +200,7 @@ if (!empty($algo)) {
 		echo '<th>'.($avg['intensity'] ? round($avg['intensity'],1) : '').'</td>';
 		echo '<th>'.($avg['freq'] ? round($avg['freq']) : '').'</td>';
 		echo '<th>'.($avg['power'] ? round($avg['power']) : '').'</td>';
+		echo '<th>'.($avg['power'] ? mbitcoinvaluetoa(powercost_mBTC($avg['power'])) : '').'</td>';
 
 		$hpw = 0;
 		if (floatval($avg['power']) > 0) {
@@ -216,7 +219,8 @@ echo'</table><br/>';
 echo <<<end
 
 <p style="margin: 0; padding: 0 4px;">
-<a href="/bench/devices">Show current state of the database (devices/algos)</a><br/>
+<a href="/bench/devices">Show current devices in the database</a><br/>
+<a href="/site/benchmarks">Learn how to submit your results</a><br/>
 <br/>
 </p>
 

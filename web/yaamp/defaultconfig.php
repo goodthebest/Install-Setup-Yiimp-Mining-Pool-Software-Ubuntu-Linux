@@ -14,6 +14,7 @@ if (!defined('YAAMP_DBPASSWORD')) define('YAAMP_DBPASSWORD', '');
 if (!defined('YIIMP_PUBLIC_EXPLORER')) define('YIIMP_PUBLIC_EXPLORER', true);
 if (!defined('YIIMP_PUBLIC_BENCHMARK')) define('YIIMP_PUBLIC_BENCHMARK', false);
 if (!defined('YIIMP_FIAT_ALTERNATIVE')) define('YIIMP_FIAT_ALTERNATIVE', 'EUR');
+if (!defined('YIIMP_KWH_USD_PRICE')) define('YIIMP_KWH_USD_PRICE', 0.25);
 
 if (!defined('YAAMP_FEES_MINING')) define('YAAMP_FEES_MINING', 0.5);
 if (!defined('YAAMP_FEES_EXCHANGE')) define('YAAMP_FEES_EXCHANGE', 2);
@@ -55,4 +56,5 @@ if (!defined('NICEHASH_API_KEY')) define('NICEHASH_API_KEY','');
 if (!defined('NICEHASH_API_ID')) define('NICEHASH_API_ID','0000');
 if (!defined('NICEHASH_DEPOSIT')) define('NICEHASH_DEPOSIT','');
 if (!defined('NICEHASH_DEPOSIT_AMOUNT')) define('NICEHASH_DEPOSIT_AMOUNT','0.01');
+
 
