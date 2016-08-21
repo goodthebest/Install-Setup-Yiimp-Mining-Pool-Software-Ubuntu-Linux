@@ -94,7 +94,7 @@ Select Algo: <select id='algo_select'>$string</select>&nbsp;
 $('#algo_select').change(function(event)
 {
 	var algo = $('#algo_select').val();
-	window.location.href = '/site/algo?algo='+algo;
+	window.location.href = '/site/algo?algo='+algo+'&r=/stats';
 });
 
 </script>

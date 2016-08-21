@@ -1022,7 +1022,11 @@ class SiteController extends CommonController
 		else
 			user()->setState('yaamp-algo', 'all');
 
-		$this->goback();
+		$route = getparam('r');
+		if (!empty($route))
+			$this->redirect($route);
+		else
+			$this->goback();
 	}
 
 	public function actionGomining()

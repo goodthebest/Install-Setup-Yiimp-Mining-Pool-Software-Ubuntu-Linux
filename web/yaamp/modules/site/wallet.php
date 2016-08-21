@@ -1,7 +1,5 @@
 <?php
 
-$algo = user()->getState('yaamp-algo');
-
 JavascriptFile("/extensions/jqplot/jquery.jqplot.js");
 JavascriptFile("/extensions/jqplot/plugins/jqplot.dateAxisRenderer.js");
 JavascriptFile("/extensions/jqplot/plugins/jqplot.barRenderer.js");
@@ -18,9 +16,8 @@ if($user)
 
 	$coin = getdbo('db_coins', $user->coinid);
 	if($coin) echo <<<END
-	<script>
-	$(function()
-	{
+	<script type="text/javascript">
+	$(function() {
 		$('#favicon').remove();
 		$('head').append('<link href="$coin->image" id="favicon" rel="shortcut icon">');
 	});
@@ -31,12 +28,6 @@ END;
 		$user->hostaddr = $_SERVER['REMOTE_ADDR'];
 		$user->save();
 	}
-
-// 	if(!$this->admin && count($recents) > 5)
-// 	{
-// 		debuglog("$user->id, $user->username, $user->balance");
-// 		debuglog($recents);
-// 	}
 }
 
 $username = $user? $user->username: '';
@@ -175,7 +166,7 @@ function page_refresh()
 
 function select_algo(algo)
 {
-	window.location.href = '/site/algo?algo='+algo;
+	window.location.href = '/site/algo?algo='+algo+'&r=/site/mining';
 }
 
 ////////////////////////////////////////////////////
