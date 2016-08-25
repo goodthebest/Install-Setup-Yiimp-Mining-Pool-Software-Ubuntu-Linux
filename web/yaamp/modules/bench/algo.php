@@ -72,7 +72,7 @@ echo <<<END
 <thead>
 <tr>
 <th data-sorter="text" width="50">Type</th>
-<th data-sorter="text" width="70">Chip</th>
+<th data-sorter="text" width="220">Chip</th>
 <th data-sorter="numeric" width="220">Hashrate</th>
 <th data-sorter="numeric" width="220">Power</th>
 <th data-sorter="currency" title="mBTC/day">Cost*</th>
@@ -99,7 +99,7 @@ foreach ($in_db as $row) {
 	$chip = CHtml::link($row['chip'], '/bench?chip='.$row['idchip'].'&algo='.$algo);
 	echo '<td>'.$chip.'</td>';
 
-	$cost = powercost_mBTC($row['power']);
+	$cost = powercost_mBTC($power);
 	$reward = $row['khps']*$algo_24E;
 
 	echo '<td data="'.$row['khps'].'">'.Itoa2(1000*round($row['khps'],3),3).'H</td>';
