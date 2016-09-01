@@ -14,16 +14,20 @@ JavascriptFile('/yaamp/ui/js/auto_refresh.js');
 $hour = 60 * 60;
 $days = 24 * $hour;
 
-$dbMax = (int) dboscalar("SELECT max(time-30*60) from hashstats WHERE time>:t AND algo=:algo", array(':t'=>time()-2*$hour,':algo'=>$algo));
+$dbMax = (int) controller()->memcache->get_database_scalar("stats_maxt-$algo",
+	"SELECT (MAX(time)-30*60) FROM hashstats WHERE time>:t AND algo=:algo", array(':t'=>time()-2*$hour,':algo'=>$algo));
 $dtMax = max(time()-$hour, $dbMax);
 
 $t1 = $dtMax - 2*$days;
 $t2 = $dtMax - 7*$days;
 $t3 = $dtMax - 30*$days;
 
-$row1 = dborow("SELECT avg(hashrate) as a, sum(earnings) as b FROM hashstats WHERE time>=$t1 AND algo=:algo", array(':algo'=>$algo));
-$row2 = dborow("SELECT avg(hashrate) as a, sum(earnings) as b FROM hashstats WHERE time>=$t2 AND algo=:algo", array(':algo'=>$algo));
-$row3 = dborow("SELECT avg(hashrate) as a, sum(earnings) as b FROM hashstats WHERE time>=$t3 AND algo=:algo", array(':algo'=>$algo));
+$row1 = controller()->memcache->get_database_row("stats_col1-$algo",
+	"SELECT AVG(hashrate) as a, SUM(earnings) as b FROM hashstats WHERE time>$t1 AND algo=:algo", array(':algo'=>$algo));
+$row2 = controller()->memcache->get_database_row("stats_col2-$algo",
+	"SELECT AVG(hashrate) as a, SUM(earnings) as b FROM hashstats WHERE time>$t2 AND algo=:algo", array(':algo'=>$algo));
+$row3 = controller()->memcache->get_database_row("stats_col3-$algo",
+	"SELECT AVG(hashrate) as a, SUM(earnings) as b FROM hashstats WHERE time>$t3 AND algo=:algo", array(':algo'=>$algo));
 
 if($row1['a']>0 && $row2['a']>0 && $row3['a']>0)
 {

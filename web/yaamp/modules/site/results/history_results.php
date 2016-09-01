@@ -70,17 +70,31 @@ foreach($list as $item)
 		array(':algo'=>$algo));
 
 	$res3 = controller()->memcache->get_database_row("history_item3-$id-$algo",
-		"SELECT COUNT(id) as a, SUM(amount*price) as b FROM blocks WHERE coin_id=$id AND NOT category IN ('orphan','stake','generated') AND time>$t3 AND algo=:algo",
+		"SELECT COUNT(id) as a, SUM(amount*price) as b, MIN(time) as t FROM blocks WHERE coin_id=$id AND NOT category IN ('orphan','stake','generated') AND time>$t3 AND algo=:algo",
 		array(':algo'=>$algo));
 
 	$res4 = controller()->memcache->get_database_row("history_item4-$id-$algo",
-		"SELECT COUNT(id) as a, SUM(amount*price) as b FROM blocks WHERE coin_id=$id AND NOT category IN ('orphan','stake','generated') AND time>$t4 AND algo=:algo",
+		"SELECT COUNT(id) as a, SUM(amount*price) as b, MIN(time) as t FROM blocks WHERE coin_id=$id AND NOT category IN ('orphan','stake','generated') AND time>$t4 AND algo=:algo",
 		array(':algo'=>$algo));
 
 	$total1 += $res1['b'];
 	$total2 += $res2['b'];
 	$total3 += $res3['b'];
 	$total4 += $res4['b'];
+
+	if ($res3['a'] == $res2['a'] || count($list) == 1) {
+		// blocks table may be purged before 7 days, so use same source as stat graphs
+		// TODO: add block count in hashstats or keep longer cleared blocks
+		if ($res3['t'] > ($t3 + 24*60*60)) $res3['a'] = '-';
+		$total3 = controller()->memcache->get_database_scalar("history_item3-$id-$algo-btc",
+			"SELECT SUM(earnings) as b FROM hashstats WHERE time>$t3 AND algo=:algo", array(':algo'=>$algo));
+	}
+
+	if ($res4['a'] == $res3['a'] || count($list) == 1) {
+		$res4['a'] = '-';
+		$total4 = controller()->memcache->get_database_scalar("history_item4-$id-$algo-btc",
+			"SELECT SUM(earnings) as b FROM hashstats WHERE time>$t4 AND algo=:algo", array(':algo'=>$algo));
+	}
 
 	$name = substr($coin->name, 0, 12);
 
