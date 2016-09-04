@@ -75,6 +75,11 @@ function BackendBlockFind1($coinid = NULL)
 	foreach($list as $db_block)
 	{
 		$coin = getdbo('db_coins', $db_block->coin_id);
+		if(!$coin || !$db_block->coin_id) {
+			debuglog("warning: bad coin id {$db_block->coin_id} for block id {$db_block->id}!");
+			$db_block->delete();
+			continue;
+		}
 		if(!$coin->enable) continue;
 
 		$db_block->category = 'orphan';
@@ -152,6 +157,7 @@ function BackendBlocksUpdate($coinid = NULL)
 	{
 		$coin = getdbo('db_coins', $block->coin_id);
 		if(!$block->coin_id || !$coin) {
+			debuglog("warning: bad coin id {$block->coin_id} for block id {$block->id}!");
 			$block->delete();
 			continue;
 		}
