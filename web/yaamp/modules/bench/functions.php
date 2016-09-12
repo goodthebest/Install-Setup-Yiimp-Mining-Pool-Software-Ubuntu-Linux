@@ -156,8 +156,6 @@ function getChipName($row)
 		}
 	}
 
-	if ($chip == '1060 6GB') $chip = '1060'; // only 6GB, 3GB cancelled
-
 	return $chip;
 }
 
