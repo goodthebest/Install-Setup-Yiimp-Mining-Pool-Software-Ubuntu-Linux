@@ -187,8 +187,8 @@ class ApiController extends CommonController
 
 		$total_unsold = yaamp_convert_earnings_user($user, "status!=2");
 
-		$total_paid = bitcoinvaluetoa(controller()->memcache->get_database_scalar("api_wallet_paid-$user->id",
-			"select sum(amount) from payouts where account_id=$user->id"));
+		$total_paid = bitcoinvaluetoa(controller()->memcache->get_database_scalar("api_wallet_paid-".$user->id,
+			"SELECT SUM(amount) FROM payouts WHERE account_id=".$user->id));
 
 		$balance = bitcoinvaluetoa($user->balance);
 		$total_unpaid = bitcoinvaluetoa($balance + $total_unsold);
@@ -198,7 +198,7 @@ class ApiController extends CommonController
 		if(!$coin) return;
 
 		echo "{";
-		echo "\"currency\": \"$coin->symbol\", ";
+		echo "\"currency\": ".json_encode($coin->symbol).", ";
 		echo "\"unsold\": $total_unsold, ";
 		echo "\"balance\": $balance, ";
 		echo "\"unpaid\": $total_unpaid, ";
@@ -208,7 +208,7 @@ class ApiController extends CommonController
 		echo "\"miners\": ";
 		echo "[";
 
-		$workers = getdbolist('db_workers', "userid=$user->id order by password");
+		$workers = getdbolist('db_workers', "userid={$user->id} ORDER BY password");
 		foreach($workers as $i=>$worker)
 		{
 			$user_rate1 = yaamp_worker_rate($worker->id, $worker->algo);
@@ -217,12 +217,12 @@ class ApiController extends CommonController
 			if($i) echo ", ";
 
 			echo "{";
-			echo "\"version\": \"$worker->version\", ";
-			echo "\"password\": \"$worker->password\", ";
-			echo "\"ID\": \"$worker->worker\", ";
+			echo "\"version\": ".json_encode($worker->version).", ";
+			echo "\"password\": ".json_encode($worker->password).", ";
+			echo "\"ID\": ".json_encode($worker->worker).", ";
 			echo "\"algo\": \"$worker->algo\", ";
-			echo "\"difficulty\": $worker->difficulty, ";
-			echo "\"subscribe\": $worker->subscribe, ";
+			echo "\"difficulty\": ".doubleval($worker->difficulty).", ";
+			echo "\"subscribe\": ".intval($worker->subscribe).", ";
 			echo "\"accepted\": ".round($user_rate1,3).", ";
 			echo "\"rejected\": ".round($user_rate1_bad,3);
 			echo "}";
