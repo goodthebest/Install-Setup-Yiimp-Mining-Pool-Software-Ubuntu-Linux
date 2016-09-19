@@ -6,33 +6,6 @@
 
 <p>Simple REST API.</p>
 
-<p><b>Pool Status</b></p>
-
-request:
-<p class="main-left-box" style='padding: 3px; font-size: .8em; background-color: #ffffee; font-family: monospace;'>
-	http://<?=YAAMP_SITE_URL?>/api/status</p>
-
-result:
-<pre class="main-left-box" style='padding: 3px; font-size: .8em; background-color: #ffffee; font-family: monospace;'>
-{
-	"x11":
-	{
-		"coins": 10,
-		"fees": 1,
-		"hashrate": 269473938,
-		"workers": 1,
-		"lastbloc": 35101,
-		"timesincelast": 437,
-		"estimate_current": 0.00053653,
-		"estimate_last24h": 0.00036408,
-		"actual_last24h": 0.00035620
-	},
-
-	...
-}
-</pre>
-
-
 <p><b>Wallet Status</b></p>
 
 request:
@@ -75,6 +48,56 @@ result:
 }
 </pre>
 
+
+<p><b>Pool Status</b></p>
+
+request:
+<p class="main-left-box" style='padding: 3px; font-size: .8em; background-color: #ffffee; font-family: monospace;'>
+	http://<?=YAAMP_SITE_URL?>/api/status</p>
+
+result:
+<pre class="main-left-box" style='padding: 3px; font-size: .8em; background-color: #ffffee; font-family: monospace;'>
+{
+	"x11": {
+		"name": "blake",
+		"port": 5733,
+		"coins": 10,
+		"fees": 1,
+		"hashrate": 269473938,
+		"workers": 1,
+		"estimate_current": "0.00053653",
+		"estimate_last24h": "0.00036408",
+		"actual_last24h": "0.00035620",
+		"rental_current": "3.61922463"
+	},
+
+	...
+}
+</pre>
+
+
+request:
+<p class="main-left-box" style='padding: 3px; font-size: .8em; background-color: #ffffee; font-family: monospace;'>
+	http://<?=YAAMP_SITE_URL?>/api/currencies</p>
+
+result:
+<pre class="main-left-box" style='padding: 3px; font-size: .8em; background-color: #ffffee; font-family: monospace;'>
+{
+	"AMBER": {
+		"algo": "x13",
+		"port": 3633,
+		"name": "AmberCoin",
+		"height": 1349673,
+		"workers": 0,
+		"shares": 1,
+		"hashrate": 0,
+		"lastblock": 1347605,
+		"timesincelast": 56337
+	},
+
+	...
+}
+</pre>
 
 <?php if (YAAMP_RENTAL) : ?>
 
