@@ -37,7 +37,7 @@ result:
 
 request:
 <p class="main-left-box" style='padding: 3px; font-size: .8em; background-color: #ffffee; font-family: monospace;'>
-	http://<?=YAAMP_SITE_URL?>/api/wallet?address=BITCOIN_WALLET</p>
+	http://<?=YAAMP_SITE_URL?>/api/wallet?address=<b>WALLET_ADDRESS</b></p>
 
 result:
 <pre class="main-left-box" style='padding: 3px; font-size: .8em; background-color: #ffffee; font-family: monospace;'>
@@ -49,6 +49,32 @@ result:
 	"total": 0.00050362
 }
 </pre>
+
+request:
+<p class="main-left-box" style='padding: 3px; font-size: .8em; background-color: #ffffee; font-family: monospace;'>
+        http://<?=YAAMP_SITE_URL?>/api/walletEx?address=<b>WALLET_ADDRESS</b></p>
+
+result:
+<pre class="main-left-box" style='padding: 3px; font-size: .8em; background-color: #ffffee; font-family: monospace;'>
+{
+	"unsold": 0.00050362,
+	"balance": 0.00000000,
+	"unpaid": 0.00050362,
+	"paid": 0.00000000,
+	"total": 0.00050362,
+	"miners":[{
+		"version":"ccminer/1.8.2",
+		"password":"d=96",
+		"ID":"",
+		"algo":"decred",
+		"difficulty":96,
+		"subscribe":1,
+		"accepted":82463372.083,
+		"rejected":0
+	}]
+}
+</pre>
+
 
 <?php if (YAAMP_RENTAL) : ?>
 

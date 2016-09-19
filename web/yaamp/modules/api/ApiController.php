@@ -25,19 +25,6 @@ class ApiController extends CommonController
 				array(':algo'=>$algo)
 			);
 
-			$timesincelast = (int) controller()->memcache->get_database_scalar("api_status_lastbloctime-$algo",
-				"select time FROM blocks WHERE algo=:algo AND category IN ('immature','generate') ORDER BY time DESC LIMIT 1",
-				array(':algo'=>$algo)
-			);
-			if ($timesincelast > 0) {
-				$timesincelast = (time() - $timesincelast);
-			}
-
-			$lastbloc = (int) controller()->memcache->get_database_scalar("api_status_lastbloc-$algo",
-				"select height FROM blocks WHERE algo=:algo AND category IN ('immature','generate') ORDER BY time DESC LIMIT 1",
-				array(':algo'=>$algo)
-			);
-
 			$hashrate = controller()->memcache->get_database_scalar("api_status_hashrate-$algo",
 				"select hashrate from hashrate where algo=:algo order by time desc limit 1", array(':algo'=>$algo));
 
@@ -61,30 +48,26 @@ class ApiController extends CommonController
 			$total1 = controller()->memcache->get_database_scalar("api_status_total-$algo",
 				"select sum(amount*price) from blocks where category!='orphan' and time>$t and algo=:algo", array(':algo'=>$algo));
 
-			$hashrate1 = controller()->memcache->get_database_scalar("api_status_avghashrate-$algo",
+			$hashrate1 = (double) controller()->memcache->get_database_scalar("api_status_avghashrate-$algo",
 				"select avg(hashrate) from hashrate where time>$t and algo=:algo", array(':algo'=>$algo));
 
 			$algo_unit_factor = yaamp_algo_mBTC_factor($algo);
-			$btcmhday1 = $hashrate1 != 0? mbitcoinvaluetoa($total1 / $hashrate1 * 1000000 * 1000 * $algo_unit_factor): '';
+			$btcmhday1 = $hashrate1 > 0 ? mbitcoinvaluetoa($total1 / $hashrate1 * 1000000 * 1000 * $algo_unit_factor) : 0;
 
 			$fees = yaamp_fee($algo);
 			$port = getAlgoPort($algo);
-			if($port == '-') $port = 0;
 
 			$stat  = array(
 				"name" => $algo,
-				"port" => $port,
+				"port" => (int) $port,
 				"coins" => $coins,
-				"fees" => $fees,
-				"hashrate" => $hashrate,
-				"workers" => $workers,
+				"fees" => (double) $fees,
+				"hashrate" => (double) $hashrate,
+				"workers" => (int) $workers,
 				"estimate_current" => $price,
 				"estimate_last24h" => $avgprice,
 				"actual_last24h" => $btcmhday1,
 				"rental_current" => $rental,
-				// deprecated (now in api/currencies)
-				"lastbloc" => $lastbloc,
-				"timesincelast" => $timesincelast,
 			);
 			$stats[$algo] = $stat;
 		}
@@ -100,7 +83,7 @@ class ApiController extends CommonController
 		$json = memcache_get($memcache, "api_currencies");
 		if (empty($json)) {
 
-			if(!LimitRequest('api-status', 10)) return;
+			if(!LimitRequest('api-currencies', 10)) return;
 
 			$data = array();
 			$coins = getdbolist('db_coins', "enable AND visible AND auto_ready AND IFNULL(algo,'PoS')!='PoS' ORDER BY symbol");
@@ -240,8 +223,8 @@ class ApiController extends CommonController
 			echo "\"algo\": \"$worker->algo\", ";
 			echo "\"difficulty\": $worker->difficulty, ";
 			echo "\"subscribe\": $worker->subscribe, ";
-			echo "\"accepted\": $user_rate1, ";
-			echo "\"rejected\": $user_rate1_bad";
+			echo "\"accepted\": ".round($user_rate1,3).", ";
+			echo "\"rejected\": ".round($user_rate1_bad,3);
 			echo "}";
 		}
 
