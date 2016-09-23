@@ -7,6 +7,7 @@ function updateRawcoins()
 	exchange_set_default('cryptsy', 'disabled', true);
 	exchange_set_default('empoex', 'disabled', true);
 	exchange_set_default('safecex', 'disabled', true);
+	exchange_set_default('cryptomic', 'disabled', true);
 
 	settings_prefetch_all();
 
