@@ -76,6 +76,10 @@ echo <<<END
 END;
 
 foreach ($in_db as $row) {
+
+	// ignore virtual devices
+	if ($row['chip'] == 'Virtual') continue;
+
 	echo '<tr class="ssrow">';
 
 	$vendorid = $row['vendorid'];

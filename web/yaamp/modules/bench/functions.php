@@ -124,6 +124,12 @@ function formatCPU($row)
 	$device = str_replace(' APU with AMD Radeon','', $device);
 	$device = str_replace(' version ',' ', $device);
 	$device = preg_replace('/(HD|R\d) Graphics/','', $device);
+	// VIA Nano processor U2250 (1.6GHz Capable)
+	$device = str_replace(' (1.6GHz Capable)','', $device);
+	if (stristr($device, 'Virtual CPU') || stristr($device, 'QEMU')) {
+		$row['chip'] = 'Virtual';
+		$device = 'Virtual';
+	}
 	return trim($device);
 }
 

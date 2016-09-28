@@ -127,6 +127,7 @@ END;
 foreach ($db_rows as $row) {
 
 	if (!isset($row['algo'])) continue;
+	if ($row['chip'] == 'Virtual') continue;
 
 	echo '<tr class="ssrow">';
 

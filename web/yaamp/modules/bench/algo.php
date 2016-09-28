@@ -91,6 +91,9 @@ if ($algo != 'all') {
 }
 
 foreach ($in_db as $row) {
+
+	if ($row['chip'] == 'Virtual') continue;
+
 	echo '<tr class="ssrow">';
 
 	echo '<td>'.strtoupper($row['type']).'</td>';
