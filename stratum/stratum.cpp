@@ -98,6 +98,7 @@ YAAMP_ALGO g_algos[] =
 	{"x17", x17_hash, 1, 0, 0},
 
 	{"x11evo", x11evo_hash, 1, 0, 0},
+	{"xevan", xevan_hash, 0x100, 0, 0},
 
 	{"lyra2", lyra2re_hash, 0x80, 0, 0},
 	{"lyra2v2", lyra2v2_hash, 0x100, 0, 0},

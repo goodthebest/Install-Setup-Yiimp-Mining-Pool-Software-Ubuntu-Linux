@@ -26,6 +26,7 @@ screen -dmS x13 $STRATUM_DIR/run.sh x13
 screen -dmS x14 $STRATUM_DIR/run.sh x14
 screen -dmS x15 $STRATUM_DIR/run.sh x15
 screen -dmS x17 $STRATUM_DIR/run.sh x17
+screen -dmS xevan $STRATUM_DIR/run.sh xevan
 
 screen -dmS sha $STRATUM_DIR/run.sh sha
 screen -dmS scrypt $STRATUM_DIR/run.sh scrypt
