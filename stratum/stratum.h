@@ -78,6 +78,7 @@ extern char g_sql_password[1024];
 extern char g_stratum_algo[1024];
 extern double g_stratum_difficulty;
 
+extern int g_stratum_max_cons;
 extern int g_stratum_max_ttf;
 extern bool g_stratum_reconnect;
 extern bool g_stratum_renting;
