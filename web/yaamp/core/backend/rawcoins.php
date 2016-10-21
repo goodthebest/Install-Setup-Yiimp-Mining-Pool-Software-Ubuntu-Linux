@@ -4,10 +4,7 @@ function updateRawcoins()
 {
 //	debuglog(__FUNCTION__);
 
-	exchange_set_default('cryptsy', 'disabled', true);
 	exchange_set_default('empoex', 'disabled', true);
-	exchange_set_default('safecex', 'disabled', true);
-	exchange_set_default('cryptomic', 'disabled', true);
 
 	settings_prefetch_all();
 
@@ -85,16 +82,6 @@ function updateRawcoins()
 		}
 	}
 
-	if (!exchange_get('cryptsy', 'disabled')) {
-		$list = cryptsy_api_query('getmarkets');
-		if(isset($list['return']))
-		{
-			dborun("UPDATE markets SET deleted=true WHERE name='cryptsy'");
-			foreach($list['return'] as $item)
-				updateRawCoin('cryptsy', $item['primary_currency_code'], $item['primary_currency_name']);
-		}
-	}
-
 	if (!exchange_get('yobit', 'disabled')) {
 		$res = yobit_api_query('info');
 		if($res)
@@ -105,21 +92,6 @@ function updateRawcoins()
 				$e = explode('_', $i);
 				$symbol = strtoupper($e[0]);
 				updateRawCoin('yobit', $symbol);
-			}
-		}
-	}
-
-	if (!exchange_get('safecex', 'disabled')) {
-		$list = safecex_api_query('getmarkets');
-		if(!empty($list))
-		{
-			dborun("UPDATE markets SET deleted=true WHERE name='safecex'");
-			foreach($list as $pair => $item) {
-				$e = explode('/', $item->market);
-				if (strtoupper($e[1]) !== 'BTC')
-					continue;
-				$symbol = strtoupper($e[0]);
-				updateRawCoin('safecex', $symbol, $item->name);
 			}
 		}
 	}
@@ -165,26 +137,6 @@ function updateRawcoins()
 				$e = explode('_', $item->Pair);
 				$symbol = strtoupper($e[0]);
 				updateRawCoin('alcurex', $symbol);
-			}
-		}
-	}
-
-	if (!exchange_get('cryptomic', 'disabled')) {
-		$list = cryptomic_api_simple('marketsv2');
-		if(is_array($list))
-		{
-			dborun("UPDATE markets SET name='cryptomic', deleted=true WHERE name IN ('cryptomic','banx')");
-			foreach($list as $item) {
-				$e = explode('/', $item['market']);
-				$base = strtoupper($e[1]);
-				if ($base != 'BTC')
-					continue;
-				$symbol = strtoupper($e[0]);
-				if ($symbol == 'ATP')
-					continue;
-				$name = explode('/', $item['marketname']);
-				updateRawCoin('cryptomic', $symbol, $name[0]);
-				//debuglog("cryptomic: $symbol {$name[0]}");
 			}
 		}
 	}

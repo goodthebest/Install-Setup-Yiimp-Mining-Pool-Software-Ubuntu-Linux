@@ -4,15 +4,12 @@ require_once('poloniex_trading.php');
 require_once('bittrex_trading.php');
 require_once('bleutrade_trading.php');
 require_once('bter_trading.php');
-require_once('cryptsy_trading.php');
 require_once('c-cex_trading.php');
 require_once('kraken_trading.php');
 require_once('yobit_trading.php');
 require_once('alcurex_trading.php');
-require_once('cryptomic_trading.php');
 require_once('cryptopia_trading.php');
 require_once('nova_trading.php');
-require_once('safecex_trading.php');
 
 function cancelExchangeOrder($order=false)
 {
@@ -31,9 +28,6 @@ function cancelExchangeOrder($order=false)
 			case 'bleutrade':
 				doBleutradeCancelOrder($order->uuid);
 				break;
-			case 'safecex':
-				doSafecexCancelOrder($order->uuid);
-				break;
 			case 'cryptopia':
 				doCryptopiaCancelOrder($order->uuid);
 				break;
@@ -50,12 +44,6 @@ function runExchange($exchangeName=false)
 				updateAlcurexMarkets();
 				break;
 
-			case 'banx':
-			case 'cryptomic':
-				doCryptomicTrading(true);
-				updateCryptomicMarkets();
-				break;
-
 			case 'bter':
 				doBterTrading(true);
 				updateBterMarkets();
@@ -64,11 +52,6 @@ function runExchange($exchangeName=false)
 			case 'cryptopia':
 				doCryptopiaTrading(true);
 				updateCryptopiaMarkets();
-				break;
-
-			case 'cryptsy':
-				//doCryptsyTrading(true);
-				updateCryptsyMarkets();
 				break;
 
 			case 'bitstamp':
@@ -88,11 +71,6 @@ function runExchange($exchangeName=false)
 			case 'empoex':
 				//doEmpoexTrading(true);
 				//updateEmpoexMarkets();
-				break;
-
-			case 'safecex':
-				doSafecexTrading(true);
-				updateSafecexMarkets();
 				break;
 
 			case 'yobit':

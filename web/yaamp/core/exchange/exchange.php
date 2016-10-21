@@ -17,15 +17,12 @@ require_once("ccexapi.php");
 require_once("bleutrade.php");
 require_once("kraken.php");
 require_once("yobit.php");
-require_once("cryptsy.php");
-require_once("safecex.php");
 require_once("shapeshift.php");
 require_once("bter.php");
 require_once("empoex.php");
 require_once("jubi.php");
 require_once("alcurex.php");
 require_once("cryptopia.php");
-require_once("cryptomic.php");
 require_once("nova.php");
 
 /* Format an exchange coin Url */
@@ -61,12 +58,8 @@ function getMarketUrl($coin, $marketName)
 		$url = "https://bleutrade.com/exchange/{$symbol}/{$base}";
 	else if($market == 'bter')
 		$url = "https://bter.com/trade/{$lowsymbol}_{$lowbase}";
-	else if($market == 'banx' || $market == 'cryptomic')
-		$url = "https://www.cryptomic.com/trade?c={$symbol}&p={$base}";
 	else if($market == 'cryptopia')
 		$url = "https://www.cryptopia.co.nz/Exchange?market={$symbol}_{$base}";
-	else if($market == 'cryptsy')
-		$url = "https://www.cryptsy.com/markets/view/{$symbol}_{$base}";
 	else if($market == 'c-cex')
 		$url = "https://c-cex.com/?p={$lowsymbol}-{$lowbase}";
 	else if($market == 'empoex')
@@ -75,8 +68,6 @@ function getMarketUrl($coin, $marketName)
 		$url = "http://jubi.com/coin/{$lowsymbol}";
 	else if($market == 'nova')
 		$url = "https://novaexchange.com/market/{$base}_{$symbol}/";
-	else if($market == 'safecex')
-		$url = "https://safecex.com/market?q={$symbol}/{$base}";
 	else if($market == 'yobit')
 		$url = "https://yobit.net/en/trade/{$symbol}/{$base}";
 	else

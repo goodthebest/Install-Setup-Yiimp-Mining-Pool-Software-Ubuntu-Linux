@@ -122,8 +122,6 @@ class ExchangeCommand extends CConsoleCommand
 
 	public function testApiKeys()
 	{
-		require_once($this->basePath.'/yaamp/core/core.php');
-
 		if (!empty(EXCH_BITSTAMP_KEY)) {
 			$balance = bitstamp_api_user('balance');
 			if (!is_array($balance)) echo "bitstamp error ".json_encode($balance)."\n";
@@ -169,30 +167,15 @@ class ExchangeCommand extends CConsoleCommand
 			if (objSafeVal($info,'status','') != 'success' || !is_array($info->balances)) echo "nova error\n";
 			else echo("nova btc: ".json_encode($info->balances[0])."\n");
 		}
-		if (!empty(EXCH_CRYPTSY_KEY)) {
-			$info = cryptsy_api_query('getinfo');
-			if (!arraySafeVal($info,'success',0) || !is_array($info['return'])) echo "error\n";
-			else echo("cryptsy btc: ".json_encode($info['return']['balances_available']['BTC'])."\n");
-		}
 		if(!empty(EXCH_POLONIEX_KEY)) {
 			$poloniex = new poloniex;
 			$balance = $poloniex->get_available_balances();
 			echo("poloniex available : ".json_encode($balance)."\n");
 		}
-		if (!empty(EXCH_SAFECEX_KEY)) {
-			$balance = safecex_api_user('getbalance', "&symbol=BTC");
-			echo("safecex btc: ".json_encode($balance)."\n");
-		}
 		if (!empty(EXCH_YOBIT_KEY)) {
 			$info = yobit_api_query2('getInfo');
 			if (!arraySafeVal($info,'success',0) || !is_array($info['return'])) echo "error\n";
 			else echo("yobit btc: ".json_encode($info['return']['funds']['btc'])."\n");
-		}
-		if (!empty(EXCH_BANX_USERNAME)) {
-			//$balance = cryptomic_api_user('account/getbalance','?currency=BTC');
-			$balance = cryptomic_api_user('account/getbalances');
-			if (!is_object($balance)) echo "cryptomic error ".json_encode($balance)."\n";
-			else echo("cryptomic all: ".json_encode($balance->result)."\n");
 		}
 		// only one secret key
 		$balance = empoex_api_user('account/balance','BTC');
