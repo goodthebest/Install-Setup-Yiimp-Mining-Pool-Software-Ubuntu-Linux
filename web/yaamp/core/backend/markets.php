@@ -26,6 +26,7 @@ function BackendPricesUpdate()
 	updateCryptomicMarkets();
 	updateNovaMarkets();
 
+	updateShapeShiftMarkets();
 	updateOtherMarkets();
 
 	$list2 = getdbolist('db_coins', "installed AND IFNULL(symbol2,'') != ''");
@@ -1326,6 +1327,53 @@ function updateEmpoexMarkets()
 				$coin->price = $market->price;
 				$coin->price2 = $market->price2;
 				$coin->market = 'empoex';
+				$coin->save();
+			}
+		}
+	}
+}
+
+// todo: store min/max txs limits
+function updateShapeShiftMarkets()
+{
+	$exchange = 'shapeshift';
+	if (exchange_get($exchange, 'disabled')) return;
+
+	$markets = shapeshift_api_query('marketinfo');
+	if(!is_array($markets) || empty($markets)) return;
+
+	$list = getdbolist('db_markets', "name='$exchange'");
+	foreach($list as $market)
+	{
+		$coin = getdbo('db_coins', $market->coinid);
+		if(!$coin) continue;
+
+		if (market_get($exchange, $coin->symbol, "disabled")) {
+			$market->disabled = 1;
+			$market->deleted = 1;
+			$market->message = 'disabled from settings';
+			$market->save();
+			continue;
+		}
+
+		$pair = strtoupper($coin->symbol).'_BTC';
+		if (!empty($market->base_coin))
+			$pair = strtoupper($coin->symbol).'_'.strtoupper($market->base_coin);
+
+		foreach ($markets as $ticker) {
+			if ($ticker['pair'] != $pair) continue;
+
+			$market->price = AverageIncrement($market->price, $ticker['rate']);
+			$market->price2 = AverageIncrement($market->price2, $ticker['rate']);
+			$market->txfee = $ticker['minerFee'];
+			$market->pricetime = time();
+			$market->priority = -1; // not ready for trading
+			$market->save();
+
+			if (empty($coin->price2)) {
+				$coin->price = $market->price;
+				$coin->price2 = $market->price2;
+				//$coin->market = 'shapeshift';
 				$coin->save();
 			}
 		}

@@ -19,6 +19,7 @@ require_once("kraken.php");
 require_once("yobit.php");
 require_once("cryptsy.php");
 require_once("safecex.php");
+require_once("shapeshift.php");
 require_once("bter.php");
 require_once("empoex.php");
 require_once("jubi.php");

@@ -220,6 +220,22 @@ function updateRawcoins()
 		}
 	}
 
+	if (!exchange_get('shapeshift', 'disabled')) {
+		$list = shapeshift_api_query('getcoins');
+		if(is_array($list) && !empty($list))
+		{
+			dborun("UPDATE markets SET deleted=true WHERE name='shapeshift'");
+			foreach($list as $item) {
+				$status = $item['status'];
+				if ($status != 'available') continue;
+				$symbol = strtoupper($item['symbol']);
+				$name = trim($item['name']);
+				updateRawCoin('shapeshift', $symbol, $name);
+				//debuglog("shapeshift: $symbol $name");
+			}
+		}
+	}
+
 	//////////////////////////////////////////////////////////
 
 	$markets = dbocolumn("SELECT DISTINCT name FROM markets");
