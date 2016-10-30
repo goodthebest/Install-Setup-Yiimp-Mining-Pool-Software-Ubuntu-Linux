@@ -97,7 +97,6 @@ function formatCPU($row)
 	if (strpos($device, '(R)')) {
 		// from /proc/cpuinfo (or vendor cpuid)
 		$device = str_replace('(R)', '', $device);
-		$device = str_replace('(TM)','', $device);
 		$device = str_replace(' CPU','', $device);
 		$device = str_replace(' V2',' v2', $device);
 		$device = str_replace(' V3',' v3', $device);
@@ -109,7 +108,8 @@ function formatCPU($row)
 		$device = str_replace(' GenuineIntel', ' Intel', $device);
 		$device = str_replace(' AuthenticAMD', ' AMD', $device);
 		$device = str_replace(' Quad-Core Processor','', $device);
-		$device = str_replace('(tm)','', $device);
+		$device = str_replace(' Dual-Core Processor','', $device);
+		$device = str_replace(' Processor', '', $device);
 		if (strpos($device, 'Intel64') !== false && strpos($device, ' Intel')) {
 			$device = str_replace(' Intel','', $device);
 			$device = str_replace('Intel64','Intel', $device);
@@ -120,6 +120,7 @@ function formatCPU($row)
 		}
 		$device = rtrim($device, ',');
 	}
+	$device = str_ireplace('(tm)','', $device);
 	$device = str_replace(' APU with Radeon','', $device);
 	$device = str_replace(' APU with AMD Radeon','', $device);
 	$device = str_replace(' version ',' ', $device);
@@ -144,6 +145,10 @@ function getChipName($row)
 		$device = str_ireplace(' V3', 'v3', $device);
 		$device = str_ireplace(' V4', 'v4', $device);
 		$device = str_ireplace(' V5', 'v5', $device);
+		$device = preg_replace('/ 0$/', '', $device);
+		if (strpos($device, 'AMD Athlon ')) {
+			return str_replace('AMD ', '', $device);
+		}
 		$words = explode(' ', $device);
 		$chip = array_pop($words);
 		if (strpos($device, 'Fam.')) $chip = '-'; // WIN ENV
@@ -155,10 +160,12 @@ function getChipName($row)
 		$chip = array_pop($words);
 		$vendorid = $row['vendorid'];
 		if (!is_numeric($chip)) {
-			if (substr($vendorid,0,4) == '10de')
-				$chip = array_pop($words);
-			else
-				$chip = array_pop($words).' '.$chip;
+			// 750 Ti / 1060 3GB / GeForce 920M / Tesla M60
+			$chip = array_pop($words).' '.$chip;
+			$chip = str_replace('GeForce ','', $chip);
+			$chip = str_replace('GT ','', $chip);
+			$chip = str_replace('GTX ','', $chip);
+			$chip = str_replace(' (Pascal)',' Pascal', $chip);
 		}
 	}
 
