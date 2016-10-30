@@ -8,6 +8,7 @@ function alcurex_api_query($method, $params='')
 
 	$ch = curl_init($uri);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
 
 	$execResult = strip_tags(curl_exec($ch));
 	$obj = json_decode($execResult);

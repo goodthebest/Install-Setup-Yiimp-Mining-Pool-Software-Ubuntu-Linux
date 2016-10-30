@@ -19,6 +19,7 @@ function bittrex_api_query($method, $params='')
 	$ch = curl_init($uri);
 
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
 	curl_setopt($ch, CURLOPT_HTTPHEADER, array("apisign:$sign"));
 
 	$execResult = curl_exec($ch);

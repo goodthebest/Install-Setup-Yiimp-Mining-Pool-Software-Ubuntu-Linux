@@ -51,6 +51,7 @@ function yobit_api_query2($method, $req = array())
 	$ch = curl_init();
 
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
 	curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/4.0 (compatible; SMART_API PHP client; '.php_uname('s').'; PHP/'.phpversion().')');
 	curl_setopt($ch, CURLOPT_URL, 'https://yobit.net/tapi/');
 	curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
