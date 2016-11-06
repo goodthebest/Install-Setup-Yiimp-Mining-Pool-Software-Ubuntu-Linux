@@ -70,6 +70,9 @@ for($i = $start; $i > max(1, $start-21); $i--)
 	else if (isset($block['auxpow'])) $type = 'Aux';
 	else if (isset($block['mint']) || arraySafeVal($block,'flags') == 'proof-of-stake') $type = 'PoS';
 
+	// nonce 256bits
+	if ($type == '' && $coin->symbol=='ZEC') $type = 'PoW';
+
 //	debuglog($block);
 	echo '<tr class="ssrow">';
 	echo '<td>'.$d.'</td>';

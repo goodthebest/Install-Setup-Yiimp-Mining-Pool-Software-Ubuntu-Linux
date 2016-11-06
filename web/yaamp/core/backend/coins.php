@@ -172,10 +172,29 @@ function BackendCoinsUpdate()
 						$target = decode_compact($template['bits']);
 						$coin->difficulty = target_to_diff($target);
 					}
+				} else {
+					$coin->auto_ready = false;
+					$coin->errors = $remote->error;
 				}
+			}
 
-				else
+			else if ($coin->symbol == 'ZEC' || $coin->rpcencoding == 'ZEC')
+			{
+				if($template && isset($template['coinbasetxn']))
 				{
+					// no coinbasevalue in ZEC blocktemplate :/
+					$txn = $template['coinbasetxn'];
+					$coin->charity_amount = arraySafeVal($txn,'foundersreward',0)/100000000;
+					$coin->reward = $coin->charity_amount * 4 + arraySafeVal($txn,'fee',0)/100000000;
+					// getmininginfo show current diff, getinfo the last block one
+					$mininginfo = $remote->getmininginfo();
+					$coin->difficulty = ArraySafeVal($mininginfo,'difficulty',$coin->difficulty);
+					//$target = decode_compact($template['bits']);
+					//$diff = target_to_diff($target); // seems not standard 0.358557563 vs 187989.937 in getmininginfo
+					//target 00000002c0930000000000000000000000000000000000000000000000000000 => 0.358557563 (bits 1d02c093)
+					//$diff = hash_to_difficulty($coin, $template['target']);
+					//debuglog("ZEC target {$template['bits']} -> $diff");
+				} else {
 					$coin->auto_ready = false;
 					$coin->errors = $remote->error;
 				}

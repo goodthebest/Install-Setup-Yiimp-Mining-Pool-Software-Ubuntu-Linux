@@ -119,7 +119,7 @@ $confirms = isset($block['confirmations'])? $block['confirmations']: '';
 $txcount = count($block['tx']);
 
 $version = dechex($block['version']);
-$nonce = dechex($block['nonce']);
+$nonce = $block['nonce'];
 
 echo '<table class="dataGrid1">';
 echo '<tr><td width=100></td><td></td></tr>';
