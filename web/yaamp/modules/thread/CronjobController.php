@@ -135,6 +135,7 @@ class CronjobController extends CommonController
 				doBittrexTrading();
 				doCryptopiaTrading();
 				doKrakenTrading();
+				doLivecoinTrading();
 				doPoloniexTrading();
 				break;
 

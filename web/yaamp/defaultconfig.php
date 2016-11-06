@@ -25,7 +25,6 @@ if (!defined('YAAMP_PAYMENTS_MINI')) define('YAAMP_PAYMENTS_MINI', 0.001);
 if (!defined('YAAMP_ALLOW_EXCHANGE')) define('YAAMP_ALLOW_EXCHANGE', false);
 if (!defined('EXCH_AUTO_WITHDRAW')) define('EXCH_AUTO_WITHDRAW', 9999.9999);
 
-if (!defined('EXCH_CRYPTSY_KEY')) define('EXCH_CRYPTSY_KEY', '');
 if (!defined('EXCH_BITTREX_KEY')) define('EXCH_BITTREX_KEY', '');
 if (!defined('EXCH_BITSTAMP_ID')) define('EXCH_BITSTAMP_ID', '');
 if (!defined('EXCH_BITSTAMP_KEY')) define('EXCH_BITSTAMP_KEY','');
@@ -34,10 +33,9 @@ if (!defined('EXCH_BTER_KEY')) define('EXCH_BTER_KEY', '');
 if (!defined('EXCH_CCEX_KEY')) define('EXCH_CCEX_KEY', '');
 if (!defined('EXCH_CRYPTOPIA_KEY')) define('EXCH_CRYPTOPIA_KEY', '');
 if (!defined('EXCH_POLONIEX_KEY')) define('EXCH_POLONIEX_KEY', '');
-if (!defined('EXCH_SAFECEX_KEY')) define('EXCH_SAFECEX_KEY', '');
 if (!defined('EXCH_YOBIT_KEY')) define('EXCH_YOBIT_KEY', '');
-if (!defined('EXCH_BANX_USERNAME')) define('EXCH_BANX_USERNAME', '');
 if (!defined('EXCH_KRAKEN_KEY')) define('EXCH_KRAKEN_KEY', '');
+if (!defined('EXCH_LIVECOIN_KEY')) define('EXCH_LIVECOIN_KEY', '');
 if (!defined('EXCH_NOVA_KEY')) define('EXCH_NOVA_KEY', '');
 
 if (!defined('YAAMP_BTCADDRESS')) define('YAAMP_BTCADDRESS', '');

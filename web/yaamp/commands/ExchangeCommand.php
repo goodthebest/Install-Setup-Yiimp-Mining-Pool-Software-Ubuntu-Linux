@@ -162,6 +162,12 @@ class ExchangeCommand extends CConsoleCommand
 			$balance = kraken_api_user('Balance');
 			echo("kraken btc: ".json_encode($balance)."\n");
 		}
+		if (!empty(EXCH_LIVECOIN_KEY)) {
+			$balance = livecoin_api_user('payment/balance', array('currency'=>'BTC'));
+			if (!is_object($balance)) echo("livecoin error\n");
+			else echo("livecoin btc: ".json_encode($balance)."\n");
+			// {"type":"available","currency":"BTC","value":0}
+		}
 		if (!empty(EXCH_NOVA_KEY)) {
 			$info = nova_api_user('getbalances');
 			if (objSafeVal($info,'status','') != 'success' || !is_array($info->balances)) echo "nova error\n";

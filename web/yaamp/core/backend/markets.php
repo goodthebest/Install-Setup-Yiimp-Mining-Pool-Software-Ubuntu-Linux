@@ -21,6 +21,7 @@ function BackendPricesUpdate()
 	updateBterMarkets();
 	//updateEmpoexMarkets();
 	updateJubiMarkets();
+	updateLivecoinMarkets();
 	updateNovaMarkets();
 
 	updateShapeShiftMarkets();
@@ -969,6 +970,52 @@ function updateEmpoexMarkets()
 			$market->pricetime = time();
 
 			if (floatval($ticker->base_volume_24hr) > 0.01)
+				$market->save();
+
+			if (empty($coin->price2)) {
+				$coin->price = $market->price;
+				$coin->price2 = $market->price2;
+				$coin->market = 'empoex';
+				$coin->save();
+			}
+		}
+	}
+}
+
+function updateLivecoinMarkets()
+{
+	$exchange = 'livecoin';
+	if (exchange_get($exchange, 'disabled')) return;
+
+	$markets = livecoin_api_query('exchange/ticker');
+	if(!is_array($markets)) return;
+
+	$list = getdbolist('db_markets', "name='$exchange'");
+	foreach($list as $market)
+	{
+		$coin = getdbo('db_coins', $market->coinid);
+		if(!$coin) continue;
+
+		if (market_get($exchange, $coin->symbol, "disabled")) {
+			$market->disabled = 1;
+			$market->deleted = 1;
+			$market->message = 'disabled from settings';
+			$market->save();
+			continue;
+		}
+
+		$pair = strtoupper($coin->symbol).'/BTC';
+
+		foreach ($markets as $ticker) {
+			if ($ticker->symbol != $pair) continue;
+
+			$market->price = AverageIncrement($market->price, $ticker->best_bid);
+			$market->price2 = AverageIncrement($market->price2, $ticker->best_ask);
+			$market->txfee = 0.2;
+			$market->priority = -1; // not ready for trading
+			$market->pricetime = time();
+
+			if (floatval($ticker->volume) > 0.01)
 				$market->save();
 
 			if (empty($coin->price2)) {

@@ -172,6 +172,22 @@ function updateRawcoins()
 		}
 	}
 
+	if (!exchange_get('livecoin', 'disabled')) {
+		$list = livecoin_api_query('exchange/ticker');
+		if(is_array($list))
+		{
+			dborun("UPDATE markets SET deleted=true WHERE name='livecoin'");
+			foreach($list as $item) {
+				$e = explode('/', $item->symbol);
+				$base = strtoupper($e[1]);
+				if ($base != 'BTC')
+					continue;
+				$symbol = strtoupper($e[0]);
+				updateRawCoin('livecoin', $symbol);
+			}
+		}
+	}
+
 	if (!exchange_get('shapeshift', 'disabled')) {
 		$list = shapeshift_api_query('getcoins');
 		if(is_array($list) && !empty($list))
@@ -253,7 +269,8 @@ function updateRawCoin($marketname, $symbol, $name='unknown')
 		$coin->created = time();
 		$coin->save();
 
-		mail(YAAMP_ADMIN_EMAIL, "New coin $symbol", "new coin $symbol ($name) on $marketname");
+		$url = getMarketUrl($coin, $marketname);
+		mail(YAAMP_ADMIN_EMAIL, "New coin $symbol", "new coin $symbol ($name) on $marketname\r\n$url");
 		sleep(30);
 	}
 

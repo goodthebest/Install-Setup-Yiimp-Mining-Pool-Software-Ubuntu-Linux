@@ -9,6 +9,7 @@ require_once('kraken_trading.php');
 require_once('yobit_trading.php');
 require_once('alcurex_trading.php');
 require_once('cryptopia_trading.php');
+require_once('livecoin_trading.php');
 require_once('nova_trading.php');
 
 function cancelExchangeOrder($order=false)
@@ -86,6 +87,11 @@ function runExchange($exchangeName=false)
 			case 'kraken':
 				doKrakenTrading(true);
 				updateKrakenMarkets();
+				break;
+
+			case 'livecoin':
+				doLivecoinTrading(true);
+				updateLivecoinMarkets();
 				break;
 
 			case 'nova':
