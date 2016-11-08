@@ -93,7 +93,7 @@ function formatCudaArch($arch)
 
 function formatCPU($row)
 {
-	$device = $row['device'];
+	$device = preg_replace('/[ \t]+/', ' ', $row['device']);
 	if (strpos($device, '(R)')) {
 		// from /proc/cpuinfo (or vendor cpuid)
 		$device = str_replace('(R)', '', $device);
@@ -107,8 +107,10 @@ function formatCPU($row)
 		$device = str_replace(' Stepping ', '.', $device);
 		$device = str_replace(' GenuineIntel', ' Intel', $device);
 		$device = str_replace(' AuthenticAMD', ' AMD', $device);
-		$device = str_replace(' Quad-Core Processor','', $device);
-		$device = str_replace(' Dual-Core Processor','', $device);
+		$device = str_replace(' Quad-Core','', $device);
+		$device = str_replace(' Dual-Core','', $device);
+		$device = str_replace(' Quad Core','', $device);
+		$device = str_replace(' Dual Core','', $device);
 		$device = str_replace(' Processor', '', $device);
 		if (strpos($device, 'Intel64') !== false && strpos($device, ' Intel')) {
 			$device = str_replace(' Intel','', $device);
@@ -125,6 +127,7 @@ function formatCPU($row)
 	$device = str_replace(' APU with AMD Radeon','', $device);
 	$device = str_replace(' version ',' ', $device);
 	$device = preg_replace('/(HD|R\d) Graphics/','', $device);
+	$device = preg_replace('/ 0$/', '', $device);
 	// VIA Nano processor U2250 (1.6GHz Capable)
 	$device = str_replace(' (1.6GHz Capable)','', $device);
 	if (stristr($device, 'Virtual CPU') || stristr($device, 'QEMU')) {
@@ -145,7 +148,6 @@ function getChipName($row)
 		$device = str_ireplace(' V3', 'v3', $device);
 		$device = str_ireplace(' V4', 'v4', $device);
 		$device = str_ireplace(' V5', 'v5', $device);
-		$device = preg_replace('/ 0$/', '', $device);
 		if (strpos($device, 'AMD Athlon ')) {
 			return str_replace('AMD ', '', $device);
 		}
