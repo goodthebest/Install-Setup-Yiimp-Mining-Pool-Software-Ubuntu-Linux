@@ -83,6 +83,9 @@ extern int g_stratum_max_ttf;
 extern bool g_stratum_reconnect;
 extern bool g_stratum_renting;
 
+extern uint64_t g_max_shares;
+extern uint64_t g_shares_counter;
+
 extern time_t g_last_broadcasted;
 
 extern struct ifaddrs *g_ifaddr;

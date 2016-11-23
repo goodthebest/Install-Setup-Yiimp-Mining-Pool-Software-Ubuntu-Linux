@@ -78,6 +78,7 @@ static void share_add_worker(YAAMP_CLIENT *client, YAAMP_JOB *job, bool valid, c
 void share_add(YAAMP_CLIENT *client, YAAMP_JOB *job, bool valid, char *extranonce2, char *ntime, char *nonce, double share_diff, int error_number)
 {
 //	check_job(job);
+	g_shares_counter++;
 	share_add_worker(client, job, valid, ntime, share_diff, error_number);
 
 	YAAMP_SHARE *share = new YAAMP_SHARE;

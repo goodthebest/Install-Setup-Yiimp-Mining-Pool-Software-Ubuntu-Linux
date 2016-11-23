@@ -33,6 +33,9 @@ bool g_stratum_reconnect;
 bool g_stratum_renting;
 bool g_autoexchange = true;
 
+uint64_t g_max_shares = 0;
+uint64_t g_shares_counter = 0;
+
 time_t g_last_broadcasted = 0;
 YAAMP_DB *g_db = NULL;
 
@@ -307,6 +310,16 @@ void *monitor_thread(void *p)
 			g_exiting = true;
 			stratumlog("%s dead lock, exiting...\n", g_current_algo->name);
 			exit(1);
+		}
+
+		if(g_max_shares > 0 && g_shares_counter > g_max_shares) {
+			g_exiting = true;
+			stratumlog("%s need a restart, exiting...\n", g_current_algo->name);
+			exit(1);
+		}
+
+		if((g_shares_counter % 10000u) == 0) {
+			stratumlog("%s %luK shares...\n", g_current_algo->name, (unsigned long) (g_max_shares/10000u));
 		}
 	}
 }
