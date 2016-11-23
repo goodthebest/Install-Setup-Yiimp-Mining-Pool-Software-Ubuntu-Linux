@@ -37,6 +37,8 @@ class db_coins extends CActiveRecord
 			'txfee'		=> 'Tx Fee',
 			'program'	=> 'Process name',
 			'conf_folder'	=> 'Conf. folder',
+			'mature_blocks' => 'PoW Confirmations',
+			'powend_height' => 'End of PoW',
 			'rpchost'	=> 'RPC Host',
 			'rpcport'	=> 'RPC Port',
 			'rpcuser'	=> 'RPC User',
