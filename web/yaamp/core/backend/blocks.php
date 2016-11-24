@@ -44,11 +44,6 @@ function BackendBlockNew($coin, $db_block)
 		{
 			$earning->mature_time = time();
 			$earning->status = 1;
-			// auto update mature_blocks
-			if ($db_block->confirmations < $coin->mature_blocks || !intval($coin->mature_blocks)) {
-				$coin->mature_blocks = $db_block->confirmations;
-				$coin->save();
-			}
 		}
 		else	// immature
 			$earning->status = 0;
@@ -225,11 +220,18 @@ function BackendBlocksUpdate($coinid = NULL)
 		$block->category = $category;
 		$block->save();
 
-		if($category == 'generate')
-			dborun("update earnings set status=1, mature_time=UNIX_TIMESTAMP() where blockid=$block->id");
+		if($category == 'generate') {
+			dborun("UPDATE earnings SET status=1, mature_time=UNIX_TIMESTAMP() WHERE blockid=".intval($block->id));
 
+			// auto update mature_blocks
+			if ($block->confirmations > 0 && $block->confirmations < $coin->mature_blocks || empty($coin->mature_blocks)) {
+				debuglog("{$coin->symbol} mature_blocks updated to {$block->confirmations}");
+				$coin->mature_blocks = $block->confirmations;
+				$coin->save();
+			}
+		}
 		else if($category != 'immature')
-			dborun("delete from earnings where blockid=$block->id");
+			dborun("DELETE FROM earnings WHERE blockid=".intval($block->id));
 	}
 
 	$d1 = microtime(true) - $t1;
