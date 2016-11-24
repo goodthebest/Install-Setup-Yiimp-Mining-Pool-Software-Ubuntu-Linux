@@ -44,6 +44,11 @@ function BackendBlockNew($coin, $db_block)
 		{
 			$earning->mature_time = time();
 			$earning->status = 1;
+			// auto update mature_blocks
+			if ($db_block->confirmations < $coin->mature_blocks || !intval($coin->mature_blocks)) {
+				$coin->mature_blocks = $db_block->confirmations;
+				$coin->save();
+			}
 		}
 		else	// immature
 			$earning->status = 0;

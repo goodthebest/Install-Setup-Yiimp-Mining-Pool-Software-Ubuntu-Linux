@@ -232,6 +232,13 @@ function BackendCoinsUpdate()
 		$coin->version = $info['version'];
 		$coin->block_height = $info['blocks'];
 
+		if($coin->powend_height > 0 && $coin->block_height > $coin->powend_height) {
+			if ($coin->auto_ready) {
+				$coin->auto_ready = false;
+				$coin->errors = 'PoW end reached';
+			}
+		}
+
 		$coin->save();
 	//	debuglog(" end $coin->name");
 
