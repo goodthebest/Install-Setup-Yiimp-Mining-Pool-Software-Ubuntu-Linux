@@ -65,6 +65,7 @@ function BackendBlockNew($coin, $db_block)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
+// Import new blocks (notified by the stratum)
 
 function BackendBlockFind1($coinid = NULL)
 {
@@ -144,6 +145,7 @@ function BackendBlockFind1($coinid = NULL)
 }
 
 /////////////////////////////////////////////////////////////////////////////////
+// Refresh immature blocks status (confirmations)
 
 function BackendBlocksUpdate($coinid = NULL)
 {
@@ -239,9 +241,12 @@ function BackendBlocksUpdate($coinid = NULL)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
+// Search new block transactions
 
 function BackendBlockFind2($coinid = NULL)
 {
+	$t1 = microtime(true);
+
 	$sqlFilter = $coinid ? "id=".intval($coinid) : 'enable=1';
 
 	$coins = getdbolist('db_coins', $sqlFilter);
@@ -325,7 +330,38 @@ function BackendBlockFind2($coinid = NULL)
 
 		$coin->save();
 	}
+
+	$d1 = microtime(true) - $t1;
+	controller()->memcache->add_monitoring_function(__FUNCTION__, $d1);
+	//debuglog(__FUNCTION__." took ".round($d1,3)." sec");
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////
+// Update coin totals from the db blocks/earnings (allow triggers and easier balance sums)
+
+function BackendUpdatePoolBalances($coinid = NULL)
+{
+	$t1 = microtime(true);
+
+	$sqlFilter = $coinid ? "id=".intval($coinid) : 'enable=1';
+
+	$coins = getdbolist('db_coins', $sqlFilter);
+	foreach($coins as $coin)
+	{
+		$coin->immature = (double) dboscalar("SELECT SUM(amount) FROM blocks WHERE category='immature' AND coin_id=".intval($coin->id));
+		$coin->cleared = (double) dboscalar("SELECT SUM(balance) FROM accounts WHERE coinid=".intval($coin->id));
+		$pending = (double) dboscalar("SELECT SUM(amount) FROM earnings WHERE status=1 AND coinid=".intval($coin->id)); // (to be cleared)
+		$coin->available = (double) $coin->balance - $coin->cleared - $pending;
+		//if ($pending) debuglog("{$coin->symbol} immature {$coin->immature}, cleared {$coin->cleared}, pending {$pending}, available {$coin->available}");
+		$coin->save();
+	}
+
+	$d1 = microtime(true) - $t1;
+	controller()->memcache->add_monitoring_function(__FUNCTION__, $d1);
+	//debuglog(__FUNCTION__." took ".round($d1,3)." sec");
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
 
 function MonitorBTC()
 {

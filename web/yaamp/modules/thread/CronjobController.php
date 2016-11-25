@@ -164,6 +164,7 @@ class CronjobController extends CommonController
 
 			case 6:
 				BackendBlockFind2();
+				BackendUpdatePoolBalances();
 				break;
 
 			case 7:
