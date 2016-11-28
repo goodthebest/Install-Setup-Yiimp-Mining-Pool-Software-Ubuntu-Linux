@@ -319,7 +319,7 @@ void *monitor_thread(void *p)
 		}
 
 		if((g_shares_counter % 10000u) == 0) {
-			stratumlog("%s %luK shares...\n", g_current_algo->name, (unsigned long) (g_max_shares/10000u));
+			stratumlog("%s %luK shares...\n", g_current_algo->name, (unsigned long) (g_shares_counter/10000u));
 		}
 	}
 }
