@@ -17,7 +17,7 @@ screen -dmS loop2 $WEB_DIR/loop2.sh
 screen -dmS blocks $WEB_DIR/blocks.sh
 screen -dmS debug tail -f $LOG_DIR/debug.log
 
-# Stratum ports
+# Stratum instances (skipped/exit if no .conf)
 
 screen -dmS c11 $STRATUM_DIR/run.sh c11
 screen -dmS x11 $STRATUM_DIR/run.sh x11
