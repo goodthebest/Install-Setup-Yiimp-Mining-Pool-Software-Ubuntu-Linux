@@ -249,7 +249,7 @@ function updateRawCoin($marketname, $symbol, $name='unknown')
 			}
 		}
 
-		if ($marketname == 'nova') {
+		if ($marketname == 'nova' || $marketname == 'askcoin') {
 			// don't polute too much the db
 			return;
 		}
@@ -270,7 +270,8 @@ function updateRawCoin($marketname, $symbol, $name='unknown')
 		$coin->save();
 
 		$url = getMarketUrl($coin, $marketname);
-		mail(YAAMP_ADMIN_EMAIL, "New coin $symbol", "new coin $symbol ($name) on $marketname\r\n$url");
+		if (YAAMP_NOTIFY_NEW_COINS)
+			mail(YAAMP_ADMIN_EMAIL, "New coin $symbol", "new coin $symbol ($name) on $marketname\r\n\r\n$url");
 		sleep(30);
 	}
 
