@@ -77,6 +77,16 @@ function NotifyCheckRules()
 				$message .= "Field: {$field}\n";
 				$message .= "Value: {$value} at ".strftime("%Y-%m-%d %T %z", $time)."\n";
 
+				// replace some possible vars in message (description)
+				$message = str_replace('$X', $value, $message);
+				$message = str_replace('$F', $field, $message);
+				$message = str_replace('$T', $conditiontype, $message);
+				$message = str_replace('$V', $conditionvalue, $message);
+				$message = str_replace('$N', $coin->name, $message);
+				$message = str_replace('$SYM', $coin->symbol, $message);
+				$message = str_replace('$S2', $coin->symbol2, $message);
+				$message = str_replace('$A', $coin->master_wallet, $message);
+
 				$dest = YAAMP_ADMIN_EMAIL;
 				if (!empty($rule->notifycmd) && strstr($notifycmd, "@")) {
 					$dest = $rule->notifycmd;
@@ -85,6 +95,27 @@ function NotifyCheckRules()
 				$res = mail($dest, $subject, $message);
 				if (!$res)
 					debuglog("notify: unable to send mail to {$dest}!");
+				break;
+
+			case 'rpc':
+
+				$command = $rule->notifycmd;
+
+				// replace some possible vars in user command
+				$command = str_replace('$X', $value, $command);
+				$command = str_replace('$F', $field, $command);
+				$command = str_replace('$T', $conditiontype, $command);
+				$command = str_replace('$V', $conditionvalue, $command);
+				$command = str_replace('$N', $coin->name, $command);
+				$command = str_replace('$SYM', $coin->symbol, $command);
+				$command = str_replace('$S2', $coin->symbol2, $command);
+				$command = str_replace('$A', $coin->master_wallet, $command);
+
+				$remote = new WalletRPC($coin);
+
+				$res = $remote->execute($command);
+				if ($res === false)
+					debuglog("notify: rpc error {$coin->symbol} {$command}");
 				break;
 
 			case 'system':
@@ -99,6 +130,7 @@ function NotifyCheckRules()
 				$command = str_replace('$N', $coin->name, $command);
 				$command = str_replace('$SYM', $coin->symbol, $command);
 				$command = str_replace('$S2', $coin->symbol2, $command);
+				$command = str_replace('$A', $coin->master_wallet, $command);
 
 				$res = system($command);
 				if ($res === false)

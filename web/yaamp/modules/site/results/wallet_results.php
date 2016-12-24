@@ -276,8 +276,8 @@ if (!empty($list_extra)) {
 	</tr>
 	<tr class="ssrow">
 	<td colspan="3" style="font-size: .9em; padding-bottom: 8px;">
-	Some wallets (LYB) have a problem and don't confirm a transaction in the requested time.<br/>
-	Please be honest and continue mining to handle these extra transactions sent to you.<br/>
+	Some wallets (UFO,LYB) have a problem and don't always confirm a transaction in the requested time.<br/>
+	<!-- Please be honest and continue mining to handle these extra transactions sent to you. --><br/>
 	</th>
 	</tr>
 	<tr class="ssrow">

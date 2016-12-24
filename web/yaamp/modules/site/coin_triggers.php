@@ -93,9 +93,10 @@ echo <<<end
 <label for="notifytype">Type</label>
 <select id="notifytype" name="notifytype">
 <option value="email">Email</option>
+<option value="rpc">RPC command</option>
 <option value="system">System command</option>
 </select><br/><br/>
-<input type="text" name="conditiontype" class="main-text-input" placeholder="Condition" style="width: 190px; margin-right: 4px;">
+<input type="text" name="conditiontype" class="main-text-input" placeholder="Condition like 'balance >'" style="width: 190px; margin-right: 4px;">
 <input type="text" name="conditionvalue" class="main-text-input" placeholder="Value" style="width: 100px; margin-right: 4px;">
 <input type="submit" value="Add rule" class="main-submit-button" ><br/>
 <input type="text" name="notifycmd" class="main-text-input" placeholder="Email or Command (optional)" style="width: 400px; margin-right: 4px; margin-top: 8px;"><br/>
@@ -113,6 +114,7 @@ echo <<<end
 <li>\$SYM  coin symbol</li>
 <li>\$S2  coin symbol2</li>
 <li>\$N  coin name</li>
+<li>\$A  wallet address</li>
 </ul>
 </div>
 
