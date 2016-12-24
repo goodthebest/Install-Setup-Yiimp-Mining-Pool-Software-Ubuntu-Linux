@@ -65,7 +65,7 @@ function NotifyCheckRules()
 		if (!$triggered) continue;
 
 		$value = bitcoinvaluetoa($value);
-		debuglog("trigger: {$coin->symbol} {$rule->conditiontype} {$rule->conditionvalue} ({$value})");
+		debuglog("trigger: {$coin->symbol} {$rule->notifytype} {$rule->conditiontype} {$rule->conditionvalue} ({$value})");
 
 		switch ($rule->notifytype)
 		{
@@ -80,21 +80,21 @@ function NotifyCheckRules()
 				// replace some possible vars in message (description)
 				$message = str_replace('$X', $value, $message);
 				$message = str_replace('$F', $field, $message);
-				$message = str_replace('$T', $conditiontype, $message);
-				$message = str_replace('$V', $conditionvalue, $message);
+				$message = str_replace('$T', $rule->conditiontype, $message);
+				$message = str_replace('$V', $rule->conditionvalue, $message);
 				$message = str_replace('$N', $coin->name, $message);
 				$message = str_replace('$SYM', $coin->symbol, $message);
 				$message = str_replace('$S2', $coin->symbol2, $message);
 				$message = str_replace('$A', $coin->master_wallet, $message);
 
 				$dest = YAAMP_ADMIN_EMAIL;
-				if (!empty($rule->notifycmd) && strstr($notifycmd, "@")) {
+				if (!empty($rule->notifycmd) && strstr($rule->notifycmd, "@")) {
 					$dest = $rule->notifycmd;
 				}
 
 				$res = mail($dest, $subject, $message);
 				if (!$res)
-					debuglog("notify: unable to send mail to {$dest}!");
+					debuglog("notify: {$coin->symbol} unable to send mail to {$dest}!");
 				break;
 
 			case 'rpc':
@@ -104,8 +104,8 @@ function NotifyCheckRules()
 				// replace some possible vars in user command
 				$command = str_replace('$X', $value, $command);
 				$command = str_replace('$F', $field, $command);
-				$command = str_replace('$T', $conditiontype, $command);
-				$command = str_replace('$V', $conditionvalue, $command);
+				$command = str_replace('$T', $rule->conditiontype, $command);
+				$command = str_replace('$V', $rule->conditionvalue, $command);
 				$command = str_replace('$N', $coin->name, $command);
 				$command = str_replace('$SYM', $coin->symbol, $command);
 				$command = str_replace('$S2', $coin->symbol2, $command);
@@ -115,7 +115,9 @@ function NotifyCheckRules()
 
 				$res = $remote->execute($command);
 				if ($res === false)
-					debuglog("notify: rpc error {$coin->symbol} {$command}");
+					debuglog("trigger: {$coin->symbol} rpc error '{$command}' {$remote->error}");
+				else
+					debuglog("trigger: {$coin->symbol} rpc -> $res");
 				break;
 
 			case 'system':
@@ -125,8 +127,8 @@ function NotifyCheckRules()
 				// replace some possible vars in user command
 				$command = str_replace('$X', $value, $command);
 				$command = str_replace('$F', $field, $command);
-				$command = str_replace('$T', $conditiontype, $command);
-				$command = str_replace('$V', $conditionvalue, $command);
+				$command = str_replace('$T', $rule->conditiontype, $command);
+				$command = str_replace('$V', $rule->conditionvalue, $command);
 				$command = str_replace('$N', $coin->name, $command);
 				$command = str_replace('$SYM', $coin->symbol, $command);
 				$command = str_replace('$S2', $coin->symbol2, $command);
@@ -134,7 +136,7 @@ function NotifyCheckRules()
 
 				$res = system($command);
 				if ($res === false)
-					debuglog("notify: unable to execute {$rule->notifycmd}!");
+					debuglog("trigger: {$coin->symbol} unable to execute '{$command}'!");
 				break;
 		}
 	}
