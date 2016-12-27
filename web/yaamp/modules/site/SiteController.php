@@ -923,6 +923,7 @@ class SiteController extends CommonController
 			BackendBlockFind1($coin->id);
 			BackendBlocksUpdate($coin->id);
 			BackendBlockFind2($coin->id);
+			BackendUpdatePoolBalances($coin->id);
 		}
 		$this->goback();
 	}

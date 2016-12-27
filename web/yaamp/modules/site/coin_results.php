@@ -30,6 +30,7 @@ if (YAAMP_ALLOW_EXCHANGE) {
 	echo "Earnings $reserved2 BTC, ";
 }
 echo "Balance (db) $balance $symbol";
+echo ", Owned ".bitcoinvaluetoa($coin->available)." $symbol";
 echo ", Owed ".CHtml::link($owed, "/site/earning?id=".$coin->id)." $symbol ($owed_btc BTC)";
 echo ", ".CHtml::link($reserved1, "/site/payments?id=".$coin->id)." $symbol cleared<br/><br/>";
 
