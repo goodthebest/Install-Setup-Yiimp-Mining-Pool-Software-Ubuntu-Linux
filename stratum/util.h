@@ -61,6 +61,7 @@ void initlog(const char *algo);
 
 void debuglog(const char *format, ...);
 void stratumlog(const char *format, ...);
+void stratumlogdate(const char *format, ...);
 void clientlog(YAAMP_CLIENT *client, const char *format, ...);
 
 //////////////////////////////////////////////////////////////////////////

@@ -193,6 +193,25 @@ void stratumlog(const char *format, ...)
 	}
 }
 
+void stratumlogdate(const char *format, ...)
+{
+	char buffer[YAAMP_SMALLBUFSIZE];
+	char date[16];
+	va_list args;
+	time_t rawtime;
+	struct tm * timeinfo;
+
+	time(&rawtime);
+	timeinfo = localtime(&rawtime);
+	strftime(date, 16, "%Y-%m-%d", timeinfo);
+
+	va_start(args, format);
+	vsprintf(buffer, format, args);
+	va_end(args);
+
+	stratumlog("%s %s", date, buffer);
+}
+
 bool yaamp_error(char const *message)
 {
 	debuglog("ERROR: %d %s\n", errno, message);

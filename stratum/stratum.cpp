@@ -35,6 +35,7 @@ bool g_autoexchange = true;
 
 uint64_t g_max_shares = 0;
 uint64_t g_shares_counter = 0;
+uint64_t g_shares_log = 0;
 
 time_t g_last_broadcasted = 0;
 YAAMP_DB *g_db = NULL;
@@ -217,7 +218,8 @@ int main(int argc, char **argv)
 	struct rlimit rlim_threads = {0x8000, 0x8000};
 	setrlimit(RLIMIT_NPROC, &rlim_threads);
 
-	stratumlog("* starting stratumd for %s on %s:%d\n", g_current_algo->name, g_tcp_server, g_tcp_port);
+	stratumlogdate("starting stratum for %s on %s:%d\n",
+		g_current_algo->name, g_tcp_server, g_tcp_port);
 
 	g_db = db_connect();
 	if(!g_db) yaamp_error("Cant connect database");
@@ -308,19 +310,20 @@ void *monitor_thread(void *p)
 		if(g_last_broadcasted + YAAMP_MAXJOBDELAY < time(NULL))
 		{
 			g_exiting = true;
-			stratumlog("%s dead lock, exiting...\n", g_current_algo->name);
+			stratumlogdate("%s dead lock, exiting...\n", g_current_algo->name);
 			exit(1);
 		}
 
 		if(g_max_shares && g_shares_counter) {
 
-			if((g_shares_counter % 5000u) == 0) {
-				stratumlog("%s %luK shares...\n", g_current_algo->name, (g_shares_counter/10000u));
+			if((g_shares_counter - g_shares_log) > 10000) {
+				stratumlogdate("%s %luK shares...\n", g_current_algo->name, (g_shares_counter/1000u));
+				g_shares_log = g_shares_counter;
 			}
 
 			if(g_shares_counter > g_max_shares) {
 				g_exiting = true;
-				stratumlog("%s need a restart (%lu shares), exiting...\n", g_current_algo->name, g_max_shares);
+				stratumlogdate("%s need a restart (%lu shares), exiting...\n", g_current_algo->name, g_max_shares);
 				exit(1);
 			}
 		}
