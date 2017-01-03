@@ -343,7 +343,19 @@ function BackendUpdatePoolBalances($coinid = NULL)
 {
 	$t1 = microtime(true);
 
-	$sqlFilter = $coinid ? "id=".intval($coinid) : 'enable=1';
+	$sqlFilter = 'enable=1';
+
+	if ($coinid) { // used from wallet manual send
+		$sqlFilter = "id=".intval($coinid);
+		// refresh balance field from the wallet info
+		$coin = getdbo('db_coins', $coinid);
+		$remote = new WalletRPC($coin);
+		$info = $remote->getinfo();
+		if(isset($info['balance'])) {
+			$coin->balance = $info['balance'];
+			$coin->save();
+		}
+	}
 
 	$coins = getdbolist('db_coins', $sqlFilter);
 	foreach($coins as $coin)

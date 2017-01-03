@@ -252,6 +252,7 @@ class SiteController extends CommonController
 				debuglog("sent $amount {$coin->symbol} to bookmark {$bookmark->address}");
 				$bookmark->lastused = time();
 				$bookmark->save();
+				BackendUpdatePoolBalances($coin->id);
 			}
 		}
 
