@@ -829,22 +829,6 @@ class SiteController extends CommonController
 	//	$this->goback();
 	}
 
-	public function actionSellBalance()
-	{
-		if(!$this->admin) return;
-		$coin = getdbo('db_coins', getiparam('id'));
-		if ($coin) {
-			$amount = getparam('amount');
-			$res = $this->doSellBalance($coin, $amount);
-			if(!$res)
-				$this->redirect('/site/admin');
-			else
-				$this->redirect('/site/exchange');
-			return;
-		}
-		$this->goback();
-	}
-
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
 	public function actionBanUser()
@@ -958,24 +942,12 @@ class SiteController extends CommonController
 	public function actionDeleteExchange()
 	{
 		if(!$this->admin) return;
-
 		$exchange = getdbo('db_exchange', getiparam('id'));
 		if ($exchange) {
-
 			$exchange->status = 'deleted';
 			$exchange->price = 0;
 			$exchange->receive_time = time();
 			$exchange->save();
-
-			/*
-			$unspent = $exchange->quantity;
-			$earnings = getdbolist('db_earnings', "coinid=$exchange->coinid and not cleared order by create_time");
-			foreach($earnings as $earning) {
-				$unspent -= $earning->amount;
-				$earning->delete();
-				if($unspent <= 0) break;
-			}
-			*/
 		}
 		$this->goback();
 	}
@@ -1112,18 +1084,6 @@ class SiteController extends CommonController
 	{
 		debuglog(__METHOD__);
 		setcookie('mainbtc', '1', time()+60*60*24, '/');
-	}
-
-	public function actionTest()
-	{
-		if(!$this->admin) return;
-
-		debuglog("action test");
-
-		$ticker = jubi_api_query('ticker', "?coin=sak");
-		debuglog($ticker);
-
-		debuglog("action test end");
 	}
 
 }
