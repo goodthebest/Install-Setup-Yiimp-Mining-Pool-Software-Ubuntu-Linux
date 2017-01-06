@@ -90,7 +90,7 @@ void db_add_user(YAAMP_DB *db, YAAMP_CLIENT *client)
 	}
 
 	else
-		db_query(db, "UPDATE accounts SET coinsymbol='%s', donation=%d WHERE id=%d", symbol, gift, client->userid);
+		db_query(db, "UPDATE accounts SET coinsymbol='%s', donation=%d WHERE id=%d AND balance=0", symbol, gift, client->userid);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
