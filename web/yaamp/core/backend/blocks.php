@@ -183,8 +183,22 @@ function BackendBlocksUpdate($coinid = NULL)
 
 		$tx = $remote->gettransaction($block->txhash);
 		if(!$tx) {
-			if ($coin->enable)
+			if ($coin->enable) {
 				debuglog("{$coin->name} unable to find block {$block->height} tx {$block->txhash}!");
+				// DCR orphaned confirmations are not(no more) -1!
+				if($coin->rpcencoding == 'DCR' && $block->category == 'immature') {
+					$blockext = $remote->getblock($block->blockhash);
+					$conf = arraySafeVal($blockext,'confirmations',-1);
+					if ($conf == -1 || ($conf > 2 && arraySafeVal($blockext,'nextblockhash','') == '')) {
+						debuglog("{$coin->name} orphan block {$block->height} detected! (after $conf confirmations)");
+						$block->confirmations = -1;
+						$block->amount = 0;
+						$block->category = 'orphan';
+						$block->save();
+						continue;
+					}
+				}
+			}
 			else if ((time() - $block->time) > (7 * 24 * 3600)) {
 				debuglog("{$coin->name} outdated immature block {$block->height} detected!");
 				$block->category = 'orphan';
