@@ -243,6 +243,16 @@ echo CUFHtml::activeTextField($coin, 'market', array('maxlength'=>128,'style'=>'
 echo '<p class="formHint2">Selected exchange</p>';
 echo CUFHtml::closeCtrlHolder();
 
+if (empty($coin->price) || empty($coin->market) || $coin->market == 'unknown') {
+
+	echo CUFHtml::openActiveCtrlHolder($coin, 'price');
+	echo CUFHtml::activeLabelEx($coin, 'price');
+	echo CUFHtml::activeTextField($coin, 'price', array('maxlength'=>16,'style'=>'width: 180px;'));
+	echo '<p class="formHint2">Manually set the BTC price if missing</p>';
+	echo CUFHtml::closeCtrlHolder();
+
+}
+
 //echo CUFHtml::openActiveCtrlHolder($coin, 'marketid');
 //echo CUFHtml::activeLabelEx($coin, 'marketid');
 //echo CUFHtml::activeTextField($coin, 'marketid', array('maxlength'=>20,'style'=>'width: 120px;'));
