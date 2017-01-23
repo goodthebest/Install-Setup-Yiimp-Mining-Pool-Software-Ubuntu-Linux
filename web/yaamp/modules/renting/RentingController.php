@@ -299,12 +299,19 @@ class RentingController extends CommonController
 		$a = explode(':', getparam('order_host'));
 		if(!isset($a[0]) || !isset($a[1]))
 		{
+			user()->setFlash('error', "invalid server url");
 			$this->redirect('/renting');
 			return;
 		}
 
 		$job->host = $a[0];
 		$job->port = $a[1];
+
+		if(stripos($job->host, YAAMP_STRATUM_URL) !== false) {
+			user()->setFlash('error', "invalid server url");
+			$this->redirect('/renting');
+			return;
+		}
 
 		$rent = dboscalar("select rent from hashrate where algo=:algo order by time desc limit 1", array(':algo'=>$job->algo));
 
