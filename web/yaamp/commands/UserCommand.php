@@ -89,7 +89,8 @@ class UserCommand extends CConsoleCommand
 
 		$users = new db_accounts;
 		$rows = $users->findAll(array(
-			'condition'=>'last_login<:ts AND last_earning<:ts'.
+			// to improve with earnings table
+			'condition'=>'last_earning<:ts AND last_earning IS NOT NULL'.
 				' AND IFNULL(balance,0)=0 AND IFNULL(donation,0)=0 AND IFNULL(no_fees,0)=0',
 			'params'=>array(':ts'=>intval($ts)),
 			'order'=>'id ASC'
