@@ -156,7 +156,8 @@ class ExchangeCommand extends CConsoleCommand
 		}
 		if (!empty(EXCH_CRYPTOPIA_KEY)) {
 			$balance = cryptopia_api_user('GetBalance',array("Currency"=>"BTC"));
-			echo("cryptopia btc: ".json_encode($balance->Data)."\n");
+			if (!is_object($balance)) echo("cryptopia error ".json_encode($balance)."\n");
+			else echo("cryptopia btc: ".json_encode($balance->Data)."\n");
 		}
 		if (!empty(EXCH_KRAKEN_KEY)) {
 			$balance = kraken_api_user('Balance');

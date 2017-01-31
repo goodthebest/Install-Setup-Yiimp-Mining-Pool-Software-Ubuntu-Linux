@@ -72,7 +72,7 @@ function cryptopia_api_user($method, $params=NULL)
 	$result = json_decode($res);
 	if(!is_object($result) && !is_array($result)) {
 		$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-		debuglog("cryptopia: $method failed ($status) $res");
+		debuglog("cryptopia: $method failed ($status) ".strip_data($res));
 	}
 
 	curl_close($ch);

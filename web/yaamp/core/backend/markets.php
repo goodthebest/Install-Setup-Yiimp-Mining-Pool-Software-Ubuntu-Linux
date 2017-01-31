@@ -775,6 +775,10 @@ function updateCryptopiaMarkets()
 			$market->message = 'disabled from settings';
 			$market->save();
 			continue;
+		} else if ($market->message == 'disabled from settings') {
+			$market->disabled = 0;
+			$market->message = '';
+			$market->save();
 		}
 
 		foreach ($data->Data as $ticker) {
@@ -1021,8 +1025,33 @@ function updateLivecoinMarkets()
 			if (empty($coin->price2)) {
 				$coin->price = $market->price;
 				$coin->price2 = $market->price2;
-				$coin->market = 'empoex';
+				//$coin->market = 'shapeshift';
 				$coin->save();
+			}
+
+			if(!empty(EXCH_LIVECOIN_KEY) && $market->disabled == 0)
+			{
+				$last_checked = cache()->get($exchange.'-deposit_address-check-'.$coin->symbol);
+				if(empty($market->deposit_address) && !$last_checked)
+				{
+					sleep(1);
+					$data = livecoin_api_user('payment/get/address', array('currency'=>$coin->symbol));
+					if(!empty($data) && objSafeVal($data, 'wallet', '') != '') {
+						$addr = arraySafeVal($data, 'wallet');
+						if (!empty($addr) && $addr != $market->deposit_address) {
+							if (strpos($addr, 'Error') !== false)
+								$market->message = $addr;
+							else {
+								$market->deposit_address = $addr;
+								// delimiter "::" for memo / payment id
+								$market->message = null;
+								debuglog("$exchange: deposit address for {$coin->symbol} updated");
+							}
+							$market->save();
+						}
+					}
+				}
+				cache()->set($exchange.'-deposit_address-check-'.$coin->symbol, time(), 24*3600);
 			}
 		}
 	}
