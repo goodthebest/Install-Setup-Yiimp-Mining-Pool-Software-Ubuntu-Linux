@@ -296,7 +296,8 @@ class RentingController extends CommonController
 			return;
 		}
 
-		$a = explode(':', getparam('order_host'));
+		$host = str_replace('stratum+tcp://', '', getparam('order_host'));
+		$a = explode(':', $host);
 		if(!isset($a[0]) || !isset($a[1]))
 		{
 			user()->setFlash('error', "invalid server url");
@@ -304,8 +305,8 @@ class RentingController extends CommonController
 			return;
 		}
 
-		$job->host = $a[0];
-		$job->port = $a[1];
+		$job->host = trim($a[0]);
+		$job->port = intval($a[1]);
 
 		if(stripos($job->host, YAAMP_STRATUM_URL) !== false) {
 			user()->setFlash('error', "invalid server url");
