@@ -81,7 +81,7 @@ foreach($list as $market)
 	echo '<td title="'.$updated.'">'.$price.'</td>';
 	echo '<td title="'.$updated.'">'.$price2.'</td>';
 
-	echo '<td>';
+	echo '<td style="max-width: 800px; text-overflow: ellipsis; overflow: hidden;">';
 	if (!empty($market->deposit_address)) {
 		$name = CJavaScript::encode($market->name);
 		$addr = CJavaScript::encode($market->deposit_address);
@@ -307,12 +307,13 @@ $txs_array = array(); $lastday = '';
 if (!empty($txs)) {
 	// to hide truncated days sums
 	$tx = reset($txs);
-	if (count($txs) == 2500)
+
+	if (count($txs) == 2500 && isset($tx['time']))
 		$lastday = strftime('%F', $tx['time']);
 
 	if (!empty($txs)) foreach($txs as $tx)
 	{
-		if (intval($tx['time']) > $list_since)
+		if (ArraySafeVal($tx, 'time', $list_since+1) > $list_since)
 			$txs_array[] = $tx;
 	}
 
@@ -393,7 +394,7 @@ if ($DCR) {
 $rows = 0;
 foreach($txs_array as $tx)
 {
-	$category = $tx['category'];
+	$category = ArraySafeVal($tx,'category');
 	if ($category == 'spent') continue;
 
 	$block = null;
@@ -401,6 +402,12 @@ foreach($txs_array as $tx)
 		$block = $remote->getblock($tx['blockhash']);
 
 	echo '<tr class="ssrow '.$category.'">';
+
+	if (!isset($tx['time'])) {
+		// martian wallets
+		echo '<td colspan="8">'.json_encode($tx).'</td>';
+		continue;
+	}
 
 	$d = datetoa2($tx['time']);
 	echo '<td><b>'.$d.'</b></td>';
@@ -470,6 +477,8 @@ end;
 $sums = array();
 foreach($txs_array as $tx)
 {
+	if (!isset($tx['time'])) continue;
+
 	$day = strftime('%F', $tx['time']); // YYYY-MM-DD
 	if ($day == $lastday) break; // do not show truncated days
 

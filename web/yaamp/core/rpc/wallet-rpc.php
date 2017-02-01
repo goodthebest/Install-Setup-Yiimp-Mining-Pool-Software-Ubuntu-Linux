@@ -218,8 +218,59 @@ class WalletRPC {
 				$this->error = $this->rpc_wallet->error;
 				break;
 			case 'listtransactions':
-				$res = $this->rpc_wallet->get_bulk_payments();
+				// make it as close as possible as bitcoin rpc... sigh (todo: xmr-rpc function)
+				$txs = array();
+				$named_params = array('transfer_type' => 'all');
+				$res = $this->rpc_wallet->incoming_transfers($named_params);
+				$res = isset($res['transfers']) ? $res['transfers'] : array();
 				$this->error = $this->rpc_wallet->error;
+				foreach ($res as $k=>$tx) {
+					$tx['category'] = 'receive';
+					$tx['txid'] = $tx['tx_hash'];
+					$tx['amount'] = $tx['amount'] / 1e12;
+					$raw = $this->rpc->gettransactions(array(
+						'txs_hashes' => array($tx['tx_hash']),
+						'decode_as_json' => true
+					));
+					$raw = reset(arraySafeVal($raw,'txs',array()));
+					if (!empty($raw)) {
+						$k = (double) $raw['block_height'] + ($k/1000.0);
+						unset($raw['as_hex']);
+						unset($raw['tx_hash']);
+						//$raw['json'] = json_decode($raw['as_json']);
+						unset($raw['as_json']);
+					}
+					$tx = array_merge($tx, $raw);
+					unset($tx['tx_hash']);
+					$k = sprintf("%015.4F", $k); // sort key
+					$txs[$k] = $tx;
+				}
+				$named_params = array('min_block_height' => 1);
+				$res = $this->rpc_wallet->get_bulk_payments($named_params);
+				$res = isset($res['payments']) ? $res['payments'] : array();
+				foreach ($res as $k=>$tx) {
+					$tx['category'] = 'send';
+					$k = (double) $raw['block_height'] + 0.5 + ($k/1000.0); // sort key
+					$tx['txid'] = $tx['tx_hash'];
+					$tx['amount'] = $tx['amount'] / 1e12;
+					$raw = $this->rpc->gettransactions(array(
+						'txs_hashes' => array($tx['tx_hash']),
+						'decode_as_json' => true
+					));
+					$raw = reset(arraySafeVal($raw,'txs',array()));
+					if (!empty($raw)) {
+						unset($raw['as_hex']);
+						unset($raw['tx_hash']);
+						//$raw['json'] = json_decode($raw['as_json']);
+						unset($raw['as_json']);
+					}
+					$tx = array_merge($tx, $raw);
+					unset($tx['tx_hash']);
+					$k = sprintf("%015.4F", $k);
+					$txs[$k] = $tx;
+				}
+				krsort($txs);
+				$res = array_values($txs);
 				break;
 			case 'getaddress':
 				$res = $this->rpc_wallet->getaddress();
@@ -241,7 +292,10 @@ class WalletRPC {
 				$this->error = $this->rpc_wallet->error;
 				break;
 			case 'incoming_transfers': // deprecated ?
-				$res = $this->rpc_wallet->incoming_transfers();
+				$named_params = array(
+					"transfer_type"=>arraySafeVal($params, 0)
+				);
+				$res = $this->rpc_wallet->incoming_transfers($named_params);
 				$this->error = $this->rpc_wallet->error;
 				break;
 			case 'sendtoaddress':
@@ -298,6 +352,16 @@ class WalletRPC {
 				$res = $this->rpc_wallet->store();
 				$this->error = $this->rpc_wallet->error;
 				break;
+			case 'gettransactions':
+				$named_params = array(
+					"txs_hashes" => array(arraySafeVal($params, 0, array())),
+					'decode_as_json' => true
+				);
+				$res = $this->rpc->gettransactions($named_params);
+				unset($res['txs_as_hex']); // dup
+				unset($res['txs_as_json']); // dup
+				$this->error = $this->rpc->error;
+				return $res;
 			default:
 				// default to daemon
 				$res = $this->rpc->__call($method,$params);
