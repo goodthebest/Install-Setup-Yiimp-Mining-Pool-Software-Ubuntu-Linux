@@ -6,7 +6,16 @@ function BenchUpdateChips()
 {
 	require_once(app()->getModulePath().'/bench/functions.php');
 
+	// some data cleanup tasks...
 	dborun("UPDATE benchmarks SET device=TRIM(device) WHERE type='cpu'");
+	dborun("UPDATE benchmarks SET power=NULL WHERE power<=3");
+	dborun("UPDATE benchmarks SET plimit=NULL WHERE plimit=0");
+	dborun("UPDATE benchmarks SET freq=NULL WHERE freq=0");
+	dborun("UPDATE benchmarks SET memf=NULL WHERE memf=0");
+	dborun("UPDATE benchmarks SET realmemf=NULL WHERE realmemf<=100");
+	dborun("UPDATE benchmarks SET realfreq=NULL WHERE realfreq<=200");
+	// bug in nvml 378.x (linux + win)
+	dborun("UPDATE benchmarks SET realfreq=NULL WHERE realfreq<=200 AND driver LIKE '% 378.%'");
 
 	$benchs = getdbolist('db_benchmarks', "IFNULL(chip,'')=''");
 	foreach ($benchs as $bench) {

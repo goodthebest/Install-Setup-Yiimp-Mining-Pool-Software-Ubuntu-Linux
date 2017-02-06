@@ -62,7 +62,9 @@ echo <<<end
 
 <style type="text/css">
 tr.ssrow.filtered { display: none; }
-.page .footer { width: auto; };
+td.limited { color: silver; }
+td.real { color: black; }
+.page .footer { width: auto; }
 </style>
 
 <div align="right" style="margin-top: -22px; margin-right: 140px;">
@@ -156,8 +158,30 @@ foreach ($db_rows as $row) {
 	else
 		echo '<td data="'.$row['throughput'].'" title="'.$row['throughput'].' threads">'.$row['intensity'].'</td>';
 
-	echo '<td>'.($row['freq'] ? $row['freq'] : '-').'</td>';
-	echo '<td>'.(empty($row['power']) ? '-' : $row['power']).'</td>';
+	// freqs
+	$title = ''; $class = '';
+	$content = $row['freq'] ? $row['freq'] : '-';
+	if (intval($row['realfreq']) > $row['freq'] / 10) {
+		$content = $row['realfreq'];
+		$class  = 'real';
+		$title .= 'Base clock: '.$row['freq'].' MHz'."\n";
+		$title .= 'Mem clock: '.$row['realmemf'].' MHz ('.($row['realmemf']-$row['memf']).')';
+	} else if ($row['memf']) {
+		$title = 'Mem Clock: '.$row['memf'].' MHz';
+	}
+	$props = array('title'=>$title,'class'=>$class);
+	echo CHtml::tag('td', $props, $content, true);
+
+	// power
+	$title = ''; $class = '';
+	$content = $row['power'] ? $row['power'] : '-';
+	if ($row['plimit']) {
+		$title = 'Power limit '.$row['plimit'].'W';
+		$class = 'limited';
+	}
+	$props = array('title'=>$title,'class'=>$class);
+	echo CHtml::tag('td', $props, $content, true);
+
 	echo '<td>'.(empty($row['power']) ? '-' : mbitcoinvaluetoa(powercost_mBTC($row['power']))).'</td>';
 	echo '<td>'.formatClientName($row['client']).'</td>';
 	echo '<td>'.$row['os'].'</td>';
@@ -192,24 +216,24 @@ if (!empty($algo)) {
 	if (arraySafeVal($avg, 'records') > 0) {
 		echo '<tfoot><tr class="ssfoot">';
 
-		echo '<th class="algo">'.CHtml::link($algo,'/bench?algo='.$algo).'</td>';
-		echo '<th>&nbsp;</td>';
+		echo '<th class="algo">'.CHtml::link($algo,'/bench?algo='.$algo).'</th>';
+		echo '<th>&nbsp;</th>';
 
-		echo '<th colspan="4">Average ('.$avg["records"].' records)</td>';
+		echo '<th colspan="4">Average ('.$avg["records"].' records)</th>';
 
-		echo '<th>'.Itoa2(1000*round($avg['khps'],3),3).'H</td>';
-		echo '<th>'.($avg['intensity'] ? round($avg['intensity'],1) : '').'</td>';
-		echo '<th>'.($avg['freq'] ? round($avg['freq']) : '').'</td>';
-		echo '<th>'.($avg['power'] ? round($avg['power']) : '').'</td>';
-		echo '<th>'.($avg['power'] ? mbitcoinvaluetoa(powercost_mBTC($avg['power'])) : '').'</td>';
+		echo '<th>'.Itoa2(1000*round($avg['khps'],3),3).'H</th>';
+		echo '<th>'.($avg['intensity'] ? round($avg['intensity'],1) : '').'</th>';
+		echo '<th>'.($avg['freq'] ? round($avg['freq']) : '').'</th>';
+		echo '<th>'.($avg['power'] ? round($avg['power']) : '').'</th>';
+		echo '<th>'.($avg['power'] ? mbitcoinvaluetoa(powercost_mBTC($avg['power'])) : '').'</th>';
 
 		$hpw = 0;
 		if (floatval($avg['power']) > 0) {
 			$hpw = floatval($avg['khps']) / floatval($avg['power']);
 		}
-		echo '<th>'.($hpw ? Itoa2(1000*round($hpw,3),3).'H/W' : '').'</td>';
+		echo '<th>'.($hpw ? Itoa2(1000*round($hpw,3),3).'H/W' : '').'</th>';
 
-		echo '<th colspan="3">&nbsp;</td>';
+		echo '<th colspan="3">&nbsp;</th>';
 
 		echo '</tr></tfoot>';
 	}
