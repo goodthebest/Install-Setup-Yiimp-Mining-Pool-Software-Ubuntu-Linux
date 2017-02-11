@@ -131,19 +131,19 @@ function BackendCoinsUpdate()
 				if($coin->symbol == 'TAC' && isset($template['_V2']))
 					$coin->charity_amount = $template['_V2']/100000000;
 
-				if(isset($template['payee_amount']) && $coin->symbol != 'LIMX')
-				{
+				if(isset($template['payee_amount']) && $coin->symbol != 'LIMX') {
 					$coin->charity_amount = $template['payee_amount']/100000000;
 					$coin->reward -= $coin->charity_amount;
-
-				//	debuglog("$coin->symbol $coin->charity_amount $coin->reward");
 				}
 
-				else if(!empty($coin->charity_address))
-				{
-					if($coin->charity_amount)
-						;	//$coin->reward -= $coin->charity_amount;
-					else
+				else if($coin->symbol == 'XZC') {
+					// coinbasevalue here is the amount available for miners, not the full block amount
+					$coin->reward = arraySafeVal($template,'coinbasevalue')/100000000 * $coin->reward_mul;
+					$coin->charity_amount = $coin->reward * $coin->charity_percent / 100;
+				}
+
+				else if(!empty($coin->charity_address)) {
+					if(!$coin->charity_amount)
 						$coin->reward -= $coin->reward * $coin->charity_percent / 100;
 				}
 

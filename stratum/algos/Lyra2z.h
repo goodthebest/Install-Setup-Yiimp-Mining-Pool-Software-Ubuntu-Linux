@@ -17,8 +17,8 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef LYRA2_H_
-#define LYRA2_H_
+#ifndef LYRA2z_H_
+#define LYRA2z_H_
 
 #include <stdint.h>
 
@@ -37,6 +37,15 @@ typedef unsigned char byte;
         #define BLOCK_LEN_BYTES (BLOCK_LEN_INT64 * 8)    //Block length, in bytes
 #endif
 
-int LYRA2(void *K, int64_t kLen, const void *pwd, int32_t pwdlen, const void *salt, int32_t saltlen, int64_t timeCost, const int64_t nRows, const int16_t nCols);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#endif /* LYRA2_H_ */
+    int LYRA2z(void *K, uint64_t kLen, const void *pwd, uint64_t pwdlen, const void *salt, uint64_t saltlen, uint64_t timeCost, uint64_t nRows, uint64_t nCols);
+
+#ifdef __cplusplus
+}
+
+#endif
+
+#endif /* LYRA2z_H_ */
