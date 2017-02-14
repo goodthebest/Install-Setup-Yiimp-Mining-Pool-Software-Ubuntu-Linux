@@ -179,7 +179,13 @@ if (!empty($info)) {
 
 if ($DCR) {
 	// Decred Tickets
-	$stake = $remote->getbalance('*',0,'locked');
+	$stake = 0;
+	$balances = $remote->getbalance('*',0);
+	if (isset($balances["balances"])) {
+		foreach ($balances["balances"] as $accb) {
+			$stake += arraySafeVal($accb, 'lockedbytickets', 0);
+		}
+	}
 	$stakeinfo = $remote->getstakeinfo();
 	$ticketprice = arraySafeVal($stakeinfo,'difficulty');
 	$tickets  = arraySafeVal($stakeinfo, 'live', 0);
