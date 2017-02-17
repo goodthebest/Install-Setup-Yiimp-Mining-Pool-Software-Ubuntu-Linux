@@ -124,7 +124,13 @@ function BackendWatchMarkets($marketname=NULL)
 		if ($coin->rpcencoding == 'DCR') {
 			// hack to store the locked balance history as a "stake" market
 			$remote = new WalletRPC($coin);
-			$stake = (double) $remote->getbalance('*',0,'locked');
+			$stake = 0.; //(double) $remote->getbalance('*',0,'locked');
+			$balances = $remote->getbalance('*',0);
+			if (isset($balances["balances"])) {
+				foreach ($balances["balances"] as $accb) {
+					$stake += (double) arraySafeVal($accb, 'lockedbytickets', 0);
+				}
+			}
 			$info = $remote->getstakeinfo();
 			if (empty($remote->error) && isset($info['difficulty']))
 			dborun("UPDATE markets SET balance=0, ontrade=:stake, balancetime=:time,
