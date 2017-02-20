@@ -59,6 +59,8 @@ foreach($versions as $item)
 	$hashrate = dboscalar("select sum(difficulty) * $target / $interval / 1000 from shares where valid and time>$delay and
 		workerid IN (select id from workers where algo=:algo and version=:version)", array(':algo'=>$algo, ':version'=>$version));
 
+	if (!$hashrate && !$this->admin) continue;
+
 	$invalid = dboscalar("select sum(difficulty) * $target / $interval / 1000 from shares where not valid and time>$delay and
 		workerid IN (select id from workers where algo=:algo and version=:version)", array(':algo'=>$algo, ':version'=>$version));
 

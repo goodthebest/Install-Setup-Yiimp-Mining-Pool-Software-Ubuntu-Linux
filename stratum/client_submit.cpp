@@ -392,10 +392,17 @@ bool client_submit(YAAMP_CLIENT *client, json_value *json_params)
 		return true;
 	}
 
-	if(strcmp(ntime, templ->ntime) && !ntime_valid_range(ntime))
+	if(strcmp(ntime, templ->ntime))
 	{
-		client_submit_error(client, job, 23, "Invalid time rolling", extranonce2, ntime, nonce);
-		return true;
+		if (!ntime_valid_range(ntime)) {
+			client_submit_error(client, job, 23, "Invalid time rolling", extranonce2, ntime, nonce);
+			return true;
+		}
+		// these algos permutations change over time (can lead to different speeds)
+		if (!strcmp(g_current_algo->name,"x11evo") || !strcmp(g_current_algo->name,"timetravel")) {
+			client_submit_error(client, job, 23, "Invalid ntime (rolling not allowed)", extranonce2, ntime, nonce);
+			return true;
+		}
 	}
 
 	YAAMP_SHARE *share = share_find(job->id, extranonce2, ntime, nonce, client->extranonce1);

@@ -103,6 +103,8 @@ YAAMP_ALGO g_algos[] =
 
 	{"x11evo", x11evo_hash, 1, 0, 0},
 	{"xevan", xevan_hash, 0x100, 0, 0},
+	{"timetravel", timetravel_hash, 0x100, 0, 0}, // Waaaaahhh
+	{"hmq1725", hmq17_hash, 0x10000, 0, 0},
 
 	{"lyra2", lyra2re_hash, 0x80, 0, 0},
 	{"lyra2v2", lyra2v2_hash, 0x100, 0, 0},
@@ -114,6 +116,7 @@ YAAMP_ALGO g_algos[] =
 	{"vanilla", blakecoin_hash, 1, 0 },
 	{"decred", decred_hash, 1, 0 },
 
+	{"deep", deep_hash, 1, 0, 0},
 	{"fresh", fresh_hash, 0x100, 0, 0},
 	{"quark", quark_hash, 1, 0, 0},
 	{"nist5", nist5_hash, 1, 0, 0},
