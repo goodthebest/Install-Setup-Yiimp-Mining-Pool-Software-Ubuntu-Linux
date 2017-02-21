@@ -28,10 +28,10 @@ class YAAMP_SHARE: public YAAMP_OBJECT
 {
 public:
 	int jobid;
-	char extranonce2[32];
+	char extranonce2[64];
 	char ntime[32];
-	char nonce[32];
-	char nonce1[32];
+	char nonce[64];
+	char nonce1[64];
 };
 
 inline void share_delete(YAAMP_OBJECT *object)
