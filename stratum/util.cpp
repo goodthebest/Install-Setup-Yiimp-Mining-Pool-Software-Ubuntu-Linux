@@ -340,49 +340,6 @@ void base64_decode(char *normal, const char *base64)
 	*normal = 0;
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////
-
-//const unsigned char g_base58_tab[] = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
-//
-//void base58_decode(const char *input, char *output)
-//{
-//	int i;
-//
-//	unsigned char decoding_tab[256];
-//	memset(decoding_tab, 255, 256);
-//
-//	for(i = 0; i < 58; i++)
-//		decoding_tab[g_base58_tab[i]] = i;
-//
-//	unsigned long current = 0;
-//	int bit_filled = 0;
-//
-//	for(i = 0; base58[i]; i++)
-//	{
-//		if(base58[i] == 0x0A || base58[i] == 0x0D || base58[i] == 0x20 || base58[i] == 0x09)
-//			continue;
-//
-//		if(base58[i] == '=')
-//			break;
-//
-//		unsigned char digit = decoding_tab[base58[i]];
-//
-//		current <<= 6;
-//		current |= digit;
-//		bit_filled += 6;
-//
-//		if(bit_filled >= 8)
-//		{
-//			unsigned long b = (current >> (bit_filled - 8));
-//
-//			*normal++ = (unsigned char)(b & 0xFF);
-//			bit_filled -= 8;
-//		}
-//	}
-//
-//	*normal = 0;
-//}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 void hexlify(char *hex, const unsigned char *bin, int len)
