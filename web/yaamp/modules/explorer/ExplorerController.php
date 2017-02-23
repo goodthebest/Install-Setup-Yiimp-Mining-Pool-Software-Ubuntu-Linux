@@ -57,11 +57,6 @@ class ExplorerController extends CommonController
 
 		$id = getiparam('id');
 		$coin = getdbo('db_coins', $id);
-
-		// todo: coin explorer option
-		if ($coin && $coin->symbol == 'XZC' && !$this->admin)
-			return;
-
 		$height = getiparam('height');
 		if($coin && intval($height)>0)
 		{
