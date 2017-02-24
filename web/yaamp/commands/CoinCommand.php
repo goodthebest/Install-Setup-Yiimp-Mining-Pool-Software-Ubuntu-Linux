@@ -34,6 +34,7 @@ class CoinCommand extends CConsoleCommand
 			echo "Yiimp coin command\n";
 			echo "Usage: yiimp coin <SYM> delete - to delete with all related records\n";
 			echo "       yiimp coin <SYM> purge - to clean users and history \n";
+			echo "       yiimp coin <SYM> diff - to check if wallet diff is standard\n";
 			echo "       yiimp coin <SYM> get <key>\n";
 			echo "       yiimp coin <SYM> set <key> <value>\n";
 			echo "       yiimp coin <SYM> unset <key>\n";
@@ -45,6 +46,9 @@ class CoinCommand extends CConsoleCommand
 
 		} else if ($args[1] == 'purge') {
 			return $this->purgeCoin($symbol);
+
+		} else if ($args[1] == 'diff') {
+			return $this->checkMiningDiff($symbol);
 
 		} else if ($args[1] == 'get') {
 			return $this->getCoinSetting($args);
@@ -120,6 +124,37 @@ class CoinCommand extends CConsoleCommand
 
 			$coin->delete();
 			echo "coin ".$coin->symbol." deleted\n";
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Compare getminininginfo difficulty and computed one (from the target hash)
+	 */
+	public function checkMiningDiff($symbol)
+	{
+		$coins = new db_coins;
+
+		if (!$coins instanceof CActiveRecord)
+			return;
+
+		$coin = $coins->find(array('condition'=>'symbol=:sym', 'params'=>array(':sym'=>$symbol)));
+		if ($coin)
+		{
+			$remote = new WalletRPC($coin);
+			$tpl = $remote->getblocktemplate();
+			$mnf = $remote->getmininginfo();
+			if (empty($tpl)) echo "error ".json_encode($tpl);
+
+			$target = arraySafeVal($tpl,"target","");
+			$computed_diff = hash_to_difficulty($coin,$target);
+			$wallet_diff = arraySafeVal($mnf,"difficulty",0);
+			$factor = $computed_diff ? round($wallet_diff/$computed_diff,3) : 'NaN';
+
+			echo $coin->symbol.": network=".Itoa2(arraySafeVal($mnf,"networkhashps",0)*1000, 3)."H/s\n".
+				"bits=".arraySafeVal($tpl,"bits","")." target=$target\n".
+				"difficulty=$wallet_diff hash_to_difficulty(target)=$computed_diff factor=$factor\n";
 		}
 	}
 
