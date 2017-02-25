@@ -95,9 +95,14 @@ foreach($db_blocks as $db_block)
 	if($db_block->category == 'orphan')
 		echo '<span class="block orphan">Orphan</span>';
 
-	else if($db_block->category == 'immature')
-		echo '<span class="block immature">Immature ('.$db_block->confirmations.')</span>';
-
+	else if($db_block->category == 'immature') {
+		$eta = '';
+		if ($coin->block_time && $coin->mature_blocks) {
+			$t = (int) ($coin->mature_blocks - $db_block->confirmations) * $coin->block_time;
+			$eta = "ETA: ".sprintf('%dh %02dmn', ($t/3600), ($t/60)%60);
+		}
+		echo '<span class="block immature" title="'.$eta.'">Immature ('.$db_block->confirmations.')</span>';
+	}
 	else if($db_block->category == 'generate')
 		echo '<span class="block confirmed">Confirmed</span>';
 
