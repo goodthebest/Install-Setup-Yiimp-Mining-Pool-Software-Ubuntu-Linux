@@ -418,7 +418,14 @@ foreach($txs_array as $tx)
 	$d = datetoa2($tx['time']);
 	echo '<td><b>'.$d.'</b></td>';
 
-	echo '<td>'.$category.'</td>';
+	$eta = '';
+	if ($category == 'immature') {
+		if ($coin->block_time && $coin->mature_blocks) {
+			$t = (int) ($coin->mature_blocks - ArraySafeVal($tx,'confirmations',0)) * $coin->block_time;
+			$eta = "ETA: ".sprintf('%dh %02dmn', ($t/3600), ($t/60)%60);
+		}
+	}
+	echo '<td title="'.$eta.'">'.$category.'</td>';
 	echo '<td>'.$tx['amount'].'</td>';
 
 	if($block) {
@@ -426,10 +433,7 @@ foreach($txs_array as $tx)
 	} else
 		echo '<td></td><td></td>';
 
-	if(isset($tx['confirmations']))
-		echo '<td>'.$tx['confirmations'].'</td>';
-	else
-		echo '<td></td>';
+	echo '<td>'.ArraySafeVal($tx,'confirmations').'</td>';
 
 	echo '<td width="280">';
 	if(isset($tx['address']))
