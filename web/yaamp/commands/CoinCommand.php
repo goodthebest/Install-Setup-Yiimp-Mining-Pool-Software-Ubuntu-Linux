@@ -35,6 +35,7 @@ class CoinCommand extends CConsoleCommand
 			echo "Usage: yiimp coin <SYM> delete - to delete with all related records\n";
 			echo "       yiimp coin <SYM> purge - to clean users and history \n";
 			echo "       yiimp coin <SYM> diff - to check if wallet diff is standard\n";
+			echo "       yiimp coin <SYM> blocktime - estimate the chain blocktime\n";
 			echo "       yiimp coin <SYM> get <key>\n";
 			echo "       yiimp coin <SYM> set <key> <value>\n";
 			echo "       yiimp coin <SYM> unset <key>\n";
@@ -49,6 +50,9 @@ class CoinCommand extends CConsoleCommand
 
 		} else if ($args[1] == 'diff') {
 			return $this->checkMiningDiff($symbol);
+
+		} else if ($args[1] == 'blocktime') {
+			return $this->estimateBlockTime($symbol);
 
 		} else if ($args[1] == 'get') {
 			return $this->getCoinSetting($args);
@@ -145,7 +149,7 @@ class CoinCommand extends CConsoleCommand
 			$remote = new WalletRPC($coin);
 			$tpl = $remote->getblocktemplate();
 			$mnf = $remote->getmininginfo();
-			if (empty($tpl)) echo "error ".json_encode($tpl);
+			if (empty($tpl)) die("error {$remote->error} ".json_encode($tpl)."\n");
 
 			$target = arraySafeVal($tpl,"target","");
 			$computed_diff = hash_to_difficulty($coin,$target);
@@ -155,6 +159,65 @@ class CoinCommand extends CConsoleCommand
 			echo $coin->symbol.": network=".Itoa2(arraySafeVal($mnf,"networkhashps",0)*1000, 3)."H/s\n".
 				"bits=".arraySafeVal($tpl,"bits","")." target=$target\n".
 				"difficulty=$wallet_diff hash_to_difficulty(target)=$computed_diff factor=$factor\n";
+		}
+	}
+
+	/**
+	 * Compare getminininginfo difficulty and computed one (from the target hash)
+	 */
+	public function estimateBlockTime($symbol)
+	{
+		$coins = new db_coins;
+
+		if (!$coins instanceof CActiveRecord)
+			return;
+
+		$coin = $coins->find(array('condition'=>'symbol=:sym', 'params'=>array(':sym'=>$symbol)));
+		if ($coin)
+		{
+			$remote = new WalletRPC($coin);
+			$nfo = $remote->getinfo();
+			if (empty($nfo)) die("error {$remote->error} ".json_encode($nfo)."\n");
+			$height = arraySafeVal($nfo,"blocks",0);
+
+			$hash = $remote->getblockhash($height-1024);
+			if (empty($hash)) die("error {$remote->error} ".json_encode($hash)."\n");
+			$block = $remote->getblock($hash);
+			$time1 = arraySafeVal($block, 'time', 0);
+
+			$hash = $remote->getblockhash($height-512);
+			if (empty($hash)) die("error {$remote->error} ".json_encode($hash)."\n");
+			$block = $remote->getblock($hash);
+			$time2 = arraySafeVal($block, 'time', 0);
+
+			$hash = $remote->getblockhash($height-128);
+			if (empty($hash)) die("error {$remote->error} ".json_encode($hash)."\n");
+			$block = $remote->getblock($hash);
+			$time3 = arraySafeVal($block, 'time', 0);
+
+			$hash = $remote->getblockhash($height);
+			if (empty($hash)) die("error {$remote->error} ".json_encode($hash)."\n");
+			$block = $remote->getblock($hash);
+			$time = arraySafeVal($block, 'time', 0);
+
+			$t = intval($coin->block_time);
+			$human_time = sprintf('%dmn%02d', ($t/60), ($t%60));
+			echo $coin->symbol.": current block_time set in the db $human_time ($t sec) \n";
+
+			$t = round(($time - $time1) / 1024);
+			$human_time = sprintf('%dmn%02d', ($t/60), ($t%60));
+			echo $coin->symbol.": avg time for the last 1024 blocks = $human_time ($t sec) \n";
+			if (empty($coin->block_time) && $t > 10) {
+				$coin->block_time = $t;
+				$coin->save();
+				echo $coin->symbol.": db block_time set to $t\n";
+			}
+			$t = round(($time - $time2) / 512);
+			$human_time = sprintf('%dmn%02d', ($t/60), ($t%60));
+			echo $coin->symbol.": avg time for the last  512 blocks = $human_time ($t sec) \n";
+			$t = round(($time - $time3) / 128);
+			$human_time = sprintf('%dmn%02d', ($t/60), ($t%60));
+			echo $coin->symbol.": avg time for the last  128 blocks = $human_time ($t sec) \n";
 		}
 	}
 
