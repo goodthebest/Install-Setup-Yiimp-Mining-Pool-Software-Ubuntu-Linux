@@ -163,7 +163,7 @@ class CoinCommand extends CConsoleCommand
 	}
 
 	/**
-	 * Compare getminininginfo difficulty and computed one (from the target hash)
+	 * Extract/Compute the average block time of a block chain
 	 */
 	public function estimateBlockTime($symbol)
 	{
