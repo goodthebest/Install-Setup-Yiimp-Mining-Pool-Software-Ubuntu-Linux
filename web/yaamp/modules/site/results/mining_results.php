@@ -141,7 +141,9 @@ foreach($list as $coin)
 	else
 		echo "<tr class='ssrow'>";
 
-	echo "<td width=18><img width=16 src='$coin->image'></td>";
+	echo '<td width="18">';
+	echo $coin->createExplorerLink('<img width="16" src="'.$coin->image.'">');
+	echo '</td>';
 
 	$owed = dboscalar("select sum(balance) from accounts where coinid=$coin->id");
 	if($coin->balance+$coin->mint < $owed*0.9)
