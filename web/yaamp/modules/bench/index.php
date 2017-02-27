@@ -40,10 +40,11 @@ JavascriptFile("/yaamp/ui/js/jquery.tablesorter.widgets.js");
 
 include('functions.php');
 
+$filtered = false;
 $algo = user()->getState('bench-algo');
 if (empty($algo)) $algo = 'all';
-if (empty($idchip)) $idchip = NULL;
-if (empty($vid)) $vid = NULL;
+if (empty($idchip)) $idchip = NULL; else $filtered = true;
+if (empty($vid)) $vid = NULL; else $filtered = true;
 
 $this->pageTitle = "Benchmarks";
 
@@ -117,7 +118,7 @@ echo <<<END
 <th data-sorter="numeric" title="Intensity (-i) for GPU or Threads (-t) for CPU miners">Int.</th>
 <th data-sorter="numeric" title="MHz">Freq</th>
 <th data-sorter="numeric" title="Watts if available">W</th>
-<th data-sorter="currency" title="mBTC/day">Cost</th>
+<th data-sorter="currency" title="Efficiency">H/W</th>
 <th data-sorter="text">Client</th>
 <th data-sorter="text">OS</th>
 <th data-sorter="text">Driver / Compiler</th>
@@ -133,7 +134,7 @@ foreach ($db_rows as $row) {
 
 	echo '<tr class="ssrow">';
 
-	$hashrate = Itoa2(1000*round($row['khps'],3),3).'H';
+	$hashrate = Itoa2(1000*round($row['khps'],3),2).'H';
 	$age = datetoa2($row['time']);
 
 	echo '<td class="algo">'.CHtml::link($row['algo'],'/bench?algo='.$row['algo']).'</td>';
@@ -156,7 +157,7 @@ foreach ($db_rows as $row) {
 	else if ($algo == 'neoscrypt')
 		echo '<td data="'.$row['throughput'].'" title="neoscrypt intensity is different">'.$row['throughput'].'*</td>';
 	else
-		echo '<td data="'.$row['throughput'].'" title="'.$row['throughput'].' threads">'.$row['intensity'].'</td>';
+		echo '<td data="'.$row['throughput'].'" title="'.$row['throughput'].' threads">'.($row['intensity']?$row['intensity']:'-').'</td>';
 
 	// freqs
 	$title = ''; $class = '';
@@ -174,7 +175,8 @@ foreach ($db_rows as $row) {
 
 	// power
 	$title = ''; $class = '';
-	$content = $row['power'] ? $row['power'] : '-';
+	$power = (double) $row['power'];
+	$content = $power>0 ? $power : '-';
 	if ($row['plimit']) {
 		$title = 'Power limit '.$row['plimit'].'W';
 		$class = 'limited';
@@ -182,7 +184,7 @@ foreach ($db_rows as $row) {
 	$props = array('title'=>$title,'class'=>$class);
 	echo CHtml::tag('td', $props, $content, true);
 
-	echo '<td>'.(empty($row['power']) ? '-' : mbitcoinvaluetoa(powercost_mBTC($row['power']))).'</td>';
+	echo '<td>'.($power>0 ? Itoa2(1000*round($row['khps'] / $power, 3),2) : '-').'</td>';
 	echo '<td>'.formatClientName($row['client']).'</td>';
 	echo '<td>'.$row['os'].'</td>';
 	echo '<td>'.$row['driver'].'</td>';
@@ -201,9 +203,9 @@ if (!empty($algo)) {
 
 	if ($idchip) $sqlFilter .= ' AND idchip='.intval($idchip);
 
-	$avg = dborow("SELECT AVG(khps) as khps, AVG(power) as power, AVG(intensity) as intensity, AVG(freq) as freq, ".
+	$avg = dborow("SELECT AVG(khps) as khps, AVG(power) as power, AVG(B.intensity) as intensity, AVG(freq) as freq, ".
 		"COUNT(*) as records ".
-		"FROM benchmarks B WHERE algo=:algo AND power > 5 AND $sqlFilter", array(':algo'=>$algo)
+		"FROM benchmarks B WHERE algo=:algo AND B.intensity > 0 AND power > 5 AND $sqlFilter", array(':algo'=>$algo)
 	);
 
 	if (arraySafeVal($avg, 'records') == 0) {
@@ -221,19 +223,21 @@ if (!empty($algo)) {
 
 		echo '<th colspan="4">Average ('.$avg["records"].' records)</th>';
 
-		echo '<th>'.Itoa2(1000*round($avg['khps'],3),3).'H</th>';
+		echo '<th>'.Itoa2(1000*round($avg['khps'],3),2).'H</th>';
 		echo '<th>'.($avg['intensity'] ? round($avg['intensity'],1) : '').'</th>';
 		echo '<th>'.($avg['freq'] ? round($avg['freq']) : '').'</th>';
-		echo '<th>'.($avg['power'] ? round($avg['power']) : '').'</th>';
-		echo '<th>'.($avg['power'] ? mbitcoinvaluetoa(powercost_mBTC($avg['power'])) : '').'</th>';
 
-		$hpw = 0;
-		if (floatval($avg['power']) > 0) {
-			$hpw = floatval($avg['khps']) / floatval($avg['power']);
-		}
-		echo '<th>'.($hpw ? Itoa2(1000*round($hpw,3),3).'H/W' : '').'</th>';
+		$power = (double) $avg['power'];
+		echo '<th>'.($power>0 ? round($power) : '').'</th>';
 
-		echo '<th colspan="3">&nbsp;</th>';
+		$hpw = ($power>0) ? $hpw = floatval($avg['khps']) / $power : 0;
+		echo '<th>'.($hpw ? Itoa2(1000*round($hpw,3),2) : '').'</th>';
+
+		echo '<th title="Electricity price based on '.YIIMP_KWH_USD_PRICE.' USD per kWh">';
+		echo ($power>0 ? mbitcoinvaluetoa(powercost_mBTC($power)).' mBTC/day' : '').'</th>';
+
+		echo '<th colspan="2">&nbsp;</th>';
+		if ($this->admin) echo '<th>&nbsp;</th>'; // admin ops
 
 		echo '</tr></tfoot>';
 	}
