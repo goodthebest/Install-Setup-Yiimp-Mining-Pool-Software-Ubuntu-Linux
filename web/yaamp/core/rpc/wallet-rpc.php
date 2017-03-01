@@ -393,6 +393,18 @@ class WalletRPC {
 		$result = '';
 
 		if (!empty($query)) try {
+
+			// if its a raw json query...
+			if (strpos($query,"{") !== false && json_decode($query)) {
+				try {
+					debuglog($query);
+					$result = $this->rpc->request_json($query);
+				} catch (Exception $e) {
+					$result = false;
+				}
+				return $result;
+			}
+
 			$params = explode(' ', trim($query));
 			$command = array_shift($params);
 
