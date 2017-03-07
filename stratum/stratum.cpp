@@ -141,6 +141,8 @@ YAAMP_ALGO g_algos[] =
 	{"velvet", velvet_hash, 0x10000, 0, 0},
 	{"argon2", argon2_hash, 0x10000, 0, sha256_hash_hex },
 
+	{"sha256t", sha256t_hash, 1, 0, 0}, // sha256 3x
+
 	{"sib", sib_hash, 1, 0, 0},
 
 	{"whirlcoin", whirlpool_hash, 1, 0, sha256_hash_hex }, /* old sha merkleroot */
