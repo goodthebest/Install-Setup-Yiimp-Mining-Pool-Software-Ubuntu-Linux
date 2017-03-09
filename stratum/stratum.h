@@ -154,6 +154,7 @@ void sha256_double_hash_hex(const char *input, char *output, unsigned int len);
 #include "algos/sha256t.h"
 #include "algos/timetravel.h"
 
+#include "algos/bastion.h"
 #include "algos/bmw.h"
 #include "algos/deep.h"
 #include "algos/lbry.h"

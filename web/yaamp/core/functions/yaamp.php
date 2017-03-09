@@ -9,6 +9,7 @@ function yaamp_get_algos()
 		'scrypt',
 		'scryptn',
 		'argon2',
+		'bastion',
 		'blake',
 		'blakecoin',
 		'blake2s',
@@ -125,6 +126,7 @@ function getAlgoColors($algo)
 		'x17'		=> '#f0b0a0',
 		'xevan'         => '#f0b0a0',
 		'argon2'	=> '#e0d0e0',
+		'bastion'	=> '#e0b0b0',
 		'blake'		=> '#f0f0f0',
 		'blakecoin'	=> '#f0f0f0',
 		'groestl'	=> '#d0a0a0',
@@ -212,6 +214,7 @@ function getAlgoPort($algo)
 		'veltor'	=> 5034,
 		'velvet'	=> 6133,
 		'yescrypt'	=> 6233,
+		'bastion'	=> 6433,
 	);
 
 	global $configCustomPorts;
