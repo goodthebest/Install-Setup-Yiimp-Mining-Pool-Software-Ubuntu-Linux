@@ -240,6 +240,11 @@ function BackendCoinsUpdate()
 		}
 
 		$coin->save();
+
+		if ($coin->available < 0) {
+			// can happen after a payout (waiting first confirmation)
+			BackendUpdatePoolBalances($coin->id);
+		}
 	//	debuglog(" end $coin->name");
 
 	}

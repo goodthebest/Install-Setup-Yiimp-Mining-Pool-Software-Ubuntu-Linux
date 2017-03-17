@@ -25,7 +25,7 @@ function BenchUpdateChips()
 			array(':vid'=>$bench->vendorid, ':client'=>$bench->client, ':os'=>$bench->os, ':drv'=>$bench->driver,':thr'=>$bench->throughput,':uid'=>$bench->userid)
 		);
 		if ($dups > 10) {
-			debuglog("bench: {$bench->device} ignored ($dups records already present)");
+			//debuglog("bench: {$bench->device} ignored ($dups records already present)");
 			$bench->delete();
 			continue;
 		}
