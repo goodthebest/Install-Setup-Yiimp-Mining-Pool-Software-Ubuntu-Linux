@@ -96,6 +96,21 @@ function updateRawcoins()
 		}
 	}
 
+	if (!exchange_get('coinexchange', 'disabled')) {
+		$list = coinexchange_api_query('getmarkets');
+		if(isset($list->result) && !empty($list->result))
+		{
+			dborun("UPDATE markets SET deleted=true WHERE name='coinexchange'");
+			foreach($list->result as $item) {
+				if ($item->BaseCurrencyCode != 'BTC')
+					continue;
+				$symbol = $item->MarketAssetCode;
+				$label = objSafeVal($item, 'MarketAssetName');
+				updateRawCoin('coinexchange', $symbol, $label);
+			}
+		}
+	}
+
 	if (!exchange_get('cryptopia', 'disabled')) {
 		$list = cryptopia_api_query('GetMarkets');
 		if(isset($list->Data))
@@ -249,7 +264,7 @@ function updateRawCoin($marketname, $symbol, $name='unknown')
 			}
 		}
 
-		if ($marketname == 'nova' || $marketname == 'askcoin') {
+		if ($marketname == 'nova' || $marketname == 'askcoin' || $marketname == 'coinexchange') {
 			// don't polute too much the db
 			return;
 		}

@@ -25,6 +25,7 @@ require_once("alcurex.php");
 require_once("cryptopia.php");
 require_once("livecoin.php");
 require_once("nova.php");
+require_once("coinexchange.php");
 
 /* Format an exchange coin Url */
 function getMarketUrl($coin, $marketName)
@@ -59,6 +60,8 @@ function getMarketUrl($coin, $marketName)
 		$url = "https://bleutrade.com/exchange/{$symbol}/{$base}";
 	else if($market == 'bter')
 		$url = "https://bter.com/trade/{$lowsymbol}_{$lowbase}";
+	else if($market == 'coinexchange')
+		$url = "https://www.coinexchange.io/market/{$symbol}/{$base}";
 	else if($market == 'cryptopia')
 		$url = "https://www.cryptopia.co.nz/Exchange?market={$symbol}_{$base}";
 	else if($market == 'c-cex')

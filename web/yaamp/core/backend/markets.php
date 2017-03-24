@@ -23,6 +23,7 @@ function BackendPricesUpdate()
 	updateJubiMarkets();
 	updateLiveCoinMarkets();
 	updateNovaMarkets();
+	updateCoinExchangeMarkets();
 
 	updateShapeShiftMarkets();
 	updateOtherMarkets();
@@ -1082,6 +1083,46 @@ function updateLiveCoinMarkets()
 					}
 				}
 				cache()->set($exchange.'-deposit_address-check-'.$coin->symbol, time(), 24*3600);
+			}
+		}
+	}
+}
+
+function updateCoinExchangeMarkets()
+{
+	$exchange = 'coinexchange';
+	if (exchange_get($exchange, 'disabled')) return;
+
+	$list = coinexchange_api_query('getmarkets');
+	if(!is_object($list)) return;
+	$markets = coinexchange_api_query('getmarketsummaries');
+	if(!is_object($markets)) return;
+	foreach($list->result as $currency)
+	{
+		$symbol = objSafeVal($currency,'MarketAssetCode','');
+		$exchid = objSafeVal($currency,'MarketAssetID',0);
+		if(empty($symbol) || !$exchid || $symbol == 'BTC') continue;
+
+		$coin = getdbosql('db_coins', "symbol=:sym", array(':sym'=>$symbol));
+		if(!$coin) continue;
+
+		$market = getdbosql('db_markets', "coinid={$coin->id} AND name='$exchange'");
+		if(!$market) continue;
+
+		if($market->disabled < 9) $market->disabled = !$currency->Active;
+
+		$market->save();
+
+		if($market->disabled || $market->deleted) continue;
+
+		foreach ($markets->result as $m) {
+			if ($m->MarketID == $exchid) {
+				$price2 = ($m->BidPrice + $m->AskPrice)/2;
+				$market->price2 = AverageIncrement($market->price2, $price2);
+				$market->price = AverageIncrement($market->price, $m->BidPrice);
+				$market->pricetime = time();
+				$market->save();
+				//debuglog("$exchange: $symbol price set to ".bitcoinvaluetoa($market->price));
 			}
 		}
 	}
