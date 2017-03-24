@@ -1032,7 +1032,6 @@ function updateLiveCoinMarkets()
 
 		if (market_get($exchange, $coin->symbol, "disabled")) {
 			$market->disabled = 1;
-			$market->deleted = 1;
 			$market->message = 'disabled from settings';
 			$market->save();
 			continue;
@@ -1055,7 +1054,6 @@ function updateLiveCoinMarkets()
 			if (empty($coin->price2)) {
 				$coin->price = $market->price;
 				$coin->price2 = $market->price2;
-				//$coin->market = 'shapeshift';
 				$coin->save();
 			}
 
@@ -1100,7 +1098,7 @@ function updateCoinExchangeMarkets()
 	foreach($list->result as $currency)
 	{
 		$symbol = objSafeVal($currency,'MarketAssetCode','');
-		$exchid = objSafeVal($currency,'MarketAssetID',0);
+		$exchid = objSafeVal($currency,'MarketID',0);
 		if(empty($symbol) || !$exchid || $symbol == 'BTC') continue;
 
 		$coin = getdbosql('db_coins', "symbol=:sym", array(':sym'=>$symbol));
@@ -1111,18 +1109,32 @@ function updateCoinExchangeMarkets()
 
 		if($market->disabled < 9) $market->disabled = !$currency->Active;
 
+		if (market_get($exchange, $coin->symbol, "disabled")) {
+			$market->disabled = 1;
+			$market->message = 'disabled from settings';
+			$market->save();
+			continue;
+		}
+
 		$market->save();
 
 		if($market->disabled || $market->deleted) continue;
 
 		foreach ($markets->result as $m) {
 			if ($m->MarketID == $exchid) {
-				$price2 = ($m->BidPrice + $m->AskPrice)/2;
+				$price2 = ((double) $m->BidPrice + (double) $m->AskPrice)/2;
 				$market->price2 = AverageIncrement($market->price2, $price2);
-				$market->price = AverageIncrement($market->price, $m->BidPrice);
+				$market->price = AverageIncrement($market->price, (double) $m->BidPrice);
 				$market->pricetime = time();
+				$market->marketid = $exchid;
 				$market->save();
 				//debuglog("$exchange: $symbol price set to ".bitcoinvaluetoa($market->price));
+				if (empty($coin->price2)) {
+					$coin->price = $market->price;
+					$coin->price2 = $market->price2;
+					$coin->save();
+				}
+				break;
 			}
 		}
 	}
