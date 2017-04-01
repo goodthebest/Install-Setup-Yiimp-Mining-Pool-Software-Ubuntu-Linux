@@ -234,7 +234,15 @@ function BackendCoinPayments($coin)
 			}
 			if ($amount_failed > 0.0) {
 				debuglog("Found failed payment(s) for {$user->username}, $amount_failed {$coin->symbol}!");
-
+				if ($coin->rpcencoding == 'DCR') {
+					$data = $remote->validateaddress($user->username);
+					if (!$data['isvalid']) {
+						debuglog("Found bad address {$user->username}!! ($amount_failed {$coin->symbol})");
+						$user->is_locked = 1;
+						$user->save();
+						continue;
+					}
+				}
 				$payout = new db_payouts;
 				$payout->account_id = $user->id;
 				$payout->time = time();
