@@ -20,6 +20,8 @@ function string_to_hashrate($s)
 
 function BackendCoinsUpdate()
 {
+	$debug = false;
+
 //	debuglog(__FUNCTION__);
 	$t1 = microtime(true);
 
@@ -47,6 +49,8 @@ function BackendCoinsUpdate()
 			$coin->save();
 			continue;
 		}
+
+		if ($debug) echo "{$coin->symbol}\n";
 
 //		debuglog($info);
 		$coin->enable = true;
@@ -221,7 +225,7 @@ function BackendCoinsUpdate()
 		if($coin->block_height != $info['blocks'])
 		{
 			$count = $info['blocks'] - $coin->block_height;
-			$ttf = (time() - $coin->last_network_found) / $count;
+			$ttf = $count > 0 ? (time() - $coin->last_network_found) / $count : 0;
 
 			if(empty($coin->actual_ttf)) $coin->actual_ttf = $ttf;
 
@@ -241,7 +245,7 @@ function BackendCoinsUpdate()
 
 		$coin->save();
 
-		if ($coin->available < 0) {
+		if ($coin->available < 0 || $coin->cleared > $coin->balance) {
 			// can happen after a payout (waiting first confirmation)
 			BackendUpdatePoolBalances($coin->id);
 		}

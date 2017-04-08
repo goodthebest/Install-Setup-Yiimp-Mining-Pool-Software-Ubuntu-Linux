@@ -1125,6 +1125,7 @@ function updateCoinExchangeMarkets()
 				$market->price = AverageIncrement($market->price, (double) $m->BidPrice);
 				$market->pricetime = time();
 				$market->marketid = $exchid;
+				$market->priority = -1; // not ready for trading
 				$market->save();
 				//debuglog("$exchange: $symbol price set to ".bitcoinvaluetoa($market->price));
 				if (empty($coin->price2)) {

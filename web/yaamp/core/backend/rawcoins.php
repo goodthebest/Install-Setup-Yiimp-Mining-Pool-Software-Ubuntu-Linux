@@ -5,6 +5,7 @@ function updateRawcoins()
 //	debuglog(__FUNCTION__);
 
 	exchange_set_default('empoex', 'disabled', true);
+	exchange_set_default('coinexchange', 'disabled', true);
 
 	settings_prefetch_all();
 
