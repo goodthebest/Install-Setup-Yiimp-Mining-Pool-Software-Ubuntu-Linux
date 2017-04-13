@@ -274,7 +274,8 @@ echo '</tbody></table>';
 // last week
 $list_since = arraySafeVal($_GET,'since',time()-(7*24*3600));
 
-$maxrows = arraySafeVal($_GET,'rows', 200);
+$maxrows = (int) arraySafeVal($_GET,'rows', 500);
+$maxrows = max($maxrows,  250);
 $maxrows = min($maxrows, 2500);
 
 echo <<<end
@@ -298,7 +299,7 @@ $account = '';
 if ($DCR) $account = '*';
 if ($ETH) $account = $coin->master_wallet;
 
-$txs = $remote->listtransactions($account, 2500);
+$txs = $remote->listtransactions($account, $maxrows);
 
 if (empty($txs)) {
 	if (!empty($remote->error)) {
@@ -314,7 +315,7 @@ if (!empty($txs)) {
 	// to hide truncated days sums
 	$tx = reset($txs);
 
-	if (count($txs) == 2500 && isset($tx['time']))
+	if (count($txs) == $maxrows && isset($tx['time']))
 		$lastday = strftime('%F', $tx['time']);
 
 	if (!empty($txs)) foreach($txs as $tx)
@@ -391,7 +392,7 @@ if ($DCR) {
 			$prev_tx = $tx;
 		}
 		// for truncated day sums
-		if ($lastday == '' && count($txs) == 2500)
+		if ($lastday == '' && count($txs) == $maxrows)
 			$lastday = strftime('%F', $tx['time']);
 	}
 	ksort($txs_array); // reversed order
