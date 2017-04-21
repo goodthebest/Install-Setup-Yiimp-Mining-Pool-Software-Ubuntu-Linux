@@ -652,7 +652,11 @@ function updateYobitMarkets()
 		$pair = strtolower($coin->symbol).'_btc';
 
 		$ticker = yobit_api_query("ticker/$pair");
-		if(!$ticker) continue;
+		if(!$ticker || objSafeVal($ticker,$pair) === NULL) continue;
+		if(objSafeVal($ticker->$pair,'buy') === NULL) {
+			debuglog("$exchange: invalid data received for $pair ticker");
+			continue;
+		}
 
 		$price2 = ($ticker->$pair->buy + $ticker->$pair->sell) / 2;
 		$market->price2 = AverageIncrement($market->price2, $price2);
@@ -707,7 +711,11 @@ function updateJubiMarkets()
 		$lowsymbol = strtolower($coin->symbol);
 
 		$ticker = jubi_api_query('ticker', "?coin=".$lowsymbol);
-		if(!is_object($ticker)) continue;
+		if(!$ticker || !is_object($ticker)) continue;
+		if(objSafeVal($ticker,'buy') === NULL) {
+			debuglog("$exchange: invalid data received for $lowsymbol ticker");
+			continue;
+		}
 
 		if (isset($btc->sell) && $btc->sell != 0.)
 			$ticker->buy /= $btc->sell;
