@@ -263,7 +263,7 @@ class SiteController extends CommonController
 
 	public function actionConsole()
 	{
-		if(!$this->admin) return;
+		if(!$this->admin || !YAAMP_ADMIN_WEBCONSOLE) return;
 		$coin = getdbo('db_coins', getiparam('id'));
 		if (!$coin) {
 			$this->goback();

@@ -23,7 +23,8 @@ function getAdminWalletLinks($coin, $info=NULL, $src='wallet')
 	if($info) {
 		$html .= ' || '.$coin->createExplorerLink("<b>EXPLORER</b>");
 		$html .= ' || '.CHtml::link("<b>PEERS</b>", '/site/peers?id='.$coin->id);
-		$html .= ' || '.CHtml::link("<b>CONSOLE</b>", '/site/console?id='.$coin->id);
+		if (YAAMP_ADMIN_WEBCONSOLE)
+			$html .= ' || '.CHtml::link("<b>CONSOLE</b>", '/site/console?id='.$coin->id);
 		$html .= ' || '.CHtml::link("<b>TRIGGERS</b>", '/site/triggers?id='.$coin->id);
 		if ($src != 'wallet')
 			$html .= ' || '.CHtml::link("<b>{$coin->symbol}</b>", '/site/coin?id='.$coin->id);
