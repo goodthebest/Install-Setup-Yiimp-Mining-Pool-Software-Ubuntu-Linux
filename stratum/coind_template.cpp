@@ -114,7 +114,8 @@ static int decred_parse_header(YAAMP_JOB_TEMPLATE *templ, const char *header_hex
 		uint32_t size;
 		uint32_t ntime;
 		uint32_t nonce;
-		unsigned char extra[36];
+		unsigned char extra[32];
+		uint32_t stakever;
 		uint32_t hashtag[3];
 	} header;
 
@@ -195,7 +196,8 @@ retry:
 	// bypass coinbase and merkle for now... send without nonce/extradata
 	const unsigned char *hdr = (unsigned char *) &templ->header[36];
 	hexlify(templ->coinb1, hdr, 192 - 80);
-	strcpy(templ->coinb2, "");
+	const unsigned char *sfx = (unsigned char *) &templ->header[176];
+	hexlify(templ->coinb2, sfx, 180 - 176); // stake version
 
 	vector<string> txhashes;
 	txhashes.push_back("");

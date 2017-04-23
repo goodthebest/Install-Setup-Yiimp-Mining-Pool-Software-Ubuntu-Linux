@@ -74,13 +74,14 @@ static void create_decred_header(YAAMP_JOB_TEMPLATE *templ, YAAMP_JOB_VALUES *ou
 		uint32_t size;
 		uint32_t ntime;
 		uint32_t nonce;
-		unsigned char extra[36];
+		unsigned char extra[32];
+		uint32_t stakever;
 		uint32_t hashtag[3];
 	} header;
 
 	memcpy(&header, templ->header, sizeof(header));
 
-	memset(header.extra, 0, 36);
+	memset(header.extra, 0, 32);
 	sscanf(nonce, "%08x", &header.nonce);
 
 	if (strcmp(vote, "")) {
