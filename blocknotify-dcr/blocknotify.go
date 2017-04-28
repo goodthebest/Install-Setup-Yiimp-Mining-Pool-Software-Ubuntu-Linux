@@ -1,9 +1,8 @@
-// Copyright (c) 2015-2016 The Decred developers, YiiMP
-// Use of this source code is governed by an ISC
-// license that can be found in the LICENSE file.
+// Copyright (c) 2015-2017 YiiMP
 
-// Sample blocknofify tool compatible with decred
-// will call the standard blocknotify yiimp tool on new block event.
+// Sample blocknotify wrapper tool compatible with decred notifications
+// will call the standard bin/blocknotify yiimp tool on new block event.
+
 // Note: this tool is connected directly to dcrd, not to the wallet!
 
 package main
@@ -14,9 +13,6 @@ import (
 	"os/exec"
 	"path/filepath"
 
-//	"time" // dcrd < 0.6
-//	"github.com/decred/dcrd/chaincfg/chainhash"
-
 	"bytes" // dcrd > 0.6+
 	"github.com/decred/dcrd/wire"
 
@@ -26,7 +22,7 @@ import (
 
 const (
 	processName = "blocknotify"    // set the full path if required
-	stratumDest = "yaamp.com:5744" // stratum host:port
+	stratumDest = "yaamp.com:3252" // stratum host:port
 	coinId = "1574"                // decred database coin id
 
 	dcrdUser = "yiimprpc"
@@ -61,23 +57,6 @@ func main() {
 			}
 		},
 
-		// broken since 0.6.1 (Nov 2016):
-		// OnBlockConnected: func(hash *chainhash.Hash, height int32, time time.Time, vb uint16) {
-		//
-			// Find the process path.
-		//	str := hash.String()
-		//	args := []string{ stratumDest, coinId, str }
-		//	out, err := exec.Command(processName, args...).Output()
-		//	if err != nil {
-		//		log.Printf("err %s", err)
-		//	} else if debug {
-		//		log.Printf("out %s", out)
-		//	}
-
-		//	if (debug) {
-		//		log.Printf("Block connected: %s %d", hash, height)
-		//	}
-		//},
 	}
 
 	// Connect to local dcrd RPC server using websockets.
