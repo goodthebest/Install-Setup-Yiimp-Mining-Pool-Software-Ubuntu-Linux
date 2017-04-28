@@ -203,7 +203,9 @@ class Bitcoin {
 
 		if (isset($this->response['error']) && $this->response['error']) {
 			// store wallet error
-			$this->error = strtolower($this->response['error']['message']);
+			$code = arraySafeVal($this->response['error'], 'code', '');
+			$message = arraySafeVal($this->response['error'], 'message', '');
+			$this->error = "error $code: ".strtolower($message);
 		}
 		elseif ($this->status != 200) {
 			// If bitcoind didn't return a nice error message, we need to make our own
