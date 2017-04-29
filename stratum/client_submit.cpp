@@ -399,8 +399,8 @@ bool client_submit(YAAMP_CLIENT *client, json_value *json_params)
 			client_submit_error(client, job, 23, "Invalid time rolling", extranonce2, ntime, nonce);
 			return true;
 		}
-		// these algos permutations change over time (can lead to different speeds)
-		if (!strcmp(g_current_algo->name,"x11evo") || !strcmp(g_current_algo->name,"timetravel")) {
+		// dont allow algos permutations change over time (can lead to different speeds)
+		if (!g_allow_rolltime) {
 			client_submit_error(client, job, 23, "Invalid ntime (rolling not allowed)", extranonce2, ntime, nonce);
 			return true;
 		}

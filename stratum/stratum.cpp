@@ -37,6 +37,7 @@ uint64_t g_max_shares = 0;
 uint64_t g_shares_counter = 0;
 uint64_t g_shares_log = 0;
 
+bool g_allow_rolltime = true;
 time_t g_last_broadcasted = 0;
 YAAMP_DB *g_db = NULL;
 
@@ -103,7 +104,10 @@ YAAMP_ALGO g_algos[] =
 
 	{"x11evo", x11evo_hash, 1, 0, 0},
 	{"xevan", xevan_hash, 0x100, 0, 0},
-	{"timetravel", timetravel_hash, 0x100, 0, 0}, // Waaaaahhh
+
+	{"timetravel", timetravel_hash, 0x100, 0, 0},
+	{"bitcore", timetravel10_hash, 0x100, 0, 0},
+
 	{"hmq1725", hmq17_hash, 0x10000, 0, 0},
 
 	{"lyra2", lyra2re_hash, 0x80, 0, 0},
@@ -227,6 +231,13 @@ int main(int argc, char **argv)
 
 	stratumlogdate("starting stratum for %s on %s:%d\n",
 		g_current_algo->name, g_tcp_server, g_tcp_port);
+
+	// ntime should not be changed by miners for these algos
+	g_allow_rolltime = strcmp(g_current_algo->name,"x11evo");
+	g_allow_rolltime = g_allow_rolltime && strcmp(g_current_algo->name,"timetravel");
+	g_allow_rolltime = g_allow_rolltime && strcmp(g_current_algo->name,"bitcore");
+	if (!g_allow_rolltime)
+		stratumlog("note: time roll disallowed for %s algo\n", g_current_algo->name);
 
 	g_db = db_connect();
 	if(!g_db) yaamp_error("Cant connect database");

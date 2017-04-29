@@ -86,6 +86,7 @@ extern bool g_stratum_renting;
 extern uint64_t g_max_shares;
 extern uint64_t g_shares_counter;
 
+extern bool g_allow_rolltime;
 extern time_t g_last_broadcasted;
 
 extern struct ifaddrs *g_ifaddr;
@@ -153,6 +154,7 @@ void sha256_double_hash_hex(const char *input, char *output, unsigned int len);
 #include "algos/keccak.h"
 #include "algos/sha256t.h"
 #include "algos/timetravel.h"
+#include "algos/bitcore.h"
 
 #include "algos/bastion.h"
 #include "algos/bmw.h"
