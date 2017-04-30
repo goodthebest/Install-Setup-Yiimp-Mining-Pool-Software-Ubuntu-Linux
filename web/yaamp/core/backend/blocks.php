@@ -82,6 +82,7 @@ function BackendBlockFind1($coinid = NULL)
 			continue;
 		}
 		if(!$coin->enable) continue;
+		if($coin->rpcencoding == 'DCR' && !$coin->auto_ready) continue;
 
 		$db_block->category = 'orphan';
 		$remote = new WalletRPC($coin);
@@ -186,7 +187,7 @@ function BackendBlocksUpdate($coinid = NULL)
 			if ($coin->enable) {
 				debuglog("{$coin->name} unable to find block {$block->height} tx {$block->txhash}!");
 				// DCR orphaned confirmations are not(no more) -1!
-				if($coin->rpcencoding == 'DCR' && $block->category == 'immature') {
+				if($coin->rpcencoding == 'DCR' && $block->category == 'immature' && $coin->auto_ready) {
 					$blockext = $remote->getblock($block->blockhash);
 					$conf = arraySafeVal($blockext,'confirmations',-1);
 					if ($conf == -1 || ($conf > 2 && arraySafeVal($blockext,'nextblockhash','') == '')) {
@@ -210,7 +211,7 @@ function BackendBlocksUpdate($coinid = NULL)
 		$block->confirmations = $tx['confirmations'];
 
 		$category = $block->category;
-		if($block->confirmations == -1) {
+		if($block->confirmations == -1 && $coin->enable && $coin->auto_ready) {
 			$category = 'orphan';
 			$block->amount = 0;
 		}

@@ -140,6 +140,11 @@ function BackendCoinsUpdate()
 					$coin->reward -= $coin->charity_amount;
 				}
 
+				else if(isset($template['masternode']) && arraySafeVal($template,'masternode_payments_enforced')) {
+					$coin->reward -= arraySafeVal($template['masternode'],'amount',0)/100000000;
+					$coin->hasmasternodes = true;
+				}
+
 				else if($coin->symbol == 'XZC') {
 					// coinbasevalue here is the amount available for miners, not the full block amount
 					$coin->reward = arraySafeVal($template,'coinbasevalue')/100000000 * $coin->reward_mul;
@@ -206,7 +211,11 @@ function BackendCoinsUpdate()
 
 			else if ($coin->rpcencoding == 'DCR')
 			{
-				$coin->auto_ready = ($coin->connections > 0);
+				$wi = $remote->walletinfo();
+				$coin->auto_ready = ($coin->connections > 0 && arraySafeVal($wi,"daemonconnected"));
+				if ($coin->auto_ready && arraySafeVal($wi,"unlocked",false) == false) {
+					debuglog($coin->symbol." wallet is not unlocked!");
+				}
 			}
 
 			else
