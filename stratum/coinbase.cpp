@@ -99,12 +99,6 @@ void coinbase_create(YAAMP_COIND *coind, YAAMP_JOB_TEMPLATE *templ, json_value *
 		if (strlen(coind->charity_address) == 0)
 			sprintf(coind->charity_address, "EdFwYw4Mo2Zq6CFM2yNJgXvE2DTJxgdBRX");
 	}
-	else if(strcmp(g_current_algo->name, "bitcore") == 0) {
-		if (coind->charity_percent <= 0)
-			coind->charity_percent = 2;
-		if (strlen(coind->charity_address) == 0)
-			sprintf(coind->charity_address, "1Lic3vaHsXCVCwXTmKPfkA4tuif1DoodZT");
-	}
 	else if(strcmp(coind->symbol, "LTCR") == 0) {
 		if (coind->charity_percent <= 0)
 			coind->charity_percent = 10;
