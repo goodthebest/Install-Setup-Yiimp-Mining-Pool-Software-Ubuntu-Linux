@@ -14,8 +14,9 @@ function BenchUpdateChips()
 	dborun("UPDATE benchmarks SET memf=NULL WHERE memf=0");
 	dborun("UPDATE benchmarks SET realmemf=NULL WHERE realmemf<=100");
 	dborun("UPDATE benchmarks SET realfreq=NULL WHERE realfreq<=200");
-	// bug in nvml 378.x (linux + win)
+	// bug in nvml 378.x and 381.x (linux + win) fixed in 382.05
 	dborun("UPDATE benchmarks SET realfreq=NULL WHERE realfreq<=200 AND driver LIKE '% 378.%'");
+	dborun("UPDATE benchmarks SET realfreq=NULL WHERE realfreq<=200 AND driver LIKE '% 381.%'");
 
 	$benchs = getdbolist('db_benchmarks', "IFNULL(chip,'')=''");
 	foreach ($benchs as $bench) {
