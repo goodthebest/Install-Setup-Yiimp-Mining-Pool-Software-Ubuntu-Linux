@@ -15,6 +15,7 @@ $maxrows = arraySafeVal($_GET,'rows', 2500);
 $remote = new WalletRPC($coin);
 $info = $remote->getinfo();
 $stakeinfo = $remote->getstakeinfo();
+$walletinfo = $remote->walletinfo(); // pfff
 $balances = $remote->getbalance('*',0);
 $locked = 0; $balance = 0;
 if (isset($balances["balances"])) {
@@ -278,10 +279,9 @@ if (arraySafeVal($stakeinfo,'missed',false)) {
 }
 echo '<b>Total won: </b>'.$stakeinfo['totalsubsidy'].' '.$coin->symbol.' ('.$stakeinfo['voted'].')<br/>';
 
-$staking = $remote->getgenerate() > 0 ? 'enabled' : 'disabled';
+$voting = arraySafeVal($walletinfo,'voting',0) > 0 ? 'enabled' : 'disabled';
 echo '<br/>';
-echo '<b>Staking: </b>'.$staking.'<br/>';
-echo '<b>Auto buy ticket(s) < '.$remote->getticketmaxprice().' '.$coin->symbol.'</b><br/>';
+echo '<b>Voting: </b>'.$voting.'<br/>';
 
 $netfees = $remote->ticketfeeinfo(1,1);
 if (!empty($netfees)) {
