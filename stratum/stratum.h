@@ -150,6 +150,7 @@ void sha256_double_hash_hex(const char *input, char *output, unsigned int len);
 #include "algos/blake2.h"
 #include "algos/qubit.h"
 #include "algos/groestl.h"
+#include "algos/jha.h"
 #include "algos/skein.h"
 #include "algos/keccak.h"
 #include "algos/sha256t.h"

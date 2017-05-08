@@ -161,6 +161,18 @@ void debuglog(const char *format, ...)
 	}
 }
 
+void debuglog_hex(void *data, int len)
+{
+	uint8_t* const bin = (uint8_t*) data;
+	char *hex = (char*) calloc(1, len*2 + 2);
+	if (!hex) return;
+	for(int i=0; i < len; i++)
+		sprintf(hex+strlen(hex), "%02x", bin[i]);
+	strcpy(hex+strlen(hex), "\n");
+	debuglog(hex);
+	free(hex);
+}
+
 void stratumlog(const char *format, ...)
 {
 	char buffer[YAAMP_SMALLBUFSIZE];

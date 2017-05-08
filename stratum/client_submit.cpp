@@ -218,6 +218,11 @@ static void client_do_submit(YAAMP_CLIENT *client, YAAMP_JOB *job, YAAMP_JOB_VAL
 		memset(block_hex, 0, block_size);
 		sprintf(block_hex, "%s%02x%s", submitvalues->header_be, (unsigned char)templ->txcount, submitvalues->coinbase);
 
+		if (g_current_algo->name && !strcmp("jha", g_current_algo->name)) {
+			// block header of 88 bytes
+			sprintf(block_hex, "%s8400000008000000%02x%s", submitvalues->header_be, (unsigned char)templ->txcount, submitvalues->coinbase);
+		}
+
 		vector<string>::const_iterator i;
 		for(i = templ->txdata.begin(); i != templ->txdata.end(); ++i)
 			sprintf(block_hex+strlen(block_hex), "%s", (*i).c_str());
