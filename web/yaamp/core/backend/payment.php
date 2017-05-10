@@ -2,6 +2,9 @@
 
 function BackendPayments()
 {
+	// attempt to increase max execution time limit for the cron job
+	set_time_limit(300);
+
 	$list = getdbolist('db_coins', "enable and id in (select distinct coinid from accounts)");
 	foreach($list as $coin)
 		BackendCoinPayments($coin);
@@ -66,16 +69,16 @@ function BackendCoinPayments($coin)
 				$tx = $remote->sendtoaddress($user->username, round($amount, 8));
 				if(!$tx)
 				{
-					debuglog("error $remote->error, $user->username, $amount");
-					if($remote->error == 'transaction too large' || $remote->error == 'invalid amount' || $remote->error == 'insufficient funds' || $remote->error == 'error: transaction creation failed  ')
-					{
+					$error = $remote->error;
+					debuglog("RPC $error, {$user->username}, $amount");
+					if (stripos($error,'transaction too large') !== false || stripos($error,'invalid amount') !== false
+						|| stripos($error,'insufficient funds') !== false || stripos($error,'transaction creation failed') !== false
+					) {
 						$coin->payout_max = min((double) $amount, (double) $coin->payout_max);
 						$coin->save();
-
 						$amount /= 2;
 						continue;
 					}
-
 					break;
 				}
 
@@ -222,12 +225,20 @@ function BackendCoinPayments($coin)
 
 	// Search for previous payouts not executed (no tx)
 	$addresses = array(); $payouts = array();
-	$mailmsg = '';
+	$mailmsg = ''; $mailwarn = '';
 	foreach($users as $user)
 	{
 		$amount_failed = 0.0;
 		$failed = getdbolist('db_payouts', "account_id=:uid AND IFNULL(tx,'') = '' ORDER BY time", array(':uid'=>$user->id));
 		if (!empty($failed)) {
+			if ($coin->symbol == 'CHC') {
+				// tx made but payment rpc timed out
+				foreach ($failed as $payout) $amount_failed += floatval($payout->amount);
+				$notice = "payment: Found buggy payout without tx for {$user->username}!! $amount_failed {$coin->symbol}";
+				debuglog($notice);
+				$mailwarn .= "$notice\r\n";
+				continue;
+			}
 			foreach ($failed as $payout) {
 				$amount_failed += floatval($payout->amount);
 				$payout->delete();
@@ -255,6 +266,12 @@ function BackendCoinPayments($coin)
 				}
 			}
 		}
+	}
+
+	if (!empty($mailwarn)) {
+		send_email_alert('payouts', "{$coin->symbol} payout tx problems to check",
+			"$mailwarn\r\nCheck your wallet recent transactions to know if the payment was made, the RPC call timed out."
+		);
 	}
 
 	// redo failed payouts
