@@ -902,7 +902,7 @@ function updateNovaMarkets()
 			$sqlFilter = "AND base_coin='{$market->base_coin}'";
 		}
 
-		if (market_get($exchange, $coin->symbol, "disabled", $base)) {
+		if (market_get($exchange, $coin->symbol, "disabled", null, $base)) {
 			$market->disabled = 1;
 			$market->deleted = 1;
 			$market->message = 'disabled from settings';
@@ -933,6 +933,29 @@ function updateNovaMarkets()
 					}
 				}
 				break;
+			}
+		}
+
+		if(!empty(EXCH_NOVA_KEY))
+		{
+			$last_checked = cache()->get($exchange.'-deposit_address-check-'.$coin->symbol);
+			if(empty($market->deposit_address) && !$last_checked)
+			{
+				sleep(1);
+				$res = nova_api_user('getdepositaddress/'.$coin->symbol);
+				if($res->status == 'success') {
+					$addr = arraySafeVal($res, 'address');
+					if (!empty($res)) {
+						$market->deposit_address = $addr;
+						// delimiter "::" for memo / payment id
+						$market->message = null;
+						debuglog("$exchange: deposit address for {$coin->symbol} updated");
+						$market->save();
+					} else {
+						debuglog("$exchange: Failed to update deposit address, ".json_decode($res));
+					}
+				}
+				cache()->set($exchange.'-deposit_address-check-'.$coin->symbol, time(), 24*3600);
 			}
 		}
 	}
