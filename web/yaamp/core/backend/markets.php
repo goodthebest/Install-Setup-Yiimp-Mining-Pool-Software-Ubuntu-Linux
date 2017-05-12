@@ -237,7 +237,6 @@ function updateBleutradeMarkets()
 
 		if (market_get($exchange, $coin->symbol, "disabled")) {
 			$market->disabled = 1;
-			$market->deleted = 1;
 			$market->message = 'disabled from settings';
 		}
 
@@ -312,7 +311,6 @@ function updateKrakenMarkets($force = false)
 
 		if (market_get($exchange, $symbol, "disabled")) {
 			$market->disabled = 1;
-			$market->deleted = 1;
 			$market->message = 'disabled from settings';
 		}
 
@@ -405,7 +403,6 @@ function updateBittrexMarkets($force = false)
 
 		if (market_get($exchange, $coin->symbol, "disabled")) {
 			$market->disabled = 1;
-			$market->deleted = 1;
 			$market->message = 'disabled from settings';
 		}
 
@@ -478,7 +475,6 @@ function updateCCexMarkets()
 
 		if (market_get($exchange, $symbol, "disabled")) {
 			$market->disabled = 1;
-			$market->deleted = 1;
 			$market->message = 'disabled from settings';
 		}
 
@@ -559,7 +555,6 @@ function updatePoloniexMarkets()
 
 		if (market_get($exchange, $symbol, "disabled")) {
 			$market->disabled = 1;
-			$market->deleted = 1;
 			$market->message = 'disabled from settings';
 			$market->save();
 		}
@@ -640,7 +635,6 @@ function updateYobitMarkets()
 
 		if (market_get($exchange, $symbol, "disabled")) {
 			$market->disabled = 1;
-			$market->deleted = 1;
 			$market->message = 'disabled from settings';
 		}
 
@@ -702,7 +696,6 @@ function updateJubiMarkets()
 
 		if (market_get($exchange, $coin->symbol, "disabled")) {
 			$market->disabled = 1;
-			$market->deleted = 1;
 			$market->message = 'disabled from settings';
 			$market->save();
 			continue;
@@ -750,7 +743,6 @@ function updateAlcurexMarkets()
 
 		if (market_get($exchange, $coin->symbol, "disabled")) {
 			$market->disabled = 1;
-			$market->deleted = 1;
 			$market->message = 'disabled from settings';
 			$market->save();
 			continue;
@@ -809,7 +801,6 @@ function updateCryptopiaMarkets()
 
 		if (market_get($exchange, $coin->symbol, "disabled")) {
 			$market->disabled = 1;
-			$market->deleted = 1;
 			$market->message = 'disabled from settings';
 			$market->save();
 			continue;
@@ -904,7 +895,6 @@ function updateNovaMarkets()
 
 		if (market_get($exchange, $coin->symbol, "disabled", null, $base)) {
 			$market->disabled = 1;
-			$market->deleted = 1;
 			$market->message = 'disabled from settings';
 			$market->save();
 			continue;
@@ -945,14 +935,14 @@ function updateNovaMarkets()
 				$res = nova_api_user('getdepositaddress/'.$coin->symbol);
 				if($res->status == 'success') {
 					$addr = arraySafeVal($res, 'address');
-					if (!empty($res)) {
+					if (!empty($addr)) {
 						$market->deposit_address = $addr;
 						// delimiter "::" for memo / payment id
 						$market->message = null;
 						debuglog("$exchange: deposit address for {$coin->symbol} updated");
 						$market->save();
 					} else {
-						debuglog("$exchange: Failed to update deposit address, ".json_decode($res));
+						debuglog("$exchange: Failed to update deposit address, ".json_encode($res));
 					}
 				}
 				cache()->set($exchange.'-deposit_address-check-'.$coin->symbol, time(), 24*3600);
@@ -977,7 +967,6 @@ function updateBterMarkets()
 
 		if (market_get($exchange, $coin->symbol, "disabled")) {
 			$market->disabled = 1;
-			$market->deleted = 1;
 			$market->message = 'disabled from settings';
 			$market->save();
 			continue;
@@ -1019,7 +1008,6 @@ function updateEmpoexMarkets()
 
 		if (market_get($exchange, $coin->symbol, "disabled")) {
 			$market->disabled = 1;
-			$market->deleted = 1;
 			$market->message = 'disabled from settings';
 			$market->save();
 			continue;
@@ -1187,7 +1175,6 @@ function updateShapeShiftMarkets()
 
 		if (market_get($exchange, $coin->symbol, "disabled")) {
 			$market->disabled = 1;
-			$market->deleted = 1;
 			$market->message = 'disabled from settings';
 			$market->save();
 			continue;

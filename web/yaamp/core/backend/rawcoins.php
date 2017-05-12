@@ -265,10 +265,7 @@ function updateRawCoin($marketname, $symbol, $name='unknown')
 			}
 		}
 
-		if ($marketname == 'nova' && !defined('EXCH_NOVA_KEY')) {
-			return;
-		}
-		if ($marketname == 'askcoin' || $marketname == 'coinexchange') {
+		if ($marketname == 'nova' || $marketname == 'askcoin' || $marketname == 'coinexchange') {
 			// don't polute too much the db
 			return;
 		}
