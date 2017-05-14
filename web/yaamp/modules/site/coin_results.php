@@ -320,7 +320,7 @@ if (!empty($txs)) {
 
 	if (!empty($txs)) foreach($txs as $tx)
 	{
-		if (ArraySafeVal($tx, 'time', $list_since+1) > $list_since)
+		if (arraySafeVal($tx, 'time', $list_since+1) > $list_since)
 			$txs_array[] = $tx;
 	}
 
@@ -401,7 +401,7 @@ if ($DCR) {
 $rows = 0;
 foreach($txs_array as $tx)
 {
-	$category = ArraySafeVal($tx,'category');
+	$category = arraySafeVal($tx,'category');
 	if ($category == 'spent') continue;
 
 	$block = null;
@@ -422,7 +422,7 @@ foreach($txs_array as $tx)
 	$eta = '';
 	if ($category == 'immature') {
 		if ($coin->block_time && $coin->mature_blocks) {
-			$t = (int) ($coin->mature_blocks - ArraySafeVal($tx,'confirmations',0)) * $coin->block_time;
+			$t = (int) ($coin->mature_blocks - arraySafeVal($tx,'confirmations',0)) * $coin->block_time;
 			$eta = "ETA: ".sprintf('%dh %02dmn', ($t/3600), ($t/60)%60);
 		}
 	}
@@ -434,7 +434,7 @@ foreach($txs_array as $tx)
 	} else
 		echo '<td></td><td></td>';
 
-	echo '<td>'.ArraySafeVal($tx,'confirmations').'</td>';
+	echo '<td>'.arraySafeVal($tx,'confirmations').'</td>';
 
 	echo '<td width="280">';
 	if(isset($tx['address']))

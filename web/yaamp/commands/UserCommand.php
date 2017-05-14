@@ -40,7 +40,7 @@ class UserCommand extends CConsoleCommand
 			return 0;
 
 		} else if ($args[0] == 'purge') {
-			$days = (int) ArraySafeVal($args, 1, '180');
+			$days = (int) arraySafeVal($args, 1, '180');
 			if ($days < 1) return 1;
 			$inter = new DateInterval('P'.$days.'D');
 			$since = new DateTime;
