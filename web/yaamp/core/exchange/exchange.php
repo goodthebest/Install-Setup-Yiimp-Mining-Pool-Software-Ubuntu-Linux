@@ -1,13 +1,16 @@
 <?php
 
+/* A REST/JSON API IS NOT SUPPOSED TO RETURN HTML AND CSS! MORONS!!!! */
 function strip_data($data)
 {
-        $out = strip_tags($data);
-        $out = preg_replace("#[\t ]+#", " ", $out);
-        $out = preg_replace("# [\r\n]+#", "\n", $out);
-        $out = preg_replace("#[\r\n]+#", "\n", $out);
-        if (strpos($out, 'CloudFlare') !== false) $out = 'CloudFlare error';
-        return $out;
+	$out = strip_tags($data);
+	$out = preg_replace("#[\t ]+#", " ", $out);
+	$out = preg_replace("# [\r\n]+#", "\n", $out);
+	$out = preg_replace("#[\r\n]+#", "\n", $out);
+	if (strpos($out, 'CloudFlare') !== false) $out = 'CloudFlare error';
+	if (strpos($out, 'DDoS protection by Cloudflare') !== false) $out = 'CloudFlare error';
+	if (strpos($out, '500 Error') !== false) $out = '500 Error';
+	return $out;
 }
 
 require_once("poloniex.php");
