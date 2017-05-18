@@ -8,7 +8,9 @@ function doNovaCancelOrder($id=false)
 
 	$res = nova_api_user("cancelorder/{$id}");
 
-	if ($res->success === TRUE) {
+	if (!is_object($res)) return;
+
+	if ($res->status == 'ok') {
 		$db_order = getdbosql(
 			'db_orders',
 			'market=:market AND uuid=:uuid',
@@ -128,7 +130,7 @@ function doNovaTrading($quick=false)
 		}
 	}
 
-	$list = getdbolist('db_orders', "coinid=$coin->id and market='$exchange'");
+	$list = getdbolist('db_orders', "market='$exchange'");
 	foreach ($list as $db_order) {
 		$coin = getdbo('db_coins', $db_order->coinid);
 		if(!$coin) continue;
