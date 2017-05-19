@@ -36,6 +36,7 @@ class CoinCommand extends CConsoleCommand
 			echo "       yiimp coin <SYM> purge - to clean users and history \n";
 			echo "       yiimp coin <SYM> diff - to check if wallet diff is standard\n";
 			echo "       yiimp coin <SYM> blocktime - estimate the chain blocktime\n";
+			echo "       yiimp coin <SYM> checkblocks - recheck confirmed blocks\n";
 			echo "       yiimp coin <SYM> get <key>\n";
 			echo "       yiimp coin <SYM> set <key> <value>\n";
 			echo "       yiimp coin <SYM> unset <key>\n";
@@ -53,6 +54,9 @@ class CoinCommand extends CConsoleCommand
 
 		} else if ($args[1] == 'blocktime') {
 			return $this->estimateBlockTime($symbol);
+
+		} else if ($args[1] == 'checkblocks') {
+			return $this->checkConfirmedBlocks($symbol);
 
 		} else if ($args[1] == 'get') {
 			return $this->getCoinSetting($args);
@@ -219,6 +223,44 @@ class CoinCommand extends CConsoleCommand
 			$human_time = sprintf('%dmn%02d', ($t/60), ($t%60));
 			echo $coin->symbol.": avg time for the last  128 blocks = $human_time ($t sec) \n";
 		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////
+
+	public function checkConfirmedBlocks($symbol)
+	{
+		$coin = getdbosql('db_coins', 'symbol=:sym', array(':sym'=>$symbol));
+		if (!$coin) return -1;
+		$blocks = new db_blocks;
+
+		$data = $blocks->findAll(array('condition'=>"coin_id=:id AND category='generate'", 'order'=>'height DESC', 'params'=>array(':id'=>$coin->id)));
+		//echo count($data)." confirmed blocks to check...\n";
+		if (!$data || !count($data)) return 0;
+
+		$remote = new WalletRPC($coin);
+		$nbReset = 0; $totAmount = 0.0;
+
+		foreach ($data as $block) {
+			$b = $remote->getblock($block->blockhash);
+			$confs = arraySafeVal($b,'confirmations', 0);
+			if ($confs <= 0 || !$b) {
+				$date = strftime("%Y-%m-%d %H:%M", arraySafeVal($b,'time', $block->time));
+				$height = arraySafeVal($b,'height', $block->height);
+				$conf2 = $coin->block_height - $height;
+				echo arraySafeVal($b,'height')." $confs/$conf2 $date\n";
+				$totAmount += $block->amount;
+				$block->amount = 0;
+				$block->category = 'orphan';
+				$nbReset += dborun('UPDATE earnings SET amount=0 WHERE blockid='.$block->id);
+				$block->save();
+			}
+		}
+		if ($totAmount) {
+			echo "found $totAmount $symbol orphaned after confirmed status ($nbReset earnings reset)!\n";
+		} else {
+			echo count($data)." confirmed blocks verified\n";
+		}
+		return $nbReset;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////
