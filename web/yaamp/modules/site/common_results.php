@@ -115,7 +115,7 @@ foreach($algos as $item)
 	$avgprice = $avgprice? mbitcoinvaluetoa(take_yaamp_fee($avgprice, $algo)): '-';
 
 	$algo_unit_factor = yaamp_algo_mBTC_factor($algo);
-	$btcmhday1 = $hashrate1 != 0? mbitcoinvaluetoa($total1 / $hashrate1 * 1000000 * 1000 * $algo_unit_factor): '';
+	$btcmhday1 = $hashrate1 != 0? mbitcoinvaluetoa($total1 / $hashrate1 * 1000000 * 1000 * $algo_unit_factor): '-';
 
 	$fees = yaamp_fee($algo);
 
@@ -154,16 +154,22 @@ foreach($algos as $item)
 	echo '<td align="right" style="font-size: .8em;">'.($avgprice == 0.0 ? '-' : $avgprice).'</td>';
 
 	// 24A
-	if($btcmhday1 != '-' && $btcmhday1 > $avgprice*1.1)
-		echo '<td align="right" style="font-size: .8em; color: white; background-color: #5cb85c">'.$btcmhday1.'</td>';
-	else if($btcmhday1 != '-' && $btcmhday1*1.3 < $avgprice)
-		echo '<td align="right" style="font-size: .8em; color: white; background-color: #d9534f">'.$btcmhday1.'</td>';
-	else if($btcmhday1 != '-' && $btcmhday1*1.2 < $avgprice)
-		echo '<td align="right" style="font-size: .8em; color: white; background-color: #e4804e">'.$btcmhday1.'</td>';
-	else if($btcmhday1 != '-' && $btcmhday1*1.1 < $avgprice)
-		echo '<td align="right" style="font-size: .8em; color: white; background-color: #f0ad4e">'.$btcmhday1.'</td>';
-	else
-		echo '<td align="right" style="font-size: .8em;">'.($btcmhday1 == 0.0 ? '-' : $btcmhday1).'</td>';
+	$style = '';
+	if ($btcmhday1 != '-')
+	{
+		$avgprice = (double) $avgprice;
+		$btcmhd = (double) $btcmhday1;
+
+		if($btcmhd > $avgprice*1.1)
+			$style = 'color: white; background-color: #5cb85c;';
+		else if($btcmhd*1.3 < $avgprice)
+			$style = 'color: white; background-color: #d9534f;';
+		else if($btcmhd*1.2 < $avgprice)
+			$style = 'color: white; background-color: #e4804e;';
+		else if($btcmhd*1.1 < $avgprice)
+			$style = 'color: white; background-color: #f0ad4e;';
+	}
+	echo '<td align="right" style="font-size: .8em; '.$style.'">'.$btcmhday1.'</td>';
 
 	echo '</tr>';
 }
