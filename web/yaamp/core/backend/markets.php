@@ -1112,7 +1112,11 @@ function updateCoinExchangeMarkets()
 		$coin = getdbosql('db_coins', "symbol=:sym", array(':sym'=>$symbol));
 		if(!$coin) continue;
 
-		$market = getdbosql('db_markets', "coinid={$coin->id} AND name='$exchange'");
+		$market = getdbosql('db_markets', "coinid={$coin->id} AND name='$exchange' AND IFNULL(base_coin,'') IN ('','BTC')");
+		$base = objSafeVal($currency,'BaseCurrencyCode','');
+		if ($base != 'BTC') {
+			$market = getdbosql('db_markets', "coinid={$coin->id} AND name='$exchange' AND base_coin=:base", array(':base'=>$base));
+		}
 		if(!$market) continue;
 
 		$symbol = $coin->getOfficialSymbol();

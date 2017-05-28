@@ -254,3 +254,46 @@ function livecoin_api_query($method, $params='')
 	$obj = json_decode($execResult);
 	return $obj;
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// manual update of one market
+function livecoin_update_market($market)
+{
+	$exchange = 'livecoin';
+	if (is_string($market))
+	{
+		$symbol = $market;
+		$coin = getdbosql('db_coins', "symbol=:sym", array(':sym'=>$symbol));
+		if(!$coin) return false;
+		$pair = $symbol.'/BTC';
+		$market = getdbosql('db_markets', "coinid={$coin->id} AND name='$exchange'");
+		if(!$market) return false;
+
+	} else if (is_object($market)) {
+
+		$coin = getdbo('db_coins', $market->coinid);
+		if(!$coin) return false;
+		$symbol = $coin->getOfficialSymbol();
+		$pair = $symbol.'/BTC';
+		if (!empty($market->base_coin)) $pair = $symbol.'/'.$market->base_coin;
+	}
+
+	$t1 = microtime(true);
+	$ticker = livecoin_api_query('exchange/ticker','?currencyPair='.urlencode($pair));
+	if(!empty($ticker->errorMessage)) {
+		user()->setFlash('error', "$exchange $symbol {$ticker->errorMessage}");
+	}
+	if(!is_object($ticker) || !isset($ticker->best_bid)) return false;
+
+	$price2 = ($ticker->best_bid+$ticker->best_ask)/2;
+	$market->price2 = AverageIncrement($market->price2, $price2);
+	$market->price = AverageIncrement($market->price, $ticker->best_bid);
+	$market->pricetime = time();
+	$market->save();
+
+	$apims = round((microtime(true) - $t1)*1000,3);
+	user()->setFlash('message', "$exchange $symbol price updated in $apims ms {$market->price}");
+
+	return true;
+}

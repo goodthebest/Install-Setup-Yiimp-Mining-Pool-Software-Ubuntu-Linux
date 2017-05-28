@@ -58,3 +58,44 @@ function nova_api_user($method, $params=array())
 
 	return $res;
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// manual update of one market
+function nova_update_market($market)
+{
+	$exchange = 'nova';
+	if (is_string($market))
+	{
+		$symbol = $market;
+		$coin = getdbosql('db_coins', "symbol=:sym", array(':sym'=>$symbol));
+		if(!$coin) return false;
+		$pair = 'BTC_'.strtoupper($symbol);
+		$market = getdbosql('db_markets', "coinid={$coin->id} AND name='$exchange'");
+		if(!$market) return false;
+
+	} else if (is_object($market)) {
+
+		$coin = getdbo('db_coins', $market->coinid);
+		if(!$coin) return false;
+		$symbol = $coin->getOfficialSymbol();
+		$pair = 'BTC_'.strtoupper($symbol);
+		if (!empty($market->base_coin)) $pair = $market->base_coin.'_'.strtoupper($symbol);
+	}
+
+	$t1 = microtime(true);
+	$m = nova_api_query('market/info/'.$pair);
+	if(!is_object($m) || $m->status != 'success' || empty($m->markets)) return false;
+	$ticker = $m->markets[0];
+
+	$price2 = ($ticker->bid+$ticker->ask)/2;
+	$market->price = AverageIncrement($market->price, $ticker->bid);
+	$market->price2 = AverageIncrement($market->price2, $ticker->last_price);
+	$market->pricetime = time();
+	$market->save();
+
+	$apims = round((microtime(true) - $t1)*1000,3);
+	user()->setFlash('message', "$exchange $symbol price updated in $apims ms");
+
+	return true;
+}

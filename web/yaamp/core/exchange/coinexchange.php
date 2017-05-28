@@ -36,3 +36,46 @@ function coinexchange_api_query($method, $params='')
 
 	return $obj;
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// manual update of one market
+function coinexchange_update_market($market)
+{
+	$exchange = 'coinexchange';
+	if (is_string($market))
+	{
+		$symbol = $market;
+		$coin = getdbosql('db_coins', "symbol=:sym", array(':sym'=>$symbol));
+		if(!$coin) return false;
+		$market = getdbosql('db_markets', "coinid={$coin->id} AND name='$exchange'");
+		if(!$market) return false;
+
+	} else if (is_object($market)) {
+
+		$coin = getdbo('db_coins', $market->coinid);
+		if(!$coin) return false;
+		$symbol = $coin->getOfficialSymbol();
+	}
+
+	if (empty($market->marketid)) {
+		user()->setFlash('error', "$exchange $symbol marketid not set!");
+		return false;
+	}
+
+	$t1 = microtime(true);
+	$m = coinexchange_api_query('getmarketsummary', 'market_id='.$market->marketid);
+	if(!is_object($m) || !$m->success || empty($m->result)) return false;
+	$ticker = $m->result;
+
+	$price2 = ((double) $ticker->BidPrice + (double) $ticker->AskPrice)/2;
+	$market->price2 = AverageIncrement($market->price2, $price2);
+	$market->price = AverageIncrement($market->price, (double) $ticker->BidPrice);
+	$market->pricetime = time();
+	$market->save();
+
+	$apims = round((microtime(true) - $t1)*1000,3);
+	user()->setFlash('message', "$exchange $symbol price updated in $apims ms {$market->price}");
+
+	return true;
+}

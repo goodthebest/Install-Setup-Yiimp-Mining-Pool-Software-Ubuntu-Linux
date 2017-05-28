@@ -29,7 +29,7 @@ class CcexAPI
 
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, array('apisign:'.$sign));
-		//curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/4.0 (compatible; C-Cex PHP client; '.php_uname('s').'; PHP/'.phpversion().')');
+		curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/4.0 (compatible; C-Cex PHP client; '.php_uname('s').'; PHP/'.phpversion().')');
 		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->timeout/2);
 		curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
 

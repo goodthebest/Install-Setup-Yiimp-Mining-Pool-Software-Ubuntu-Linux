@@ -40,7 +40,8 @@ function cancelExchangeOrder($order=false)
 
 function runExchange($exchangeName=false)
 {
-	if ($exchangeName)
+	if (!empty($exchangeName))
+	{
 		switch($exchangeName)
 		{
 			case 'alcurex':
@@ -70,6 +71,10 @@ function runExchange($exchangeName=false)
 			case 'c-cex':
 				doCCexTrading(true);
 				updateCCexMarkets();
+				break;
+
+			case 'coinexchange':
+				updateCoinExchangeMarkets();
 				break;
 
 			case 'empoex':
@@ -106,5 +111,9 @@ function runExchange($exchangeName=false)
 				doPoloniexTrading(true);
 				updatePoloniexMarkets();
 				break;
+
+			default:
+				debuglog(__FUNCTION__.' '.$exchangeName.' not implemented');
 		}
+	}
 }
