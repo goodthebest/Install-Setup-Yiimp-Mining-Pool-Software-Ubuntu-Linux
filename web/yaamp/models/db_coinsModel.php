@@ -55,12 +55,18 @@ class db_coins extends CActiveRecord
 		);
 	}
 
-	public function getSymbol_show()
+	public function getOfficialSymbol()
 	{
 		if(!empty($this->symbol2))
 			return $this->symbol2;
 		else
 			return $this->symbol;
+	}
+
+	public function getSymbol_show()
+	{
+		// virtual property $coin->symbol_show
+		return $this->getOfficialSymbol();
 	}
 
 	public function deleteDeps()
