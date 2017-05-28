@@ -33,7 +33,7 @@ require_once("coinexchange.php");
 /* Format an exchange coin Url */
 function getMarketUrl($coin, $marketName)
 {
-	$symbol = !empty($coin->symbol2) ? $coin->symbol2 : $coin->symbol;
+	$symbol = $coin->getOfficialSymbol();
 	$lowsymbol = strtolower($symbol);
 	$base = 'BTC';
 
@@ -83,4 +83,26 @@ function getMarketUrl($coin, $marketName)
 		$url = "";
 
 	return $url;
+}
+
+// $market can be a db_markets or a string (symbol)
+function exchange_update_market($exchange, $market)
+{
+	$fn_update = str_replace('-','',$exchange.'_update_market');
+	if (function_exists($fn_update)) {
+		return $fn_update($market);
+	} else {
+		debuglog(__FUNCTION__.': '.$fn_update.'() not implemented');
+		user()->setFlash('error', $fn_update.'() not yet implemented');
+		return false;
+	}
+}
+
+// used to manually update one market price
+function exchange_update_market_by_id($idmarket)
+{
+	$market = getdbo('db_markets', $idmarket);
+	if (!$market) return false;
+
+	return exchange_update_market($market->name, $market);
 }

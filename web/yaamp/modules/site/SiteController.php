@@ -678,6 +678,33 @@ class SiteController extends CommonController
 
 	/////////////////////////////////////////////////
 
+	public function actionBalances()
+	{
+		if(!$this->admin) return;
+		$this->render('balances');
+	}
+
+	public function actionBalances_results()
+	{
+		if(!$this->admin) return;
+		$this->renderPartial('balances_results');
+	}
+
+	public function actionBalanceUpdate()
+	{
+		if(!$this->admin) return;
+		$id = getiparam('market');
+		$market = getdbo('db_markets', $id);
+		if ($market) {
+			exchange_update_market_by_id($id);
+			$this->redirect(array('/site/balances', 'exch'=>$market->name));
+		} else {
+			$this->goback();
+		}
+	}
+
+	/////////////////////////////////////////////////
+
 	public function actionExchange()
 	{
 		if(!$this->admin) return;

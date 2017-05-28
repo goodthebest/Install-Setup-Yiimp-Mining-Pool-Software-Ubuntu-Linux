@@ -29,7 +29,7 @@ class CcexAPI
 
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, array('apisign:'.$sign));
-		curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/4.0 (compatible; C-Cex PHP client; '.php_uname('s').'; PHP/'.phpversion().')');
+		//curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/4.0 (compatible; C-Cex PHP client; '.php_uname('s').'; PHP/'.phpversion().')');
 		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->timeout/2);
 		curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
 
@@ -167,3 +167,48 @@ class CcexAPI
 
 }
 
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// manual update of one market
+function ccex_update_market($market)
+{
+	$exchange = 'c-cex';
+	if (is_string($market))
+	{
+		$symbol = $market;
+		$coin = getdbosql('db_coins', "symbol=:sym", array(':sym'=>$symbol));
+		if(!$coin) return false;
+		$pair = strtolower($symbol."-btc");
+		$market = getdbosql('db_markets', "coinid={$coin->id} AND name='$exchange'");
+		if(!$market) return false;
+
+	} else if (is_object($market)) {
+
+		$coin = getdbo('db_coins', $market->coinid);
+		if(!$coin) return false;
+		$symbol = $coin->getOfficialSymbol();
+		$pair = strtolower($symbol."-btc");
+		if (!empty($market->base_coin)) $pair = strtolower($symbol.'-'.$market->base_coin);
+	}
+
+	$t1 = microtime(true);
+	$ccex = new CcexAPI;
+	$ticker = $ccex->getTickerInfo($pair);
+	if (!$ticker || !is_array($ticker) || !isset($ticker['buy'])) {
+		$apims = round((microtime(true) - $t1)*1000,3);
+		user()->setFlash('error', "$exchange $symbol: error after $apims ms, ".json_encode($ticker));
+		return false;
+	}
+
+	$price2 = ($ticker['buy']+$ticker['sell'])/2;
+	$market->price2 = AverageIncrement($market->price2, $price2);
+	$market->price = AverageIncrement($market->price, $ticker['buy']);
+	$market->pricetime = time();
+	$market->save();
+
+	$apims = round((microtime(true) - $t1)*1000,3);
+	user()->setFlash('message', "$exchange $symbol price updated in $apims ms");
+
+	return true;
+}
