@@ -128,6 +128,9 @@ class ApiController extends CommonController
 					$factor = $algo_hashrate = 0;
 				}
 
+				$btcmhd = yaamp_profitability($coin);
+				$btcmhd = mbitcoinvaluetoa($btcmhd);
+
 				$data[$symbol] = array(
 					'algo' => $coin->algo,
 					'port' => getAlgoPort($coin->algo),
@@ -136,6 +139,7 @@ class ApiController extends CommonController
 					'workers' => $workers,
 					'shares' =>  (int) arraySafeVal($shares,'shares'),
 					'hashrate' => round($factor * $algo_hashrate),
+					'estimate' => $btcmhd,
 					//'percent' => round($factor * 100, 1),
 					'lastblock' => $lastblock,
 					'timesincelast' => $timesincelast,
@@ -183,9 +187,10 @@ class ApiController extends CommonController
 
 	public function actionWalletEx()
 	{
-		if(!LimitRequest('api-wallet', 10)) return;
-
 		$wallet = getparam('address');
+		if($wallet == 'YOU_COIN_WALLET') return;
+		if(!LimitRequest('api-wallet', 90)) return;
+
 		$user = getuserparam($wallet);
 		if(!$user || $user->is_locked) return;
 
@@ -224,7 +229,7 @@ class ApiController extends CommonController
 			echo "\"version\": ".json_encode($worker->version).", ";
 			echo "\"password\": ".json_encode($worker->password).", ";
 			echo "\"ID\": ".json_encode($worker->worker).", ";
-			echo "\"algo\": \"$worker->algo\", ";
+			echo "\"algo\": \"{$worker->algo}\", ";
 			echo "\"difficulty\": ".doubleval($worker->difficulty).", ";
 			echo "\"subscribe\": ".intval($worker->subscribe).", ";
 			echo "\"accepted\": ".round($user_rate1,3).", ";
