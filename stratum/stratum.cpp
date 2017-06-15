@@ -132,6 +132,7 @@ YAAMP_ALGO g_algos[] =
 	{"dmd-gr", groestl_hash, 0x100, 0, 0}, /* diamond (double groestl) */
 	{"myr-gr", groestlmyriad_hash, 1, 0, 0}, /* groestl + sha 64 */
 	{"skein", skein_hash, 1, 0, 0},
+	{"tribus", tribus_hash, 1, 0, 0},
 	{"keccak", keccak256_hash, 0x80, 0, sha256_hash_hex },
 
 	{"bmw", bmw_hash, 1, 0, 0},
@@ -382,6 +383,7 @@ void *stratum_thread(void *p)
 		if(sock <= 0)
 		{
 			stratumlog("%s accept error %d %d\n", g_current_algo->name, res, errno);
+			usleep(10000);
 			continue;
 		}
 
