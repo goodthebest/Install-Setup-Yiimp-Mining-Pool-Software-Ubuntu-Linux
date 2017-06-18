@@ -74,10 +74,10 @@ class UserCommand extends CConsoleCommand
 		if ($user && $user->id)	{
 			$name = $user->username;
 			$nbDeleted += $user->deleteWithDeps();
+			echo "user $name deleted\n";
 		} else {
 			echo "user not found!\n";
 		}
-		echo "user $name deleted\n";
 	}
 
 	/**
