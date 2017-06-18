@@ -10,9 +10,7 @@ class SiteController extends CommonController
 	{
 		$client_ip = $_SERVER['REMOTE_ADDR'];
 
-		$valid = false; // Just in case?
 		$valid = isAdminIP($client_ip);
-
 		if ($valid)
 			debuglog("admin connect from $client_ip");
 		else

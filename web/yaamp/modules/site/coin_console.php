@@ -123,6 +123,7 @@ if (!empty($query)) {
 	if ($result === false) {
 		$result = $remote->error;
 	}
+	debuglog("{$coin->symbol} CONSOLE {$query}");
 }
 
 if (!empty($remote->error) && $remote->error != $result) {
