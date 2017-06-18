@@ -55,3 +55,29 @@ function getAdminWalletLinks($coin, $info=NULL, $src='wallet')
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
+
+// Check if $IP is in $CIDR range
+// Credit:  claudiu at cnixs dot com
+function ipCIDRCheck ($IP, $CIDR) {
+	list ($net, $mask) = split ("/", $CIDR);
+
+	$ip_net = ip2long ($net);
+	$ip_mask = ~((1 << (32 - $mask)) - 1);
+
+	$ip_ip = ip2long ($IP);
+
+	$ip_ip_net = $ip_ip & $ip_mask;
+
+	return ($ip_ip_net === $ip_net);
+}
+
+function isAdminIP ($ip) {
+	foreach(explode(",", YAAMP_ADMIN_IP) as $range) {
+		if(strpos($range, '/')) {
+			if(ipCIDRCheck($ip, $range) === true) return true;
+		} else {
+			if ($range === $ip) return true;
+		}
+	}
+	return false;
+}
