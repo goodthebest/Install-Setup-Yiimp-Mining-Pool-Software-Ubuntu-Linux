@@ -58,4 +58,6 @@ if (!defined('NICEHASH_API_ID')) define('NICEHASH_API_ID','0000');
 if (!defined('NICEHASH_DEPOSIT')) define('NICEHASH_DEPOSIT','');
 if (!defined('NICEHASH_DEPOSIT_AMOUNT')) define('NICEHASH_DEPOSIT_AMOUNT','0.01');
 
+// cli stuff
+if (!defined('YIIMP_CLI_ALLOW_TXS')) define('YIIMP_CLI_ALLOW_TXS', false);
 

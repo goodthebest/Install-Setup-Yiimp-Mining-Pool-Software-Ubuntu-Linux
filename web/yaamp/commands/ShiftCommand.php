@@ -28,13 +28,18 @@ class ShiftCommand extends CConsoleCommand
 
 			echo "Yiimp shift command\n";
 			echo "Usage: yiimp shift list - to list supported coins\n";
-			echo "Usage: yiimp shift start <SYM-src> <SYM-dest> [dest-addr] - to start a shapeshift tx\n";
-			//echo "       yiimp shift send <amount> <SYM> <deposit-addr>\n";
+			echo "       yiimp shift query <SYM-src> [SYM-dest]\n";
+			echo "       yiimp shift start <SYM-src> <SYM-dest> [dest-addr] - to start a shapeshift tx\n";
+			if (YIIMP_CLI_ALLOW_TXS) echo "       yiimp shift send <deposit-addr> <amount> <SYM>\n";
 			echo "       yiimp shift status <deposit-addr>\n";
+			echo "       yiimp shift cancel <deposit-addr>\n";
 			return 1;
 
 		} else if ($args[0] == 'list') {
 			return $this->listShiftCoins($args);
+
+		} else if ($args[0] == 'query') {
+			return $this->queryRate($args);
 
 		} else if ($args[0] == 'start') {
 			return $this->startShift($args);
@@ -44,6 +49,9 @@ class ShiftCommand extends CConsoleCommand
 
 		} else if ($args[0] == 'status') {
 			return $this->statusOrder($args);
+
+		} else if ($args[0] == 'cancel') {
+			return $this->cancelOrder($args);
 		}
 
 		return 1;
@@ -98,6 +106,40 @@ class ShiftCommand extends CConsoleCommand
 
 	////////////////////////////////////////////////////////////////////////////////////
 
+	public function queryRate($args)
+	{
+		if (count($args) < 2)
+			die("usage: shift query <SYM-src> [SYM-dst=BTC]\n");
+
+		$srcsym = $args[1];
+		$dstsym = arraySafeVal($args, 2, 'BTC');
+		if (!$this->checkSymbol($srcsym))
+			die("error: symbol '$srcsym' does not exist!\n");
+		if (!$this->shapeshiftAllowed($srcsym))
+			die("error: $srcsym is not supported by shapeshift!\n");
+		if (!$this->checkSymbol($dstsym))
+			die("error: symbol '$dstsym' does not exist!\n");
+		if (!$this->shapeshiftAllowed($dstsym))
+			die("error: $dstsym is not supported by shapeshift!\n");
+
+		$coins = new db_coins;
+		$src = $coins->find(array('condition'=>'symbol=:sym', 'params'=>array(':sym'=>$srcsym)));
+		$dst = $coins->find(array('condition'=>'symbol=:sym', 'params'=>array(':sym'=>$dstsym)));
+
+		$pair = strtolower($src->getOfficialSymbol().'_'.$dst->getOfficialSymbol());
+		$res = shapeshift_api_query('marketinfo', $pair);
+		if (!is_array($res)) die(json_encode($res)."\n");
+
+		echo "info: $pair ".json_encode($res)."\n";
+		$rate = round($src->price / $dst->price, 8);
+		$diff = round(arraySafeVal($res, 'rate',1) - $rate, 8);
+		//$rate1 = round($dst->price / $src->price, 8);
+		//$diff1 = round($rate1 - 1/arraySafeVal($res, 'rate',1), 8);
+		echo "DB prices: ".bitcoinvaluetoa($src->price)." ".bitcoinvaluetoa($dst->price)." $rate:1 ($diff)\n";
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////
+
 	public function startShift($args)
 	{
 		if (count($args) < 3)
@@ -141,8 +183,8 @@ class ShiftCommand extends CConsoleCommand
 			echo json_encode($res)."\n";
 			return 1;
 		}
+		echo "info: ".json_encode($res)."\n";
 
-		//echo json_encode($data)."\n";
 		$res = shapeshift_api_post('shift', $data);
 		if (isset($res['error'])) {
 			echo json_encode($res)."\n";
@@ -151,9 +193,12 @@ class ShiftCommand extends CConsoleCommand
 
 		if (isset($res['deposit'])) {
 			echo json_encode($res)."\n";
-			echo "1. sendtoaddress {$res['deposit']} <amount>\n";
-			//echo "1. shift send <amount> $srcsym {$res['deposit']}\n";
-			echo "2. yiimp shift status {$res['deposit']}\n";
+			echo "Transaction allowed, please do the following now:\n";
+			if (!YIIMP_CLI_ALLOW_TXS)
+				echo "  <coin>-cli sendtoaddress {$res['deposit']} <amount>\n";
+			else
+				echo "  yiimp shift send {$res['deposit']} <amount> $srcsym\n";
+			echo "  yiimp shift status {$res['deposit']}\n";
 		}
 		return 0;
 	}
@@ -163,11 +208,11 @@ class ShiftCommand extends CConsoleCommand
 	public function sendShift($args)
 	{
 		if (count($args) < 4)
-			die("usage: shift send <amount> <SYM> <deposit-addr>\n");
+			die("usage: shift send <deposit-addr> <amount> <SYM>\n");
 
-		$amount = bitcoinvaluetoa($args[1]);
-		$symbol = $args[2];
-		$deposit = $args[3];
+		$deposit = $args[1];
+		$amount = bitcoinvaluetoa($args[2]);
+		$symbol = $args[3];
 
 		$coin = getdbosql('db_coins', 'symbol=:sym', array(':sym'=>$symbol));
 		if (!$coin) return 1;
@@ -179,7 +224,14 @@ class ShiftCommand extends CConsoleCommand
 			return 1;
 		}
 
-		echo "not yet implemented for security purpose\n";
+		if (!YIIMP_CLI_ALLOW_TXS) {
+			echo "method no allowed\n";
+			return 1;
+		}
+
+		$res = $remote->sendtoaddress($deposit, (double)$amount, "", "", true);
+		echo json_encode($res)."\n";
+
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////
@@ -191,6 +243,22 @@ class ShiftCommand extends CConsoleCommand
 
 		$res = shapeshift_api_query('txStat', $args[1]);
 		echo json_encode($res)."\n";
+		if (isset($res['outgoingCoin']) && isset($res['incomingCoin'])) {
+			echo "real rate: ".round($res['outgoingCoin'] / $res['incomingCoin'], 8)."\n";
+		}
 		return 0;
 	}
+
+	////////////////////////////////////////////////////////////////////////////////////
+
+	public function cancelOrder($args)
+	{
+		if (count($args) < 2)
+			die("usage: shift cancel <deposit-addr>\n");
+
+		$res = shapeshift_api_post('cancelpending', array('address'=>$args[1]));
+		echo json_encode($res)."\n";
+		return 0;
+	}
+
 }
