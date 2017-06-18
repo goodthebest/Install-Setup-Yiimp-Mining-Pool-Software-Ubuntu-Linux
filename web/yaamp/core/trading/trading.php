@@ -77,6 +77,10 @@ function runExchange($exchangeName=false)
 				updateCoinExchangeMarkets();
 				break;
 
+			case 'coinsmarkets':
+				updateCoinsMarketsMarkets();
+				break;
+
 			case 'empoex':
 				//doEmpoexTrading(true);
 				//updateEmpoexMarkets();

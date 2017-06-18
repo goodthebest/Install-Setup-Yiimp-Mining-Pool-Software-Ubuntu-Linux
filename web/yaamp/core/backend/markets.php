@@ -24,6 +24,7 @@ function BackendPricesUpdate()
 	updateLiveCoinMarkets();
 	updateNovaMarkets();
 	updateCoinExchangeMarkets();
+	updateCoinsMarketsMarkets();
 
 	updateShapeShiftMarkets();
 	updateOtherMarkets();
@@ -1150,6 +1151,62 @@ function updateCoinExchangeMarkets()
 				}
 				break;
 			}
+		}
+	}
+}
+
+function updateCoinsMarketsMarkets()
+{
+	$exchange = 'coinsmarkets';
+	if (exchange_get($exchange, 'disabled')) return;
+
+	$list = coinsmarkets_api_query('apicoin');
+	if(empty($list) || !is_array($list)) return;
+	foreach($list as $pair=>$data)
+	{
+		$e = explode('_', $pair);
+		$base = $e[0]; $symbol = strtoupper($e[1]);
+		//if($pair == 'DOG_BTC') todo: handle reverted DOG_BTC
+		if($base != 'BTC') continue;
+
+		$coin = getdbosql('db_coins', "symbol=:sym", array(':sym'=>$symbol));
+		if(!$coin) continue;
+
+		$market = getdbosql('db_markets', "coinid={$coin->id} AND name='$exchange' AND IFNULL(base_coin,'') IN ('','BTC')");
+		if(!$market) continue;
+
+		$symbol = $coin->getOfficialSymbol();
+		if (market_get($exchange, $symbol, "disabled")) {
+			$market->disabled = 1;
+			$market->message = 'disabled from settings';
+			$market->save();
+			continue;
+		}
+
+		$price2 = ((double)$data['lowestAsk'] + (double)$data['highestBid'])/2;
+		$market->price2 = AverageIncrement($market->price2, $price2);
+		$market->price = AverageIncrement($market->price, (double)$data['highestBid']);
+
+		$market->marketid = arraySafeVal($data,'id');
+		$market->priority = -1; // not ready for trading
+
+		if ($price2 < $market->price*2) {
+			// 24htrade field seems not filled in json
+			//if ($market->disabled == 1) $market->disabled = 0;
+		} else {
+			// reduce price2
+			$market->price2 = AverageIncrement($market->price2, $market->price);
+			//if (!$market->disabled) $market->disabled = 1;
+		}
+
+		//debuglog("$exchange: $symbol price set to ".bitcoinvaluetoa($market->price));
+		$market->pricetime = time();
+		$market->save();
+
+		if (empty($coin->price2)) {
+			$coin->price = $market->price;
+			$coin->price2 = $market->price2;
+			$coin->save();
 		}
 	}
 }
