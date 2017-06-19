@@ -907,6 +907,26 @@ function updateHitBTCMarkets()
 				break;
 			}
 		}
+
+		if(!empty(EXCH_HITBTC_KEY))
+		{
+			$last_checked = cache()->get($exchange.'-deposit_address-check-'.$symbol);
+			if($coin->installed && !$last_checked && empty($market->deposit_address))
+			{
+				sleep(1);
+				$res = hitbtc_api_user('payment/address/'.$symbol); // GET method
+				if(is_object($res) && isset($res->address)) {
+					if (!empty($res->address)) {
+						$market->deposit_address = $res->address;
+						debuglog("$exchange: deposit address for {$symbol} updated");
+						$market->save();
+						if ($symbol == 'WAVES' || $symbol == 'LSK') // Wallet address + Public key
+							debuglog("$exchange: $symbol deposit address data: ".json_encode($res));
+					}
+				}
+				cache()->set($exchange.'-deposit_address-check-'.$symbol, time(), 24*3600);
+			}
+		}
 	}
 }
 
