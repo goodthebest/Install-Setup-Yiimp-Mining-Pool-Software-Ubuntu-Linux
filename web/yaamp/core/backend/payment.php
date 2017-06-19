@@ -88,6 +88,7 @@ function BackendCoinPayments($coin)
 				$payout->amount = bitcoinvaluetoa($amount);
 				$payout->fee = 0;
 				$payout->tx = $tx;
+				$payout->idcoin = $coin->id;
 				$payout->save();
 
 				$user->balance -= $amount;
@@ -170,6 +171,7 @@ function BackendCoinPayments($coin)
 		$payout->time = time();
 		$payout->amount = bitcoinvaluetoa($user->balance*$coef);
 		$payout->fee = 0;
+		$payout->idcoin = $coin->id;
 
 		if ($payout->save()) {
 			$payouts[$payout->id] = $user->id;
@@ -259,6 +261,7 @@ function BackendCoinPayments($coin)
 				$payout->time = time();
 				$payout->amount = $amount_failed;
 				$payout->fee = 0;
+				$payout->idcoin = $coin->id;
 				if ($payout->save() && $amount_failed > $min_payout) {
 					$payouts[$payout->id] = $user->id;
 					$addresses[$user->username] = $amount_failed;

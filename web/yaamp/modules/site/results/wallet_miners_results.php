@@ -26,7 +26,7 @@ echo "</thead>";
 
 foreach(yaamp_get_algos() as $algo)
 {
-	if (!YAAMP_ALLOW_EXCHANGE && $coin && $coin->algo != $algo) continue;
+	if (!YAAMP_ALLOW_EXCHANGE && isset($coin) && $coin->algo != $algo) continue;
 
 	$user_rate1 = yaamp_user_rate($userid, $algo);
 	$user_rate1_bad = yaamp_user_rate_bad($userid, $algo);

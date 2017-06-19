@@ -48,6 +48,12 @@ function BackendBlockNew($coin, $db_block)
 		else	// immature
 			$earning->status = 0;
 
+		$ucoin = getdbo('db_coins', $user->coinid);
+		if(!YAAMP_ALLOW_EXCHANGE && $ucoin && $ucoin->algo != $coin->algo) {
+			debuglog($coin->symbol.": invalid earning for {$user->username}, user coin is {$ucoin->symbol}");
+			$earning->status = -1;
+		}
+
 		if (!$earning->save())
 			debuglog(__FUNCTION__.": Unable to insert earning!");
 
@@ -238,7 +244,7 @@ function BackendBlocksUpdate($coinid = NULL)
 		$block->save();
 
 		if($category == 'generate') {
-			dborun("UPDATE earnings SET status=1, mature_time=UNIX_TIMESTAMP() WHERE blockid=".intval($block->id));
+			dborun("UPDATE earnings SET status=1, mature_time=UNIX_TIMESTAMP() WHERE blockid=".intval($block->id)." AND status!=-1");
 
 			// auto update mature_blocks
 			if ($block->confirmations > 0 && $block->confirmations < $coin->mature_blocks || empty($coin->mature_blocks)) {
@@ -248,7 +254,7 @@ function BackendBlocksUpdate($coinid = NULL)
 			}
 		}
 		else if($category != 'immature')
-			dborun("DELETE FROM earnings WHERE blockid=".intval($block->id));
+			dborun("DELETE FROM earnings WHERE blockid=".intval($block->id)." AND status!=-1");
 	}
 
 	$d1 = microtime(true) - $t1;
