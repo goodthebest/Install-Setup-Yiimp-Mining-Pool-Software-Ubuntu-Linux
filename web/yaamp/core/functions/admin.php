@@ -57,10 +57,9 @@ function getAdminWalletLinks($coin, $info=NULL, $src='wallet')
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 // Check if $IP is in $CIDR range
-// Credit:  claudiu at cnixs dot com
 function ipCIDRCheck($IP, $CIDR)
 {
-	list($net, $mask) = split('/', $CIDR);
+	list($net, $mask) = explode('/', $CIDR);
 
 	$ip_net = ip2long($net);
 	$ip_mask = ~((1 << (32 - $mask)) - 1);
