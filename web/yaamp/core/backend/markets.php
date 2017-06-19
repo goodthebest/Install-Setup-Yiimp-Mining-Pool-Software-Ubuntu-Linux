@@ -16,6 +16,7 @@ function BackendPricesUpdate()
 	updateKrakenMarkets();
 	updateCCexMarkets();
 	updateCryptopiaMarkets();
+	updateHitBTCMarkets();
 	updateYobitMarkets();
 	updateAlcurexMarkets();
 	updateBterMarkets();
@@ -854,6 +855,61 @@ function updateCryptopiaMarkets()
 	cache()->set($exchange.'-deposit_address-check', time(), 12*3600);
 }
 
+function updateHitBTCMarkets()
+{
+	$exchange = 'hitbtc';
+	if (exchange_get($exchange, 'disabled')) return;
+
+	$markets = getdbolist('db_markets', "name LIKE '$exchange%'"); // allow "hitbtc LTC"
+	if(empty($markets)) return;
+
+	$data = hitbtc_api_query('ticker');
+	if(!empty($data) || !is_array($data)) return;
+
+	foreach($markets as $market)
+	{
+		$coin = getdbo('db_coins', $market->coinid);
+		if(!$coin) continue;
+
+		$base = 'BTC';
+		$symbol = $coin->getOfficialSymbol();
+		$pair = $base.strtoupper($symbol);
+
+		$sqlFilter = '';
+		if (!empty($market->base_coin)) {
+			$base = $market->base_coin;
+			$pair = strtoupper($market->base_coin.$symbol);
+			$sqlFilter = "AND base_coin='{$market->base_coin}'";
+		}
+
+		if (market_get($exchange, $symbol, "disabled", false, $base)) {
+			$market->disabled = 1;
+			$market->message = 'disabled from settings';
+			$market->save();
+			continue;
+		}
+
+		foreach ($data as $p => $ticker)
+		{
+			if ($p === $pair) {
+				$price2 = ((double)$ticker->bid + (double)$ticker->ask)/2;
+				$market->price = AverageIncrement($market->price, (double)$ticker->bid);
+				$market->price2 = AverageIncrement($market->price2, $price2);
+				$market->pricetime = time(); // $ticker->timestamp
+				$market->save();
+
+				if (empty($coin->price2) && strpos($pair,'BTC') !== false) {
+					$coin->price = $market->price;
+					$coin->price2 = $market->price2;
+					$coin->save();
+				}
+				debuglog("$exchange: $pair $market->price ".bitcoinvaluetoa($market->price2));
+				break;
+			}
+		}
+	}
+}
+
 function updateNovaMarkets()
 {
 	$exchange = 'nova';
@@ -864,8 +920,6 @@ function updateNovaMarkets()
 
 	$data = nova_api_query('markets');
 	if(!is_object($data) || $data->status != 'success' || !is_array($data->markets)) return;
-
-	$symbols = array();
 
 	foreach($markets as $market)
 	{

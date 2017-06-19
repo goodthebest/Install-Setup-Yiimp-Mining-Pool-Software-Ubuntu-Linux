@@ -145,6 +145,20 @@ function updateRawcoins()
 		}
 	}
 
+	if (!exchange_get('hitbtc', 'disabled')) {
+		$list = hitbtc_api_query('symbols');
+		if(is_object($list) && isset($list->symbols) && is_array($list->symbols))
+		{
+			dborun("UPDATE markets SET deleted=true WHERE name='hitbtc'");
+			foreach($list->symbols as $data) {
+				$base = strtoupper($data->currency);
+				if ($base != 'BTC') continue;
+				$symbol = strtoupper($data->commodity);
+				updateRawCoin('hitbtc', $symbol);
+			}
+		}
+	}
+
 	if (!exchange_get('kraken', 'disabled')) {
 		$list = kraken_api_query('AssetPairs');
 		if(is_array($list))
@@ -294,8 +308,8 @@ function updateRawCoin($marketname, $symbol, $name='unknown')
 			}
 		}
 
-		if (in_array($marketname, array('nova','askcoin','coinexchange','coinsmarkets'))) {
-			// don't polute too much the db
+		if (in_array($marketname, array('nova','askcoin','coinexchange','coinsmarkets','hitbtc'))) {
+			// don't polute too much the db with new coins, its better from exchanges with labels
 			return;
 		}
 

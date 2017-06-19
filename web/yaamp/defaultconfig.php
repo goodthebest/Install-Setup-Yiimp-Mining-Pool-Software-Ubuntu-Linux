@@ -32,6 +32,7 @@ if (!defined('EXCH_BLEUTRADE_KEY')) define('EXCH_BLEUTRADE_KEY', '');
 if (!defined('EXCH_BTER_KEY')) define('EXCH_BTER_KEY', '');
 if (!defined('EXCH_CCEX_KEY')) define('EXCH_CCEX_KEY', '');
 if (!defined('EXCH_CRYPTOPIA_KEY')) define('EXCH_CRYPTOPIA_KEY', '');
+if (!defined('EXCH_HITBTC_KEY')) define('EXCH_HITBTC_KEY', '');
 if (!defined('EXCH_POLONIEX_KEY')) define('EXCH_POLONIEX_KEY', '');
 if (!defined('EXCH_YOBIT_KEY')) define('EXCH_YOBIT_KEY', '');
 if (!defined('EXCH_KRAKEN_KEY')) define('EXCH_KRAKEN_KEY', '');

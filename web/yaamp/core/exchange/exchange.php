@@ -26,6 +26,7 @@ require_once("empoex.php");
 require_once("jubi.php");
 require_once("alcurex.php");
 require_once("cryptopia.php");
+require_once("hitbtc.php");
 require_once("livecoin.php");
 require_once("nova.php");
 require_once("coinexchange.php");
@@ -76,6 +77,8 @@ function getMarketUrl($coin, $marketName)
 		$url = "http://www.empoex.com/trade/{$symbol}-{$base}";
 	else if($market == 'jubi')
 		$url = "http://jubi.com/coin/{$lowsymbol}";
+	else if($market == 'hitbtc')
+		$url = "https://hitbtc.com/exchange/{$symbol}-to-{$base}";
 	else if($market == 'livecoin')
 		$url = "https://www.livecoin.net/trade/?currencyPair={$symbol}%2F{$base}";
 	else if($market == 'nova')

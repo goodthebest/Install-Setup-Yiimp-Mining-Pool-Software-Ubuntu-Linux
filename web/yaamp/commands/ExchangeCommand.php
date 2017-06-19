@@ -159,6 +159,14 @@ class ExchangeCommand extends CConsoleCommand
 			if (!is_object($balance)) echo("cryptopia error ".json_encode($balance)."\n");
 			else echo("cryptopia btc: ".json_encode($balance->Data)."\n");
 		}
+		if (!empty(EXCH_HITBTC_KEY)) {
+			$data = hitbtc_api_user('trading/balance');
+			if (!is_object($data) || !isset($data->balance)) echo("hitbtc error ".json_encode($data)."\n");
+			else foreach ($data->balance as $balance) {
+				if (objSafeVal($balance,'currency_code') == 'BTC')
+					echo("hitbtc btc: ".json_encode($balance)."\n");
+			}
+		}
 		if (!empty(EXCH_KRAKEN_KEY)) {
 			$balance = kraken_api_user('Balance');
 			echo("kraken btc: ".json_encode($balance)."\n");

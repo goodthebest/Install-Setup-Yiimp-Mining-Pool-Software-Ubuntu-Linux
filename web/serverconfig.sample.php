@@ -49,6 +49,7 @@ define('EXCH_YOBIT_KEY', '');
 define('EXCH_CCEX_KEY', '');
 define('EXCH_BITSTAMP_ID','');
 define('EXCH_BITSTAMP_KEY','');
+define('EXCH_HITBTC_KEY','');
 define('EXCH_KRAKEN_KEY', '');
 define('EXCH_LIVECOIN_KEY', '');
 define('EXCH_NOVA_KEY', '');
