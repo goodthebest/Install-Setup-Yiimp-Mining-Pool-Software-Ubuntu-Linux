@@ -2,7 +2,7 @@
 // see https://hitbtc.com/api
 // https://hitbtc.com/api/1/public/ticker
 
-function hitbtc_api_query($method, $params='')
+function hitbtc_api_query($method, $params='', $returnType='object')
 {
 	$url = "https://api.hitbtc.com/api/1/public/$method";
 	if (!empty($params))
@@ -16,9 +16,12 @@ function hitbtc_api_query($method, $params='')
 	curl_setopt($ch, CURLOPT_ENCODING , '');
 
 	$execResult = curl_exec($ch);
-	$obj = json_decode($execResult);
+	if ($returnType == 'object')
+		$ret = json_decode($execResult);
+	else
+		$ret = json_decode($execResult,true);
 
-	return $obj;
+	return $ret;
 }
 
 // https://hitbtc.com/api#tradingbalance

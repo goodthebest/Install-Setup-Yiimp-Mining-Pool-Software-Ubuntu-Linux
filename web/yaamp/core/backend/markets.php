@@ -863,8 +863,8 @@ function updateHitBTCMarkets()
 	$markets = getdbolist('db_markets', "name LIKE '$exchange%'"); // allow "hitbtc LTC"
 	if(empty($markets)) return;
 
-	$data = hitbtc_api_query('ticker');
-	if(!empty($data) || !is_array($data)) return;
+	$data = hitbtc_api_query('ticker','','array');
+	if(!is_array($data) || empty($data)) return;
 
 	foreach($markets as $market)
 	{
@@ -873,7 +873,7 @@ function updateHitBTCMarkets()
 
 		$base = 'BTC';
 		$symbol = $coin->getOfficialSymbol();
-		$pair = $base.strtoupper($symbol);
+		$pair = strtoupper($symbol).$base;
 
 		$sqlFilter = '';
 		if (!empty($market->base_coin)) {
@@ -892,8 +892,8 @@ function updateHitBTCMarkets()
 		foreach ($data as $p => $ticker)
 		{
 			if ($p === $pair) {
-				$price2 = ((double)$ticker->bid + (double)$ticker->ask)/2;
-				$market->price = AverageIncrement($market->price, (double)$ticker->bid);
+				$price2 = ((double)$ticker['bid'] + (double)$ticker['ask'])/2;
+				$market->price = AverageIncrement($market->price, (double)$ticker['bid']);
 				$market->price2 = AverageIncrement($market->price2, $price2);
 				$market->pricetime = time(); // $ticker->timestamp
 				$market->save();
@@ -903,7 +903,7 @@ function updateHitBTCMarkets()
 					$coin->price2 = $market->price2;
 					$coin->save();
 				}
-				debuglog("$exchange: $pair $market->price ".bitcoinvaluetoa($market->price2));
+				//debuglog("$exchange: $pair $market->price ".bitcoinvaluetoa($market->price2));
 				break;
 			}
 		}
