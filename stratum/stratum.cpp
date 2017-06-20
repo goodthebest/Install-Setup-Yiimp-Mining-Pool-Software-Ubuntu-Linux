@@ -316,6 +316,8 @@ int main(int argc, char **argv)
 	pthread_join(thread2, NULL);
 	db_close(g_db); // client threads (called by stratum one)
 
+	closelogs();
+
 	return 0;
 }
 

@@ -88,6 +88,7 @@ json_value *json_get_object(json_value *json, const char *name)
 FILE *g_debuglog = NULL;
 FILE *g_stratumlog = NULL;
 FILE *g_clientlog = NULL;
+FILE *g_rejectlog = NULL;
 
 void initlog(const char *algo)
 {
@@ -98,6 +99,23 @@ void initlog(const char *algo)
 
 	g_stratumlog = fopen("stratum.log", "a");
 	g_clientlog = fopen("client.log", "a");
+	g_rejectlog = fopen("reject.log", "a");
+}
+
+void closelogs()
+{
+	if (g_debuglog) {
+		fflush(g_debuglog); fclose(g_debuglog);
+	}
+	if (g_stratumlog) {
+		fflush(g_stratumlog); fclose(g_stratumlog);
+	}
+	if (g_clientlog) {
+		fflush(g_clientlog); fclose(g_clientlog);
+	}
+	if (g_rejectlog) {
+		fflush(g_rejectlog); fclose(g_rejectlog);
+	}
 }
 
 void clientlog(YAAMP_CLIENT *client, const char *format, ...)
@@ -224,9 +242,37 @@ void stratumlogdate(const char *format, ...)
 	stratumlog("%s %s", date, buffer);
 }
 
+void rejectlog(const char *format, ...)
+{
+	char buffer[YAAMP_SMALLBUFSIZE];
+	va_list args;
+
+	va_start(args, format);
+	vsnprintf(buffer, YAAMP_SMALLBUFSIZE-1, format, args);
+	va_end(args);
+
+	time_t rawtime;
+	struct tm * timeinfo;
+	char buffer2[80];
+
+	time(&rawtime);
+	timeinfo = localtime(&rawtime);
+
+	strftime(buffer2, 80, "%H:%M:%S", timeinfo);
+	printf("%s: %s", buffer2, buffer);
+
+	if(g_rejectlog)
+	{
+		fprintf(g_rejectlog, "%s: %s", buffer2, buffer);
+		fflush(g_rejectlog);
+	}
+}
+
+
 bool yaamp_error(char const *message)
 {
 	debuglog("ERROR: %d %s\n", errno, message);
+	closelogs();
 	exit(1);
 }
 

@@ -288,6 +288,7 @@ static void client_do_submit(YAAMP_CLIENT *client, YAAMP_JOB *job, YAAMP_JOB_VAL
 
 		else {
 			debuglog("*** REJECTED :( %s block %d %d txs\n", coind->name, templ->height, templ->txcount);
+			rejectlog("REJECTED %s block %d %s\n", coind->symbol, templ->height, block_hex);
 #ifdef HASH_DEBUGLOG_
 			//debuglog("block %s\n", block_hex);
 			debuglog("--------------------------------------------------------------\n");
