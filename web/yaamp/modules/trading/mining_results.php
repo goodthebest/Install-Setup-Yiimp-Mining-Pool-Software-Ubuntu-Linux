@@ -74,7 +74,7 @@ foreach($niceorders as $order)
 
 	$allorders[$index]['speed'] += $order->accepted_speed;
 	$allorders[$index]['workers'] += $order->workers;
-	$allorders[$index]['btc'] += $order->btc_avail;
+	//$allorders[$index]['btc'] += $order->btc_avail;
 	$allorders[$index]['limit'] += $order->limit_speed;
 }
 

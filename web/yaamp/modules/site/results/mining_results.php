@@ -146,13 +146,14 @@ foreach($list as $coin)
 	echo '</td>';
 
 	$owed = dboscalar("select sum(balance) from accounts where coinid=$coin->id");
-	if($coin->balance+$coin->mint < $owed*0.9)
-		echo "<td><b><a href='/site/block?id=$coin->id' title='We are short of this currency. Please select another one for payments until we find more blocks.'
-			style='color: #c55'>$name</a></b><span style='font-size: .8em;'> ($coin->algo)</span></td>";
-
-	else
+	if(YAAMP_ALLOW_EXCHANGE && $coin->balance+$coin->mint < $owed*0.9 ) {
+		$owed2 = bitcoinvaluetoa($owed - $coin->balance);
+		$symbol = $coin->getOfficialSymbol();
+		$title = "We are short of this currency ($owed2 $symbol). Please switch to another currency until we find more $symbol blocks.";
+		echo "<td><b><a href=\"/site/block?id={$coin->id}\" title=\"$title\" style=\"color: #c55;\">$name</a></b><span style=\"font-size: .8em;\"> ({$coin->algo})</span></td>";
+	} else {
 		echo "<td><b><a href='/site/block?id=$coin->id'>$name</a></b><span style='font-size: .8em'> ($coin->algo)</span></td>";
-
+	}
 	echo "<td align=right style='font-size: .8em;'><b>$reward $coin->symbol_show</a></td>";
 
 	$title = "POW $coin->difficulty";
