@@ -8,7 +8,22 @@ JavascriptFile('/yaamp/ui/js/auto_refresh.js');
 
 $recents = isset($_COOKIE['wallets'])? unserialize($_COOKIE['wallets']): array();
 
-$user = getuserparam(getparam('address'));
+$address = getparam('address');
+
+$drop_address = getparam('drop');
+if (!empty($drop_address)) {
+	// to clean cookies
+	foreach($recents as $k=>$addr) {
+		if ($addr == $drop_address) {
+			unset($recents[$k]);
+			if (controller()->admin)
+				setcookie('wallets', serialize($recents), time()+60*60*24*30, '/');
+			break;
+		}
+	}
+}
+
+$user = getuserparam($address);
 if($user)
 {
 	user()->setState('yaamp-wallet', $user->username);
@@ -19,7 +34,7 @@ if($user)
 	<script type="text/javascript">
 	$(function() {
 		$('#favicon').remove();
-		$('head').append('<link href="$coin->image" id="favicon" rel="shortcut icon">');
+		$('head').append('<link href="{$coin->image}" id="favicon" rel="shortcut icon">');
 	});
 	</script>
 END;
@@ -89,11 +104,11 @@ echo <<<END
 END;
 
 echo "<table class='dataGrid2'>";
-foreach($recents as $address)
+foreach($recents as $addr)
 {
-	if(empty($address)) continue;
+	if(empty($addr)) continue;
 
-	$user = getuserparam($address);
+	$user = getuserparam($addr);
 	if(!$user) continue;
 
 	$coin = getdbo('db_coins', $user->coinid);
@@ -104,11 +119,10 @@ foreach($recents as $address)
 		echo "<tr class='ssrow'><td width=24>";
 
 	if($coin)
-		echo "<img width=16 src='$coin->image'>";
-	else
-		echo "<img width=16 src='/images/base/delete.png'>";
+		echo '<img width="16px" src="'.$coin->image.'">';
 
-	echo "</td><td><a href='/?address=$address' style='font-family: monospace; font-size: 1.1em;'>$address</a></td>";
+	echo '</td><td><a class="address" href="/?address='.$addr.'" style="font-family: monospace; font-size: 1.1em;">'.
+		$addr.'</a></td>';
 
 	$balance = bitcoinvaluetoa($user->balance);
 
@@ -117,8 +131,11 @@ foreach($recents as $address)
 	else
 		$balance = $balance>0? "$balance BTC": '';
 
-	echo "<td align=right>$balance</td>";
-	echo "<tr>";
+	echo '<td align="right">'.$balance.'</td>';
+	echo '<td style="width: 16px; max-width: 16px;">'.
+		'<img src="/images/base/delete.png" onclick="javascript:drop_cookie(this);" style="cursor:pointer;"/>'.
+	'</td>';
+	echo '</tr>';
 }
 
 echo "</table></form></div></div><br>";
@@ -377,6 +394,12 @@ function main_wallet_tx()
 {
 	var w = window.open("/site/tx?address=$username", "yaamp_tx",
 		"width=800,height=600,location=no,menubar=no,resizable=yes,status=yes,toolbar=no");
+}
+
+function drop_cookie(el)
+{
+	var addr = $(el).closest('tr').find('td a.address').text();
+	window.location.href = '?address={$address}&drop=' + addr;
 }
 
 </script>
