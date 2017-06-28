@@ -204,6 +204,7 @@ void coinbase_create(YAAMP_COIND *coind, YAAMP_JOB_TEMPLATE *templ, json_value *
 	}
 
 	if(strcmp(coind->symbol, "SIB") == 0 ||
+		strcmp(coind->symbol, "MUE") == 0 || // MUEcore-x11
 		strcmp(coind->symbol, "DASH") == 0 || strcmp(coind->symbol, "DASH-TESTNET") == 0) // Dash 12.1
 	{
 		char script_dests[2048] = { 0 };
