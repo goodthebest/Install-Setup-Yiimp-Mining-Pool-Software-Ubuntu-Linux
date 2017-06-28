@@ -410,7 +410,7 @@ end;
 
 	public function actionWithdraw()
 	{
-		$fees = 0.0001;
+		$fees = YAAMP_TXFEE_RENTING_WD; // 0.002
 
 		$deposit = user()->getState('yaamp-deposit');
 		if(!$deposit)
@@ -430,9 +430,9 @@ end;
 		$address = getparam('withdraw_address');
 
 		$amount = floatval(bitcoinvaluetoa(min($amount, $renter->balance-$fees)));
-		if($amount < 0.001)
+		if($amount < YAAMP_PAYMENTS_MINI) // 0.001
 		{
-			user()->setFlash('error', 'Minimum withdraw is 0.001');
+			user()->setFlash('error', 'Minimum withdraw is '.YAAMP_PAYMENTS_MINI);
 			$this->redirect("/renting");
 			return;
 		}
