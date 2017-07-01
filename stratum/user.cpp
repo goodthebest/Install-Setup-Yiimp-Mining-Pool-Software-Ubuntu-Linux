@@ -11,6 +11,29 @@ void db_check_user_input(char* input)
 	}
 }
 
+void db_check_coin_symbol(YAAMP_DB *db, char* symbol)
+{
+	if (!symbol) return;
+	size_t len = strlen(symbol);
+	if (len >= 2 && len <= 12) {
+#ifdef NO_EXCHANGE
+		db_query(db, "SELECT symbol FROM coins WHERE installed AND algo='%s' AND symbol='%s'", g_stratum_algo, symbol);
+#else
+		db_query(db, "SELECT symbol FROM coins WHERE installed AND (symbol='%s' OR symbol2='%s')", symbol, symbol);
+#endif
+		MYSQL_RES *result = mysql_store_result(&db->mysql);
+		*symbol = '\0';
+		if (!result) return;
+		MYSQL_ROW row = mysql_fetch_row(result);
+		if (row) {
+			strcpy(symbol, row[0]);
+		}
+		mysql_free_result(result);
+	} else {
+		*symbol = '\0';
+	}
+}
+
 void db_add_user(YAAMP_DB *db, YAAMP_CLIENT *client)
 {
 	db_clean_string(db, client->username);
@@ -75,6 +98,7 @@ void db_add_user(YAAMP_DB *db, YAAMP_CLIENT *client)
 	mysql_free_result(result);
 
 	db_check_user_input(symbol);
+	db_check_coin_symbol(db, symbol);
 
 	if (gift < 0) gift = 0;
 	client->donation = gift;
@@ -89,11 +113,16 @@ void db_add_user(YAAMP_DB *db, YAAMP_CLIENT *client)
 		client->userid = (int)mysql_insert_id(&db->mysql);
 	}
 
-	else
-		db_query(db, "UPDATE accounts SET coinsymbol='%s', donation=%d WHERE id=%d AND balance = 0"
+	else {
+		db_query(db, "UPDATE accounts SET coinsymbol='%s', swap_time=%u, donation=%d, hostaddr='%s' WHERE id=%d AND balance = 0"
 			" AND (SELECT COUNT(id) FROM payouts WHERE account_id=%d AND tx IS NULL) = 0" // failed balance
 			" AND (SELECT pending FROM balanceuser WHERE userid=%d ORDER by time DESC LIMIT 1) = 0" // pending balance
-			, symbol, gift, client->userid, client->userid, client->userid);
+			, symbol, (uint) time(NULL), gift, client->sock->ip, client->userid, client->userid, client->userid);
+		if (mysql_affected_rows(&db->mysql) > 0 && strlen(symbol)) {
+			debuglog("%s: %s coinsymbol set to %s ip %s uid (%d)\n",
+				g_current_algo->name, client->username, symbol, client->sock->ip, client->userid);
+		}
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
