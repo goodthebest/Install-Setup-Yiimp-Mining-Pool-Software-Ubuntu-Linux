@@ -10,7 +10,15 @@ class ApiController extends CommonController
 
 	public function actionStatus()
 	{
-		if(!LimitRequest('api-status', 10)) return;
+		//if(!LimitRequest('api-status', 10)) return;
+
+		$memcache = controller()->memcache->memcache;
+		$json = memcache_get($memcache, "api_status");
+
+		if (!empty($json)) {
+			echo $json;
+			return;
+		}
 
 		$stats = array();
 		foreach(yaamp_get_algos() as $i=>$algo)
@@ -77,7 +85,11 @@ class ApiController extends CommonController
 		}
 
 		ksort($stats);
-		echo json_encode($stats);
+
+		$json = json_encode($stats);
+		echo $json;
+
+		memcache_set($memcache, "api_status", $json, MEMCACHE_COMPRESSED, 30);
 	}
 
 	public function actionCurrencies()
