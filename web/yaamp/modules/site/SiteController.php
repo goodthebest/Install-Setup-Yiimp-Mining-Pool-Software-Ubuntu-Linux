@@ -394,7 +394,23 @@ class SiteController extends CommonController
 
 	public function actionCurrent_results()
 	{
+		// Pool Status : public right panel with all algos and live stats
+		$algo = user()->getState('yaamp-algo');
+		$memcache = controller()->memcache->memcache;
+		$html = memcache_get($memcache, "current_results_".$algo);
+
+		if (!empty($html)) {
+			echo $html;
+			return;
+		}
+
+		ob_start();
+		ob_implicit_flush(false);
 		$this->renderPartial('results/current_results');
+		$html = ob_get_clean();
+		echo $html;
+
+		memcache_set($memcache, "current_results_".$algo, $html, MEMCACHE_COMPRESSED, 30);
 	}
 
 	public function actionHistory_results()
