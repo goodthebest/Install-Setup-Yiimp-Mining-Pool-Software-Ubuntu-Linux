@@ -8,6 +8,8 @@ function nova_api_query($method)
 
 	$ch = curl_init($uri);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+	curl_setopt($ch, CURLOPT_TIMEOUT, 30);
 
 	$res= curl_exec($ch);
 	$obj = json_decode($res);
@@ -43,6 +45,7 @@ function nova_api_user($method, $params=array())
 	//curl_setopt($ch, CURLOPT_SSLVERSION, 1 /*CURL_SSLVERSION_TLSv1*/);
 	curl_setopt($ch, CURLOPT_SSL_SESSIONID_CACHE, 0);
 	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+	curl_setopt($ch, CURLOPT_TIMEOUT, 30);
 	curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/4.0 (compatible; Nova API PHP client; '.php_uname('s').'; PHP/'.phpversion().')');
 	curl_setopt($ch, CURLOPT_ENCODING , '');
 

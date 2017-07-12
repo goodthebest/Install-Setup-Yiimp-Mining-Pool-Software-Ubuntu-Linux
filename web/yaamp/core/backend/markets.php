@@ -997,8 +997,8 @@ function updateNovaMarkets()
 			{
 				sleep(1);
 				$res = nova_api_user('getdepositaddress/'.$symbol);
-				if($res->status == 'success') {
-					$addr = arraySafeVal($res, 'address');
+				if(objSafeVal($res,'status') == 'success') {
+					$addr = objSafeVal($res, 'address');
 					if (!empty($addr)) {
 						$market->deposit_address = $addr;
 						// delimiter "::" for memo / payment id
