@@ -392,12 +392,12 @@ class SiteController extends CommonController
 
 	/////////////////////////////////
 
-	public function actionCurrent_results()
+	protected function renderPartialAlgoMemcached($partial, $cachetime=15)
 	{
-		// Pool Status : public right panel with all algos and live stats
 		$algo = user()->getState('yaamp-algo');
 		$memcache = controller()->memcache->memcache;
-		$html = memcache_get($memcache, "current_results_".$algo);
+		$memkey = $algo.'_'.str_replace('/','_',$partial);
+		$html = memcache_get($memcache, $memkey);
 
 		if (!empty($html)) {
 			echo $html;
@@ -406,26 +406,58 @@ class SiteController extends CommonController
 
 		ob_start();
 		ob_implicit_flush(false);
-		$this->renderPartial('results/current_results');
+		$this->renderPartial($partial);
 		$html = ob_get_clean();
 		echo $html;
 
-		memcache_set($memcache, "current_results_".$algo, $html, MEMCACHE_COMPRESSED, 30);
+		memcache_set($memcache, $memkey, $html, MEMCACHE_COMPRESSED, $cachetime);
 	}
 
+	// Pool Status : public right panel with all algos and live stats
+	public function actionCurrent_results()
+	{
+		$this->renderPartialAlgoMemcached('results/current_results', 30);
+	}
+
+	// Home Tab : Pool Stats (algo) on the bottom right
 	public function actionHistory_results()
 	{
-		$this->renderPartial('results/history_results');
+		$this->renderPartialAlgoMemcached('results/history_results');
 	}
 
+	// Pool Tab : Top left panel with estimated profit per coin
 	public function actionMining_results()
 	{
-		$this->renderPartial('results/mining_results');
+		if ($this->admin)
+			$this->renderPartial('results/mining_results');
+		else
+			$this->renderPartialAlgoMemcached('results/mining_results');
 	}
 
 	public function actionMiners_results()
 	{
-		$this->renderPartial('results/miners_results');
+		if ($this->admin)
+			$this->renderPartial('results/miners_results');
+		else
+			$this->renderPartialAlgoMemcached('results/miners_results');
+	}
+
+	// Pool tab: graph algo pool hashrate (json data)
+	public function actionGraph_hashrate_results()
+	{
+		$this->renderPartialAlgoMemcached('results/graph_hashrate_results');
+	}
+
+	// Pool tab: graph algo estimate history (json data)
+	public function actionGraph_price_results()
+	{
+		$this->renderPartialAlgoMemcached('results/graph_price_results');
+	}
+
+	// Pool tab: last 50 blocks
+	public function actionFound_results()
+	{
+		$this->renderPartialAlgoMemcached('results/found_results');
 	}
 
 	public function actionWallet_results()
@@ -448,29 +480,14 @@ class SiteController extends CommonController
 		$this->renderPartial('results/graph_earnings_results');
 	}
 
-	public function actionFound_results()
-	{
-		$this->renderPartial('results/found_results');
-	}
-
 	public function actionUser_earning_results()
 	{
 		$this->renderPartial('results/user_earning_results');
 	}
 
-	public function actionGraph_hashrate_results()
-	{
-		$this->renderPartial('results/graph_hashrate_results');
-	}
-
 	public function actionGraph_user_results()
 	{
 		$this->renderPartial('results/graph_user_results');
-	}
-
-	public function actionGraph_price_results()
-	{
-		$this->renderPartial('results/graph_price_results');
 	}
 
 	public function actionGraph_assets_results()
