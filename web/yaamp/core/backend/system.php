@@ -42,8 +42,6 @@ function BackendQuickClean()
 	dborun("delete from earnings where blockid in (select id from blocks where category='orphan')");
 	dborun("delete from earnings where blockid not in (select id from blocks)");
 	dborun("UPDATE blocks SET amount=0 WHERE category='orphan' AND amount>0");
-	$delay = time() - 24*60*60; // drop invalid shares not used anymore (24h graph only)
-	dborun("DELETE FROM shares WHERE valid = 0 AND time < $delay");
 }
 
 function marketHistoryPrune($symbol="")
@@ -108,6 +106,9 @@ function BackendCleanDatabase()
 	dborun("delete from balanceuser where time<$delay");
 	dborun("delete from exchange where send_time<$delay");
 	dborun("DELETE FROM shares WHERE time<$delay AND coinid NOT IN (select id from coins)");
+
+	$delay = time() - 24*60*60; // drop invalid shares not used anymore (24h graph only)
+	dborun("DELETE FROM shares WHERE valid = 0 AND time < $delay");
 
 	$delay = time() - 12*60*60;
 	dborun("delete from earnings where status=2 and mature_time<$delay");
