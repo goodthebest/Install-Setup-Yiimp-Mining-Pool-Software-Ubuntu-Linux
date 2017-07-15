@@ -6,7 +6,7 @@ function BackendDoBackup()
 	$filename = "/root/backup/yaamp-$d.sql";
 
 	if (is_readable("/usr/bin/xz")) {
-		$ziptool = "xz"; $filename .= ".xz";
+		$ziptool = "xz --threads=4"; $filename .= ".xz";
 	} else {
 		$ziptool = "gzip"; $filename .= ".gz";
 	}
@@ -42,6 +42,8 @@ function BackendQuickClean()
 	dborun("delete from earnings where blockid in (select id from blocks where category='orphan')");
 	dborun("delete from earnings where blockid not in (select id from blocks)");
 	dborun("UPDATE blocks SET amount=0 WHERE category='orphan' AND amount>0");
+	$delay = time() - 24*60*60; // drop invalid shares not used anymore (24h graph only)
+	dborun("DELETE FROM shares WHERE valid = 0 AND time < $delay");
 }
 
 function marketHistoryPrune($symbol="")
