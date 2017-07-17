@@ -12,6 +12,7 @@ function shapeshift_api_query($method, $params='')
 	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+	curl_setopt($ch, CURLOPT_TIMEOUT, 30);
 
 	//curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 	//curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
@@ -39,6 +40,7 @@ function shapeshift_api_post($method, $data=array())
 	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+	curl_setopt($ch, CURLOPT_TIMEOUT, 30);
 
 	curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 	curl_setopt($ch, CURLOPT_POST, true);
