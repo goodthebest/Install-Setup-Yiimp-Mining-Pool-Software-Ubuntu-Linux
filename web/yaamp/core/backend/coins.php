@@ -278,8 +278,12 @@ function BackendCoinsUpdate()
 			}
 		}
 
-		if($coin->network_hash)
+		if($coin->network_hash) {
 			$coin->network_ttf = $coin->difficulty * 0x100000000 / $coin->network_hash;
+
+			// BTC network_hash unit may be wrong... prevent db int(11) overflow
+			if($coin->network_ttf > 9999999999) $coin->network_ttf = 0;
+		}
 
 		if(isset($pool_rate[$coin->algo]))
 			$coin->pool_ttf = $coin->difficulty * 0x100000000 / $pool_rate[$coin->algo];
