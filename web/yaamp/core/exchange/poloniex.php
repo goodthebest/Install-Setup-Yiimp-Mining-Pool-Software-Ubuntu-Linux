@@ -49,12 +49,16 @@ class poloniex
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
 			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 			curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+			curl_setopt($ch, CURLOPT_TIMEOUT, 40);
 			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
 
 			// run the query
 			$res = curl_exec($ch);
 
-			if ($res === false) throw new Exception('Curl error: '.curl_error($ch));
+			if ($res === false) {
+				debuglog('poloniex: curl error '.curl_error($ch));
+				return false;
+			}
 			//echo $res;
 			$dec = json_decode($res, true);
 			if (!$dec){
