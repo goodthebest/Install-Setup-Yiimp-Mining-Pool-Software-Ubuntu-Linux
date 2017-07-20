@@ -8,7 +8,6 @@ function cryptopia_api_query($method, $params='')
 	$uri = "https://www.cryptopia.co.nz/api/$method";
 	if (!empty($params))
 		$uri .= "/$params";
-//	debuglog("$uri");
 
 	$ch = curl_init($uri);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -17,7 +16,15 @@ function cryptopia_api_query($method, $params='')
 
 	$execResult = curl_exec($ch);
 	$obj = json_decode($execResult);
+	if(!is_object($result) && !is_array($result)) {
+		$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		if (strpos($res,'Maintenance'))
+			debuglog("cryptopia: $method failed (Maintenance)");
+		else
+			debuglog("cryptopia: $method failed ($status) ".strip_data($res));
+	}
 
+	curl_close($ch);
 	return $obj;
 }
 
@@ -80,7 +87,10 @@ function cryptopia_api_user($method, $params=NULL)
 	$result = json_decode($res);
 	if(!is_object($result) && !is_array($result)) {
 		$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-		debuglog("cryptopia: $method failed ($status) ".strip_data($res));
+		if (strpos($res,'Maintenance'))
+			debuglog("cryptopia: $method failed (Maintenance)");
+		else
+			debuglog("cryptopia: $method failed ($status) ".strip_data($res));
 	}
 
 	curl_close($ch);
