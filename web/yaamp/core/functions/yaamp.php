@@ -44,6 +44,7 @@ function yaamp_get_algos()
 		'sib',
 		'skein',
 		'skein2',
+		'skunk',
 		'timetravel',
 		'tribus',
 		'vanilla',
@@ -153,6 +154,7 @@ function getAlgoColors($algo)
 		'skein2'	=> '#c8a060',
 		'timetravel'	=> '#f0b0d0',
 		'bitcore'	=> '#f790c0',
+		'skunk'		=> '#051313',
 		'tribus'	=> '#c0d0d0',
 		'vanilla'	=> '#f0f0f0',
 		'velvet'	=> '#aac0cc',
@@ -222,6 +224,7 @@ function getAlgoPort($algo)
 		'velvet'	=> 6133,
 		'yescrypt'	=> 6233,
 		'bastion'	=> 6433,
+		'skunk'		=> 8433,
 		'tribus'	=> 8533,
 	);
 
