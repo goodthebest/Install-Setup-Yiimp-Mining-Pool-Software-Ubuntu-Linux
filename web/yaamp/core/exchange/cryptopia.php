@@ -15,7 +15,7 @@ function cryptopia_api_query($method, $params='')
 	curl_setopt($ch, CURLOPT_TIMEOUT, 30);
 
 	$execResult = curl_exec($ch);
-	$obj = json_decode($execResult);
+	$result = json_decode($execResult);
 	if(!is_object($result) && !is_array($result)) {
 		$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		if (strpos($res,'Maintenance'))
@@ -25,7 +25,7 @@ function cryptopia_api_query($method, $params='')
 	}
 
 	curl_close($ch);
-	return $obj;
+	return $result;
 }
 
 // https://www.cryptopia.co.nz/api/GetBalance
