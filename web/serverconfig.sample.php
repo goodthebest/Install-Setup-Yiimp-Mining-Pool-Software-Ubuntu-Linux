@@ -37,6 +37,7 @@ define('YAAMP_ADMIN_EMAIL', 'yiimp@spam.la');
 define('YAAMP_ADMIN_IP', '127.0.0.1,80.236.118.26');
 define('YAAMP_ADMIN_WEBCONSOLE', true);
 define('YAAMP_NOTIFY_NEW_COINS', true);
+define('YAAMP_DEFAULT_ALGO', 'x11');
 
 define('YAAMP_USE_NGINX', false);
 
@@ -48,6 +49,8 @@ define('EXCH_BLEUTRADE_KEY', '');
 define('EXCH_BTER_KEY', '');
 define('EXCH_YOBIT_KEY', '');
 define('EXCH_CCEX_KEY', '');
+define('EXCH_COINMARKETS_USER', '');
+define('EXCH_COINMARKETS_PIN', '');
 define('EXCH_BITSTAMP_ID','');
 define('EXCH_BITSTAMP_KEY','');
 define('EXCH_HITBTC_KEY','');

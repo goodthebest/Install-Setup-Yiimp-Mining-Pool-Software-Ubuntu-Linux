@@ -154,6 +154,11 @@ class ExchangeCommand extends CConsoleCommand
 			}
 			else echo("c-cex btc: ".json_encode($balances['result'][1])."\n");
 		}
+		if (!empty(EXCH_COINMARKETS_USER)) {
+			$balances = coinsmarkets_api_user('gettradinginfo');
+			if (!is_array($balances)) echo "coinsmarkets error ".json_encode($balances)."\n";
+			else echo("coinsmarkets: ".json_encode($balances['return'])."\n");
+		}
 		if (!empty(EXCH_CRYPTOPIA_KEY)) {
 			$balance = cryptopia_api_user('GetBalance',array("Currency"=>"BTC"));
 			if (!is_object($balance)) echo("cryptopia error ".json_encode($balance)."\n");

@@ -7,9 +7,12 @@ function updateRawcoins()
 {
 //	debuglog(__FUNCTION__);
 
+	exchange_set_default('alcurex', 'disabled', true);
+	exchange_set_default('bter', 'disabled', true);
 	exchange_set_default('empoex', 'disabled', true);
 	exchange_set_default('coinexchange', 'disabled', true);
 	exchange_set_default('coinsmarkets', 'disabled', true);
+	exchange_set_default('jubi', 'disabled', true);
 
 	settings_prefetch_all();
 

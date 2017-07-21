@@ -7,6 +7,7 @@ require_once('c-cex_trading.php');
 require_once('kraken_trading.php');
 require_once('yobit_trading.php');
 require_once('alcurex_trading.php');
+require_once('coinsmarkets_trading.php');
 require_once('cryptopia_trading.php');
 require_once('hitbtc_trading.php');
 require_once('livecoin_trading.php');
@@ -83,6 +84,7 @@ function runExchange($exchangeName=false)
 				break;
 
 			case 'coinsmarkets':
+				doCoinsMarketsTrading(true);
 				updateCoinsMarketsMarkets();
 				break;
 

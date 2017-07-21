@@ -9,6 +9,7 @@ define('EXCH_BITTREX_SECRET', '<my_bittrex_api_secret_key>');
 define('EXCH_BITSTAMP_SECRET','');
 define('EXCH_BLEUTRADE_SECRET', '');
 define('EXCH_CCEX_SECRET', '');
+define('EXCH_COINMARKETS_PASS', '');
 define('EXCH_CRYPTOPIA_SECRET', '');
 define('EXCH_EMPOEX_SECKEY', '');
 define('EXCH_HITBTC_SECRET', '');
