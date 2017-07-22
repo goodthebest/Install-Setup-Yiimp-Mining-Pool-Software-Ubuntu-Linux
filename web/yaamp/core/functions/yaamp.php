@@ -154,7 +154,7 @@ function getAlgoColors($algo)
 		'skein2'	=> '#c8a060',
 		'timetravel'	=> '#f0b0d0',
 		'bitcore'	=> '#f790c0',
-		'skunk'		=> '#051313',
+		'skunk'		=> '#dedefe',
 		'tribus'	=> '#c0d0d0',
 		'vanilla'	=> '#f0f0f0',
 		'velvet'	=> '#aac0cc',
