@@ -258,7 +258,7 @@ void rejectlog(const char *format, ...)
 	time(&rawtime);
 	timeinfo = localtime(&rawtime);
 
-	strftime(buffer2, 80, "%H:%M:%S", timeinfo);
+	strftime(buffer2, 80, "%Y-%m-%d %H:%M:%S", timeinfo);
 	printf("%s: %s", buffer2, buffer);
 
 	if(g_rejectlog)
