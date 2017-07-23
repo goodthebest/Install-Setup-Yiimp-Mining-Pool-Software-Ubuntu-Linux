@@ -6,9 +6,9 @@ function BackendDoBackup()
 	$filename = "/root/backup/yaamp-$d.sql";
 
 	if (is_readable("/usr/bin/xz")) {
-		$ziptool = "xz --threads=4"; $filename .= ".xz";
+		$ziptool = "xz --threads=4"; $ext = ".xz";
 	} else {
-		$ziptool = "gzip"; $filename .= ".gz";
+		$ziptool = "gzip"; $ext = ".gz";
 	}
 
 	include_once("/etc/yiimp/keys.php");
@@ -19,7 +19,14 @@ function BackendDoBackup()
 	$user = YIIMP_MYSQLDUMP_USER;
 	$pass = YIIMP_MYSQLDUMP_PASS;
 
-	system("mysqldump -h $host -u$user -p$pass --skip-extended-insert $db | $ziptool > $filename");
+	if (1) {
+		// faster on huge databases if the disk is fast (nvme), reduce the db lock time
+		system("mysqldump -h $host -u$user -p$pass --skip-extended-insert $db > $filename");
+		shell_exec("$ziptool $filename &"); // compress then the .sql in background (db is no more locked)
+	} else {
+		// previous method (ok on small pools)
+		system("mysqldump -h $host -u$user -p$pass --skip-extended-insert $db | $ziptool > $filename$ext");
+	}
 }
 
 function BackendQuickClean()
