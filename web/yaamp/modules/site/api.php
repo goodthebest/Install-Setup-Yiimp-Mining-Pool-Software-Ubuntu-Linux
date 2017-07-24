@@ -18,7 +18,7 @@ result:
 	"unsold": 0.00050362,
 	"balance": 0.00000000,
 	"unpaid": 0.00050362,
-	"paid": 0.00000000,
+	"paid24h": 0.00000000,
 	"total": 0.00050362
 }
 </pre>
@@ -33,7 +33,7 @@ result:
 	"unsold": 0.00050362,
 	"balance": 0.00000000,
 	"unpaid": 0.00050362,
-	"paid": 0.00000000,
+	"paid24h": 0.00000000,
 	"total": 0.00050362,
 	"miners":[{
 		"version": "ccminer\/1.8.2",

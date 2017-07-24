@@ -10,7 +10,15 @@ class ApiController extends CommonController
 
 	public function actionStatus()
 	{
-		//if(!LimitRequest('api-status', 10)) return;
+		$client_ip = arraySafeVal($_SERVER,'REMOTE_ADDR');
+		$whitelisted = isAdminIP($client_ip);
+		if (!$whitelisted && is_file(YAAMP_LOGS.'/overloaded')) {
+			header('HTTP/1.0 503 Disabled, server overloaded');
+			return;
+		}
+		if(!$whitelisted && !LimitRequest('api-status', 10)) {
+			return;
+		}
 
 		$memcache = controller()->memcache->memcache;
 		$json = memcache_get($memcache, "api_status");
@@ -94,12 +102,20 @@ class ApiController extends CommonController
 
 	public function actionCurrencies()
 	{
+		$client_ip = arraySafeVal($_SERVER,'REMOTE_ADDR');
+		$whitelisted = isAdminIP($client_ip);
+		if (!$whitelisted && is_file(YAAMP_LOGS.'/overloaded')) {
+			header('HTTP/1.0 503 Disabled, server overloaded');
+			return;
+		}
+		if(!$whitelisted && !LimitRequest('api-currencies', 10)) {
+			return;
+		}
+
 		$memcache = controller()->memcache->memcache;
 
 		$json = memcache_get($memcache, "api_currencies");
 		if (empty($json)) {
-
-			if(!LimitRequest('api-currencies', 10)) return;
 
 			$data = array();
 			$coins = getdbolist('db_coins', "enable AND visible AND auto_ready AND IFNULL(algo,'PoS')!='PoS' ORDER BY symbol");
@@ -169,16 +185,23 @@ class ApiController extends CommonController
 
 	public function actionWallet()
 	{
-		if(!LimitRequest('api-wallet', 10)) return;
-
+		if(!LimitRequest('api-wallet', 10)) {
+			return;
+		}
+		if (is_file(YAAMP_LOGS.'/overloaded')) {
+			header('HTTP/1.0 503 Disabled, server overloaded');
+			return;
+		}
 		$wallet = getparam('address');
+
 		$user = getuserparam($wallet);
 		if(!$user || $user->is_locked) return;
 
 		$total_unsold = yaamp_convert_earnings_user($user, "status!=2");
 
-		$total_paid = bitcoinvaluetoa(controller()->memcache->get_database_scalar("api_wallet_paid-$user->id",
-			"select sum(amount) from payouts where account_id=$user->id"));
+		$t = time() - 24*60*60;
+		$total_paid = bitcoinvaluetoa(controller()->memcache->get_database_scalar("api_wallet_paid-".$user->id,
+			"SELECT SUM(amount) FROM payouts WHERE time >= $t AND account_id=".$user->id));
 
 		$balance = bitcoinvaluetoa($user->balance);
 		$total_unpaid = bitcoinvaluetoa($balance + $total_unsold);
@@ -188,11 +211,11 @@ class ApiController extends CommonController
 		if(!$coin) return;
 
 		echo "{";
-		echo "\"currency\": \"$coin->symbol\", ";
+		echo "\"currency\": \"{$coin->symbol}\", ";
 		echo "\"unsold\": $total_unsold, ";
 		echo "\"balance\": $balance, ";
 		echo "\"unpaid\": $total_unpaid, ";
-		echo "\"paid\": $total_paid, ";
+		echo "\"paid24h\": $total_paid, ";
 		echo "\"total\": $total_earned";
 		echo "}";
 	}
@@ -200,16 +223,22 @@ class ApiController extends CommonController
 	public function actionWalletEx()
 	{
 		$wallet = getparam('address');
-		if($wallet == 'YOU_COIN_WALLET') return;
-		if(!LimitRequest('api-wallet', 90)) return;
+		if (is_file(YAAMP_LOGS.'/overloaded')) {
+			header('HTTP/1.0 503 Disabled, server overloaded');
+			return;
+		}
+		if(!LimitRequest('api-wallet', 60)) {
+			return;
+		}
 
 		$user = getuserparam($wallet);
 		if(!$user || $user->is_locked) return;
 
 		$total_unsold = yaamp_convert_earnings_user($user, "status!=2");
 
+		$t = time() - 24*60*60;
 		$total_paid = bitcoinvaluetoa(controller()->memcache->get_database_scalar("api_wallet_paid-".$user->id,
-			"SELECT SUM(amount) FROM payouts WHERE account_id=".$user->id));
+			"SELECT SUM(amount) FROM payouts WHERE time >= $t AND account_id=".$user->id));
 
 		$balance = bitcoinvaluetoa($user->balance);
 		$total_unpaid = bitcoinvaluetoa($balance + $total_unsold);
@@ -223,7 +252,7 @@ class ApiController extends CommonController
 		echo "\"unsold\": $total_unsold, ";
 		echo "\"balance\": $balance, ";
 		echo "\"unpaid\": $total_unpaid, ";
-		echo "\"paid\": $total_paid, ";
+		echo "\"paid24h\": $total_paid, ";
 		echo "\"total\": $total_earned, ";
 
 		echo "\"miners\": ";
