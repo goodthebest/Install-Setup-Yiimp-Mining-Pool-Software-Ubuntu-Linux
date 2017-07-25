@@ -112,8 +112,8 @@ echo <<<END
 <th data-sorter="text">Time</th>
 <th data-sorter="text">Chip</th>
 <th data-sorter="text">Device</th>
-<th data-sorter="text">Arch</th>
 <th data-sorter="text">Vendor ID</th>
+<th data-sorter="text">Arch</th>
 <th data-sorter="numeric">Hashrate</th>
 <th data-sorter="numeric" title="Intensity (-i) for GPU or Threads (-t) for CPU miners">Int.</th>
 <th data-sorter="numeric" title="MHz">Freq</th>
@@ -142,12 +142,12 @@ foreach ($db_rows as $row) {
 	echo '<td>'.($row['idchip'] ? CHtml::link($row['chip'],'/bench?chip='.$row['idchip']) : $row['chip']).'</td>';
 	if ($row['type'] == 'cpu') {
 		echo '<td>'.formatCPU($row).'</td>';
-		echo '<td>'.$row['arch'].'</td>';
 		echo '<td>'.CHtml::link($row['vendorid'],'/bench?vid='.$row['vendorid']).'</td>';
+		echo '<td>'.$row['arch'].'</td>';
 	} else {
 		echo '<td>'.$row['device'].getProductIdSuffix($row).'</td>';
-		echo '<td>'.formatCudaArch($row['arch']).'</td>';
 		echo '<td>'.CHtml::link($row['vendorid'],'/bench?vid='.$row['vendorid']).'</td>';
+		echo '<td>'.formatCudaArch($row['arch']).'</td>';
 	}
 
 	echo '<td data="'.$row['khps'].'">'.$hashrate.'</td>';

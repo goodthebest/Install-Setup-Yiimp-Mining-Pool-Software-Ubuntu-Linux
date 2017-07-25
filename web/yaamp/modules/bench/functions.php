@@ -109,8 +109,10 @@ function formatCPU($row)
 		$device = str_replace(' AuthenticAMD', ' AMD', $device);
 		$device = str_replace(' Quad-Core','', $device);
 		$device = str_replace(' Dual-Core','', $device);
+		$device = str_replace(' Triple-Core','', $device);
 		$device = str_replace(' Quad Core','', $device);
 		$device = str_replace(' Dual Core','', $device);
+		$device = str_replace(' Triple Core','', $device);
 		$device = str_replace(' Processor', '', $device);
 		if (strpos($device, 'Intel64') !== false && strpos($device, ' Intel')) {
 			$device = str_replace(' Intel','', $device);
@@ -126,6 +128,7 @@ function formatCPU($row)
 	$device = str_replace(' APU with Radeon','', $device);
 	$device = str_replace(' APU with AMD Radeon','', $device);
 	$device = str_replace(' version ',' ', $device);
+	$device = str_replace(' Core2 Quad',' Core2-Quad', $device);
 	$device = preg_replace('/(HD|R\d) Graphics/','', $device);
 	$device = preg_replace('/ 0$/', '', $device);
 	// VIA Nano processor U2250 (1.6GHz Capable)
@@ -168,6 +171,7 @@ function getChipName($row)
 			$chip = str_replace('GT ','', $chip);
 			$chip = str_replace('GTX ','', $chip);
 			$chip = str_replace(' (Pascal)',' Pascal', $chip);
+			$chip = preg_replace('/ASUS ([6-9]\d\dM)/','\1', $chip); // ASUS 940M
 		}
 	}
 
