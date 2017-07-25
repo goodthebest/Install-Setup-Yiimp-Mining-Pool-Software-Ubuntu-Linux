@@ -142,6 +142,13 @@ class ApiController extends CommonController
 					array(':id'=>$coin->id,':algo'=>$coin->algo)
 				);
 
+				$t24 = time() - 24*60*60;
+				$res24h = controller()->memcache->get_database_row("history_item2-{$coin->id}-{$coin->algo}",
+					"SELECT COUNT(id) as a, SUM(amount*price) as b FROM blocks ".
+					"WHERE coin_id=:id AND NOT category IN ('orphan','stake','generated') AND time>$t24 AND algo=:algo",
+					array(':id'=>$coin->id, ':algo'=>$coin->algo)
+				);
+
 				// Coin hashrate, we only store the hashrate per algo in the db,
 				// we need to compute the % of the coin compared to others with the same algo
 				if ($workers > 0) {
@@ -169,6 +176,8 @@ class ApiController extends CommonController
 					'hashrate' => round($factor * $algo_hashrate),
 					'estimate' => $btcmhd,
 					//'percent' => round($factor * 100, 1),
+					'24h_blocks' => (int) arraySafeVal($res24h,'a'),
+					'24h_btc' => round(arraySafeVal($res24h,'b',0), 8),
 					'lastblock' => $lastblock,
 					'timesincelast' => $timesincelast,
 				);

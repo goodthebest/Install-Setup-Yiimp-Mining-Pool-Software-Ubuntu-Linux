@@ -84,16 +84,18 @@ request:
 result:
 <pre class="main-left-box" style='padding: 3px; font-size: .8em; background-color: #ffffee; font-family: monospace;'>
 {
-	"AMBER": {
-		"algo": "x13",
-		"port": 3633,
-		"name": "AmberCoin",
-		"height": 1349673,
-		"workers": 0,
-		"shares": 1,
-		"hashrate": 0,
-		"lastblock": 1347605,
-		"timesincelast": 56337
+	"BTX": {
+		"algo": "bitcore",
+		"port": 3556,
+		"name": "BitCore",
+		"height": 18944,
+		"workers": 181,
+		"shares": 392,
+		"hashrate": 7267227499,
+		"24h_blocks": 329,
+		"24h_btc": 0.54471295,
+		"lastblock": 18945,
+		"timesincelast": 67
 	},
 
 	...
