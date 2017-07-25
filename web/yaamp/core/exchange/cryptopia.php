@@ -14,8 +14,8 @@ function cryptopia_api_query($method, $params='')
 	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
 	curl_setopt($ch, CURLOPT_TIMEOUT, 30);
 
-	$execResult = curl_exec($ch);
-	$result = json_decode($execResult);
+	$res = curl_exec($ch);
+	$result = json_decode($res);
 	if(!is_object($result) && !is_array($result)) {
 		$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		if (strpos($res,'Maintenance'))
