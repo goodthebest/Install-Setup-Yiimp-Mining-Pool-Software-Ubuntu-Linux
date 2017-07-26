@@ -80,6 +80,7 @@ if(count($workers))
 	echo "<thead>";
 	echo "<tr>";
 	echo "<th align=left>Details</th>";
+	if ($this->admin) echo "<th>IP</th>";
 	echo "<th align=left>Extra</th>";
 	echo "<th align=left>Algo</th>";
 	echo "<th align=right>Diff</th>";
@@ -108,6 +109,7 @@ if(count($workers))
 
 		echo '<tr class="ssrow">';
 		echo '<td title="'.$worker->version.'">'.$version.'</td>';
+		if ($this->admin) echo "<td>{$worker->ip}</td>";
 		echo '<td title="'.$worker->password.'">'.$password.'</td>';
 		echo '<td>'.$worker->algo.'</td>';
 		echo '<td align="right">'.$worker->difficulty.'</td>';

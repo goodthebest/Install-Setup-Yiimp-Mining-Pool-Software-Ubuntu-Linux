@@ -81,14 +81,14 @@ if($user) echo <<<END
 END;
 
 if($user) echo <<<END
-<div id='main_miners_results'>
+<div id='main_graphs_results'>
 <br><br><br><br><br><br><br><br><br><br>
 <br><br><br><br><br><br><br><br><br><br>
 </div>
 END;
 
 if($user) echo <<<END
-<div id='main_graphs_results'>
+<div id='main_miners_results'>
 <br><br><br><br><br><br><br><br><br><br>
 <br><br><br><br><br><br><br><br><br><br>
 </div>
