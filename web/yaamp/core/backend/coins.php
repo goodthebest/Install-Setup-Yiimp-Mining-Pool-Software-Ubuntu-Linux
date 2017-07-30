@@ -34,26 +34,30 @@ function BackendCoinsUpdate()
 	{
 //		debuglog("doing $coin->name");
 
-		$coin = getdbo('db_coins', $coin->id);
-		if(!$coin) continue;
-
 		$remote = new WalletRPC($coin);
 
 		$info = $remote->getinfo();
-		if(!$info)
+		if(!$info && $coin->enable)
 		{
-			$coin->enable = false;
-		//	$coin->auto_ready = false;
-			$coin->connections = 0;
-
-			$coin->save();
-			continue;
+			debuglog("{$coin->symbol} no getinfo answer, retrying...");
+			sleep(3);
+			$info = $remote->getinfo();
+			if (!$info) {
+				debuglog("{$coin->symbol} disabled, no answer after 2 attempts. {$remote->error}");
+				$coin->enable = false;
+				$coin->connections = 0;
+				$coin->save();
+				continue;
+			}
 		}
 
-		if ($debug) echo "{$coin->symbol}\n";
+		// auto-enable if auto_ready is set
+		if($coin->auto_ready && !empty($info))
+			$coin->enable = true;
+		else if (empty($info))
+			continue;
 
-//		debuglog($info);
-		$coin->enable = true;
+		if ($debug) echo "{$coin->symbol}\n";
 
 		if(isset($info['difficulty']))
 			$difficulty = $info['difficulty'];
@@ -273,7 +277,7 @@ function BackendCoinsUpdate()
 			$coin->index_avg = $coin->reward * $coin->price * 10000 / $coin->difficulty;
 			if(!$coin->auxpow && $coin->rpcencoding == 'POW')
 			{
-	 			$indexaux = dboscalar("select sum(index_avg) from coins where enable and visible and auto_ready and auxpow and algo='$coin->algo'");
+				$indexaux = dboscalar("SELECT SUM(index_avg) FROM coins WHERE enable AND visible AND auto_ready AND auxpow AND algo='{$coin->algo}'");
 				$coin->index_avg += $indexaux;
 			}
 		}
