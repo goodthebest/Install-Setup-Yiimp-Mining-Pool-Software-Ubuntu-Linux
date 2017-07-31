@@ -106,14 +106,14 @@ foreach ($in_db as $row) {
 	$chip = CHtml::link($row['chip'], '/bench?chip='.$row['idchip'].'&algo='.$algo);
 	echo '<td>'.$chip.'</td>';
 
-	$cost = powercost_mBTC($power);
 	$reward = $row['khps']*$algo_24E;
 
 	// Adjust the 750 Ti nvml watts
 	$factor = 1.0;
-	if ($row['chip'] == '750' || $row['chip'] == '750 Ti') $factor = 2.0;
+	if ($row['chip'] == '750' || $row['chip'] == '750 Ti' || $row['chip'] == 'Quadro K620') $factor = 2.0;
 	$power *= $factor;
 
+	$cost = powercost_mBTC($power);
 	$ppw = $power>0 ? (double) $row['khps']/$power : 0.;
 	$ppw_label = ($power>0 ? Itoa2(1000*round($ppw,3),3).'H' : '-');
 

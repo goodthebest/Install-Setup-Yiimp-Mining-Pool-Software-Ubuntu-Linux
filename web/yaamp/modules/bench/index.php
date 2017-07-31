@@ -182,7 +182,7 @@ foreach ($db_rows as $row) {
 
 	// Adjust the 750 Ti nvml watts
 	$factor = 1.0;
-	if ($row['chip'] == '750' || $row['chip'] == '750 Ti') $factor = 2.0;
+	if ($row['chip'] == '750' || $row['chip'] == '750 Ti' || $row['chip'] == 'Quadro K620') $factor = 2.0;
 	$power *= $factor;
 
 	$content = $power>0 ? $power : '-';
