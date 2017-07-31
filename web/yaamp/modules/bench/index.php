@@ -135,6 +135,9 @@ foreach ($db_rows as $row) {
 	echo '<tr class="ssrow">';
 
 	$hashrate = Itoa2(1000*round($row['khps'],3),2).'H';
+	if ($algo == 'equihash')
+		$hashrate = Itoa2(1000*round($row['khps'],5),3).'&nbsp;Sol/s';
+
 	$age = datetoa2($row['time']);
 
 	echo '<td class="algo">'.CHtml::link($row['algo'],'/bench?algo='.$row['algo']).'</td>';
@@ -176,6 +179,12 @@ foreach ($db_rows as $row) {
 	// power
 	$title = ''; $class = '';
 	$power = (double) $row['power'];
+
+	// Adjust the 750 Ti nvml watts
+	$factor = 1.0;
+	if ($row['chip'] == '750' || $row['chip'] == '750 Ti') $factor = 2.0;
+	$power *= $factor;
+
 	$content = $power>0 ? $power : '-';
 	if ($row['plimit']) {
 		$title = 'Power limit '.$row['plimit'].'W';
@@ -184,7 +193,7 @@ foreach ($db_rows as $row) {
 	$props = array('title'=>$title,'class'=>$class);
 	echo CHtml::tag('td', $props, $content, true);
 
-	echo '<td>'.($power>0 ? Itoa2(1000*round($row['khps'] / $power, 3),2) : '-').'</td>';
+	echo '<td>'.($power>0 ? Itoa2(1000*round($row['khps'] / $power, 4),3) : '-').'</td>';
 	echo '<td>'.formatClientName($row['client']).'</td>';
 	echo '<td>'.$row['os'].'</td>';
 	echo '<td>'.$row['driver'].'</td>';
@@ -201,6 +210,7 @@ echo '</tbody>';
 
 if (!empty($algo)) {
 
+	$factor = isset($factor) ? $factor : 1.0;
 	if ($idchip) $sqlFilter .= ' AND idchip='.intval($idchip);
 
 	$avg = dborow("SELECT AVG(khps) as khps, AVG(power) as power, AVG(B.intensity) as intensity, AVG(freq) as freq, ".
@@ -227,7 +237,7 @@ if (!empty($algo)) {
 		echo '<th>'.($avg['intensity'] ? round($avg['intensity'],1) : '').'</th>';
 		echo '<th>'.($avg['freq'] ? round($avg['freq']) : '').'</th>';
 
-		$power = (double) $avg['power'];
+		$power = (double) $avg['power'] * $factor;
 		echo '<th>'.($power>0 ? round($power) : '').'</th>';
 
 		$hpw = ($power>0) ? $hpw = floatval($avg['khps']) / $power : 0;
