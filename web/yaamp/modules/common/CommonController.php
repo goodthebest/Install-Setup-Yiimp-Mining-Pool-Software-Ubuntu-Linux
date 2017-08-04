@@ -22,7 +22,7 @@ class CommonController extends CController
 		$this->memcache = new YaampMemcache;
 		$this->t1 = microtime(true);
 
-		if(user()->getState('yaamp_admin')) {
+		if(user()->getState('yaamp_admin') && !isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
 			$this->admin = true;
 			$client_ip = arraySafeVal($_SERVER,'REMOTE_ADDR');
 			if (!isAdminIP($client_ip)) {
