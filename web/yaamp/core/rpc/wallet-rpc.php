@@ -62,6 +62,11 @@ class WalletRPC {
 				// if wallet is stopped
 				return false;
 			}
+			if (stripos($method, "key") !== false) {
+				$this->error = "$method not authorized!";
+				debuglog("$method not authorized (key)!");
+				return false;
+			}
 			// convert common methods used by yiimp
 			switch ($method) {
 			case 'getaccountaddress':
