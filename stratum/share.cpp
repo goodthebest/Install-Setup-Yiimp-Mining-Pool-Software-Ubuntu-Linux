@@ -126,7 +126,7 @@ void share_write(YAAMP_DB *db)
 	for(CLI li = g_list_worker.first; li; li = li->next)
 	{
 		YAAMP_WORKER *worker = (YAAMP_WORKER *)li->data;
-		if(worker->deleted) continue;
+		if(worker->deleted || !worker->workerid) continue;
 
 		if(count) strcat(buffer, ",");
 		sprintf(buffer+strlen(buffer), "(%d, %d, %d, %d, %d, %d, %d, %f, %f, %d, '%s', %d)",
