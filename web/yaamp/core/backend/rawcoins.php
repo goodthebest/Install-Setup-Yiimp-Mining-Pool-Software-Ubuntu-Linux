@@ -12,6 +12,7 @@ function updateRawcoins()
 	exchange_set_default('empoex', 'disabled', true);
 	exchange_set_default('coinexchange', 'disabled', true);
 	exchange_set_default('coinsmarkets', 'disabled', true);
+	exchange_set_default('tradesatoshi', 'disabled', true);
 	exchange_set_default('jubi', 'disabled', true);
 
 	settings_prefetch_all();
@@ -251,6 +252,19 @@ function updateRawcoins()
 				$name = trim($item['name']);
 				updateRawCoin('shapeshift', $symbol, $name);
 				//debuglog("shapeshift: $symbol $name");
+			}
+		}
+	}
+
+	if (!exchange_get('tradesatoshi', 'disabled')) {
+		$data = tradesatoshi_api_query('getcurrencies');
+		if(is_object($data) && !empty($data->result))
+		{
+			dborun("UPDATE markets SET deleted=true WHERE name='tradesatoshi'");
+			foreach($data->result as $item) {
+				$symbol = $item->currency;
+				$name = trim($item->currencyLong);
+				updateRawCoin('tradesatoshi', $symbol, $name);
 			}
 		}
 	}
