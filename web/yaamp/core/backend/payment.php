@@ -38,9 +38,8 @@ function BackendCoinPayments($coin)
 	$remote = new WalletRPC($coin);
 
 	$info = $remote->getinfo();
-	if(!$info)
-	{
-		debuglog("$coin->symbol cant connect to coin");
+	if(!$info) {
+		debuglog("payment: can't connect to {$coin->symbol} wallet");
 		return;
 	}
 
@@ -52,7 +51,7 @@ function BackendCoinPayments($coin)
 		if($coin->symbol == 'DCR') $min_payout = 0.025;
 	}
 
-	$users = getdbolist('db_accounts', "balance>$min_payout and coinid={$coin->id}");
+	$users = getdbolist('db_accounts', "balance>$min_payout AND coinid={$coin->id} ORDER BY balance DESC");
 
 	// todo: enhance/detect payout_max from normal sendmany error
 	if($coin->symbol == 'BOD' || $coin->symbol == 'DIME' || $coin->symbol == 'BTCRY' || !empty($coin->payout_max))
@@ -107,6 +106,11 @@ function BackendCoinPayments($coin)
 	{
 		$total_to_pay += round($user->balance, 8);
 		$addresses[$user->username] = round($user->balance, 8);
+		// transaction xxx has too many sigops: 1035 > 1000
+		if ($coin->symbol == 'DCR' && count($addresses) > 990) {
+			debuglog("payment: more than 990 {$coin->symbol} users to pay, limit to top balances...");
+			break;
+		}
 	}
 
 	if(!$total_to_pay)
@@ -165,6 +169,7 @@ function BackendCoinPayments($coin)
 	{
 		$user = getdbo('db_accounts', $user->id);
 		if(!$user) continue;
+		if(!isset($addresses[$user->username])) continue;
 
 		$payout = new db_payouts;
 		$payout->account_id = $user->id;
