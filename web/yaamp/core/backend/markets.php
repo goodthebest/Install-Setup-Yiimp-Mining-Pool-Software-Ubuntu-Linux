@@ -430,26 +430,22 @@ function updateCCexMarkets()
 	if (exchange_get($exchange, 'disabled')) return;
 
 	$ccex = new CcexAPI;
-
-	$list = $ccex->getMarkets();
+	$list = $ccex->getMarketSummaries();
 	if (!is_array($list)) return;
 
 	foreach($list as $ticker)
 	{
-		if(!isset($ticker['MarketCurrency'])) continue;
-		if(!isset($ticker['BaseCurrency'])) continue;
+		if(!isset($ticker['MarketName'])) continue;
+		$e = explode('-', $ticker['MarketName']);
 
-		$symbol = strtoupper($ticker['MarketCurrency']);
-		$pair = strtolower($symbol."-btc"); $sqlFilter = '';
-
-		$base_symbol = $ticker['BaseCurrency'];
+		$symbol = strtoupper($e[0]);
+		$base_symbol = strtoupper($e[1]);
 		if ($base_symbol != 'BTC') {
 			// Only track ALT markets (LTC, DOGE) if the market record exists in the DB, sample market name "c-cex LTC"
 			$in_db = (int) dboscalar("SELECT count(M.id) FROM markets M INNER JOIN coins C ON C.id=M.coinid
 				WHERE C.installed AND C.symbol=:sym AND M.base_coin=:base", array(':sym'=>$symbol,':base'=>$base_symbol));
 			if (!$in_db) continue;
 			$sqlFilter = "AND base_coin='$base_symbol'";
-			$pair = strtolower($symbol.'-'.$base_symbol);
 		}
 
 		$coin = getdbosql('db_coins', "symbol=:symbol", array(':symbol'=>$symbol));
@@ -458,7 +454,8 @@ function updateCCexMarkets()
 
 		$market = getdbosql('db_markets', "coinid={$coin->id} AND name LIKE '$exchange%' $sqlFilter");
 		if (!$market) continue;
-		if ($market->disabled < 9) $market->disabled = !$ticker['IsActive'];
+		//if ($market->disabled < 9) $market->disabled = !$ticker['IsActive']; // only in GetMarkets()
+		if ($market->disabled < 9) $market->disabled = ($ticker['OpenBuyOrders'] <= 1);
 
 		if (market_get($exchange, $symbol, "disabled")) {
 			$market->disabled = 1;
@@ -469,14 +466,9 @@ function updateCCexMarkets()
 
 		if ($market->disabled || $market->deleted) continue;
 
-		sleep(1);
-		$ticker = $ccex->getTickerInfo($pair);
-		if(!$ticker) continue;
-
-		$price2 = ($ticker['buy']+$ticker['sell'])/2;
-
+		$price2 = ($ticker['Bid']+$ticker['Ask'])/2;
 		$market->price2 = AverageIncrement($market->price2, $price2);
-		$market->price = AverageIncrement($market->price, $ticker['buy']);
+		$market->price = AverageIncrement($market->price, $ticker['Bid']);
 		$market->pricetime = time();
 		$market->save();
 
