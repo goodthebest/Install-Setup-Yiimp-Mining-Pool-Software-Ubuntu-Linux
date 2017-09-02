@@ -440,6 +440,8 @@ function updateCCexMarkets()
 
 		$symbol = strtoupper($e[0]);
 		$base_symbol = strtoupper($e[1]);
+
+		$sqlFilter = '';
 		if ($base_symbol != 'BTC') {
 			// Only track ALT markets (LTC, DOGE) if the market record exists in the DB, sample market name "c-cex LTC"
 			$in_db = (int) dboscalar("SELECT count(M.id) FROM markets M INNER JOIN coins C ON C.id=M.coinid
