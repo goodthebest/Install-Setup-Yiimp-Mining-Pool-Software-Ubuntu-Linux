@@ -292,6 +292,8 @@ function BackendCoinsUpdate()
 		if(isset($pool_rate[$coin->algo]))
 			$coin->pool_ttf = $coin->difficulty * 0x100000000 / $pool_rate[$coin->algo];
 
+		if ($coin->pool_ttf > 9999999999) $coin->pool_ttf = 0;
+
 		if(strstr($coin->image, 'http'))
 		{
 			$data = file_get_contents($coin->image);
