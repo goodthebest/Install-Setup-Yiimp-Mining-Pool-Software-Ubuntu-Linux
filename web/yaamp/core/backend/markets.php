@@ -832,25 +832,34 @@ function updateCryptopiaMarkets()
 	if ($last_checked) return;
 
 	$addresses = array();
+	sleep(1);
 	$query = cryptopia_api_user('GetBalance');
 	if (is_object($query) && is_array($query->Data))
 	foreach($query->Data as $balance) {
-		$addresses[$balance->Symbol] = $balance->Address;
+		$addr = objSafeVal($balance,'Address');
+		if (!empty($addr)) $addresses[$balance->Symbol] = $addr;
 	}
+	// for some reason, no more available in global GetBalance api
+	$needCurrencyQueries = empty($addresses);
 
-	if (!empty($addresses))
+	if (!empty($list))
 	foreach($list as $market) {
 		$coin = getdbo('db_coins', $market->coinid);
 		if(!$coin) continue;
 
 		$symbol = $coin->getOfficialSymbol();
-		if (isset($addresses[$symbol])) {
-			$addr = $addresses[$symbol];
-			if ($market->deposit_address != $addr) {
-				debuglog("$exchange: deposit address for {$symbol} updated");
-				$market->deposit_address = $addr;
-				$market->save();
-			}
+		$addr = arraySafeVal($addresses, $symbol);
+		if ($needCurrencyQueries) {
+			if(!$coin->installed) continue;
+			sleep(1);
+			$query = cryptopia_api_user('GetDepositAddress', array('Currency'=>$symbol));
+			$dep = objSafeVal($query,'Data');
+			$addr = objSafeVal($dep,'Address');
+		}
+		if (!empty($addr) && $market->deposit_address != $addr) {
+			debuglog("$exchange: deposit address for {$symbol} updated");
+			$market->deposit_address = $addr;
+			$market->save();
 		}
 	}
 	cache()->set($exchange.'-deposit_address-check', time(), 12*3600);
