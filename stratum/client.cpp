@@ -60,8 +60,9 @@ bool client_subscribe(YAAMP_CLIENT *client, json_value *json_params)
 
 	if(json_params->u.array.length>1)
 	{
-		char notify_id[1024];
-		strncpy(notify_id, json_params->u.array.values[1]->u.string.ptr, 1023);
+		char notify_id[1024] = { 0 };
+		if (json_params->u.array.values[1]->u.string.ptr)
+			strncpy(notify_id, json_params->u.array.values[1]->u.string.ptr, 1023);
 
 		YAAMP_CLIENT *client1 = client_find_notify_id(notify_id, true);
 		if(client1)
