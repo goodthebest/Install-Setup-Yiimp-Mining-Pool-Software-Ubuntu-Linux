@@ -42,6 +42,7 @@ function yaamp_get_algos()
 		'dmd-gr',
 		'myr-gr',
 		'm7m',
+		'phi',
 		'sib',
 		'skein',
 		'skein2',
@@ -151,6 +152,7 @@ function getAlgoColors($algo)
 		'lyra2'		=> '#80a0f0',
 		'lyra2v2'	=> '#80c0f0',
 		'lyra2z'	=> '#80b0f0',
+		'phi'		=> '#a0a0e0',
 		'sib'		=> '#a0a0c0',
 		'skein'		=> '#80a0a0',
 		'skein2'	=> '#c8a060',
@@ -227,6 +229,7 @@ function getAlgoPort($algo)
 		'yescrypt'	=> 6233,
 		'bastion'	=> 6433,
 		'hsr'		=> 7433,
+		'phi'		=> 8333,
 		'skunk'		=> 8433,
 		'tribus'	=> 8533,
 	);

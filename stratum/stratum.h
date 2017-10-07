@@ -173,6 +173,7 @@ void sha256_double_hash_hex(const char *input, char *output, unsigned int len);
 #include "algos/hive.h"
 #include "algos/sib.h"
 #include "algos/m7m.h"
+#include "algos/phi.h"
 #include "algos/tribus.h"
 #include "algos/veltor.h"
 #include "algos/velvet.h"
