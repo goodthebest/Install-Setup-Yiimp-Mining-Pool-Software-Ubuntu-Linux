@@ -8,6 +8,7 @@ function updateRawcoins()
 //	debuglog(__FUNCTION__);
 
 	exchange_set_default('alcurex', 'disabled', true);
+	exchange_set_default('binance', 'disabled', true);
 	exchange_set_default('bter', 'disabled', true);
 	exchange_set_default('empoex', 'disabled', true);
 	exchange_set_default('coinexchange', 'disabled', true);
@@ -193,6 +194,21 @@ function updateRawcoins()
 		}
 	}
 
+	if (!exchange_get('binance', 'disabled')) {
+		$list = binance_api_query('ticker/allBookTickers');
+		if(is_array($list))
+		{
+			dborun("UPDATE markets SET deleted=true WHERE name='binance'");
+			foreach($list as $ticker) {
+				$base = substr($ticker->symbol, -3, 3);
+				// XXXBTC XXXETH BTCUSDT (no separator!)
+				if ($base != 'BTC') continue;
+				$symbol = substr($ticker->symbol, 0, strlen($ticker->symbol)-3);
+				updateRawCoin('binance', $symbol);
+			}
+		}
+	}
+
 	if (!exchange_get('nova', 'disabled')) {
 		$list = nova_api_query('markets');
 		if(is_object($list) && !empty($list->markets))
@@ -325,7 +341,7 @@ function updateRawCoin($marketname, $symbol, $name='unknown')
 			}
 		}
 
-		if (in_array($marketname, array('nova','askcoin','coinexchange','coinsmarkets','hitbtc'))) {
+		if (in_array($marketname, array('nova','askcoin','binance','coinexchange','coinsmarkets','hitbtc'))) {
 			// don't polute too much the db with new coins, its better from exchanges with labels
 			return;
 		}

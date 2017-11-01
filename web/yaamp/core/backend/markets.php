@@ -19,6 +19,7 @@ function BackendPricesUpdate()
 	updateHitBTCMarkets();
 	updateYobitMarkets();
 	updateAlcurexMarkets();
+	updateBinanceMarkets();
 	updateBterMarkets();
 	//updateEmpoexMarkets();
 	updateJubiMarkets();
@@ -653,7 +654,7 @@ function updateYobitMarkets()
 			$last_checked = cache()->get($exchange.'-deposit_address-check-'.$symbol);
 			if ($last_checked) continue;
 
-			sleep(1); // for the tapi nonce
+			sleep(1); // for the api nonce
 			$address = yobit_api_query2('GetDepositAddress', array("coinName"=>$symbol));
 			if (!empty($address) && isset($address['return']) && $address['success']) {
 				$addr = $address['return']['address'];
@@ -851,7 +852,7 @@ function updateCryptopiaMarkets()
 		$addr = arraySafeVal($addresses, $symbol);
 		if ($needCurrencyQueries) {
 			if(!$coin->installed) continue;
-			sleep(1);
+			sleep(2);
 			$query = cryptopia_api_user('GetDepositAddress', array('Currency'=>$symbol));
 			$dep = objSafeVal($query,'Data');
 			$addr = objSafeVal($dep,'Address');
@@ -1021,6 +1022,48 @@ function updateNovaMarkets()
 					}
 				}
 				cache()->set($exchange.'-deposit_address-check-'.$symbol, time(), 24*3600);
+			}
+		}
+	}
+}
+
+function updateBinanceMarkets()
+{
+	$exchange = 'binance';
+	if (exchange_get($exchange, 'disabled')) return;
+
+	$tickers = binance_api_query('ticker/allBookTickers');
+	if(!is_array($tickers)) return;
+
+	$list = getdbolist('db_markets', "name='$exchange'");
+	foreach($list as $market)
+	{
+		$coin = getdbo('db_coins', $market->coinid);
+		if(!$coin) continue;
+
+		$symbol = $coin->getOfficialSymbol();
+		if (market_get($exchange, $symbol, "disabled")) {
+			$market->disabled = 1;
+			$market->message = 'disabled from settings';
+			$market->save();
+			continue;
+		}
+
+		$pair = $symbol.'BTC';
+		foreach ($tickers as $ticker) {
+			if ($pair != $ticker->symbol) continue;
+
+			$price2 = ($ticker->bidPrice+$ticker->askPrice)/2;
+			$market->price = AverageIncrement($market->price, $ticker->bidPrice);
+			$market->price2 = AverageIncrement($market->price2, $price2);
+			$market->pricetime = time();
+			if ($market->disabled < 9) $market->disabled = (floatval($ticker->bidQty) < 0.01);
+			$market->save();
+
+			if (empty($coin->price2)) {
+				$coin->price = $market->price;
+				$coin->price2 = $market->price2;
+				$coin->save();
 			}
 		}
 	}

@@ -25,6 +25,7 @@ require_once("bter.php");
 require_once("empoex.php");
 require_once("jubi.php");
 require_once("alcurex.php");
+require_once("binance.php");
 require_once("cryptopia.php");
 require_once("hitbtc.php");
 require_once("livecoin.php");
@@ -69,7 +70,9 @@ function getMarketUrl($coin, $marketName)
 	}
 
 	if($market == 'alcurex')
-		$url = "https://alcurex.org/index.php/crypto/market?pair={$lowsymbol}_{$lowbase}";
+		$url = "https://alcurex.com/#{$symbol}-{$base}";
+	else if($market == 'binance')
+		$url = "https://www.binance.com/trade.html?symbol={$symbol}_{$base}";
 	else if($market == 'bittrex')
 		$url = "https://bittrex.com/Market/Index?MarketName={$base}-{$symbol}";
 	else if($market == 'poloniex')
