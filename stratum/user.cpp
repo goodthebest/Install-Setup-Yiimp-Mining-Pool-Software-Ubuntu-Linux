@@ -181,7 +181,7 @@ void db_update_workers(YAAMP_DB *db)
 		client->difficulty_written = client->difficulty_actual;
 	}
 
-	client_sort();
+	//client_sort();
 	g_list_client.Leave();
 }
 
