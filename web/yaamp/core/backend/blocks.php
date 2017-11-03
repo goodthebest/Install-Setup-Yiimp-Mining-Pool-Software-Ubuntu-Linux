@@ -66,8 +66,17 @@ function BackendBlockNew($coin, $db_block)
 	if(!YAAMP_ALLOW_EXCHANGE) // only one coin mined
 		$sqlCond .= " AND coinid = ".intval($coin->id);
 
-	dborun("DELETE FROM shares WHERE algo=:algo AND $sqlCond",
-		array(':algo'=>$coin->algo));
+	try {
+		dborun("DELETE FROM shares WHERE algo=:algo AND $sqlCond", array(':algo'=>$coin->algo));
+
+	} catch (CDbException $e) {
+
+		debuglog("unable to delete shares $sqlCond retrying...");
+		sleep(1);
+		dborun("DELETE FROM shares WHERE algo=:algo AND $sqlCond", array(':algo'=>$coin->algo));
+		// [errorInfo] => array(0 => 'HY000', 1 => 1205, 2 => 'Lock wait timeout exceeded; try restarting transaction')
+		// [*:message] => 'CDbCommand failed to execute the SQL statement: SQLSTATE[HY000]: General error: 1205 Lock wait timeout exceeded; try restarting transaction'
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -161,7 +170,7 @@ function BackendBlocksUpdate($coinid = NULL)
 
 	$sqlFilter = $coinid ? " AND coin_id=".intval($coinid) : '';
 
-	$list = getdbolist('db_blocks', "category IN ('immature','stake') $sqlFilter ORDER BY time");
+	$list = getdbolist('db_blocks', "category IN ('immature','stake','orphan') $sqlFilter ORDER BY time");
 	foreach($list as $block)
 	{
 		$coin = getdbo('db_coins', $block->coin_id);
@@ -189,9 +198,9 @@ function BackendBlocksUpdate($coinid = NULL)
 		}
 
 		$tx = $remote->gettransaction($block->txhash);
-		if(!$tx) {
+		if(!$tx && $block->category != 'orphan') {
 			if ($coin->enable) {
-				debuglog("{$coin->name} unable to find block {$block->height} tx {$block->txhash}!");
+				debuglog("{$coin->name} unable to find {$block->category} block {$block->height} tx {$block->txhash}!");
 				// DCR orphaned confirmations are not(no more) -1!
 				if($coin->rpcencoding == 'DCR' && $block->category == 'immature' && $coin->auto_ready) {
 					$blockext = $remote->getblock($block->blockhash);
@@ -211,6 +220,20 @@ function BackendBlocksUpdate($coinid = NULL)
 				$block->category = 'orphan';
 			}
 			$block->save();
+			continue;
+		}
+
+		if ($block->category == 'orphan') {
+			// LUX doing multiple reorg ? Only seen on this wallet
+			if ($coin->enable && (time() - $block->time) < 3600) {
+				$blockext = $remote->getblock($block->blockhash);
+				$conf = arraySafeVal($blockext,'confirmations',-1);
+				if ($conf > 2 && arraySafeVal($blockext,'nextblockhash','') != '') {
+					debuglog("{$coin->name} orphan block {$block->height} is not anymore! ($conf confirmations)");
+					$block->category = 'new'; // will set amount and restore user earnings
+					$block->save();
+				}
+			}
 			continue;
 		}
 
