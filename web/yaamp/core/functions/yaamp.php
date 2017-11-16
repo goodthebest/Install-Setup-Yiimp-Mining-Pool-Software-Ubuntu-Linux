@@ -153,6 +153,7 @@ function getAlgoColors($algo)
 		'lyra2v2'	=> '#80c0f0',
 		'lyra2z'	=> '#80b0f0',
 		'phi'		=> '#a0a0e0',
+		'polytimos'	=> '#dedefe',
 		'sib'		=> '#a0a0c0',
 		'skein'		=> '#80a0a0',
 		'skein2'	=> '#c8a060',
@@ -230,6 +231,7 @@ function getAlgoPort($algo)
 		'bastion'	=> 6433,
 		'hsr'		=> 7433,
 		'phi'		=> 8333,
+		'polytimos'	=> 8463,
 		'skunk'		=> 8433,
 		'tribus'	=> 8533,
 	);
