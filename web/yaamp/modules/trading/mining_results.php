@@ -30,7 +30,7 @@ $table = array(
 );
 
 $res = false;
-if (isset($table[$algo]))
+if (isset($table[$algo]) && YAAMP_USE_NICEHASH_API)
 	$res = fetch_url("https://api.nicehash.com/api?method=orders.get&algo={$table[$algo]}");
 
 if(!$res) return;

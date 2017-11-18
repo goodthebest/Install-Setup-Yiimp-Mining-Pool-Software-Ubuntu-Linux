@@ -3,6 +3,8 @@
 $apikey = NICEHASH_API_KEY;
 $apiid = NICEHASH_API_ID;
 
+if (!YAAMP_USE_NICEHASH_API) die();
+
 $res = fetch_url("https://api.nicehash.com/api?method=balance&id=$apiid&key=$apikey");
 $a = json_decode($res);
 $balance = $a->result->balance_confirmed;
