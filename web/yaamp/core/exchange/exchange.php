@@ -33,6 +33,7 @@ require_once("nova.php");
 require_once("coinexchange.php");
 require_once("coinsmarkets.php");
 require_once("cryptowatch.php");
+require_once("stocksexchange.php");
 require_once("tradesatoshi.php");
 
 /* Format an exchange coin Url */
@@ -101,6 +102,8 @@ function getMarketUrl($coin, $marketName)
 		$url = "https://www.livecoin.net/trade/?currencyPair={$symbol}%2F{$base}";
 	else if($market == 'nova')
 		$url = "https://novaexchange.com/market/{$base}_{$symbol}/";
+	else if($market == 'stocksexchange')
+		$url = "https://stocks.exchange/trade/$symbol/$base";
 	else if($market == 'tradesatoshi')
 		$url = "https://tradesatoshi.com/Exchange?market={$symbol}_{$base}";
 	else if($market == 'yobit')

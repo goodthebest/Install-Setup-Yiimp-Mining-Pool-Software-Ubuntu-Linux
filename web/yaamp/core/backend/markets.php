@@ -27,6 +27,7 @@ function BackendPricesUpdate()
 	updateNovaMarkets();
 	updateCoinExchangeMarkets();
 	updateCoinsMarketsMarkets();
+	updateStocksExchangeMarkets();
 	updateTradeSatoshiMarkets();
 
 	updateShapeShiftMarkets();
@@ -1329,6 +1330,53 @@ function updateCoinsMarketsMarkets()
 
 		//debuglog("$exchange: $symbol price set to ".bitcoinvaluetoa($market->price));
 		$market->pricetime = time();
+		$market->save();
+
+		if (empty($coin->price2)) {
+			$coin->price = $market->price;
+			$coin->price2 = $market->price2;
+			$coin->save();
+		}
+	}
+}
+
+function updateStocksExchangeMarkets()
+{
+	$exchange = 'stocksexchange';
+	if (exchange_get($exchange, 'disabled')) return;
+
+	$list = stocksexchange_api_query('ticker');
+	if(empty($list) || !is_array($list)) return;
+	foreach($list as $m)
+	{
+		$e = explode('_', $m->market_name);
+		$symbol = strtoupper($e[0]); $base = $e[1];
+		if($base != 'BTC') continue;
+
+		$coin = getdbosql('db_coins', "symbol=:sym", array(':sym'=>$symbol));
+		if(!$coin) continue;
+
+		$market = getdbosql('db_markets', "coinid={$coin->id} AND name='$exchange' AND IFNULL(base_coin,'') IN ('','BTC')");
+		if(!$market) continue;
+
+		$symbol = $coin->getOfficialSymbol();
+		if (market_get($exchange, $symbol, "disabled")) {
+			$market->disabled = 1;
+			$market->message = 'disabled from settings';
+			$market->save();
+			continue;
+		}
+
+		$market->disabled = ($m->bid == 0);
+
+		$price2 = ((double)$m->ask + (double)$m->bid)/2;
+		$market->price2 = AverageIncrement($market->price2, $price2);
+		$market->price = AverageIncrement($market->price, (double)$m->bid);
+		$market->priority = -1; // not ready for trading
+		$market->txfee = $m->sell_fee_percent;
+
+		//debuglog("$exchange: $symbol price set to ".bitcoinvaluetoa($market->price));
+		$market->pricetime = time(); // $m->updated_time;
 		$market->save();
 
 		if (empty($coin->price2)) {

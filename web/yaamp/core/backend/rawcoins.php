@@ -15,6 +15,7 @@ function updateRawcoins()
 	exchange_set_default('coinsmarkets', 'disabled', true);
 	exchange_set_default('jubi', 'disabled', true);
 	exchange_set_default('nova', 'disabled', true);
+	exchange_set_default('stocksexchange', 'disabled', true);
 	exchange_set_default('tradesatoshi', 'disabled', true);
 
 	settings_prefetch_all();
@@ -221,6 +222,23 @@ function updateRawcoins()
 				$symbol = strtoupper($item->currency);
 				updateRawCoin('nova', $symbol);
 				//debuglog("nova: $symbol");
+			}
+		}
+	}
+
+	if (!exchange_get('stocksexchange', 'disabled')) {
+		$list = stocksexchange_api_query('markets');
+		if(is_array($list))
+		{
+			dborun("UPDATE markets SET deleted=true WHERE name='stocksexchange'");
+			foreach($list as $item) {
+				if ($item->partner != 'BTC')
+					continue;
+				if ($item->active == false)
+					continue;
+				$symbol = strtoupper($item->currency);
+				$name = trim($item->currency_long);
+				updateRawCoin('stocksexchange', $symbol, $name);
 			}
 		}
 	}
