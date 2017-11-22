@@ -13,8 +13,9 @@ function updateRawcoins()
 	exchange_set_default('empoex', 'disabled', true);
 	exchange_set_default('coinexchange', 'disabled', true);
 	exchange_set_default('coinsmarkets', 'disabled', true);
-	exchange_set_default('tradesatoshi', 'disabled', true);
 	exchange_set_default('jubi', 'disabled', true);
+	exchange_set_default('nova', 'disabled', true);
+	exchange_set_default('tradesatoshi', 'disabled', true);
 
 	settings_prefetch_all();
 
@@ -335,6 +336,7 @@ function updateRawCoin($marketname, $symbol, $name='unknown')
 					if ($coin->Symbol == $symbol) {
 						$name = $coin->Name;
 						$algo = strtolower($coin->Algorithm);
+						if ($algo == 'scrypt') $algo = ''; // cryptopia default generally wrong
 						break;
 					}
 				}
