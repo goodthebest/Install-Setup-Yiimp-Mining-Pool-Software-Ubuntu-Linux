@@ -40,6 +40,7 @@ class CoindbCommand extends CConsoleCommand
 		} elseif ($args[0] == 'labels') {
 
 			$nbUpdated  = $this->updateCryptopiaLabels();
+			$nbUpdated += $this->updateCoinCapLabels();
 			$nbUpdated += $this->updateLiveCoinLabels();
 			$nbUpdated += $this->updateYiimpLabels("api.yiimp.eu");
 			$nbUpdated += $this->updateFromJson();
@@ -72,6 +73,52 @@ class CoindbCommand extends CConsoleCommand
 	}
 
 	/**
+	 * coincap.io api
+	 */
+	public static function getCoinCapData()
+	{
+		$json = file_get_contents('http://coincap.io/front');
+		$data = json_decode($json,true);
+		$array = array();
+		foreach ($data as $coin) {
+			$key = strtoupper($coin['short']);
+			if (empty($key)) continue;
+			$array[$key] = $coin;
+		}
+		return $array;
+	}
+
+	public function updateCoinCapLabels()
+	{
+		$coins = new db_coins;
+		$nbUpdated = 0;
+
+		$dataset = $coins->findAll(array(
+			'condition'=>"name='unknown' OR name=symbol"
+		));
+
+		if (!empty($dataset))
+		{
+			$json = self::getCoinCapData();
+			if (empty($json)) return 0;
+
+			foreach ($dataset as $coin) {
+				if ($coin->name == 'unknown' && isset($json[$coin->symbol])) {
+					$data = $json[$coin->symbol];
+					if ($data['long'] != $coin->name) {
+						echo "{$coin->symbol}: {$data['long']}\n";
+						$coin->name = trim($data['long']);
+						$nbUpdated += $coin->save();
+					}
+				}
+			}
+			if ($nbUpdated)
+				echo "$nbUpdated coin labels updated from coincap.io\n";
+		}
+		return $nbUpdated;
+	}
+
+	/**
 	 * Special for cryptopia coins
 	 */
 	protected function getCryptopiaCurrencies()
@@ -92,9 +139,6 @@ class CoindbCommand extends CConsoleCommand
 
 	public function updateCryptopiaLabels()
 	{
-		$modelsPath = $this->basePath.'/yaamp/models';
-		require_once($modelsPath.'/db_coinsModel.php');
-
 		$coins = new db_coins;
 		$nbUpdated = 0;
 
@@ -177,7 +221,9 @@ class CoindbCommand extends CConsoleCommand
 		if (!empty($dataset))
 		{
 			$url = "http://{$pool}/api/currencies";
-			$json = json_decode(file_get_contents($url), true);
+			$data = @ file_get_contents($url);
+			if (empty($data)) return 0;
+			$json = json_decode($data, true);
 
 			if (!empty($json))
 			foreach ($dataset as $coin) {
