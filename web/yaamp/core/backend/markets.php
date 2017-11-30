@@ -610,13 +610,25 @@ function updateYobitMarkets()
 	{
 		$e = explode('_', $i);
 		$symbol = strtoupper($e[0]);
-		if($e[1] != 'btc') continue;
+		$base_symbol = strtoupper($e[1]);
+
 		if($symbol == 'BTC') continue;
 
 		$coin = getdbosql('db_coins', "symbol=:symbol", array(':symbol'=>$symbol));
 		if(!$coin) continue;
 
-		$market = getdbosql('db_markets', "coinid={$coin->id} and name='$exchange'");
+		$sqlFilter = "AND IFNULL(base_coin,'')=''";
+		if ($base_symbol != 'BTC') {
+			// Only track ALT markets (ETH, DOGE) if the market record exists in the DB, sample market name "yobit DOGE"
+			$in_db = (int) dboscalar("SELECT count(M.id) FROM markets M INNER JOIN coins C ON C.id=M.coinid ".
+				" WHERE C.installed AND C.symbol=:sym AND M.name LIKE '$exchange %' AND M.base_coin=:base",
+				array(':sym'=>$symbol,':base'=>$base_symbol)
+			);
+			if (!$in_db) continue;
+			$sqlFilter = "AND base_coin='$base_symbol'";
+		}
+
+		$market = getdbosql('db_markets', "coinid={$coin->id} AND name LIKE '$exchange %' $sqlFilter");
 		if(!$market) continue;
 
 		$market->txfee = objSafeVal($item,'fee',0.2);
@@ -634,7 +646,7 @@ function updateYobitMarkets()
 		if (!$coin->installed && !$coin->watch) continue;
 
 		$symbol = $coin->getOfficialSymbol();
-		$pair = strtolower($symbol).'_btc';
+		$pair = strtolower($symbol.'_'.$base_symbol);
 
 		$ticker = yobit_api_query("ticker/$pair");
 		if(!$ticker || objSafeVal($ticker,$pair) === NULL) continue;
