@@ -26,6 +26,7 @@ $(function() {
 span.monospace { font-family: monospace; }
 span.txid { cursor: pointer; }
 tr.raw td { max-width: 1880px; }
+td.ntx { width: 8px; font-family: monospace; }
 th {
 	text-align: left;
 	box-shadow: 2px 2px 2px #c0c0c0, -1px -1px 2px white;
@@ -166,6 +167,7 @@ echo <<<end
 <table class="dataGrid">
 <thead>
 <tr>
+<th width="8px" class="ntx">#</th>
 <th>Transaction Hash</th>
 <th>Size</th>
 <th>Value</th>
@@ -175,10 +177,12 @@ echo <<<end
 </thead>
 end;
 
+$ntx = 0;
 foreach($block['tx'] as $txhash)
 {
+	$ntx++;
 	$tx = $remote->getrawtransaction($txhash, 1);
-	if(!$tx) {
+	if(!$tx && ($ntx == 1 || $txid == $txhash)) {
 		// some transactions are not found directly with getrawtransaction
 		$tx = $remote->gettransaction($txhash);
 		if ($tx && isset($tx['hex'])) {
@@ -189,12 +193,14 @@ foreach($block['tx'] as $txhash)
 			continue;
 		}
 	}
+	if(!$tx) continue;
 
 	$valuetx = 0;
 	foreach($tx['vout'] as $vout)
 		$valuetx += $vout['value'];
 
 	echo '<tr class="ssrow">';
+	echo '<td class="ntx">'.$ntx.'</td>';
 	echo '<td><span class="txid monospace">'.$tx['txid'].'</span></td>';
 	$size = (strlen($tx['hex'])/2);
 	echo "<td>$size</td>";
@@ -227,22 +233,29 @@ foreach($block['tx'] as $txhash)
 	}
 	echo "</td>";
 
-	echo '</tr><tr class="raw" style="display:none;"><td colspan="5"><div class="json">';
+	echo '</tr><tr class="raw" style="display:none;"><td colspan="6"><div class="json">';
 	unset($tx['hex']);
 	echo colorizeJson(json_encode($tx, 128));
 	echo '</div></td>';
 
 	echo "</tr>";
+
+	if ($ntx > 100) {
+		echo '<tr class="ssrow"><td colspan="6">Too much transations to display...</td></tr>';
+		break;
+	}
 }
 
 if ($coin->rpcencoding == 'DCR' && isset($block['stx'])) {
 
-	echo '<tr><th class="section" colspan="5">';
+	echo '<tr><th class="section" colspan="6">';
 	echo 'Stake';
 	echo '</th></tr>';
 
+	$ntx = 0;
 	foreach($block['stx'] as $txhash)
 	{
+		$ntx++;
 		$stx = $remote->getrawtransaction($txhash, 1);
 		if(!$stx) continue;
 
@@ -251,6 +264,7 @@ if ($coin->rpcencoding == 'DCR' && isset($block['stx'])) {
 			$valuetx += $vout['value'];
 
 		echo '<tr class="ssrow">';
+		echo '<td class="ntx">'.$ntx.'</td>';
 		echo '<td><span class="txid monospace">'.$stx['txid'].'</span></td>';
 		$size = (strlen($stx['hex'])/2);
 		echo "<td>$size</td>";
@@ -282,7 +296,7 @@ if ($coin->rpcencoding == 'DCR' && isset($block['stx'])) {
 		}
 		echo "</td>";
 
-		echo '</tr><tr class="raw" style="display:none;"><td colspan="5"><div class="json">';
+		echo '</tr><tr class="raw" style="display:none;"><td colspan="6"><div class="json">';
 		unset($stx['hex']);
 		echo colorizeJson(json_encode($stx, 128));
 		echo '</div></td>';
