@@ -24,7 +24,10 @@ char g_sql_database[1024];
 char g_sql_username[1024];
 char g_sql_password[1024];
 
-char g_stratum_algo[1024];
+char g_stratum_coin_include[256];
+char g_stratum_coin_exclude[256];
+
+char g_stratum_algo[256];
 double g_stratum_difficulty;
 
 int g_stratum_max_ttf;
@@ -216,13 +219,18 @@ int main(int argc, char **argv)
 	strcpy(g_sql_username, iniparser_getstring(ini, "SQL:username", NULL));
 	strcpy(g_sql_password, iniparser_getstring(ini, "SQL:password", NULL));
 
+	// optional coin filters (to mine only one on a special port or a test instance)
+	char *coin_filter = iniparser_getstring(ini, "WALLETS:include", NULL);
+	strcpy(g_stratum_coin_include, coin_filter ? coin_filter : "");
+	coin_filter = iniparser_getstring(ini, "WALLETS:exclude", NULL);
+	strcpy(g_stratum_coin_exclude, coin_filter ? coin_filter : "");
+
 	strcpy(g_stratum_algo, iniparser_getstring(ini, "STRATUM:algo", NULL));
 	g_stratum_difficulty = iniparser_getdouble(ini, "STRATUM:difficulty", 16);
 	g_stratum_max_cons = iniparser_getint(ini, "STRATUM:max_cons", 5000);
 	g_stratum_max_ttf = iniparser_getint(ini, "STRATUM:max_ttf", 0x70000000);
 	g_stratum_reconnect = iniparser_getint(ini, "STRATUM:reconnect", true);
 	g_stratum_renting = iniparser_getint(ini, "STRATUM:renting", true);
-	g_stratum_segwit = iniparser_getint(ini, "STRATUM:segwit", 0);
 
 	iniparser_freedict(ini);
 

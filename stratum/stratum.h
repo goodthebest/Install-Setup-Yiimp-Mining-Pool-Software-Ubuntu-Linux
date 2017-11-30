@@ -75,7 +75,10 @@ extern char g_sql_database[1024];
 extern char g_sql_username[1024];
 extern char g_sql_password[1024];
 
-extern char g_stratum_algo[1024];
+extern char g_stratum_coin_include[256];
+extern char g_stratum_coin_exclude[256];
+
+extern char g_stratum_algo[256];
 extern double g_stratum_difficulty;
 
 extern int g_stratum_max_cons;
