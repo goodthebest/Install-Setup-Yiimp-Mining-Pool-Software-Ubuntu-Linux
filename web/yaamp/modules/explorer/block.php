@@ -133,7 +133,7 @@ echo '</div></td>';
 
 echo '<tr><td>Confirmations:</td><td>'.$confirms.'</td></tr>';
 echo '<tr><td>Height:</td><td>'.$block['height'].'</td></tr>';
-echo '<tr><td>Time:</td><td>'.$d.'</td></tr>';
+echo '<tr><td>Time:</td><td>'.$d.' ('.$block['time'].')'.'</td></tr>';
 echo '<tr><td>Difficulty:</td><td>'.$block['difficulty'].'</td></tr>';
 echo '<tr><td>Bits:</td><td><span class="monospace">'.$block['bits'].'</span></td></tr>';
 echo '<tr><td>Nonce:</td><td><span class="monospace">'.$nonce.'</span></td></tr>';
@@ -178,7 +178,17 @@ end;
 foreach($block['tx'] as $txhash)
 {
 	$tx = $remote->getrawtransaction($txhash, 1);
-	if(!$tx) continue;
+	if(!$tx) {
+		// some transactions are not found directly with getrawtransaction
+		$tx = $remote->gettransaction($txhash);
+		if ($tx && isset($tx['hex'])) {
+			$hex = $tx['hex'];
+			$tx = $remote->decoderawtransaction($hex);
+			$tx['hex'] = $hex;
+		} else {
+			continue;
+		}
+	}
 
 	$valuetx = 0;
 	foreach($tx['vout'] as $vout)
@@ -191,10 +201,15 @@ foreach($block['tx'] as $txhash)
 	echo "<td>$valuetx</td>";
 
 	echo "<td>";
+	$segwit = false;
 	foreach($tx['vin'] as $vin) {
 		if(isset($vin['coinbase']))
 			echo "Generation";
+		if(isset($vin['txinwitness']))
+			$segwit = true;
 	}
+	if($segwit)
+		echo '&nbsp;<img src="/images/ui/segwit.png" height="8px" valign="center" title="segwit"/>';
 	echo "</td>";
 
 	echo "<td>";
