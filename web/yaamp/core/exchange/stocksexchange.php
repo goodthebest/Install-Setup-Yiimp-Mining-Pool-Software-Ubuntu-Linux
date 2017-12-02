@@ -19,6 +19,63 @@ function stocksexchange_api_query($method)
 	return $obj;
 }
 
+function stocksexchange_api_user($method, $params=array())
+{
+	require_once('/etc/yiimp/keys.php');
+	if (!defined('EXCH_STOCKSEXCHANGE_SECRET')) define('EXCH_STOCKSEXCHANGE_SECRET', '');
+
+	if (empty(EXCH_STOCKSEXCHANGE_KEY) || empty(EXCH_STOCKSEXCHANGE_SECRET)) return false;
+
+	$mt = explode(' ', microtime());
+	$nonce = $mt[1].substr($mt[0], 2, 6);
+	$url = "https://stocks.exchange/api2?method=$method&nonce=$nonce";
+
+	$sign_data = json_encode($params);
+	$sign = hash_hmac('sha512', $sign_data, EXCH_STOCKSEXCHANGE_SECRET);
+
+	$headers = array(
+		'Content-Type: application/json; charset=utf-8',
+		'Key: '.EXCH_STOCKSEXCHANGE_KEY,
+		'Sign: '.$sign,
+	);
+
+	$ch = curl_init();
+
+	//curl_setopt($ch, CURLOPT_VERBOSE, true);
+	curl_setopt($ch, CURLOPT_URL, $url);
+	curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+	curl_setopt($ch, CURLOPT_POST, true);
+	curl_setopt($ch, CURLOPT_POSTFIELDS, $sign_data);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+	curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+	//curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+	//curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+	curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/4.0 (compatible; Stocks.exchange API PHP client; '.php_uname('s').'; PHP/'.PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION.')');
+	curl_setopt($ch, CURLOPT_ENCODING , '');
+
+	$res = curl_exec($ch);
+	if($res === false) {
+		$e = curl_error($ch);
+		debuglog("stocksexchange: $e");
+		curl_close($ch);
+		return false;
+	}
+
+	$result = json_decode($res, true);
+	if(!is_object($result) && !is_array($result)) {
+		$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		if (strpos($res,'Maintenance'))
+			debuglog("stocksexchange: $method failed (Maintenance)");
+		else
+			debuglog("stocksexchange: $method failed ($status) ".strip_data($res));
+	}
+
+	curl_close($ch);
+
+	return $result;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // manual update of one market

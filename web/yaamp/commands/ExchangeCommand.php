@@ -193,6 +193,12 @@ class ExchangeCommand extends CConsoleCommand
 			$balance = $poloniex->get_available_balances();
 			echo("poloniex available : ".json_encode($balance)."\n");
 		}
+		if (!empty(EXCH_STOCKSEXCHANGE_KEY)) {
+			// $info = stocksexchange_api_user('Deposit',array("currency"=>"BTC"));
+			$info = stocksexchange_api_user('GetInfo');
+			if (!is_array($info) || arraySafeVal($info,'success') != 1) echo "stocksexchange error ".json_encode($info)."\n";
+			else echo("stocksexchange: ".json_encode($info['data']['funds'])."\n");
+		}
 		if (!empty(EXCH_YOBIT_KEY)) {
 			$info = yobit_api_query2('getInfo');
 			if (!arraySafeVal($info,'success',0) || !is_array($info['return'])) echo "error\n";
