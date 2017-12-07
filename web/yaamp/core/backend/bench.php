@@ -25,16 +25,30 @@ function BenchUpdateChips()
 		$dups = getdbocount('db_benchmarks', "vendorid=:vid AND client=:client AND os=:os AND driver=:drv AND throughput=:thr AND userid=:uid",
 			array(':vid'=>$bench->vendorid, ':client'=>$bench->client, ':os'=>$bench->os, ':drv'=>$bench->driver,':thr'=>$bench->throughput,':uid'=>$bench->userid)
 		);
-		if ($dups > 10) {
+		if ($dups > 10 || round($bench->khps,3) == 0) {
 			//debuglog("bench: {$bench->device} ignored ($dups records already present)");
 			$bench->delete();
 			continue;
 		}
 
 		$chip = getChipName($bench->attributes);
-		debuglog("bench: {$bench->device} ($chip)...");
 		if (!empty($chip) && $chip != '-') {
 			$bench->chip = $chip;
+			$rates = dborow("SELECT AVG(khps) AS avg, COUNT(id) as cnt FROM benchmarks WHERE algo=:algo AND chip=:chip",
+				array(':algo'=>$bench->algo, ':chip'=>$chip)
+			);
+			$avg = (double) $rates['avg'];
+			$cnt = intval($rates['cnt']);
+			if ($cnt > 250) {
+				$bench->delete();
+				continue;
+			} elseif ($cnt > 5 && $bench->khps < $avg / 2) {
+				$user = getdbo('db_accounts', $bench->userid);
+				debuglog("bench: {$bench->device} ignored, bad {$bench->algo} hashrate {$bench->khps} kHs by {$user->username}");
+				$bench->delete();
+				continue;
+			}
+			debuglog("bench: {$bench->device} ($chip)...");
 			$bench->save();
 		}
 	}

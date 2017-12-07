@@ -154,7 +154,7 @@ function getChipName($row)
 		if (strpos($device, 'AMD Athlon ')) {
 			return str_replace('AMD ', '', $device);
 		}
-		$device = preg_replace('/AMD (A6\-[1-9]+) APU .+/','\1', $device);
+		$device = preg_replace('/AMD (A6\-[1-9]+[KM]*) APU .+/','\1', $device);
 		$device = preg_replace('/AMD (E[\d]*\-[\d]+) APU .+/','\1', $device);
 		$device = preg_replace('/AMD (A[\d]+\-[\d]+[KP]*) Radeon .+/','\1', $device);
 		$words = explode(' ', $device);
@@ -174,7 +174,10 @@ function getChipName($row)
 			$chip = str_replace('GT ','', $chip);
 			$chip = str_replace('GTX ','', $chip);
 			$chip = str_replace('650 Ti BOOST','650 Ti', $chip);
+			$chip = str_replace('760 Ti OEM','760 Ti', $chip);
 			$chip = str_replace(' (Pascal)',' Pascal', $chip);
+			$chip = str_replace('Tesla P100-SXM2-16GB','Tesla P100', $chip);
+			$chip = str_replace('Tesla V100-SXM2-16GB','Tesla V100', $chip);
 			$chip = preg_replace('/ASUS ([6-9]\d\dM)/','\1', $chip); // ASUS 940M
 			$chip = preg_replace('/MSI ([6-9]\d\dM)/','\1', $chip); // MSI 840M
 			$chip = preg_replace('/MSI ([6-9]\d\dMX)/','\1', $chip); // MSI 940MX
@@ -183,6 +186,8 @@ function getChipName($row)
 			if (strpos($chip, 'P104-100') !== false || strpos($chip, 'CMP4-1') !== false)
 				$chip = 'P104-100';
 		}
+		// Quadro 600 - Quadro 2000
+		if (strstr($row['device'], 'Quadro') && !strstr($chip, 'Quadro')) $chip = "Quadro $chip";
 	}
 
 	return $chip;
