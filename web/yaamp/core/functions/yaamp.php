@@ -254,7 +254,7 @@ function yaamp_fee($algo)
 	$fee = controller()->memcache->get("yaamp_fee-$algo");
 	if($fee) return $fee;
 
-	$norm = yaamp_get_algo_norm($algo);
+/*	$norm = yaamp_get_algo_norm($algo);
 	if($norm == 0) $norm = 1;
 
 	$hashrate = getdbosql('db_hashrate', "algo=:algo order by time desc", array(':algo'=>$algo));
@@ -269,6 +269,7 @@ function yaamp_fee($algo)
 
 //	$fee = round(log($hashrate->hashrate * $norm / 1000000 / $hashrate->difficulty + 1), 1) + YAAMP_FEES_MINING;
 //	$fee = round(log($rate * $norm / 2000000 / $hashrate->difficulty + 1), 1) + YAAMP_FEES_MINING;
+*/
 	$fee = YAAMP_FEES_MINING;
 
 	// local fees config
