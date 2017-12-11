@@ -70,6 +70,8 @@ function yaamp_algo_mBTC_factor($algo)
 	case 'blakecoin':
 	case 'blake2s':
 	case 'decred':
+	case 'keccak':
+	case 'keccakc':
 	case 'vanilla':
 		return 1000;
 	default:
