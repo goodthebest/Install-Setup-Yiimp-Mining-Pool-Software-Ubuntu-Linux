@@ -628,7 +628,7 @@ function updateYobitMarkets()
 			$sqlFilter = "AND base_coin='$base_symbol'";
 		}
 
-		$market = getdbosql('db_markets', "coinid={$coin->id} AND name LIKE '$exchange %' $sqlFilter");
+		$market = getdbosql('db_markets', "coinid={$coin->id} AND name LIKE '$exchange%' $sqlFilter");
 		if(!$market) continue;
 
 		$market->txfee = objSafeVal($item,'fee',0.2);
@@ -1327,6 +1327,7 @@ function updateCoinsMarketsMarkets()
 		$price2 = ((double)$data['lowestAsk'] + (double)$data['highestBid'])/2;
 		$market->price2 = AverageIncrement($market->price2, $price2);
 		$market->price = AverageIncrement($market->price, (double)$data['highestBid']);
+		$market->price = min($market->price, $market->price2); // reversed bid/ask ?
 
 		$market->marketid = arraySafeVal($data,'id');
 		$market->priority = -1; // not ready for trading
