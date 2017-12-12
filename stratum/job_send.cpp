@@ -28,7 +28,7 @@ static void job_mining_notify_buffer(YAAMP_JOB *job, char *buffer)
 		job->id, templ->prevhash_be, templ->coinb1, templ->coinb2, templ->txmerkles, templ->version, templ->nbits, templ->ntime);
 }
 
-static YAAMP_JOB *job_get_last()
+static YAAMP_JOB *job_get_last(int coinid)
 {
 	g_list_job.Enter();
 	for(CLI li = g_list_job.first; li; li = li->prev)
@@ -36,6 +36,7 @@ static YAAMP_JOB *job_get_last()
 		YAAMP_JOB *job = (YAAMP_JOB *)li->data;
 		if(!job_can_mine(job)) continue;
 		if(!job->coind) continue;
+		if(coinid > 0 && job->coind->id != coinid) continue;
 
 		g_list_job.Leave();
 		return job;
@@ -49,7 +50,13 @@ static YAAMP_JOB *job_get_last()
 
 void job_send_last(YAAMP_CLIENT *client)
 {
-	YAAMP_JOB *job = job_get_last();
+#ifdef NO_EXCHANGE
+	// prefer user coin first (if available)
+	YAAMP_JOB *job = job_get_last(client->coinid);
+	if(!job) job = job_get_last(0);
+#else
+	YAAMP_JOB *job = job_get_last(0);
+#endif
 	if(!job) return;
 
 	YAAMP_JOB_TEMPLATE *templ = job->templ;
