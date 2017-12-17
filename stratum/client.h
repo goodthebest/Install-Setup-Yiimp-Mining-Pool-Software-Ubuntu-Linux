@@ -5,12 +5,12 @@
 //	int count;
 //	double speed;
 //
-//	char ip[1024];
+//	char ip[64];
 //};
 
 struct YAAMP_ALGO
 {
-	char name[1024];
+	char name[64];
 	YAAMP_HASH_FUNCTION hash_function;
 
 	double diff_multiplier;
