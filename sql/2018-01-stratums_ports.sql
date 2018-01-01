@@ -3,6 +3,8 @@
 
 -- filled by the stratum instance, to allow to handle/watch multiple instances
 
+ALTER TABLE `stratums` ADD `started` int(11) UNSIGNED NULL AFTER `time`;
+
 ALTER TABLE `stratums` ADD `workers` int(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `algo`;
 
 ALTER TABLE `stratums` ADD `port` int(6) UNSIGNED NULL AFTER `workers`;
