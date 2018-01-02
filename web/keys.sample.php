@@ -10,6 +10,7 @@ define('EXCH_BITSTAMP_SECRET','');
 define('EXCH_BLEUTRADE_SECRET', '');
 define('EXCH_BTER_SECRET', '');
 define('EXCH_CCEX_SECRET', '');
+define('EXCH_CEXIO_SECRET', '');
 define('EXCH_COINMARKETS_PASS', '');
 define('EXCH_CRYPTOPIA_SECRET', '');
 define('EXCH_EMPOEX_SECKEY', '');
