@@ -215,12 +215,18 @@ static void client_do_submit(YAAMP_CLIENT *client, YAAMP_JOB *job, YAAMP_JOB_VAL
 
 	if(hash_int <= coin_target)
 	{
+		char count_hex[8] = { 0 };
+		if (templ->txcount <= 255)
+			sprintf(count_hex, "%02x", templ->txcount & 0xFF);
+		else
+			sprintf(count_hex, "fd%02x%02x", templ->txcount & 0xFF, templ->txcount >> 8);
+
 		memset(block_hex, 0, block_size);
-		sprintf(block_hex, "%s%02x%s", submitvalues->header_be, (unsigned char)templ->txcount, submitvalues->coinbase);
+		sprintf(block_hex, "%s%s%s", submitvalues->header_be, count_hex, submitvalues->coinbase);
 
 		if (g_current_algo->name && !strcmp("jha", g_current_algo->name)) {
 			// block header of 88 bytes
-			sprintf(block_hex, "%s8400000008000000%02x%s", submitvalues->header_be, (unsigned char)templ->txcount, submitvalues->coinbase);
+			sprintf(block_hex, "%s8400000008000000%s%s", submitvalues->header_be, count_hex, submitvalues->coinbase);
 		}
 
 		vector<string>::const_iterator i;
