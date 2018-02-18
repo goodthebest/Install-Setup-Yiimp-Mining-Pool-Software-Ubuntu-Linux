@@ -36,6 +36,9 @@ int g_stratum_max_cons = 5000;
 bool g_stratum_reconnect;
 bool g_stratum_renting;
 bool g_stratum_segwit = false;
+
+int g_limit_txs_per_block = 0;
+
 bool g_autoexchange = true;
 
 uint64_t g_max_shares = 0;
@@ -235,6 +238,8 @@ int main(int argc, char **argv)
 	g_stratum_max_ttf = iniparser_getint(ini, "STRATUM:max_ttf", 0x70000000);
 	g_stratum_reconnect = iniparser_getint(ini, "STRATUM:reconnect", true);
 	g_stratum_renting = iniparser_getint(ini, "STRATUM:renting", true);
+
+	g_limit_txs_per_block = iniparser_getint(ini, "STRATUM:max_txs_per_block", 0);
 
 	iniparser_freedict(ini);
 

@@ -87,6 +87,7 @@ extern int g_stratum_max_ttf;
 extern bool g_stratum_reconnect;
 extern bool g_stratum_renting;
 extern bool g_stratum_segwit;
+extern int g_limit_txs_per_block;
 
 extern uint64_t g_max_shares;
 extern uint64_t g_shares_counter;
