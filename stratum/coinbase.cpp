@@ -224,6 +224,11 @@ void coinbase_create(YAAMP_COIND *coind, YAAMP_JOB_TEMPLATE *templ, json_value *
 		bool superblocks_enabled = json_get_bool(json_result, "superblocks_enabled");
 		json_value* superblock = json_get_array(json_result, "superblock");
 		json_value* masternode = json_get_object(json_result, "masternode");
+		if(!masternode && json_get_bool(json_result, "masternode_payments")) {
+			coind->oldmasternodes = true;
+			debuglog("%s is using old masternodes rpc keys\n", coind->symbol);
+			return;
+		}
 		if(superblocks_enabled && superblock) {
 			for(int i = 0; i < superblock->u.array.length; i++) {
 				const char *payee = json_get_string(superblock->u.array.values[i], "payee");
