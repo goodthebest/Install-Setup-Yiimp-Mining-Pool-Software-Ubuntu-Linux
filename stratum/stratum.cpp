@@ -142,8 +142,8 @@ YAAMP_ALGO g_algos[] =
 	{"myr-gr", groestlmyriad_hash, 1, 0, 0}, /* groestl + sha 64 */
 	{"skein", skein_hash, 1, 0, 0},
 	{"tribus", tribus_hash, 1, 0, 0},
-	{"a5a", a5a_hash, 0x10000, 0, 0},
 	{"keccak", keccak256_hash, 0x80, 0, sha256_hash_hex },
+	{"keccakc", keccak256_hash, 0x100, 0, 0},
 	{"phi", phi_hash, 1, 0, 0},
 	{"polytimos", polytimos_hash, 1, 0, 0},
 	{"skunk", skunk_hash, 1, 0, 0},
@@ -157,6 +157,7 @@ YAAMP_ALGO g_algos[] =
 	{"yescryptR16", yescryptR16_hash, 0x10000, 0, 0 },
 	{"zr5", zr5_hash, 1, 0, 0},
 
+	{"a5a", a5a_hash, 0x10000, 0, 0},
 	{"hive", hive_hash, 0x10000, 0, 0},
 	{"m7m", m7m_hash, 0x10000, 0, 0},
 	{"veltor", veltor_hash, 1, 0, 0},
@@ -410,8 +411,8 @@ void *stratum_thread(void *p)
 			stratumlog("%s socket accept() error %d\n", g_stratum_algo, error);
 			failcount++;
 			usleep(50000);
-			if (error == 24 && failcount > 16) {
-				g_exiting = true;
+			if (error == 24 && failcount > 5) {
+				g_exiting = true; // happen when max open files is reached (see ulimit)
 				stratumlogdate("%s too much socket failure, exiting...\n", g_stratum_algo);
 				exit(error);
 			}
