@@ -102,6 +102,8 @@ uint64_t get_hash_difficulty(unsigned char *input);
 long long current_timestamp();
 long long current_timestamp_dms();
 
+int opened_files();
+
 void string_lower(char *s);
 void string_upper(char *s);
 

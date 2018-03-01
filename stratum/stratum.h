@@ -19,6 +19,7 @@
 #include <mysql.h>
 #include <errmsg.h>
 #include <ifaddrs.h>
+#include <dirent.h>
 
 #include <iostream>
 #include <vector>

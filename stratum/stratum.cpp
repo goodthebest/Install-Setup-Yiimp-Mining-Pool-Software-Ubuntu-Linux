@@ -188,8 +188,6 @@ YAAMP_ALGO *stratum_find_algo(const char *name)
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-#include <dirent.h>
-
 int main(int argc, char **argv)
 {
 	if(argc < 2)

@@ -87,17 +87,17 @@ void db_register_stratum(YAAMP_DB *db)
 	int t = time(NULL);
 	if(!db) return;
 
-	db_query(db, "INSERT INTO stratums (pid, time, started, algo, port) VALUES (%d, %d, %d, '%s', %d) "
-		" ON DUPLICATE KEY UPDATE time=%d, algo='%s', port=%d",
-		pid, t, t, g_stratum_algo, g_tcp_port,
-		t, g_stratum_algo, g_tcp_port
+	db_query(db, "INSERT INTO stratums (pid, time, started, algo, url, port) VALUES (%d,%d,%d,'%s','%s',%d) "
+		" ON DUPLICATE KEY UPDATE time=%d, algo='%s', url='%s', port=%d",
+		pid, t, t, g_stratum_algo, g_tcp_server, g_tcp_port,
+		t, g_stratum_algo, g_tcp_server, g_tcp_port
 	);
 }
 
 void db_update_algos(YAAMP_DB *db)
 {
 	int pid = getpid();
-	//int fds = 0; // todo, sample: ls -l /proc/$PID/fd | grep socket | grep -c .
+	int fds = opened_files();
 	if(!db) return;
 
 	if(g_current_algo->overflow)
@@ -117,7 +117,8 @@ void db_update_algos(YAAMP_DB *db)
 		}
 	}
 
-	db_query(db, "UPDATE stratums SET workers=%d, symbol=%s WHERE pid=%d", g_list_client.count, symbol, pid);
+	db_query(db, "UPDATE stratums SET workers=%d, fds=%d, symbol=%s WHERE pid=%d",
+		g_list_client.count, fds, symbol, pid);
 
 	///////////////////////////////////////////////////////////////////////////////////////////
 

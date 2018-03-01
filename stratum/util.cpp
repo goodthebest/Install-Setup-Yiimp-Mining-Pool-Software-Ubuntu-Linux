@@ -674,6 +674,18 @@ long long current_timestamp_dms() // allow 0.1 ms time
 	return dms;
 }
 
+int opened_files()
+{
+	int fds = 0;
+	DIR *d = opendir("/proc/self/fd");
+	if (d) {
+		struct dirent *ent;
+		while (readdir(d)) fds++;
+		closedir(d);
+	}
+	return fds;
+}
+
 void string_lower(char *s)
 {
 	for(int i = 0; s[i]; i++)
