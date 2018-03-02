@@ -1,5 +1,6 @@
 
 #include "stratum.h"
+#include <mysql/mysqld_error.h>
 #include <signal.h>
 
 void db_reconnect(YAAMP_DB *db)
@@ -70,6 +71,7 @@ void db_query(YAAMP_DB *db, const char *format, ...)
 		res = mysql_errno(&db->mysql);
 
 		stratumlog("SQL ERROR: %d, %s\n", res, mysql_error(&db->mysql));
+		if(res == ER_DUP_ENTRY) break; // rarely seen on new user creation
 		if(res != CR_SERVER_GONE_ERROR && res != CR_SERVER_LOST) exit(1);
 
 		usleep(100*YAAMP_MS);
