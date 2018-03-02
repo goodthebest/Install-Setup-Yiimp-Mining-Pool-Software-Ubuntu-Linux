@@ -619,9 +619,7 @@ void *client_thread(void *p)
 		else if(!strcmp(method, "getwork"))
 		{
 			clientlog(client, "using getwork"); // client using http:// url
-			break;
 		}
-
 		else
 		{
 			b = client_send_error(client, 20, "Not supported");
@@ -657,6 +655,9 @@ void *client_thread(void *p)
 			db_clear_worker(g_db, client);
 			CommonUnlock(&g_db_mutex);
 		}
+	} else {
+		// only clients sockets in g_list_client are purged (if marked deleted)
+		socket_close(client->sock);
 	}
 
 	object_delete(client);
