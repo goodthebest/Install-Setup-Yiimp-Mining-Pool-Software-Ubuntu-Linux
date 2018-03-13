@@ -43,11 +43,19 @@ void db_close(YAAMP_DB *db)
 
 char *db_clean_string(YAAMP_DB *db, char *string)
 {
-	string[1000] = 0;
-	char tmp[1024];
+	char escaped[512] = { 0 };
+	char *c = string;
 
-	unsigned long ret = mysql_real_escape_string(&db->mysql, tmp, string, strlen(string));
-	strcpy(string, tmp);
+	size_t i, len = strlen(string);
+	for (i = 0; i < len && i < sizeof(escaped); i++) {
+		bool isdigit = (c[i] >= '0' && c[i] <= '9');
+		bool isalpha = (c[i] >= 'a' && c[i] <= 'z') || (c[i] >= 'A' && c[i] <= 'Z');
+		bool issepch = (c[i] == '=' || c[i] == ',' || c[i] == ';' || c[i] == '.');
+		bool isextra = (c[i] == '/' || c[i] == '-' || c[i] == '_');
+		if (!isdigit && !isalpha && !issepch && !isextra) { c[i] = '\0'; break; }
+	}
+	mysql_real_escape_string(&db->mysql, escaped, string, strlen(string));
+	strcpy(string, escaped);
 
 	return string;
 }
