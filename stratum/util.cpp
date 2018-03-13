@@ -679,11 +679,22 @@ int opened_files()
 	int fds = 0;
 	DIR *d = opendir("/proc/self/fd");
 	if (d) {
-		struct dirent *ent;
 		while (readdir(d)) fds++;
 		closedir(d);
 	}
 	return fds;
+}
+
+int resident_size()
+{
+	int sz, res = 0;
+	FILE *fp = fopen("/proc/self/statm", "r");
+	if (fp) {
+		fscanf(fp,"%d", &sz);
+		fscanf(fp,"%d", &res);
+		fclose(fp);
+	}
+	return res;
 }
 
 void string_lower(char *s)

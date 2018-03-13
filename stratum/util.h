@@ -103,6 +103,7 @@ long long current_timestamp();
 long long current_timestamp_dms();
 
 int opened_files();
+int resident_size();
 
 void string_lower(char *s);
 void string_upper(char *s);
