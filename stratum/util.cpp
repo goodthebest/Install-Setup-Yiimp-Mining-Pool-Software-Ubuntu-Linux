@@ -698,8 +698,8 @@ int resident_size()
 	int sz, res = 0;
 	FILE *fp = fopen("/proc/self/statm", "r");
 	if (fp) {
-		fscanf(fp,"%d", &sz);
-		fscanf(fp,"%d", &res);
+		int p = fscanf(fp, "%d", &sz);
+		if (p) p += fscanf(fp, "%d", &res);
 		fclose(fp);
 	}
 	return res;
