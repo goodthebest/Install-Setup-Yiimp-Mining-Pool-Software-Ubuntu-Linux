@@ -463,6 +463,11 @@ bool client_submit(YAAMP_CLIENT *client, json_value *json_params)
 			return true;
 		}
 	}
+	else if(!ishexa(extranonce2, client->extranonce2size*2)) {
+		client_submit_error(client, job, 27, "Invalid nonce2", extranonce2, ntime, nonce);
+		client->submit_bad++;
+		return true;
+	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////
 

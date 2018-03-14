@@ -86,6 +86,8 @@ void ser_string_be2(const char *input, char *output, int len);
 void string_be(const char *input, char *output);
 void string_be1(char *s);
 
+bool ishexa(char *hex, int len);
+
 void hexlify(char *hex, const unsigned char *bin, int len);
 void binlify(unsigned char *bin, const char *hex);
 

@@ -417,6 +417,14 @@ void hexlify(char *hex, const unsigned char *bin, int len)
 		sprintf(hex+strlen(hex), "%02x", bin[i]);
 }
 
+bool ishexa(char *hex, int len)
+{
+	for(int i=0; i<len; i++) {
+		if (!isxdigit(hex[i])) return false;
+	}
+	return true;
+}
+
 unsigned char binvalue(const char v)
 {
 	if(v >= '0' && v <= '9')
