@@ -146,9 +146,7 @@ void coinbase_create(YAAMP_COIND *coind, YAAMP_JOB_TEMPLATE *templ, json_value *
 			sprintf(coind->charity_address, "Dcur2mcGjmENx4DhNqDctW5wJCVyT3Qeqkx");
 	}
 	else if(strcmp(coind->symbol, "STAK") == 0) {
-		char script_dests[1024] = { 0 };
-		char script_payee[1024];
-		char payee_address[1024];
+		char script_payee[512] = { 0 };
 		char payees[4];
 		int npayees = (templ->has_segwit_txs) ? 2 : 1;
 		bool masternode_payments = json_get_bool(json_result, "masternode_payments");
@@ -177,8 +175,7 @@ void coinbase_create(YAAMP_COIND *coind, YAAMP_JOB_TEMPLATE *templ, json_value *
 		}
 		++npayees;
 		available -= charity_amount;
-		strcpy(payee_address, coind->charity_address);
-		base58_decode(payee_address, script_payee);
+		base58_decode(coind->charity_address, script_payee);
 		sprintf(payees, "%02x", npayees);
 		strcat(templ->coinb2, payees);
 		if (templ->has_segwit_txs) strcat(templ->coinb2, commitment);
