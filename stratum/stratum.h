@@ -150,6 +150,7 @@ void sha256_double_hash_hex(const char *input, char *output, unsigned int len);
 #include "algos/c11.h"
 #include "algos/x11.h"
 #include "algos/x11evo.h"
+#include "algos/x12.h"
 #include "algos/x13.h"
 #include "algos/x14.h"
 #include "algos/x15.h"
