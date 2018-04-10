@@ -278,7 +278,7 @@ function getAlgoPort($algo)
 function yaamp_fee($algo)
 {
 	$fee = controller()->memcache->get("yaamp_fee-$algo");
-	if($fee) return $fee;
+	if($fee && is_numeric($fee)) return (float) $fee;
 
 /*	$norm = yaamp_get_algo_norm($algo);
 	if($norm == 0) $norm = 1;

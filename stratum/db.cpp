@@ -55,6 +55,19 @@ char *db_clean_string(YAAMP_DB *db, char *string)
 	return string;
 }
 
+// allow more chars without the most hurting ones (bench device names)
+static void clean_html(char* string)
+{
+	char *c = string;
+	size_t i, len = strlen(string) & 0x1FF;
+	for (i = 0; i < len; i++) {
+		if (c[i] == '<' || c[i] == '>' || c[i] == '%' || c[i] == '\\' || c[i] == '"' || c[i] == '\'') {
+			c[i] = '\0'; break;
+		}
+	}
+	if (strstr(string, "script")) strcpy(string, "");
+}
+
 void db_query(YAAMP_DB *db, const char *format, ...)
 {
 	va_list arglist;
@@ -536,7 +549,7 @@ static void _json_str_safe(YAAMP_DB *db, json_value *json, const char *key, size
 		char escaped[256] = { 0 };
 		snprintf(str, sizeof(str)-1, "%s", json_string_value(val));
 		str[maxlen-1] = '\0'; // truncate to dest len
-		//db_clean_string(db, str);
+		clean_html(str);
 		mysql_real_escape_string(&db->mysql, escaped, str, strlen(str));
 		snprintf(out, maxlen, "%s", escaped);
 		out[maxlen-1] = '\0';
