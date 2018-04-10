@@ -54,6 +54,12 @@ function getiparam($p,$default=0)
 	return isset($_REQUEST[$p]) ? intval($_REQUEST[$p]) : $default;
 }
 
+function getalgoparam()
+{
+	$algo = strip_tags(substr(getparam('algo'), 0, 32));
+	return $algo;
+}
+
 //////////////////////////////////////////////////////
 
 function downloadFile($url, &$size)

@@ -1077,7 +1077,7 @@ class SiteController extends CommonController
 		$this->goback();
 	}
 
-    public function actionCancelorder()
+	public function actionCancelorder()
 	{
 		if(!$this->admin) return;
 		$order = getdbo('db_orders', getiparam('id'));
@@ -1091,7 +1091,7 @@ class SiteController extends CommonController
 
 	public function actionAlgo()
 	{
-		$algo = substr(getparam('algo'), 0, 32);
+		$algo = getalgoparam();
 		$a = getdbosql('db_algos', "name=:name", array(':name'=>$algo));
 
 		if($a)
@@ -1108,7 +1108,7 @@ class SiteController extends CommonController
 
 	public function actionGomining()
 	{
-		$algo = substr(getparam('algo'), 0, 32);
+		$algo = getalgoparam();
 		if ($algo == 'all') {
 			return;
 		}
