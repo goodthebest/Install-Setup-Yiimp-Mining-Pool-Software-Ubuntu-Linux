@@ -140,6 +140,20 @@ function formatCPU($row)
 	return trim($device);
 }
 
+function formatGPU($row)
+{
+	$label = $row['device'].getProductIdSuffix($row);
+	return strip_tags($label);
+}
+
+function formatDevice($row)
+{
+	if ($row['type'] == 'gpu')
+		return formatGPU($row);
+	else
+		return formatCPU($row);
+}
+
 function getChipName($row)
 {
 	if ($row['type'] == 'cpu') {
@@ -179,6 +193,8 @@ function getChipName($row)
 			$chip = str_replace('650 Ti BOOST','650 Ti', $chip);
 			$chip = str_replace('760 Ti OEM','760 Ti', $chip);
 			$chip = str_replace(' (Pascal)',' Pascal', $chip);
+			$chip = str_replace('Quadro M6000 24GB','Quadro M6000', $chip);
+			$chip = str_replace('Tesla P100 (PCIe)','Tesla P100', $chip);
 			$chip = str_replace('Tesla P100-SXM2-16GB','Tesla P100', $chip);
 			$chip = str_replace('Tesla P100-PCIE-16GB','Tesla P100', $chip);
 			$chip = str_replace('Tesla V100-SXM2-16GB','Tesla V100', $chip);

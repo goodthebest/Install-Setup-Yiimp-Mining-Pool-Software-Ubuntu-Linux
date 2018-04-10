@@ -17,12 +17,21 @@ function BenchUpdateChips()
 	// bug in nvml 378.x and 381.x (linux + win) fixed in 382.05
 	dborun("UPDATE benchmarks SET realfreq=NULL WHERE realfreq<=200 AND driver LIKE '% 378.%'");
 	dborun("UPDATE benchmarks SET realfreq=NULL WHERE realfreq<=200 AND driver LIKE '% 381.%'");
+	// sanity check on long fields (no html wanted)
+	dborun("DELETE FROM benchmarks WHERE device LIKE '%<%' OR client LIKE '%<%'");
 
 	$benchs = getdbolist('db_benchmarks', "IFNULL(chip,'')=''");
 	foreach ($benchs as $bench) {
 		if (empty($bench->vendorid) || empty($bench->device)) continue;
 
 		if ($bench->algo == 'x16r') { // not constant, inaccurate
+			$bench->delete();
+			continue;
+		}
+
+		$rawdata = json_encode($bench->attributes);
+		if (strpos($rawdata,"script")) {
+			debuglog("bench record deleted : $rawdata");
 			$bench->delete();
 			continue;
 		}
