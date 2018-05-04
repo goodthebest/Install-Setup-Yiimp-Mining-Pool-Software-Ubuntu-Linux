@@ -343,7 +343,7 @@ void coinbase_create(YAAMP_COIND *coind, YAAMP_JOB_TEMPLATE *templ, json_value *
 		char script_dests[2048] = { 0 };
 		char script_payee[128] = { 0 };
 		char payees[4]; // addresses count
-		int npayees = 1;
+		int npayees = (templ->has_segwit_txs) ? 2 : 1;
 		bool masternode_enabled = json_get_bool(json_result, "masternode_payments_enforced");
 		bool superblocks_enabled = json_get_bool(json_result, "superblocks_enabled");
 		json_value* superblock = json_get_array(json_result, "superblock");
@@ -378,6 +378,7 @@ void coinbase_create(YAAMP_COIND *coind, YAAMP_JOB_TEMPLATE *templ, json_value *
 		}
 		sprintf(payees, "%02x", npayees);
 		strcat(templ->coinb2, payees);
+		if (templ->has_segwit_txs) strcat(templ->coinb2, commitment);
 		strcat(templ->coinb2, script_dests);
 		job_pack_tx(coind, templ->coinb2, available, NULL);
 		strcat(templ->coinb2, "00000000"); // locktime
