@@ -298,15 +298,15 @@ void coinbase_create(YAAMP_COIND *coind, YAAMP_JOB_TEMPLATE *templ, json_value *
 					base58_decode(payee, script_payee);
 					bool superblock_use_p2sh = (strcmp(coind->symbol, "MAC") == 0);
 					if(superblock_use_p2sh) {
-						char eamount[32];
-						char coinb2_part[512] = { 0 };
-						char coinb2_len[4] = { 0 };
+						char eamount[32] = { 0 };
+						char coinb2_part[256];
+						char coinb2_len[4];
 						sprintf(coinb2_part, "a9%02x%s87", (unsigned int)(strlen(script_payee) >> 1) & 0xFF, script_payee);
 						sprintf(coinb2_len, "%02x", (unsigned int)(strlen(coinb2_part) >> 1) & 0xFF);
 						encode_tx_value(eamount, amount);
-						strcat(templ->coinb2, eamount);
-						strcat(templ->coinb2, coinb2_len);
-						strcat(templ->coinb2, coinb2_part);
+						strcat(script_dests, eamount);
+						strcat(script_dests, coinb2_len);
+						strcat(script_dests, coinb2_part);
 					} else {
 						job_pack_tx(coind, script_dests, amount, script_payee);
 					}
