@@ -320,9 +320,10 @@ void coinbase_create(YAAMP_COIND *coind, YAAMP_JOB_TEMPLATE *templ, json_value *
 			}
 		}
 		if (masternode_enabled && masternode) {
+			bool started = json_get_bool(json_result, "masternode_payments_started");
 			const char *payee = json_get_string(masternode, "payee");
 			json_int_t amount = json_get_int(masternode, "amount");
-			if (payee && amount) {
+			if (payee && amount && started) {
 				npayees++;
 				available -= amount;
 				base58_decode(payee, script_payee);
@@ -338,7 +339,11 @@ void coinbase_create(YAAMP_COIND *coind, YAAMP_JOB_TEMPLATE *templ, json_value *
 		strcat(templ->coinb2, payees);
 		if (templ->has_segwit_txs) strcat(templ->coinb2, commitment);
 		strcat(templ->coinb2, script_dests);
-		job_pack_tx(coind, templ->coinb2, available, NULL);
+		if (coind->p2sh_address) { // "MAC 0.16"
+			p2sh_pack_tx(coind, templ->coinb2, available, coind->script_pubkey);
+		} else {
+			job_pack_tx(coind, templ->coinb2, available, NULL);
+		}
 		strcat(templ->coinb2, "00000000"); // locktime
 		coind->reward = (double)available/100000000*coind->reward_mul;
 		//debuglog("%s %d dests %s\n", coind->symbol, npayees, script_dests);
