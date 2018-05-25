@@ -114,8 +114,7 @@ bool coind_validate_address(YAAMP_COIND *coind)
 	char params[YAAMP_SMALLBUFSIZE];
 	sprintf(params, "[\"%s\"]", coind->wallet);
 
-	// assume, if the wallet has dropped getinfo, that it use the new getaddressinfo rpc for ismine and account
-	json_value *json = rpc_call(&coind->rpc, coind->hasgetinfo ? "validateaddress" : "getaddressinfo", params);
+	json_value *json = rpc_call(&coind->rpc, "validateaddress", params);
 	if(!json) return false;
 
 	json_value *json_result = json_get_object(json, "result");

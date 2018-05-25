@@ -69,7 +69,7 @@ public:
 	bool hasmasternodes;
 	bool oldmasternodes;
 	bool multialgos; // pow_hash field (or mined_hash)
-	bool hasgetinfo;
+
 	bool usesegwit;
 	char commitment[128];
 	char witness_magic[16];
