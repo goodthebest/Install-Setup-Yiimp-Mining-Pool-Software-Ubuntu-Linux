@@ -82,6 +82,7 @@ class ApiController extends CommonController
 				"estimate_current" => $price,
 				"estimate_last24h" => $avgprice,
 				"actual_last24h" => $btcmhday1,
+				"mbtc_mh_factor" => $algo_unit_factor,
 				"hashrate_last24h" => (double) $hashrate1,
 			);
 			if(YAAMP_RENTAL) {
