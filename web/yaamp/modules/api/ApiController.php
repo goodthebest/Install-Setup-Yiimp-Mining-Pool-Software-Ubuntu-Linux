@@ -6,8 +6,6 @@ class ApiController extends CommonController
 
 	/////////////////////////////////////////////////
 
-//	debuglog("saving renter {$_SERVER['REMOTE_ADDR']} $renter->address");
-
 	public function actionStatus()
 	{
 		$client_ip = arraySafeVal($_SERVER,'REMOTE_ADDR');
@@ -289,9 +287,12 @@ class ApiController extends CommonController
 		echo "}";
 	}
 
+	/////////////////////////////////////////////////
+
 	public function actionRental()
 	{
 		if(!LimitRequest('api-rental', 10)) return;
+		if(!YAAMP_RENTAL) return;
 
 		$key = getparam('key');
 		$renter = getdbosql('db_renters', "apikey=:apikey", array(':apikey'=>$key));
@@ -336,6 +337,8 @@ class ApiController extends CommonController
 
 	public function actionRental_price()
 	{
+		if(!YAAMP_RENTAL) return;
+
 		$key = getparam('key');
 		$renter = getdbosql('db_renters', "apikey=:apikey", array(':apikey'=>$key));
 		if(!$renter) return;
@@ -353,6 +356,8 @@ class ApiController extends CommonController
 
 	public function actionRental_hashrate()
 	{
+		if(!YAAMP_RENTAL) return;
+
 		$key = getparam('key');
 		$renter = getdbosql('db_renters', "apikey=:apikey", array(':apikey'=>$key));
 		if(!$renter) return;
@@ -370,6 +375,8 @@ class ApiController extends CommonController
 
 	public function actionRental_start()
 	{
+		if(!YAAMP_RENTAL) return;
+
 		$key = getparam('key');
 		$renter = getdbosql('db_renters', "apikey=:apikey", array(':apikey'=>$key));
 		if(!$renter || $renter->balance<=0) return;
@@ -386,6 +393,8 @@ class ApiController extends CommonController
 
 	public function actionRental_stop()
 	{
+		if(!YAAMP_RENTAL) return;
+
 		$key = getparam('key');
 		$renter = getdbosql('db_renters', "apikey=:apikey", array(':apikey'=>$key));
 		if(!$renter) return;
@@ -400,33 +409,5 @@ class ApiController extends CommonController
 		$job->save();
 	}
 
-// 	public function actionNodeReport()
-// 	{
-// 		$name = getparam('name');
-// 		$uptime = getparam('uptime');
-
-// 		$server = getdbosql('db_servers', "name='$name'");
-// 		if(!$server)
-// 		{
-// 			$server = new db_servers;
-// 			$server->name = $name;
-// 		}
-
-// 		$server->uptime = $uptime;
-// 		$server->save();
-// 	}
-
 }
-
-// function dummy()
-// {
-// 	$uptime = system('uptime');
-// 	$name = system('hostname');
-
-// 	fetch_url("http://".YAAMP_SITE_URL."/api/nodereport?name=$name&uptime=$uptime");
-// }
-
-
-
-
 
