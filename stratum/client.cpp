@@ -202,7 +202,7 @@ bool client_authorize(YAAMP_CLIENT *client, json_value *json_params)
 		return false;
 	}
 
-	if(json_params->u.array.length>1)
+	if(json_params->u.array.length>1 && json_params->u.array.values[1]->u.string.ptr)
 		strncpy(client->password, json_params->u.array.values[1]->u.string.ptr, 1023);
 
 	if (g_list_client.count >= g_stratum_max_cons) {
@@ -210,7 +210,7 @@ bool client_authorize(YAAMP_CLIENT *client, json_value *json_params)
 		return false;
 	}
 
-	if(json_params->u.array.length>0)
+	if(json_params->u.array.length>0 && json_params->u.array.values[0]->u.string.ptr)
 	{
 		strncpy(client->username, json_params->u.array.values[0]->u.string.ptr, 1023);
 
