@@ -375,13 +375,10 @@ bool client_submit(YAAMP_CLIENT *client, json_value *json_params)
 	strncpy(extranonce2, json_params->u.array.values[2]->u.string.ptr, 31);
 	strncpy(ntime, json_params->u.array.values[3]->u.string.ptr, 31);
 	strncpy(nonce, json_params->u.array.values[4]->u.string.ptr, 31);
-	if (json_params->u.array.length == 6)
-		strncpy(vote, json_params->u.array.values[5]->u.string.ptr, 7);
 
 	string_lower(extranonce2);
 	string_lower(ntime);
 	string_lower(nonce);
-	string_lower(vote);
 
 	if (json_params->u.array.length == 6) {
 		if (strstr(g_stratum_algo, "phi")) {
