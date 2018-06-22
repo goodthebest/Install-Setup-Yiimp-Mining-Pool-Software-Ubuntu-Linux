@@ -349,11 +349,20 @@ static bool ntime_valid_range(const char ntimehex[])
 	return (abs(rawtime - ntime) < (30 * 60));
 }
 
+static bool valid_string_params(json_value *json_params)
+{
+	bool valid = true;
+	for(int p=0; p < json_params->u.array.length; p++) {
+		if (!json_is_string(json_params->u.array.values[p]))
+			return false;
+	}
+	return valid;
+}
+
 bool client_submit(YAAMP_CLIENT *client, json_value *json_params)
 {
 	// submit(worker_name, jobid, extranonce2, ntime, nonce):
-	if(json_params->u.array.length<5)
-	{
+	if(json_params->u.array.length<5 || !valid_string_params(json_params)) {
 		debuglog("%s - %s bad message\n", client->username, client->sock->ip);
 		client->submit_bad++;
 		return false;
@@ -365,7 +374,7 @@ bool client_submit(YAAMP_CLIENT *client, json_value *json_params)
 	char ntime[32] = { 0 };
 	char vote[8] = { 0 };
 
-	if (!json_params->u.array.values[1]->u.string.ptr || strlen(json_params->u.array.values[1]->u.string.ptr) > 32) {
+	if (strlen(json_params->u.array.values[1]->u.string.ptr) > 32) {
 		clientlog(client, "bad json, wrong jobid len");
 		client->submit_bad++;
 		return false;
