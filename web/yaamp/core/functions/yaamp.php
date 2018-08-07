@@ -84,7 +84,6 @@ function yaamp_algo_mBTC_factor($algo)
 	case 'decred':
 	case 'keccak':
 	case 'keccakc':
-	case 'hex':
 	case 'lbry':
 	case 'vanilla':
 		return 1000;
@@ -167,7 +166,7 @@ function getAlgoColors($algo)
 		'hsr'		=> '#aa70ff',
 		'keccak'	=> '#c0f0c0',
 		'keccakc'	=> '#c0f0c0',
-		'hex'	=> '#c0f0c0',
+		'hex'		=> '#c0f0c0',
 		'lbry'		=> '#b0d0e0',
 		'luffa'		=> '#a0c0c0',
 		'm7m'		=> '#d0a0a0',
