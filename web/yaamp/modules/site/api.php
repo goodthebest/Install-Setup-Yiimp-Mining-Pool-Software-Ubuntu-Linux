@@ -46,8 +46,8 @@ result:
 		"rejected": 0
 	}]
 <?php if (YAAMP_API_PAYOUTS) : ?>
-	"payouts":[{
-		"time": "1529860641",
+	,"payouts":[{
+		"time": 1529860641,
 		"amount": "0.001",
 		"tx": "transaction_id_of_the_payout"
 	}]
