@@ -6,7 +6,6 @@ function BackendPricesUpdate()
 
 	market_set_default('c-cex', 'DCR', 'disabled', true); // no deposit
 	market_set_default('yobit', 'DCR', 'disabled', true); // no withdraw
-	market_set_default('bter', 'SFR', 'disabled', true);
 
 	settings_prefetch_all();
 
@@ -28,7 +27,6 @@ function BackendPricesUpdate()
 	updateYobitMarkets();
 	updateAlcurexMarkets();
 	updateBinanceMarkets();
-	updateBterMarkets();
 	//updateEmpoexMarkets();
 	updateJubiMarkets();
 	updateLiveCoinMarkets();
@@ -1430,49 +1428,6 @@ function updateBinanceMarkets()
 	}
 }
 
-function updateBterMarkets()
-{
-	$exchange = 'bter';
-	if (exchange_get($exchange, 'disabled')) return;
-
-	$list = getdbolist('db_markets', "name LIKE '$exchange%'");
-	if (empty($list)) return;
-
-	$markets = bter_api_query('tickers');
-	if(!is_array($markets)) return;
-
-	foreach($list as $market)
-	{
-		$coin = getdbo('db_coins', $market->coinid);
-		if(!$coin) continue;
-
-		$symbol = $coin->getOfficialSymbol();
-		if (market_get($exchange, $symbol, "disabled")) {
-			$market->disabled = 1;
-			$market->message = 'disabled from settings';
-			$market->save();
-			continue;
-		}
-
-		$dbpair = strtolower($symbol).'_btc';
-		foreach ($markets as $pair => $ticker) {
-			if ($pair != $dbpair) continue;
-
-			$market->price = AverageIncrement($market->price, $ticker['buy']);
-			$market->price2 = AverageIncrement($market->price2, $ticker['avg']);
-			$market->pricetime = time();
-			if ($market->disabled < 9) $market->disabled = (floatval($ticker['vol_btc']) < 0.01);
-			$market->save();
-
-			if (empty($coin->price2)) {
-				$coin->price = $market->price;
-				$coin->price2 = $market->price2;
-				$coin->save();
-			}
-		}
-	}
-}
-
 function updateEmpoexMarkets()
 {
 	$exchange = 'empoex';
@@ -1530,8 +1485,8 @@ function updateKuCoinMarkets()
 	$symbols = kucoin_api_query('symbols','market=BTC');
 	if(!kucoin_result_valid($symbols) || empty($symbols->data)) return;
 
-	$markets = kucoin_api_query('markets/allTickers');
-	if(!kucoin_result_valid($markets) || empty($markets->data)) return;
+	//$markets = kucoin_api_query('markets/allTickers'); // useless daily stats
+	//if(!kucoin_result_valid($markets) || empty($markets->data)) return;
 
 	foreach($list as $market)
 	{
@@ -1560,7 +1515,7 @@ function updateKuCoinMarkets()
 			$market->save();
 			if ($market->disabled) continue;
 		}
-
+/*
 		foreach ($markets->data as $ticker) {
 			if ($ticker->symbol != $pair) continue;
 			if (objSafeVal($ticker,'buy',-1) == -1) continue;
@@ -1580,6 +1535,7 @@ function updateKuCoinMarkets()
 				$coin->save();
 			}
 		}
+*/
 	}
 }
 

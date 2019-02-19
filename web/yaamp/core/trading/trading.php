@@ -3,7 +3,6 @@ require_once('poloniex_trading.php');
 require_once('binance_trading.php');
 require_once('bittrex_trading.php');
 require_once('bleutrade_trading.php');
-require_once('bter_trading.php');
 require_once('c-cex_trading.php');
 require_once('kraken_trading.php');
 require_once('yobit_trading.php');
@@ -71,11 +70,6 @@ function runExchange($exchangeName=false)
 			case 'binance':
 				doBinanceTrading(true);
 				updateBinanceMarkets();
-				break;
-
-			case 'bter':
-				doBterTrading(true);
-				updateBterMarkets();
 				break;
 
 			case 'crex24':

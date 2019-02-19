@@ -29,7 +29,6 @@ require_once("kraken.php");
 require_once("poloniex.php");
 require_once("yobit.php");
 require_once("shapeshift.php");
-require_once("bter.php");
 require_once("empoex.php");
 require_once("jubi.php");
 require_once("alcurex.php");
@@ -91,8 +90,6 @@ function getMarketUrl($coin, $marketName)
 		$url = "https://poloniex.com/exchange#{$lowbase}_{$lowsymbol}";
 	else if($market == 'bleutrade')
 		$url = "https://bleutrade.com/exchange/{$symbol}/{$base}";
-	else if($market == 'bter')
-		$url = "https://bter.com/trade/{$lowsymbol}_{$lowbase}";
 	else if($market == 'cexio')
 		$url = "https://cex.io/trade/{$symbol}-{$base}";
 	else if($market == 'coinbene')

@@ -31,7 +31,6 @@ if (!defined('EXCH_BITTREX_KEY')) define('EXCH_BITTREX_KEY', '');
 if (!defined('EXCH_BITSTAMP_ID')) define('EXCH_BITSTAMP_ID', '');
 if (!defined('EXCH_BITSTAMP_KEY')) define('EXCH_BITSTAMP_KEY','');
 if (!defined('EXCH_BLEUTRADE_KEY')) define('EXCH_BLEUTRADE_KEY', '');
-if (!defined('EXCH_BTER_KEY')) define('EXCH_BTER_KEY', '');
 if (!defined('EXCH_CCEX_KEY')) define('EXCH_CCEX_KEY', '');
 if (!defined('EXCH_CEXIO_ID')) define('EXCH_CEXIO_ID', '');
 if (!defined('EXCH_CEXIO_KEY')) define('EXCH_CEXIO_KEY', '');
