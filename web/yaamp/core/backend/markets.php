@@ -1527,13 +1527,11 @@ function updateKuCoinMarkets()
 	$list = getdbolist('db_markets', "name LIKE '$exchange%'");
 	if (empty($list)) return;
 
-	$markets = kucoin_api_query('open/symbols','market=BTC');
-	if(!kucoin_result_valid($markets) || empty($markets->data)) return;
+	$symbols = kucoin_api_query('symbols','market=BTC');
+	if(!kucoin_result_valid($symbols) || empty($symbols->data)) return;
 
-	$coininfo = NULL; //kucoin_api_query('market/open/coins');
-	if(!kucoin_result_valid($coininfo) || empty($coininfo->data)) {
-		$coininfo = NULL;
-	}
+	$markets = kucoin_api_query('markets/allTickers');
+	if(!kucoin_result_valid($markets) || empty($markets->data)) return;
 
 	foreach($list as $market)
 	{
@@ -1550,18 +1548,25 @@ function updateKuCoinMarkets()
 
 		$pair = strtoupper($symbol).'-BTC';
 
+		$enableTrading = false;
+		foreach ($symbols->data as $sym) {
+			if (objSafeVal($sym,'symbol') != $pair) continue;
+			$enableTrading = objSafeVal($sym,'enableTrading',false);
+			break;
+		}
+
+		if ($market->disabled == $enableTrading) {
+			$market->disabled = (int) (!$enableTrading);
+			$market->save();
+			if ($market->disabled) continue;
+		}
+
 		foreach ($markets->data as $ticker) {
 			if ($ticker->symbol != $pair) continue;
 			if (objSafeVal($ticker,'buy',-1) == -1) continue;
 
 			$market->price = AverageIncrement($market->price, $ticker->buy);
 			$market->price2 = AverageIncrement($market->price2, objSafeVal($ticker,'sell',$ticker->buy));
-			if (!empty($coininfo)) foreach ($coininfo->data as $info) {
-				if ($info->coin == $symbol) {
-					//todo: $market->withdrawfee = $info->withdrawMinFee;
-					break;
-				}
-			}
 			$market->txfee = $ticker->feeRate * 100; // is 0.1% for trades (0.001)
 			$market->priority = -1;
 			$market->pricetime = time();

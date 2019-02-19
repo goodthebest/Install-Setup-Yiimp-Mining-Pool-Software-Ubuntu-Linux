@@ -197,7 +197,7 @@ class ExchangeCommand extends CConsoleCommand
 			echo("kraken btc: ".json_encode($balance)."\n");
 		}
 		if (!empty(EXCH_KUCOIN_KEY)) {
-			$balance = kucoin_api_user('account/BTC/balance');
+			$balance = kucoin_api_user('accounts',array('currency=BTC'));
 			if (!is_object($balance) || !isset($balance->data)) echo "kucoin error ".json_encode($balance)."\n";
 			else echo("kucoin: ".json_encode($balance->data)."\n");
 		}

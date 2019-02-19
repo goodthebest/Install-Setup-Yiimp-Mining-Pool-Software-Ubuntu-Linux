@@ -17,6 +17,7 @@ function updateRawcoins()
 	exchange_set_default('escodex', 'disabled', true);
 	exchange_set_default('gateio', 'disabled', true);
 	exchange_set_default('jubi', 'disabled', true);
+	exchange_set_default('kucoin', 'disabled', true);
 	exchange_set_default('nova', 'disabled', true);
 	exchange_set_default('stocksexchange', 'disabled', true);
 	exchange_set_default('tradesatoshi', 'disabled', true);
