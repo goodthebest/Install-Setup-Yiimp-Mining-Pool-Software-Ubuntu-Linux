@@ -74,14 +74,14 @@ function kucoin_api_user($method, $params=NULL, $isPostMethod=false)
 
 	$req = $isPostMethod ? "POST" : "GET";
 	$tosign = "{$nonce}{$req}{$endpoint}{$body}";
-	$hmac = strtolower(hash_hmac('sha256', base64_encode($tosign), EXCH_KUCOIN_SECRET));
+	$hmac = hash_hmac('sha256', $tosign, EXCH_KUCOIN_SECRET, true);
 
 	$headers = array(
 		'Content-Type: application/json;charset=UTF-8',
 		'KC-API-KEY: '.EXCH_KUCOIN_KEY,
 		'KC-API-PASSPHRASE: '.EXCH_KUCOIN_PASSPHRASE,
 		'KC-API-TIMESTAMP: '.$nonce,
-		'KC-API-SIGN: '.$hmac,
+		'KC-API-SIGN: '.base64_encode($hmac),
 	);
 
 	$ch = curl_init();
@@ -145,14 +145,14 @@ function kucoin_update_market($market)
 	}
 
 	$t1 = microtime(true);
-	$query = kucoin_api_query("$pair/open/tick");
+	$query = kucoin_api_query('market/orderbook/level1','symbol='.$pair);
 	if(!kucoin_result_valid($query)) return false;
 	$ticker = $query->data;
 
-	$price2 = ((double) $ticker->buy + (double)$ticker->sell)/2;
+	$price2 = ((double) $ticker->bestBid + (double)$ticker->bestAsk)/2;
 	$market->price2 = AverageIncrement($market->price2, $price2);
-	$market->price = AverageIncrement($market->price, $ticker->buy);
-	$market->pricetime = time();
+	$market->price = AverageIncrement($market->price, $ticker->bestBid);
+	$market->pricetime = min(time(), 0 + $ticker->sequence);
 	$market->save();
 
 	$apims = round((microtime(true) - $t1)*1000,3);
