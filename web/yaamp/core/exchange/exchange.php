@@ -121,7 +121,7 @@ function getMarketUrl($coin, $marketName)
 	else if($market == 'hitbtc')
 		$url = "https://hitbtc.com/exchange/{$symbol}-to-{$base}";
 	else if($market == 'kucoin')
-		$url = "https://www.kucoin.com/#/trade.pro/{$symbol}-{$base}";
+		$url = "https://www.kucoin.com/trade/{$symbol}-{$base}";
 	else if($market == 'livecoin')
 		$url = "https://www.livecoin.net/trade/?currencyPair={$symbol}%2F{$base}";
 	else if($market == 'nova')

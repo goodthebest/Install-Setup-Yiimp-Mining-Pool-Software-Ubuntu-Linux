@@ -494,7 +494,7 @@ class CoindbCommand extends CConsoleCommand
 	 */
 	public function grabKuCoinIcons()
 	{
-		$url = 'https://assets.kucoin.com/www/1.2.0/assets/coins/';//QLC.png
+		$url = 'https://assets.kucoin.com/www/coin/pc/';//GRIN.png
 		$nbUpdated = 0;
 		$sql = "SELECT DISTINCT coins.id FROM coins INNER JOIN markets M ON M.coinid = coins.id ".
 			"WHERE M.name='kucoin' AND IFNULL(coins.image,'') = ''";

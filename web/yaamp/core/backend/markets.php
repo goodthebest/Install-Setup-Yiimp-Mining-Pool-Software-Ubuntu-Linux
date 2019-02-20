@@ -1485,8 +1485,11 @@ function updateKuCoinMarkets()
 	$symbols = kucoin_api_query('symbols','market=BTC');
 	if(!kucoin_result_valid($symbols) || empty($symbols->data)) return;
 
-	//$markets = kucoin_api_query('markets/allTickers'); // useless daily stats
-	//if(!kucoin_result_valid($markets) || empty($markets->data)) return;
+	usleep(500);
+	$markets = kucoin_api_query('market/allTickers');
+	if(!kucoin_result_valid($markets) || empty($markets->data)) return;
+	if(!isset($markets->data->ticker) || !is_array($markets->data->ticker)) return;
+	$tickers = $markets->data->ticker;
 
 	foreach($list as $market)
 	{
@@ -1515,14 +1518,13 @@ function updateKuCoinMarkets()
 			$market->save();
 			if ($market->disabled) continue;
 		}
-/*
-		foreach ($markets->data as $ticker) {
+
+		foreach ($tickers as $ticker) {
 			if ($ticker->symbol != $pair) continue;
 			if (objSafeVal($ticker,'buy',-1) == -1) continue;
 
 			$market->price = AverageIncrement($market->price, $ticker->buy);
 			$market->price2 = AverageIncrement($market->price2, objSafeVal($ticker,'sell',$ticker->buy));
-			$market->txfee = $ticker->feeRate * 100; // is 0.1% for trades (0.001)
 			$market->priority = -1;
 			$market->pricetime = time();
 
@@ -1535,7 +1537,6 @@ function updateKuCoinMarkets()
 				$coin->save();
 			}
 		}
-*/
 	}
 }
 

@@ -16,7 +16,6 @@ function updateRawcoins()
 	exchange_set_default('escodex', 'disabled', true);
 	exchange_set_default('gateio', 'disabled', true);
 	exchange_set_default('jubi', 'disabled', true);
-	exchange_set_default('kucoin', 'disabled', true);
 	exchange_set_default('nova', 'disabled', true);
 	exchange_set_default('stocksexchange', 'disabled', true);
 	exchange_set_default('tradesatoshi', 'disabled', true);
@@ -340,7 +339,7 @@ function updateRawcoins()
 
 	if (!exchange_get('kucoin', 'disabled')) {
 		$list = kucoin_api_query('currencies');
-		if(is_object($list) && isset($list->data) && !empty($list->data))
+		if(kucoin_result_valid($list) && !empty($list->data))
 		{
 			dborun("UPDATE markets SET deleted=true WHERE name='kucoin'");
 			foreach($list->data as $item) {

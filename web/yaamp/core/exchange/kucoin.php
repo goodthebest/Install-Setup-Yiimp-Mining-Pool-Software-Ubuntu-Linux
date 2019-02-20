@@ -1,6 +1,6 @@
 <?php
 
-// see https://kucoinapidocs.docs.apiary.io/
+// see https://docs.kucoin.com/
 
 function kucoin_result_valid($obj, $method='')
 {

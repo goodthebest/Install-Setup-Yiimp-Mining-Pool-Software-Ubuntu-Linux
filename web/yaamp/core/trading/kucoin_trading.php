@@ -51,7 +51,7 @@ function doKuCoinTrading($quick=false)
 				$checked_today = cache()->get($exchange.'-deposit_address-check-'.$coin->symbol);
 				if ($coin->installed && !$checked_today) {
 					sleep(1);
-					$obj = kucoin_api_user('deposit-addresses','currency='.$coin->symbol);
+					$obj = kucoin_api_user('deposit-addresses',array('currency'=>$coin->symbol));
 					if (!kucoin_result_valid($obj)) continue;
 					$result = $obj->data;
 					$deposit_address = objSafeVal($result,'address');
