@@ -9,7 +9,6 @@ require_once('yobit_trading.php');
 require_once('alcurex_trading.php');
 require_once('coinsmarkets_trading.php');
 require_once('crex24_trading.php');
-require_once('cryptobridge_trading.php');
 require_once('cryptopia_trading.php');
 require_once('hitbtc_trading.php');
 require_once('kucoin_trading.php');
@@ -83,7 +82,6 @@ function runExchange($exchangeName=false)
 				break;
 
 			case 'cryptobridge':
-				doCryptobridgeTrading(true);
 				updateCryptoBridgeMarkets();
 				break;
 
