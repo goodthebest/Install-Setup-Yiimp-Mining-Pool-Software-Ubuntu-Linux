@@ -13,7 +13,7 @@
 
 - [x]  **Skype:**  add this email `onlinebuybiz@gmail.com` in your skype search and you will see **theonly-1**
 
-- [x]  **Telegram:** go to https://t.me/goodthebest **or** add `@goodthebest`
+- [x]  **Telegram:** go to https://t.me/goodthebest
 
 - [x]   **Email:**  onlinebuybiz@gmail.com
 
