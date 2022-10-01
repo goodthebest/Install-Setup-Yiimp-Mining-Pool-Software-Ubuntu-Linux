@@ -67,7 +67,7 @@ aergo  | exosis | X20R | x15 | x16r | x16s
 x17  | xevan | yescrypt | yescryptR32 | yescryptR16 | groestl
 sonoa  | X21S | bcd (x13) | blake2b | YescryptR8 | x21s
 x16rt  | Lyra2vc0ban | Trihash | Argon2m | Binarium-V1 | x18
-keccakd  | lyra2zz (LAPO/LAX) |  x16rv2 | Kawpow | Autolykos/ERGO | Ethw/EthereumW
+keccakd  | lyra2zz (LAPO/LAX) |  x16rv2 | Kawpow | Autolykos / ERGO | Ethw / EthereumW
 
 
 Sample frontend of yiimp software mining pool
