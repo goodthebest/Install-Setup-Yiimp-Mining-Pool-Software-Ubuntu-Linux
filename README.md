@@ -69,7 +69,10 @@ x17  | xevan | yescrypt | yescryptR32 | yescryptR16 | groestl
 sonoa  | X21S | bcd (x13) | blake2b | YescryptR8 | x21s
 x16rt  | Lyra2vc0ban | Trihash | Argon2m | Binarium-V1 | x18
 keccakd  | lyra2zz (LAPO/LAX) |  x16rv2 | Kawpow | Autolykos / ERGO | Ethw / EthereumW
-
+0x10  | honeycomb |  power2b | argon2d16000 | argon2d500 | sha256dt
+lyra2TDC  | x25x |  sha512256d | bmw512 | megabtx | yespowerARWN 
+cosa  | mike |  curvehash | minotaurx | neo | pawelhash | yespowerSUGAR
+gr | heavyhash
 
 Sample frontend of yiimp software mining pool
 ![yiimp installation, front page](https://www.sohowa.com/images/samplepool.jpg)
