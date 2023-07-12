@@ -22,6 +22,8 @@
 
 - [x] **WeChat:** goodthebest 
 
+For miningcore software installation or troubleshooting go here
+https://github.com/goodthebest/install-setup-configure-miningcore-mining-pool
 
 
 
