@@ -1,12 +1,12 @@
-# BUILDING CRYPTO COINS YIIMP MINING POOL, SETUP YOUR OWN MINING POOL AND START MINING CRYPTOCURRENCIES OF YOUR CHOICE
+# BUILDING CRYPTO COINS YIIMP/MININGCORE/NOMP MINING POOL, SETUP YOUR OWN MINING POOL AND START MINING CRYPTOCURRENCIES OF YOUR CHOICE
 
-### Install, Setup and Configure Yiimp Mining Pool Software to Start your Own Mining Pool for Multiple Crypto Tokens & Coins
+### Install, Setup and Configure Yiimp/Miningcore/Nomp Mining Pool Software to Start your Own Mining Pool for Multiple Crypto Tokens & Coins
 
-### For paid personalized yiimp multi coins pool setup services, troubleshooting existing pools and quick support please contact
+### For paid personalized Yiimp/Miningcore/Nomp multi coins pool setup services, troubleshooting existing pools and quick support please contact
 
-### ASICBOOST enabled pool solution also available for Bitcoin and other coins, non-yiimp solution though. If you want to setup an Asicboost friendly mining pool that would mine Bitcoin with your own asic machines or NiceHash or MiningRingRentals (MRR) and other SHA256 coins with Asicboost, feel free to ping us on below contacts.
+### ASICBOOST enabled pool solution also available for Bitcoin and other coins, non-Yiimp/Miningcore/Nomp solution though. If you want to setup an Asicboost friendly mining pool that would mine Bitcoin with your own asic machines or NiceHash or MiningRingRentals (MRR) and other SHA256 coins with Asicboost, feel free to ping us on below contacts.
 
-### Yiimp for Ubuntu 22.04, Ubuntu 21.04, Ubuntu 20.04 and Ubuntu 18.04. 
+### Yiimp/Miningcore/Nomp for Ubuntu 22.04, Ubuntu 21.04, Ubuntu 20.04 and Ubuntu 18.04. 
 ## Contact Now & Let Us Setup a Mining Pool For Any Algorithm & Cryptocoin Within Hours 
 #### _Whether you want to mine a single coin or several cyrptocurrencies solo, private with your friends & family, even public or Nicehash, cloud mining etc. We have solution for all._
 
@@ -27,7 +27,7 @@ https://github.com/goodthebest/install-setup-configure-miningcore-mining-pool
 
 
 
-Install and Build Mining Pool for Any Cryptocurrency Altcoins and Algorithms on Yiimp (Multi Coins/Algo Mining Pool Software)
+Install and Build Mining Pool for Any Cryptocurrency Altcoins and Algorithms on Yiimp/Miningcore/Nomp (Multi Coins/Algo Mining Pool Software)
 ----------------
 
 We provide altcoin cryptocurrencies mining pool installation and creation services and you just sit back and let us take care of everything from scratch to finish that includes but not limited to 
@@ -39,8 +39,8 @@ We provide altcoin cryptocurrencies mining pool installation and creation servic
 - You can use your own equipment to mine such as CPUs, GPU rigs, ASIC machines or even pool can be made compatiable for **Nicehash** mining if you want to use their hashpower.
 - It can be multiple coin and multi algorithms mining pool as more coins can be added at any stage provided those algo/coins are are supported by the software and your pool server.
 - We do privide maintence service although not much maintence is needed after pool is setup, if you do not touch any exisitng settings etc.
-- Configuration, troubleshooting of servers Linux/Ubuntu and existing pools, such as reject blocks, payouts not working, custom difficulty, vardiff, autoexchange, daemon and any other yiimp pool problems we can fix and make your pool running for smooth mining.
-- Optimize and Tweak server and yiimp software for improved performance.
+- Configuration, troubleshooting of servers Linux/Ubuntu and existing pools, such as reject blocks, payouts not working, custom difficulty, vardiff, autoexchange, daemon and any other Yiimp/Miningcore/Nomp pool problems we can fix and make your pool running for smooth mining.
+- Optimize and Tweak server and Yiimp/Miningcore/Nomp software for improved performance.
 - Any special features or customization also possible at additional cost.
 
 How Does it Work?
@@ -51,7 +51,7 @@ We can work remotely using **TeamViewer** or **AnyDesk** softwares, therefore, y
 
 
 
-#### YIIMP SOFTWARE SUPPORTED ALGORITHMS FOR CRYPTOCURRENCY / COINS MINING
+#### YIIMP/MININGCORE/NOMP SOFTWARE SUPPORTED ALGORITHMS FOR CRYPTOCURRENCY / COINS MINING
 
   Algos | Algos  | Algos | Algos | Algos  | Algos
 ------------- | ------------- | ------------- | ------------- | ------------- | -------------
@@ -76,20 +76,20 @@ lyra2TDC  | x25x |  sha512256d | bmw512 | megabtx | yespowerARWN
 cosa  | mike |  curvehash | minotaurx | neo | pawelhash | yespowerSUGAR
 gr | heavyhash
 
-Sample frontend of yiimp software mining pool
-![yiimp installation, front page](https://www.sohowa.com/images/samplepool.jpg)
+Sample frontend of Yiimp/Miningcore/Nomp software mining pool
+![Yiimp/Miningcore/Nomp installation, front page](https://www.sohowa.com/images/samplepool.jpg)
 
-Another sample page of yiimp software mining pool
-![yiimp installation](https://www.sohowa.com/images/samplepool2.jpg)
+Another sample page of Yiimp/Miningcore/Nomp software mining pool
+![Yiimp/Miningcore/Nomp installation](https://www.sohowa.com/images/samplepool2.jpg)
 
-Admin side of Yiimp Mining Pool - A
-![yiimp admin control section page 1](https://www.sohowa.com/images/admin1.jpg)
+Admin side of Yiimp/Miningcore/Nomp Mining Pool - A
+![Yiimp/Miningcore/Nomp admin control section page 1](https://www.sohowa.com/images/admin1.jpg)
 
-Admin side of Yiimp Mining Pool - B
-![yiimp admin control section page 2](https://www.sohowa.com/images/admin2.jpg)
+Admin side of Yiimp/Miningcore/Nomp Mining Pool - B
+![Yiimp/Miningcore/Nomp admin control section page 2](https://www.sohowa.com/images/admin2.jpg)
 
-Admin side of Yiimp Mining Pool - C
-![yiimp admin control section page 3](https://www.sohowa.com/images/admin3.jpg)
+Admin side of Yiimp/Miningcore/Nomp Mining Pool - C
+![Yiimp/Miningcore/Nomp admin control section page 3](https://www.sohowa.com/images/admin3.jpg)
 
 
 # We Can Setup Single and  Multi Algo/Coins Mining Pools for Most Crypto Currencies Listed below with few Exceptions
@@ -391,6 +391,5 @@ Francs	FRN  | Aces	ACES | DynamicCoin	DMC | Halloween Coin	HALLO | Birds	BIRDS |
 NEO GOLD	NEOG  | GOLD Reward GRX | PlexCoin	PLX | ValueChain	VLC | SnipCoin	SNIP | SalPay	SAL | FCoin Token	FT
 CoinEx Token	CET  | Luna Stars	LSTR | Esports Token	EST | ABCC Token	AT | BFFDoom	BFF | ALLCOIN	ALC | ZTCoin	ZT
 Dragon Token	DT  | APOT	APOT | Bgogo Token	BGG | WA Space	WA | EtherDelta Token	EDT | - | -
-
 
 
