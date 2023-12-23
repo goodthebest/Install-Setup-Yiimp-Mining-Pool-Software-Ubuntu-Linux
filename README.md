@@ -390,6 +390,6 @@ EA Coin	EAG  | Cropcoin	CROP | Vestoria	VSTR | Posscoin	POSS | Arbitracoin	ATC |
 Francs	FRN  | Aces	ACES | DynamicCoin	DMC | Halloween Coin	HALLO | Birds	BIRDS | Wink	WINK | Dutch Coin	DUTCH
 NEO GOLD	NEOG  | GOLD Reward GRX | PlexCoin	PLX | ValueChain	VLC | SnipCoin	SNIP | SalPay	SAL | FCoin Token	FT
 CoinEx Token	CET  | Luna Stars	LSTR | Esports Token	EST | ABCC Token	AT | BFFDoom	BFF | ALLCOIN	ALC | ZTCoin	ZT
-Dragon Token	DT  | APOT	APOT | Bgogo Token	BGG | WA Space	WA | EtherDelta Token	EDT | - | -
+Dragon Token	DT  | APOT	APOT | Bgogo Token	BGG | WA Space	WA | EtherDelta Token	EDT | Bellscoin BEL | Bellcoin BELL
 
 
