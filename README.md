@@ -1,5 +1,5 @@
 # BUILDING CRYPTO MINING POOL YIIMP or MININGCORE or NOMP, SETUP YOUR OWN MINING POOL AND START MINING CRYPTOCURRENCIES OF YOUR CHOICE
-# Ubuntu 16.04 18.04 20.04, 22.04
+# Ubuntu Ubuntu 16.04, Ubuntu 18.04, Ubuntu 20.04, Ubuntu 22.04 and Ubuntu 24.04
 
 ### Install, Setup and Configure Yiimp/Miningcore/Nomp Mining Pool Software to Start your Own Mining Pool for Multiple Crypto Tokens & Coins
 
