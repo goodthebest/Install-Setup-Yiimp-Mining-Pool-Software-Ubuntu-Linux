@@ -82,6 +82,7 @@ argon2d1000 | equihash | equihash125_4 | equihash144_5 | equihash150_5 | equihas
 equihash210_9 | groestl-myriad | sha3-256 | verthash | yespower | yespowerIC
 yespowerR16 | yespowerR24 | yespowerR32 | yespowerURX | yespowerr16 | yespowerr24
 yespowerr32 | yespowerurx | x11gost | x13bcd | x16r-v2 | xevan
+Xelishash |             |         |        |         | 
 
 
 Sample frontend of Yiimp/Miningcore/Nomp software mining pool
