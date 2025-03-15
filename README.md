@@ -7,7 +7,7 @@
 
 ### ASICBOOST enabled pool solution also available for Bitcoin and other coins, non-Yiimp/Miningcore/Nomp solution though. If you want to setup an Asicboost friendly mining pool that would mine Bitcoin with your own asic machines or NiceHash or MiningRingRentals (MRR) and other SHA256 coins with Asicboost, feel free to ping us on below contacts.
 
-### MWEB enabled pool solution also available for Litecoin and other coins, Yiimp, non-Yiimp/Miningcore/Nomp solution though. If you want to setup an MWEB friendly mining pool that would mine LTC with your own asic machines or NiceHash or MiningRingRentals (MRR) and other Scrypt coins with MWEB, reach out to uswith below given contacts.
+### MWEB enabled pool solution also available for Litecoin/Dogecoin/Bellscoin and other coins, Yiimp, non-Yiimp/Miningcore/Nomp solution though. If you want to setup an MWEB friendly mining pool that would merged mine Litecoin and Dogecoin with your own asic machines or NiceHash or MiningRingRentals (MRR) and other Scrypt coins with MWEB, reach out to uswith below given contacts.
 
 ### Yiimp/Miningcore/Nomp for Ubuntu 24.04, Ubuntu 22.04, Ubuntu 21.04, Ubuntu 20.04 and Ubuntu 18.04. 
 ## Contact Now & Let Us Setup a Mining Pool For Any Algorithm & Cryptocoin Within Hours 
@@ -84,21 +84,6 @@ yespowerR16 | yespowerR24 | yespowerR32 | yespowerURX | yespowerr16 | yespowerr2
 yespowerr32 | yespowerurx | x11gost | x13bcd | x16r-v2 | xevan
 Xelishash |             |         |        |         | 
 
-
-Sample frontend of Yiimp/Miningcore/Nomp software mining pool
-![Yiimp/Miningcore/Nomp installation, front page](https://www.sohowa.com/images/samplepool.jpg)
-
-Another sample page of Yiimp/Miningcore/Nomp software mining pool
-![Yiimp/Miningcore/Nomp installation](https://www.sohowa.com/images/samplepool2.jpg)
-
-Admin side of Yiimp/Miningcore/Nomp Mining Pool - A
-![Yiimp/Miningcore/Nomp admin control section page 1](https://www.sohowa.com/images/admin1.jpg)
-
-Admin side of Yiimp/Miningcore/Nomp Mining Pool - B
-![Yiimp/Miningcore/Nomp admin control section page 2](https://www.sohowa.com/images/admin2.jpg)
-
-Admin side of Yiimp/Miningcore/Nomp Mining Pool - C
-![Yiimp/Miningcore/Nomp admin control section page 3](https://www.sohowa.com/images/admin3.jpg)
 
 
 # We Can Setup Single and  Multi Algo/Coins Mining Pools for Most Crypto Currencies Listed below with few Exceptions
