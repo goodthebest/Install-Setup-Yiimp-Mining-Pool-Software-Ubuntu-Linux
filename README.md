@@ -56,7 +56,7 @@ We can work remotely using **TeamViewer** or **AnyDesk** softwares, therefore, y
 
 #### YIIMP/MININGCORE/NOMP SOFTWARE SUPPORTED ALGORITHMS FOR CRYPTOCURRENCY / COINS MINING
 
-  Algos | Algos  | Algos | Algos | Algos  | Algos
+Algos | Algos  | Algos | Algos | Algos  | Algos
 ------------- | ------------- | ------------- | ------------- | ------------- | -------------
 a5a  | fresh | lyra2v2 | qubit | timetravel | x14
 argon2  | bastion | bitcore | blake | blake2s | blakecoin
@@ -73,11 +73,16 @@ aergo  | exosis | X20R | x15 | x16r | x16s
 x17  | xevan | yescrypt | yescryptR32 | yescryptR16 | groestl
 sonoa  | X21S | bcd (x13) | blake2b | YescryptR8 | x21s
 x16rt  | Lyra2vc0ban | Trihash | Argon2m | Binarium-V1 | x18
-keccakd  | lyra2zz (LAPO/LAX) |  x16rv2 | Kawpow | Autolykos / ERGO | Ethw / EthereumW
-0x10  | honeycomb |  power2b | argon2d16000 | argon2d500 | sha256dt
-lyra2TDC  | x25x |  sha512256d | bmw512 | megabtx | yespowerARWN 
-cosa  | mike |  curvehash | minotaurx | neo | pawelhash | yespowerSUGAR
-gr | heavyhash |  blake3  |  ghostrider   |  Kaspa
+keccakd  | lyra2zz (LAPO/LAX) | x16rv2 | Kawpow | Autolykos / ERGO | Ethw / EthereumW
+0x10  | honeycomb | power2b | argon2d16000 | argon2d500 | sha256dt
+lyra2TDC  | x25x | sha512256d | bmw512 | megabtx | yespowerARWN 
+cosa  | mike | curvehash | minotaurx | neo | pawelhash | yespowerSUGAR
+gr | heavyhash | blake3  | ghostrider | Kaspa | aurum
+argon2d1000 | equihash | equihash125_4 | equihash144_5 | equihash150_5 | equihash192_7
+equihash210_9 | groestl-myriad | sha3-256 | verthash | yespower | yespowerIC
+yespowerR16 | yespowerR24 | yespowerR32 | yespowerURX | yespowerr16 | yespowerr24
+yespowerr32 | yespowerurx | x11gost | x13bcd | x16r-v2 | xevan
+
 
 Sample frontend of Yiimp/Miningcore/Nomp software mining pool
 ![Yiimp/Miningcore/Nomp installation, front page](https://www.sohowa.com/images/samplepool.jpg)
