@@ -5,9 +5,10 @@
 
 ### For paid personalized Yiimp/Miningcore/Nomp multi coins pool setup services, troubleshooting existing pools and quick support please contact
 
-### ASICBOOST enabled pool solution also available for Bitcoin and other coins, non-Yiimp/Miningcore/Nomp solution though. If you want to setup an Asicboost friendly mining pool that would mine Bitcoin with your own asic machines or NiceHash or MiningRingRentals (MRR) and other SHA256 coins with Asicboost, feel free to ping us on below contacts.
+### ASICBOOST enabled pool solution also available for Bitcoin and other coins, non-Yiimp/Miningcore/Nomp solution though. If you want to set up an Asicboost-friendly mining pool that would mine Bitcoin with your own ASIC machines, NiceHash, or MiningRingRentals (MRR), and other SHA256 coins with Asicboost, feel free to ping us on the contacts below.
 
-### MWEB enabled pool solution also available for Litecoin/Dogecoin/Bellscoin and other coins, Yiimp, non-Yiimp/Miningcore/Nomp solution though. If you want to setup an MWEB friendly mining pool that would merged mine Litecoin and Dogecoin with your own asic machines or NiceHash or MiningRingRentals (MRR) and other Scrypt coins with MWEB, reach out to uswith below given contacts.
+
+### [MWEB enabled merged mining pool solution also available for Litecoin/Dogecoin/Bellscoin and other coins, Yiimp, non-Yiimp/Miningcore/Nomp solution though. If you want to setup an MWEB friendly mining pool that would merged mine Litecoin and Dogecoin with your own asic machines or NiceHash or MiningRingRentals (MRR) and other Scrypt coins with MWEB, reach out to uswith below given contacts.](https://github.com/goodthebest/Setup-Dogecoin-Litecoin-Merged-Mining-Pool-for-your-Farm)
 
 ### Yiimp/Miningcore/Nomp for Ubuntu 24.04, Ubuntu 22.04, Ubuntu 21.04, Ubuntu 20.04 and Ubuntu 18.04. 
 ## Contact Now & Let Us Setup a Mining Pool For Any Algorithm & Cryptocoin Within Hours 
