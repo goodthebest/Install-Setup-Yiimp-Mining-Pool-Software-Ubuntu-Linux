@@ -1,16 +1,16 @@
-# BUILDING CRYPTO MINING POOL YIIMP or MININGCORE or NOMP, SETUP YOUR OWN MINING POOL AND START MINING CRYPTOCURRENCIES OF YOUR CHOICE
+# BUILDING CRYPTO MINING POOL YIIMP, SETUP YOUR OWN MINING POOL AND START MINING CRYPTOCURRENCIES OF YOUR CHOICE
 # Ubuntu Ubuntu 16.04, Ubuntu 18.04, Ubuntu 20.04, Ubuntu 22.04 and Ubuntu 24.04
 
-### Install, Setup and Configure Yiimp/Miningcore/Nomp Mining Pool Software to Start your Own Mining Pool for Multiple Crypto Tokens & Coins
+### Install, Setup and Configure Yiimp Mining Pool Software to Start your Own Mining Pool for Multiple Crypto Tokens & Coins
 
-### For paid personalized Yiimp/Miningcore/Nomp multi coins pool setup services, troubleshooting existing pools and quick support please contact
+### For paid personalized Yiimp multi coins pool setup services, troubleshooting existing pools and quick support please contact
 
-### ASICBOOST enabled pool solution also available for Bitcoin and other coins, non-Yiimp/Miningcore/Nomp solution though. If you want to set up an Asicboost-friendly mining pool that would mine Bitcoin with your own ASIC machines, NiceHash, or MiningRingRentals (MRR), and other SHA256 coins with Asicboost, feel free to ping us on the contacts below.
+### ASICBOOST enabled pool solution also available for Bitcoin and other coins, non-Yiimp solution though. If you want to set up an Asicboost-friendly mining pool that would mine Bitcoin with your own ASIC machines, NiceHash, or MiningRingRentals (MRR), and other SHA256 coins with Asicboost, feel free to ping us on the contacts below.
 
 
-### MWEB enabled merged mining pool solution also available for Litecoin/Dogecoin/Bellscoin and other coins, Yiimp, non-Yiimp/Miningcore/Nomp solution though. If you want to setup an MWEB friendly mining pool that would merged mine Litecoin and Dogecoin with your own asic machines or NiceHash or MiningRingRentals (MRR) and other Scrypt coins with MWEB, reach out to uswith below given contacts.
+### MWEB enabled merged mining pool solution also available for Litecoin/Dogecoin/Bellscoin and other coins. If you want to setup an MWEB friendly mining pool that would merged mine Litecoin and Dogecoin with your own asic machines or NiceHash or MiningRingRentals (MRR) and other Scrypt coins with MWEB, reach out to uswith below given contacts.
 
-### Yiimp/Miningcore/Nomp for Ubuntu 24.04, Ubuntu 22.04, Ubuntu 21.04, Ubuntu 20.04 and Ubuntu 18.04. 
+### Yiimp for Ubuntu 24.04, Ubuntu 22.04, Ubuntu 21.04, Ubuntu 20.04 and Ubuntu 18.04. 
 ## Contact Now & Let Us Setup a Mining Pool For Any Algorithm & Cryptocoin Within Hours 
 #### _Whether you want to mine a single coin or several cyrptocurrencies solo, private with your friends & family, even public or Nicehash, cloud mining etc. We have solution for all._
 
@@ -25,7 +25,7 @@
 
 
 
-Install and Build Mining Pool for Any Cryptocurrency Altcoins and Algorithms on Yiimp/Miningcore/Nomp (Multi Coins/Algo Mining Pool Software)
+Install and Build Mining Pool for Any Cryptocurrency Altcoins and Algorithms on Yiimp (Multi Coins/Algo Mining Pool Software)
 ----------------
 
 We provide altcoin cryptocurrencies mining pool installation and creation services and you just sit back and let us take care of everything from scratch to finish that includes but not limited to 
@@ -37,8 +37,8 @@ We provide altcoin cryptocurrencies mining pool installation and creation servic
 - You can use your own equipment to mine such as CPUs, GPU rigs, ASIC machines or even pool can be made compatiable for **Nicehash** mining if you want to use their hashpower.
 - It can be multiple coin and multi algorithms mining pool as more coins can be added at any stage provided those algo/coins are are supported by the software and your pool server.
 - We do privide maintence service although not much maintence is needed after pool is setup, if you do not touch any exisitng settings etc.
-- Configuration, troubleshooting of servers Linux/Ubuntu and existing pools, such as reject blocks, payouts not working, custom difficulty, vardiff, autoexchange, daemon and any other Yiimp/Miningcore/Nomp pool problems we can fix and make your pool running for smooth mining.
-- Optimize and Tweak server and Yiimp/Miningcore/Nomp software for improved performance.
+- Configuration, troubleshooting of servers Linux/Ubuntu and existing pools, such as reject blocks, payouts not working, custom difficulty, vardiff, autoexchange, daemon and any other Yiimp pool problems we can fix and make your pool running for smooth mining.
+- Optimize and Tweak server and Yiimp software for improved performance.
 - Any special features or customization also possible at additional cost.
 
 How Does it Work?
@@ -49,7 +49,7 @@ We can work remotely using **TeamViewer** or **AnyDesk** softwares, therefore, y
 
 
 
-#### YIIMP/MININGCORE/NOMP SOFTWARE SUPPORTED ALGORITHMS FOR CRYPTOCURRENCY / COINS MINING
+#### YIIMP SOFTWARE SUPPORTED ALGORITHMS FOR CRYPTOCURRENCY / COINS MINING
 
 Algos | Algos  | Algos | Algos | Algos  | Algos
 ------------- | ------------- | ------------- | ------------- | ------------- | -------------
