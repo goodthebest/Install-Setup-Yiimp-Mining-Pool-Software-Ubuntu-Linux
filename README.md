@@ -16,18 +16,12 @@
 
 - [x]  **Discord:** `goodthebest` Open your Discard and go to **Friends** and then **Add Friend** (add `goodthebest`) and press **Send Friend Request** button.
 
-- [x]  **Skype:**  add this email `onlinebuybiz@gmail.com` in your skype search and you will see **theonly-1**
-
 - [x]  **Telegram:** go to https://t.me/goodthebest
 
 - [x]   **Email:**  onlinebuybiz@gmail.com
 
 - [x] **BitcoinTalk forum:** To send Inbox message [click here](https://bitcointalk.org/index.php?action=pm;sa=send;u=1782856)
 
-- [x] **WeChat:** goodthebest 
-
-For miningcore software installation or troubleshooting go here
-https://github.com/goodthebest/install-setup-configure-miningcore-mining-pool
 
 
 
