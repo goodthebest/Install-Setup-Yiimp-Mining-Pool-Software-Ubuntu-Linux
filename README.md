@@ -14,7 +14,7 @@
 ## Contact Now & Let Us Setup a Mining Pool For Any Algorithm & Cryptocoin Within Hours 
 #### _Whether you want to mine a single coin or several cyrptocurrencies solo, private with your friends & family, even public or Nicehash, cloud mining etc. We have solution for all._
 
-# HIRE THE SERVICES OF A YIIMP EXPERT, PROGRAMMER AND BLOCKCHAIR DEVELOPER , CONTACT NOW
+# HIRE THE SERVICES OF A YIIMP EXPERT, PROGRAMMER AND BLOCKCHAIN DEVELOPER , CONTACT NOW
 
 - [x]  **Discord:** `goodthebest` Open your Discard and go to **Friends** and then **Add Friend** (add `goodthebest`) and press **Send Friend Request** button.
 
