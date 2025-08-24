@@ -20,7 +20,8 @@
 
 ## WE ACCEPT CUSTOMIZED BLOCKCHAIN AND MINING POOL CODING ASSIGNMENTS, INDEPENNDENT CONTRACTORS AND FREELANCERS
 
-### Ubuntu 16.04, Ubuntu 18.04, Ubuntu 20.04, Ubuntu 22.04 and Ubuntu 24.04
+### Linux Operating Systems Compatible: Ubuntu 16.04, Ubuntu 18.04, Ubuntu 20.04, Ubuntu 22.04 and Ubuntu 24.04
+
 ### Install, Setup and Configure Yiimp Mining Pool Software to Start your Own Mining Pool for Multiple Crypto Tokens & Coins
 
 ### For paid personalized Yiimp multi coins pool setup services, troubleshooting existing pools and quick support please contact
@@ -48,6 +49,8 @@ We provide altcoin cryptocurrencies mining pool installation and creation servic
 - Configuration, troubleshooting of servers Linux/Ubuntu and existing pools, such as reject blocks, payouts not working, custom difficulty, vardiff, autoexchange, daemon and any other Yiimp pool problems we can fix and make your pool running for smooth mining.
 - Optimize and Tweak server and Yiimp software for improved performance.
 - Any special features or customization also possible at additional cost.
+
+Important Note: Yiimp server requires a Linux operating system based specifically on the Ubuntu distribution. It is not compatible with Windows, macOS (Apple), Android, iOS, or other mobile operating systems. Additionally, it does not support alternative Linux distributions such as CentOS, Fedora, Arch Linux, or Alpine.
 
 How Does it Work?
 ----------
