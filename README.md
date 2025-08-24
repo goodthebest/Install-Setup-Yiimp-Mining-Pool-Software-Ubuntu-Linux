@@ -1,9 +1,6 @@
 ## BUILDING CRYPTO MINING POOL YIIMP, LAUNCH YOUR OWN MINING POOL AND START MINING CRYPTOCURRENCIES OF YOUR CHOICE
 # HIRE THE SERVICES OF A YIIMP EXPERT, PROGRAMMER AND BLOCKCHAIN DEVELOPER , CONTACT NOW
 
-## Contact Now & Let Us Setup a Mining Pool For Any Algorithm & Cryptocoin Within Hours 
-#### _Whether you want to mine a single coin or several cyrptocurrencies solo, private with your friends & family, even public or Nicehash, cloud mining etc. We have solution for all._
-
 
 - [x]  **Discord:** `goodthebest` Open your Discard and go to **Friends** and then **Add Friend** (add `goodthebest`) and press **Send Friend Request** button.
 
@@ -12,6 +9,11 @@
 - [x]   **Email:**  onlinebuybiz@gmail.com
 
 - [x] **BitcoinTalk forum:** To send Inbox message [click here](https://bitcointalk.org/index.php?action=pm;sa=send;u=1782856)
+
+
+## Let Us Setup a Mining Pool For Any Algorithm & Cryptocoin Within Hours 
+#### _Whether you want to mine a single coin or several cyrptocurrencies solo, private with your friends & family, even public or Nicehash, cloud mining etc. We have solution for all._
+
 
 ## WE ACCEPT CUSTOMIZED BLOCKCHAIN AND MINING POOL CODING ASSIGNMENTS, INDEPENNDENT CONTRACTORS AND FREELANCERS
 
