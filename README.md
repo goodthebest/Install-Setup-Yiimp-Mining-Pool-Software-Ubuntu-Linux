@@ -24,14 +24,16 @@
 
 - [x] **BitcoinTalk forum:** To send Inbox message [click here](https://bitcointalk.org/index.php?action=pm;sa=send;u=1782856)
 
+## WE ACCEPT CUSTOMIZED BLOCKCHAIN AND MINING POOL CODING ASSIGNMENTS, INDEPENNDENT CONTRACTORS AND FREELANCERS 
 
+#### This initiative operates independently and is not associated with any third-party platforms including Upwork, Freelancer.com, LinkedIn, Fiverr, Stackoverflow, Reddit or comparable services.
 
 
 Install and Build Mining Pool for Any Cryptocurrency Altcoins and Algorithms on Yiimp (Multi Coins/Algo Mining Pool Software)
 ----------------
 
 We provide altcoin cryptocurrencies mining pool installation and creation services and you just sit back and let us take care of everything from scratch to finish that includes but not limited to 
-
+ 
 - Installation of your choice of cryptocurrency wallets/daemon for mining purpose
 - Setting up, configuring, administer and prepare server for yiiimp mining software to enable mining for your choice of coins
 - Whether you want a solo, private mining pool for personal mining or a mining pool to share with your friends or public
