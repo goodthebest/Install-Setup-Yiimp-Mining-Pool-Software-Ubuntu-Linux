@@ -50,7 +50,7 @@ We provide altcoin cryptocurrencies mining pool installation and creation servic
 - Any special features or customization also possible at additional cost.
 - Our experts bring firsthand, real-world experience—no reliance on generic tutorials, online courses, Udemy content, or secondhand information.
 
-Important Note: Yiimp server requires a Linux operating system based specifically on the Ubuntu distribution. It is not compatible with Windows, macOS (Apple), Android, iOS, or other mobile operating systems. Additionally, it does not support alternative Linux distributions such as CentOS, Fedora, Arch Linux, or Alpine.
+Important Note: Yiimp server requires a Linux operating system based specifically on the Ubuntu distribution. It is not compatible with Windows, macOS (Apple), Android, Raspberry Pi, iOS, or other mobile operating systems. Additionally, it does not support alternative Linux distributions such as CentOS, Fedora, Debian, Arch Linux, or Alpine.
 
 How Does it Work?
 ----------
