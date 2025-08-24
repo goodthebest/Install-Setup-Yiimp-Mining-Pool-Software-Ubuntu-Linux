@@ -1,19 +1,9 @@
-# BUILDING CRYPTO MINING POOL YIIMP, LAUNCH YOUR OWN MINING POOL AND START MINING CRYPTOCURRENCIES OF YOUR CHOICE
-### Ubuntu 16.04, Ubuntu 18.04, Ubuntu 20.04, Ubuntu 22.04 and Ubuntu 24.04
-
-### Install, Setup and Configure Yiimp Mining Pool Software to Start your Own Mining Pool for Multiple Crypto Tokens & Coins
-
-### For paid personalized Yiimp multi coins pool setup services, troubleshooting existing pools and quick support please contact
-
-### ASICBOOST enabled pool solution also available for Bitcoin and other coins, non-Yiimp solution though. If you want to set up an Asicboost-friendly mining pool that would mine Bitcoin with your own ASIC machines, NiceHash, or MiningRingRentals (MRR), and other SHA256 coins with Asicboost, feel free to ping us on the contacts below.
-
-
-### MWEB enabled merged mining pool solution also available for Litecoin/Dogecoin/Bellscoin and other coins. If you want to setup an MWEB friendly mining pool that would merged mine Litecoin and Dogecoin with your own asic machines or NiceHash or MiningRingRentals (MRR) and other Scrypt coins with MWEB, reach out to uswith below given contacts.
+## BUILDING CRYPTO MINING POOL YIIMP, LAUNCH YOUR OWN MINING POOL AND START MINING CRYPTOCURRENCIES OF YOUR CHOICE
+# HIRE THE SERVICES OF A YIIMP EXPERT, PROGRAMMER AND BLOCKCHAIN DEVELOPER , CONTACT NOW
 
 ## Contact Now & Let Us Setup a Mining Pool For Any Algorithm & Cryptocoin Within Hours 
 #### _Whether you want to mine a single coin or several cyrptocurrencies solo, private with your friends & family, even public or Nicehash, cloud mining etc. We have solution for all._
 
-# HIRE THE SERVICES OF A YIIMP EXPERT, PROGRAMMER AND BLOCKCHAIN DEVELOPER , CONTACT NOW
 
 - [x]  **Discord:** `goodthebest` Open your Discard and go to **Friends** and then **Add Friend** (add `goodthebest`) and press **Send Friend Request** button.
 
@@ -23,7 +13,17 @@
 
 - [x] **BitcoinTalk forum:** To send Inbox message [click here](https://bitcointalk.org/index.php?action=pm;sa=send;u=1782856)
 
-## WE ACCEPT CUSTOMIZED BLOCKCHAIN AND MINING POOL CODING ASSIGNMENTS, INDEPENNDENT CONTRACTORS AND FREELANCERS 
+## WE ACCEPT CUSTOMIZED BLOCKCHAIN AND MINING POOL CODING ASSIGNMENTS, INDEPENNDENT CONTRACTORS AND FREELANCERS
+
+### Ubuntu 16.04, Ubuntu 18.04, Ubuntu 20.04, Ubuntu 22.04 and Ubuntu 24.04
+### Install, Setup and Configure Yiimp Mining Pool Software to Start your Own Mining Pool for Multiple Crypto Tokens & Coins
+
+### For paid personalized Yiimp multi coins pool setup services, troubleshooting existing pools and quick support please contact
+
+### ASICBOOST enabled pool solution also available for Bitcoin and other coins, non-Yiimp solution though. If you want to set up an Asicboost-friendly mining pool that would mine Bitcoin with your own ASIC machines, NiceHash, or MiningRingRentals (MRR), and other SHA256 coins with Asicboost, feel free to ping us on the contacts below.
+
+
+### MWEB enabled merged mining pool solution also available for Litecoin/Dogecoin/Bellscoin and other coins. If you want to setup an MWEB friendly mining pool that would merged mine Litecoin and Dogecoin with your own asic machines or NiceHash or MiningRingRentals (MRR) and other Scrypt coins with MWEB, reach out to uswith below given contacts.
 
 #### This initiative operates independently and is not associated with any third-party platforms including Upwork, Freelancer.com, LinkedIn, Fiverr, Stackoverflow, Reddit or comparable services. Initial consultation and technical discussion regarding the Yiimp project are provided free of cost.
 
