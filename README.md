@@ -1,5 +1,5 @@
 # BUILDING CRYPTO MINING POOL YIIMP, LAUNCH YOUR OWN MINING POOL AND START MINING CRYPTOCURRENCIES OF YOUR CHOICE
-# Ubuntu Ubuntu 16.04, Ubuntu 18.04, Ubuntu 20.04, Ubuntu 22.04 and Ubuntu 24.04
+### Ubuntu 16.04, Ubuntu 18.04, Ubuntu 20.04, Ubuntu 22.04 and Ubuntu 24.04
 
 ### Install, Setup and Configure Yiimp Mining Pool Software to Start your Own Mining Pool for Multiple Crypto Tokens & Coins
 
