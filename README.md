@@ -2,13 +2,16 @@
 # HIRE THE SERVICES OF A YIIMP EXPERT, PROGRAMMER AND BLOCKCHAIN DEVELOPER , CONTACT NOW
 
 
-- [x]  **Discord:** `goodthebest` Open your Discard and go to **Friends** and then **Add Friend** (add `goodthebest`) and press **Send Friend Request** button.
+### 📬 Contact Info
 
-- [x]  **Telegram:** go to https://t.me/goodthebest
+- **Discord:** `goodthebest`  
+  → Open Discord → Friends → Add Friend → Paste `goodthebest` → Send Request
 
-- [x]   **Email:**  onlinebuybiz@gmail.com
+- **Telegram:** [t.me/goodthebest](https://t.me/goodthebest)
 
-- [x] **BitcoinTalk forum:** To send Inbox message [click here](https://bitcointalk.org/index.php?action=pm;sa=send;u=1782856)
+- **Email:** [onlinebuybiz@gmail.com](mailto:onlinebuybiz@gmail.com)
+
+- **BitcoinTalk:** [Send Inbox Message](https://bitcointalk.org/index.php?action=pm;sa=send;u=1782856)
 
 
 ## Let Us Setup a Mining Pool For Any Algorithm & Cryptocoin Within Hours 
