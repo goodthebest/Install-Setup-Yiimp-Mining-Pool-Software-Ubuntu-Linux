@@ -26,7 +26,7 @@
 
 ## WE ACCEPT CUSTOMIZED BLOCKCHAIN AND MINING POOL CODING ASSIGNMENTS, INDEPENNDENT CONTRACTORS AND FREELANCERS 
 
-#### This initiative operates independently and is not associated with any third-party platforms including Upwork, Freelancer.com, LinkedIn, Fiverr, Stackoverflow, Reddit or comparable services.
+#### This initiative operates independently and is not associated with any third-party platforms including Upwork, Freelancer.com, LinkedIn, Fiverr, Stackoverflow, Reddit or comparable services. Initial consultation and technical discussion regarding the Yiimp project are provided free of cost.
 
 
 Install and Build Mining Pool for Any Cryptocurrency Altcoins and Algorithms on Yiimp (Multi Coins/Algo Mining Pool Software)
