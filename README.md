@@ -21,7 +21,7 @@
 
 ### Linux Operating Systems Compatible: Ubuntu 16.04, Ubuntu 18.04, Ubuntu 20.04, Ubuntu 22.04 and Ubuntu 24.04
 
-### Install, Setup and Configure Yiimp Mining Pool Software to Start your Own Mining Pool for Multiple Crypto Tokens & Coins
+### Install, Setup and Configure Yiimp Mining Pool Software to Start your Own Mining Pool for Multiple Crypto Tokens & Coins. We can also setup mining pool for a new coin forked or cloned out of Bitcoin algo SHA256 POW, Blackcoin Scrypt POS, Litecoin Scrypt POW, Dash X11 etc.
 
 ### For paid personalized Yiimp multi coins pool setup services, troubleshooting existing pools and quick support please contact
 
