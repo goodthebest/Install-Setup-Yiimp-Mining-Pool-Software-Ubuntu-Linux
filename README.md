@@ -3,12 +3,13 @@
 
 ### 📬  Contact Info
 
-- **Telegram:** [t.me/goodthebest](https://t.me/goodthebest)
+- **Telegram:** [Click here to get in touch on Telegram](https://t.me/goodthebest)
 
 - **Email:** [onlinebuybiz@gmail.com](mailto:onlinebuybiz@gmail.com)
 
 - **Discord:** `goodthebest`  
   → Open Discord → Friends → Add Friend → Paste `goodthebest` → Send Request
+
 
 ## Let Us Setup a Mining Pool For Any Algorithm & Cryptocoin Within Hours 
 #### _Whether you want to mine a single coin or several cyrptocurrencies solo, private with your friends & family, even public or Nicehash, cloud mining etc. We have solution for all._
