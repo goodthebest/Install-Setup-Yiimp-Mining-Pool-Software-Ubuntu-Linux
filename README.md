@@ -1,7 +1,7 @@
 ## BUILDING CRYPTO MINING POOL YIIMP, LAUNCH YOUR OWN MINING POOL AND START MINING CRYPTOCURRENCIES OF YOUR CHOICE
 # HIRE THE SERVICES OF A YIIMP EXPERT, PROGRAMMER AND BLOCKCHAIN DEVELOPER , CONTACT NOW
 
-### 📬 Contact Info
+### 📬  Contact Info
 
 - **Discord:** `goodthebest`  
   → Open Discord → Friends → Add Friend → Paste `goodthebest` → Send Request
