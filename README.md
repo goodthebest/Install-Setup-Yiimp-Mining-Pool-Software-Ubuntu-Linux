@@ -89,7 +89,7 @@ Yiimp supports a wide range of algorithms for efficient crypto mining. Here's a 
 ## Supported Cryptocurrencies for Single or Multi-Algo Yiimp Mining Pools
 
 <details>
-<summary>**Supported Cryptocurrencies for Single or Multi‑Algo Yiimp Mining Pools** — We can configure Yiimp pools for most cryptocurrencies (with some exceptions). Here's an extensive list of supported coins for your mining pool setup:</summary>
+<summary>Supported Cryptocurrencies for Single or Multi‑Algo Yiimp Mining Pools — We can configure Yiimp pools for most cryptocurrencies (with some exceptions). Here's an extensive list of supported coins for your mining pool setup:</summary>
 
 | Crypto Mining | Cryptocurrencies | Mining Pools | Altcoin | MiningPool | Alt Currency | Crypto Coins |
 |---------------|------------------|--------------|---------|------------|--------------|--------------|
