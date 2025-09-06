@@ -85,9 +85,11 @@ Yiimp supports a wide range of algorithms for efficient crypto mining. Here's a 
 | yespowerr24| yespowerr32| yespowerurx| x11gost    | x13bcd     | x16r-v2    |
 | xevan      | Xelishash  |            |            |            |            |
 
+
 ## Supported Cryptocurrencies for Single or Multi-Algo Yiimp Mining Pools
 
-We can configure Yiimp pools for most cryptocurrencies (with some exceptions). Here's an extensive list of supported coins for your mining pool setup:
+<details>
+<summary>**Supported Cryptocurrencies for Single or Multi‑Algo Yiimp Mining Pools** — We can configure Yiimp pools for most cryptocurrencies (with some exceptions). Here's an extensive list of supported coins for your mining pool setup:</summary>
 
 | Crypto Mining | Cryptocurrencies | Mining Pools | Altcoin | MiningPool | Alt Currency | Crypto Coins |
 |---------------|------------------|--------------|---------|------------|--------------|--------------|
@@ -385,4 +387,6 @@ We can configure Yiimp pools for most cryptocurrencies (with some exceptions). H
 | Aces ACES | DynamicCoin DMC | Halloween Coin HALLO | Birds BIRDS | Wink WINK | Dutch Coin DUTCH | NEO GOLD NEOG |
 | GOLD Reward Token GRX | PlexCoin PLX | ValueChain VLC | SnipCoin SNIP | SalPay SAL | FCoin Token FT | CoinEx Token CET |
 | Luna Stars LSTR | Esports Token EST | ABCC Token AT | BFFDoom BFF | ALLCOIN ALC | ZTCoin ZT | Dragon Token DT |
-| APOT APOT | Bgogo Token BGG | WA Space WA | EtherDelta Token EDT | Bellscoin BEL | Bellcoin BELL 
+| APOT APOT | Bgogo Token BGG | WA Space WA | EtherDelta Token EDT | Bellscoin BEL | Bellcoin BELL
+
+</details>
