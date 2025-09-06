@@ -43,7 +43,7 @@ Launch your own mining pool with our end-to-end Yiimp setup services. Relax whil
 - Custom features or modifications at additional cost.
 - Backed by real-world expertise – no reliance on tutorials, online courses, or secondhand knowledge.
 
-**Important:** Yiimp requires Ubuntu Linux. It is incompatible with Windows, macOS, Android, Raspberry Pi, iOS, or other Linux distributions like CentOS, Fedora, Debian, Arch, or Alpine.
+**Important:** Yiimp pool software must be installed on an Ubuntu Linux distribution. It is not compatible with Windows, macOS, Android, Raspberry Pi, iOS, or alternative Linux distributions such as CentOS, Fedora, Debian, Arch, or Alpine. However, miners running any of these operating systems can still connect to a Yiimp pool.
 
 ## How Our Yiimp Mining Pool Setup Process Works
 
