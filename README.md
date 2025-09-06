@@ -15,7 +15,7 @@
 #### _Whether you want to mine a single coin or several cyrptocurrencies solo, private with your friends & family, even public or Nicehash, cloud mining etc. We have solution for all._
 
 
-## WE ACCEPT CUSTOMIZED BLOCKCHAIN AND MINING POOL CODING ASSIGNMENTS, INDEPENNDENT CONTRACTORS AND FREELANCERS
+## WE ACCEPT CUSTOMIZED BLOCKCHAIN AND MINING POOL CODING ASSIGNMENTS AS INDEPENNDENT CONTRACTORS AND FREELANCERS
 
 ### Linux Operating Systems Compatible: Ubuntu 16.04, Ubuntu 18.04, Ubuntu 20.04, Ubuntu 22.04 and Ubuntu 24.04
 
