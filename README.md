@@ -47,7 +47,13 @@ Launch your own mining pool with our end-to-end Yiimp setup services. Relax whil
 
 ## How Our Yiimp Mining Pool Setup Process Works
 
-No downloads or technical actions needed on your end. Our experts manage the entire process. You'll need a VPS, cloud instance (e.g., AWS), or dedicated server from providers like Digital Ocean, Vultr, Hetzner Cloud, Linode, or your own hardware. Minimum specs and Ubuntu version depend on your mining requirements – contact us for details.
+No downloads or technical actions needed on your end. Our experts manage the entire process. You'll need a VPS, cloud instance (e.g., AWS), or dedicated server from providers like Digital Ocean, Vultr, Hetzner Cloud, Linode, or your own hardware. Minimum specs and Ubuntu version depend on your mining requirements.
+
+📬 **For a quick consultation or custom quote, contact us directly:**  
+- Telegram: [https://t.me/goodthebest](https://t.me/goodthebest)  
+- Email: [onlinebuybiz@gmail.com](mailto:onlinebuybiz@gmail.com)  
+- Discord: `goodthebest`
+
 
 We work remotely via **TeamViewer** or **AnyDesk** for transparency (no direct server access required). Provide credentials if preferred, and we'll set up the pool – you can change passwords afterward.
 
