@@ -63,7 +63,7 @@ For personalized Yiimp multi-coin pool setup, troubleshooting, or quick support,
 ### 2.1. Advanced Yiimp Features Available:
 [⬆ Back to Top](#toc)
 
-- **ASICBoost-Enabled Pools:** Non-Yiimp solutions for Bitcoin and SHA-256 coins, supporting ASIC machines, NiceHash, or MRR.
+- **ASICBoost-Enabled Pools:** Non-Yiimp solutions for Bitcoin and SHA-256 coins, supporting ASIC machines, NiceHash, or MiningRigRentals.
 - **MWEB-Enabled Merged Mining Pools:** For Litecoin, Dogecoin, Bellscoin, and other Scrypt coins, compatible with ASIC hardware, NiceHash, or MRR.
 
 *Note:* This service is independent and not affiliated with platforms like Upwork, Freelancer.com, LinkedIn, Fiverr, Stack Overflow, Reddit, or similar. Initial consultations and technical discussions for Yiimp projects are free.
