@@ -57,6 +57,8 @@ We specialize in customized blockchain projects, including Yiimp mining pool mod
 
 Our expert team installs, configures, and launches Yiimp mining pool software to enable mining for multiple crypto tokens and coins. We also handle setups for new coins forked from Bitcoin (SHA-256 PoW), Blackcoin (Scrypt PoS), Litecoin (Scrypt PoW), Dash (X11), and more.
 
+Blackcoin's fork when mined on yiimp it might reject blocks, we do have a proper solution to this if your Blackcoin's clone is not accepting new blocks.
+
 For personalized Yiimp multi-coin pool setup, troubleshooting, or quick support, reach out via our contact details.
 
 <a id="21-advanced-features-available"></a>
