@@ -1,6 +1,6 @@
 <a id="readme"></a>
 
-# Expert Yiimp Mining Pool Setup Services: We Help you Install & Launch Your Own Crypto Mining Pool for Any Algorithm or Coin
+# Expert Yiimp Mining Pool Setup Services: We Help You Install Yiimp Crypto Mining Pool for Any Algorithm or Altcoins
 
 Hire a Professional Yiimp Expert, Blockchain Developer, and Programmer for Custom Mining Pool Solutions. Contact Us Today!
 
