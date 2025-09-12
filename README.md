@@ -24,7 +24,7 @@ Hire a Professional Yiimp Mining Pool Software Expert, Blockchain Developer, and
 <a id="table-of-contents"></a>
 ## 📑 Table of Contents
 
--  [📬 Contact Information](#01-contact-information)
+- [ 📬 Contact Information](#01-contact-information)
 
 - [Install & Set Up a Crypto Mining Pool on Yiimp Open Source Software for Any Cryptocurrency or Algorithm – Ready in Hours](#1-set-up-a-custom-yiimp-mining-pool-for-any-cryptocurrency-or-algorithm-ready-in-hours)
 
