@@ -10,7 +10,7 @@ Hire a Professional Yiimp Mining Pool Software Expert, Blockchain Developer, and
 
 
 <a id="01-contact-information"></a>
-### 0.1. 📬 Contact Information
+### 📬 Contact Information
 
 
 - **Telegram:** [Click Here to Connect on Telegram](https://t.me/goodthebest)
