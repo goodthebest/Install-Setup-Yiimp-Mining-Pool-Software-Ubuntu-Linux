@@ -1,7 +1,7 @@
 <a id="readme"></a>
 
 # Crypto Mining Pool Setup Services
-# Expert Yiimp Software: 
+# Mining Pool Software Expert: 
 ## We Can Install Crypto Mining Pool for Any Algorithm or Altcoins.
 ### This includes famous Bitcoin, Bitcoin Cash, Dogecoin, Litecoin, Digibyte and any other crypto altcoins of your choice, you just name it and we shall get it done for you.
 
